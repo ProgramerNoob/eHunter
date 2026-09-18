@@ -112,7 +112,7 @@ if (platform) {
 1. For each parser (ImgHtmlParser, IntroHtmlParser, ImgUrlListParser):
    - Document expected inputs/outputs from old implementation
    - Write new parser implementing AlbumService interface
-   - Test on real EH/NH pages using `chrome-devtools-mcp`
+   - Test on real EH/NH pages using `ego-browser`
    - Compare outputs with old implementation
    - Verify edge cases (missing elements, malformed HTML, network errors)
 

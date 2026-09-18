@@ -5,6 +5,7 @@ info:
   description: >-
     Contract for opening full-thumbnail modal, paginating by 100-page segments,
     and jumping to a selected page.
+    This is a logical contract for local reader UI behavior; example servers and paths do not represent deployed HTTP endpoints.
 servers:
   - url: https://ehunter.local
 paths:

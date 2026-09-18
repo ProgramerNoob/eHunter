@@ -5,8 +5,17 @@ description: "Task list for 书页模式翻页动效开关"
 
 # Tasks: 书页模式翻页动效开关
 
-**Input**: Design documents from `/specs/001-add-pageflip-toggle/`
-**Prerequisites**: `/Users/alex/Desktop/works/js/eHunter/specs/001-add-pageflip-toggle/plan.md`, `/Users/alex/Desktop/works/js/eHunter/specs/001-add-pageflip-toggle/spec.md`, `/Users/alex/Desktop/works/js/eHunter/specs/001-add-pageflip-toggle/research.md`, `/Users/alex/Desktop/works/js/eHunter/specs/001-add-pageflip-toggle/data-model.md`, `/Users/alex/Desktop/works/js/eHunter/specs/001-add-pageflip-toggle/contracts/page-turn-animation.openapi.yaml`
+**同步状态（2026-09-18）**：正文、模型、契约与验收步骤已同步 [已确认决策](../decisions/2026-09-18-reader-behavior.md) 第 2、3 节。本次仅更新文档；Phase 1–6、Checkpoint 及交付示例保留历史原文与勾选，不能证明新规则已实现或验收。T004/T006/T010/T025 的默认/回退规则、US1 默认拟真与 US3 无效回退的旧验收描述均以新决策为准；其他未冲突要求继续有效。
+
+## 2026-09-18 后续任务（当前）
+
+先完成设置组 T039–T040 的存储基础，再实现动效规则，最后统一验收；其余历史未完成任务仍需处理。
+
+- [ ] T035 在 `core/store/app.ts` 落实合法偏好优先、逐项补缺后按系统/设备初始化并保存实际值；保留合法旧默认，系统变化和保存其他设置不重算。
+- [ ] T036 按 `specs/001-add-pageflip-toggle/quickstart.md` 验证首次矩阵、所有合法旧值、坏值补缺、重开、用户选择与两个阅读模式回归；跨站存储用设置组矩阵，记录证据后更新任务。
+
+**Input**: Design documents from `specs/001-add-pageflip-toggle/`
+**Prerequisites**: `specs/001-add-pageflip-toggle/plan.md`, `specs/001-add-pageflip-toggle/spec.md`, `specs/001-add-pageflip-toggle/research.md`, `specs/001-add-pageflip-toggle/data-model.md`, `specs/001-add-pageflip-toggle/contracts/page-turn-animation.openapi.yaml`
 
 **Tests**: Spec 未显式要求先写自动化测试；本任务以类型检查 + 运行时手动验收为主。
 
@@ -58,7 +67,7 @@ description: "Task list for 书页模式翻页动效开关"
 - [X] T012 [US1] 在 `core/components/AlbumBookView.vue` 将翻页方向与 realistic 动效方向正确联动
 - [X] T013 [US1] 在 `core/store/event.ts` 处理高频翻页时“最新意图优先”并避免页码错乱
 - [X] T014 [US1] 在 `core/components/AlbumBookView.vue` 补齐首页/末页边界翻页保护与展示一致性
-- [X] T015 [US1] 运行 `npm run dev` 并使用 `chrome-devtools-mcp` 验收 US1 默认拟真翻页（覆盖点击/滚轮/键盘）
+- [X] T015 [US1] 运行 `npm run dev` 并通过浏览器验收 US1 默认拟真翻页（覆盖点击/滚轮/键盘）
 
 **Checkpoint**: User Story 1 is fully functional and independently testable
 
@@ -78,7 +87,7 @@ description: "Task list for 书页模式翻页动效开关"
 - [X] T019 [US2] 在 `core/components/AlbumBookView.vue` 实现 slide 模式动效（方向一致、过渡可见）
 - [X] T020 [US2] 在 `core/components/AlbumBookView.vue` 实现 none 模式（直接切页无过渡）
 - [X] T021 [US2] 在 `core/components/AlbumBookView.vue` 保证模式切换后从下一次翻页立即应用新模式
-- [X] T022 [US2] 运行 `npm run dev` 并使用 `chrome-devtools-mcp` 验收 US2 三档切换与边界行为
+- [X] T022 [US2] 运行 `npm run dev` 并通过浏览器验收 US2 三档切换与边界行为
 
 **Checkpoint**: User Stories 1 and 2 both work independently
 
@@ -97,7 +106,7 @@ description: "Task list for 书页模式翻页动效开关"
 - [X] T025 [US3] 在 `core/store/app.ts` 实现非法值校验与回退到 realistic 的自愈逻辑
 - [X] T026 [US3] 在 `core/store/app.ts` 初始化流程中接入偏好恢复，确保书页模式会话首次渲染即生效
 - [X] T027 [US3] 在 `core/store/app.ts` 明确偏好作用域为 global，禁止按画集/会话拆分
-- [X] T028 [US3] 运行 `npm run dev` 并使用 `chrome-devtools-mcp` 验收 US3 持久化与回退场景
+- [X] T028 [US3] 运行 `npm run dev` 并通过浏览器验收 US3 持久化与回退场景
 
 **Checkpoint**: All user stories are independently functional
 
@@ -111,8 +120,8 @@ description: "Task list for 书页模式翻页动效开关"
 - [ ] T030 [P] 更新交付说明与验证步骤 in `specs/001-add-pageflip-toggle/quickstart.md`
 - [X] T031 在 `core/components/AlbumBookView.vue` 清理无用过渡样式并统一命名
 - [ ] T032 在 `core/store/app.ts` 与 `core/components/TopBar.vue` 清理临时字段/分支并补充最小注释
-- [ ] T033 运行类型检查 `npm run type-check` in `/Users/alex/Desktop/works/js/eHunter`
-- [X] T034 运行 `npm run dev` 并使用 `chrome-devtools-mcp` 完成全量功能回归（US1+US2+US3）
+- [ ] T033 运行类型检查 `npm run type-check` in `.`
+- [X] T034 运行 `npm run dev` 并通过浏览器验收完成全量功能回归（US1+US2+US3）
 
 ---
 
@@ -136,7 +145,7 @@ description: "Task list for 书页模式翻页动效开关"
 ### Within Each User Story
 
 - 先完成 store/状态逻辑，再完成组件渲染与交互绑定
-- 完成代码后必须执行 `npm run dev` + `chrome-devtools-mcp` 手动验收
+- 完成代码后必须执行 `npm run dev` + `ego-browser` 手动验收
 - 每个故事通过独立验收后再进入下一个优先级
 
 ### Parallel Opportunities
@@ -180,7 +189,7 @@ Task: "T024 [US3] Implement preference persistence in core/store/app.ts"
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational
 3. Complete Phase 3: User Story 1
-4. Run `npm run dev` + `chrome-devtools-mcp` and validate US1 independently
+4. Run `npm run dev` + `ego-browser` and validate US1 independently
 5. Demo MVP behavior (default realistic page turn)
 
 ### Incremental Delivery
@@ -206,4 +215,4 @@ Task: "T024 [US3] Implement preference persistence in core/store/app.ts"
 
 - All tasks follow required checklist format with ID, optional `[P]`, and story label where applicable
 - User story tasks include concrete file paths and independently testable outcomes
-- Runtime validation (`npm run dev` + `chrome-devtools-mcp`) is mandatory per constitution
+- Runtime validation (`npm run dev` + `ego-browser`) is mandatory per constitution

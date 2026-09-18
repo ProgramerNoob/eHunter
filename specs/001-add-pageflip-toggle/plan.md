@@ -1,13 +1,21 @@
 # Implementation Plan: 书页模式翻页动效开关
 
-**Branch**: `001-add-pageflip-toggle` | **Date**: 2026-02-18 | **Spec**: `/Users/alex/Desktop/works/js/eHunter/specs/001-add-pageflip-toggle/spec.md`
-**Input**: Feature specification from `/specs/001-add-pageflip-toggle/spec.md`
+**Branch**: `001-add-pageflip-toggle` | **Date**: 2026-02-18 | **Spec**: `specs/001-add-pageflip-toggle/spec.md`
+**Input**: Feature specification from `specs/001-add-pageflip-toggle/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
 
 ## Summary
 
-为书页模式新增可配置翻页动效，提供并默认启用拟真翻页，同时支持平移翻页和无动效。实现采用统一翻页状态流（同一输入管线驱动三种动效）+ 全局偏好持久化策略，确保连续快速翻页下行为可预期、设置在会话间保持一致，且不影响卷轴模式。
+提供拟真、平移、无动效三个选项，共用翻页状态流与持久化逻辑。已同步 [2026-09-18 决策](../decisions/2026-09-18-reader-behavior.md) 第 2、3 节：先迁移合法偏好，无合法值才初始化为系统减少动态效果优先的无动效，否则桌面拟真、移动平移；保存实际结果，后续系统变化不重算。GM 在同浏览器同脚本安装内共享 EH/EX/NH 偏好，不可用时按 origin 降级。连续翻页与卷轴模式保持既有要求。
+
+### 当前实现差异与后续顺序
+
+代码核对基线为 `f3cd8a4`，本次只同步文档。`core/store/app.ts` 的 `getSystemPreferredPageTurnAnimationMode` 已优先检查系统减少动态效果，但否则统一返回拟真，尚未区分移动端平移；非法值归一化及统一设置恢复路径也未符合“逐项补缺后再默认”的完整规则。初始化结果的持久化、保存其他设置不改动动效，以及生产环境共享仍需实现核对和验收；不可从旧任务勾选推定通过。
+
+1. 先按 [设置计划](../002-more-settings-modal/plan.md) 落实 GM 能力、逐项迁移和重置防复活。
+2. 在现有 store 中统一动效初始化与恢复规则，保留所有合法旧值，包括旧默认值。
+3. 执行 [quickstart](./quickstart.md) 的设备/系统矩阵、用户选择及阅读回归；记录证据后更新后续任务。
 
 ## Technical Context
 
@@ -21,7 +29,7 @@
 **Primary Dependencies**: Vue 3 runtime, existing core widget components, existing i18n/store modules  
 **Storage**: 浏览器端偏好存储（优先 userscript storage，降级 localStorage）  
 **Testing**: `vue-tsc --noEmit` + 手动场景验收（书页模式交互）  
-**Target Platform**: 桌面浏览器中的 e-hentai/exhentai userscript 注入场景
+**Target Platform**: 桌面与移动浏览器中的 EH/EX/NH userscript 注入场景；先保证 EH 链路，跨站共享补验 EX/NH
 **Project Type**: 前端单项目（userscript UI）  
 **Performance Goals**: 翻页交互响应在 100ms 内触发可见结果；平移/拟真动效在常见桌面环境保持流畅（目标 55+ FPS）；无动效为即时切换  
 **Constraints**: 仅变更书页模式；快速连续翻页不得产生页码错乱；设置为全局偏好；需支持 reduced-motion 策略  

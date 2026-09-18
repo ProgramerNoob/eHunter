@@ -35,7 +35,7 @@ JP: [Link](https://github.com/hanFengSan/eHunter/blob/master/misc/iphone_ipad_jp
 ```
 |-eHunter
   |-src
-  |  |-main.ts               // 入口：初始化并挂载应用（当前以测试挂载为主）
+  |  |-main.ts               // 入口：识别平台，初始化 EH/NH/TEST 服务并挂载应用
   |  |-config.ts             // 运行时配置
   |  |-platform/             // 平台层（站点识别、初始化、平台服务工厂）
   |     |-detector.ts        // 域名/环境识别

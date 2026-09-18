@@ -1,9 +1,19 @@
 # Tasks: 统一更多设置弹窗
 
-**Input**: Design documents from `/Users/alex/Desktop/works/js/eHunter/specs/001-more-settings-modal/`
-**Prerequisites**: `/Users/alex/Desktop/works/js/eHunter/specs/001-more-settings-modal/plan.md`, `/Users/alex/Desktop/works/js/eHunter/specs/001-more-settings-modal/spec.md`, `/Users/alex/Desktop/works/js/eHunter/specs/001-more-settings-modal/research.md`, `/Users/alex/Desktop/works/js/eHunter/specs/001-more-settings-modal/data-model.md`, `/Users/alex/Desktop/works/js/eHunter/specs/001-more-settings-modal/contracts/settings-modal.openapi.yaml`
+**同步状态（2026-09-18）**：正文、模型、契约与验收步骤已同步 [已确认决策](../decisions/2026-09-18-reader-behavior.md) 第 2–4 节。本次仅更新文档；Phase 1–6、Checkpoint 及示例保留历史原文与勾选。T005/T008 的回退/存储及 T024/T033 的重置须按新规则核对，旧勾选不证明 GM 跨站共享、逐项迁移及重置防复活已通过；其他未冲突要求继续有效。
 
-**Tests**: Spec未要求先写自动化测试；本任务单以类型检查 + `npm run dev` + `chrome-devtools-mcp` 运行时验收为主。
+## 2026-09-18 后续任务（当前）
+
+先完成 T039，再完成 T040 与翻页组 T035、放大镜组后续实现，最后统一验收；其余历史未完成任务仍需处理。
+
+- [ ] T039 在 `vite.config.prod.ts`、`src/platform/base/service/PlatformService.js` 与 `core/store/app.ts` 核对并补齐 GM 存储能力、生产权限与按 origin 降级，保留旧数据用于回退。
+- [ ] T040 在 `core/store/app.ts` 实现逐项迁移、合法共享优先、统一旧值与独立旧值补缺、GM 恢复规则、幂等及重置防复活；维持既有二次确认语义。
+- [ ] T041 按 `specs/002-more-settings-modal/quickstart.md` 完成 EH/EX/NH 真实脚本环境的共享/降级矩阵、桌面移动弹窗回归与相关设置专项；记录证据后更新任务。
+
+**Input**: Design documents from `specs/002-more-settings-modal/`
+**Prerequisites**: `specs/002-more-settings-modal/plan.md`, `specs/002-more-settings-modal/spec.md`, `specs/002-more-settings-modal/research.md`, `specs/002-more-settings-modal/data-model.md`, `specs/002-more-settings-modal/contracts/settings-modal.openapi.yaml`
+
+**Tests**: Spec未要求先写自动化测试；本任务单以类型检查 + `npm run dev` + `ego-browser` 运行时验收为主。
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -17,9 +27,9 @@
 
 **Purpose**: 对齐统一设置弹窗的文档契约与实现入口，建立开发骨架。
 
-- [X] T001 Create unified settings component scaffold in `/Users/alex/Desktop/works/js/eHunter/core/components/MoreSettingsDialog.vue`
-- [X] T002 [P] Add placeholder icon asset for more-settings entry in `/Users/alex/Desktop/works/js/eHunter/core/assets/svg/more-settings.svg`
-- [X] T003 [P] Add i18n keys scaffold for modal categories/actions in `/Users/alex/Desktop/works/js/eHunter/core/assets/i18n.ts`
+- [X] T001 Create unified settings component scaffold in `core/components/MoreSettingsDialog.vue`
+- [X] T002 [P] Add placeholder icon asset for more-settings entry in `core/assets/svg/more-settings.svg`
+- [X] T003 [P] Add i18n keys scaffold for modal categories/actions in `core/assets/i18n.ts`
 
 ---
 
@@ -29,12 +39,12 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Define settings category and item metadata model in `/Users/alex/Desktop/works/js/eHunter/core/store/app.ts`
-- [X] T005 Implement schema-versioned preference snapshot and invalid-value fallback in `/Users/alex/Desktop/works/js/eHunter/core/store/app.ts`
-- [X] T006 Implement global quick-setting order data model with pinned reading-mode rule in `/Users/alex/Desktop/works/js/eHunter/core/store/app.ts`
-- [X] T007 Add modal open/close and active-category state/actions in `/Users/alex/Desktop/works/js/eHunter/core/store/app.ts`
-- [X] T008 [P] Wire userscript-first persistence fallback path for new settings keys in `/Users/alex/Desktop/works/js/eHunter/src/platform/base/service/PlatformService.js`
-- [X] T009 [P] Define factory-reset operation states and error feedback model in `/Users/alex/Desktop/works/js/eHunter/core/store/app.ts`
+- [X] T004 Define settings category and item metadata model in `core/store/app.ts`
+- [X] T005 Implement schema-versioned preference snapshot and invalid-value fallback in `core/store/app.ts`
+- [X] T006 Implement global quick-setting order data model with pinned reading-mode rule in `core/store/app.ts`
+- [X] T007 Add modal open/close and active-category state/actions in `core/store/app.ts`
+- [X] T008 [P] Wire userscript-first persistence fallback path for new settings keys in `src/platform/base/service/PlatformService.js`
+- [X] T009 [P] Define factory-reset operation states and error feedback model in `core/store/app.ts`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -48,14 +58,14 @@
 
 ### Implementation for User Story 1
 
-- [X] T010 [US1] Add new more-settings icon button and click binding in `/Users/alex/Desktop/works/js/eHunter/core/components/TopBar.vue`
-- [X] T011 [US1] Remove legacy second-row more-settings expand behavior in `/Users/alex/Desktop/works/js/eHunter/core/components/TopBar.vue`
-- [X] T012 [US1] Mount `MoreSettingsDialog` from top bar and bind visibility state in `/Users/alex/Desktop/works/js/eHunter/core/components/TopBar.vue`
-- [X] T013 [US1] Implement two-column modal shell and section anchor layout in `/Users/alex/Desktop/works/js/eHunter/core/components/MoreSettingsDialog.vue`
-- [X] T014 [US1] Implement smooth category jump and active-category highlight sync in `/Users/alex/Desktop/works/js/eHunter/core/components/MoreSettingsDialog.vue`
-- [X] T015 [US1] Implement responsive behavior (desktop two-column, narrow-screen compact category jump) in `/Users/alex/Desktop/works/js/eHunter/core/components/MoreSettingsDialog.vue`
-- [X] T016 [US1] Update top-bar and modal interaction style rules in `/Users/alex/Desktop/works/js/eHunter/core/components/TopBar.vue`
-- [X] T017 [US1] Validate US1 runtime flow with dev server and browser checks in `/Users/alex/Desktop/works/js/eHunter/specs/001-more-settings-modal/quickstart.md`
+- [X] T010 [US1] Add new more-settings icon button and click binding in `core/components/TopBar.vue`
+- [X] T011 [US1] Remove legacy second-row more-settings expand behavior in `core/components/TopBar.vue`
+- [X] T012 [US1] Mount `MoreSettingsDialog` from top bar and bind visibility state in `core/components/TopBar.vue`
+- [X] T013 [US1] Implement two-column modal shell and section anchor layout in `core/components/MoreSettingsDialog.vue`
+- [X] T014 [US1] Implement smooth category jump and active-category highlight sync in `core/components/MoreSettingsDialog.vue`
+- [X] T015 [US1] Implement responsive behavior (desktop two-column, narrow-screen compact category jump) in `core/components/MoreSettingsDialog.vue`
+- [X] T016 [US1] Update top-bar and modal interaction style rules in `core/components/TopBar.vue`
+- [X] T017 [US1] Validate US1 runtime flow with dev server and browser checks in `specs/002-more-settings-modal/quickstart.md`
 
 **Checkpoint**: User Story 1 is fully functional and independently testable
 
@@ -69,15 +79,15 @@
 
 ### Implementation for User Story 2
 
-- [X] T018 [P] [US2] Add missing category and setting labels/tips for CN/EN/JP in `/Users/alex/Desktop/works/js/eHunter/core/assets/i18n.ts`
-- [X] T019 [US2] Render General section controls (language, load number, auto source retry) in `/Users/alex/Desktop/works/js/eHunter/core/components/MoreSettingsDialog.vue`
-- [X] T020 [US2] Render Scroll Mode section controls from existing configurable set in `/Users/alex/Desktop/works/js/eHunter/core/components/MoreSettingsDialog.vue`
-- [X] T021 [US2] Render Book Mode section controls from existing configurable set in `/Users/alex/Desktop/works/js/eHunter/core/components/MoreSettingsDialog.vue`
-- [X] T022 [US2] Render Other section with github link and version display in `/Users/alex/Desktop/works/js/eHunter/core/components/MoreSettingsDialog.vue`
-- [X] T023 [US2] Implement confirm-before-execute factory-reset dialog flow in `/Users/alex/Desktop/works/js/eHunter/core/components/MoreSettingsDialog.vue`
-- [X] T024 [US2] Execute clear-cache plus reset-all-settings action and state refresh in `/Users/alex/Desktop/works/js/eHunter/core/store/app.ts`
-- [ ] T025 [US2] Reuse existing EH cache clear integration for reset operation in `/Users/alex/Desktop/works/js/eHunter/src/platform/eh/service/AlbumCacheService.ts`
-- [X] T026 [US2] Validate US2 runtime flow with category completeness and reset confirmation checks in `/Users/alex/Desktop/works/js/eHunter/specs/001-more-settings-modal/quickstart.md`
+- [X] T018 [P] [US2] Add missing category and setting labels/tips for CN/EN/JP in `core/assets/i18n.ts`
+- [X] T019 [US2] Render General section controls (language, load number, auto source retry) in `core/components/MoreSettingsDialog.vue`
+- [X] T020 [US2] Render Scroll Mode section controls from existing configurable set in `core/components/MoreSettingsDialog.vue`
+- [X] T021 [US2] Render Book Mode section controls from existing configurable set in `core/components/MoreSettingsDialog.vue`
+- [X] T022 [US2] Render Other section with github link and version display in `core/components/MoreSettingsDialog.vue`
+- [X] T023 [US2] Implement confirm-before-execute factory-reset dialog flow in `core/components/MoreSettingsDialog.vue`
+- [X] T024 [US2] Execute clear-cache plus reset-all-settings action and state refresh in `core/store/app.ts`
+- [ ] T025 [US2] Reuse existing EH cache clear integration for reset operation in `src/platform/eh/service/AlbumCacheService.ts`
+- [X] T026 [US2] Validate US2 runtime flow with category completeness and reset confirmation checks in `specs/002-more-settings-modal/quickstart.md`
 
 **Checkpoint**: User Stories 1 and 2 both work independently
 
@@ -91,14 +101,14 @@
 
 ### Implementation for User Story 3
 
-- [X] T027 [US3] Build quick-settings management section UI in `/Users/alex/Desktop/works/js/eHunter/core/components/MoreSettingsDialog.vue`
-- [X] T028 [US3] Enforce pinned reading-mode item constraints (always selected, fixed order 0) in `/Users/alex/Desktop/works/js/eHunter/core/store/app.ts`
-- [X] T029 [US3] Implement non-pinned item selection toggle persistence in `/Users/alex/Desktop/works/js/eHunter/core/store/app.ts`
-- [X] T030 [US3] Implement drag-and-drop reorder for selected quick items in `/Users/alex/Desktop/works/js/eHunter/core/components/MoreSettingsDialog.vue`
-- [X] T031 [US3] Apply global-order plus current-mode filter projection for top quick bar in `/Users/alex/Desktop/works/js/eHunter/core/components/TopBar.vue`
-- [X] T032 [US3] Sync quick-action display source with new preference model in `/Users/alex/Desktop/works/js/eHunter/core/components/QuickActionList.vue`
-- [X] T033 [US3] Add reset/fallback handling for invalid quick-order snapshots in `/Users/alex/Desktop/works/js/eHunter/core/store/app.ts`
-- [X] T034 [US3] Validate US3 runtime flow for ordering/filtering/pinned-item rules in `/Users/alex/Desktop/works/js/eHunter/specs/001-more-settings-modal/quickstart.md`
+- [X] T027 [US3] Build quick-settings management section UI in `core/components/MoreSettingsDialog.vue`
+- [X] T028 [US3] Enforce pinned reading-mode item constraints (always selected, fixed order 0) in `core/store/app.ts`
+- [X] T029 [US3] Implement non-pinned item selection toggle persistence in `core/store/app.ts`
+- [X] T030 [US3] Implement drag-and-drop reorder for selected quick items in `core/components/MoreSettingsDialog.vue`
+- [X] T031 [US3] Apply global-order plus current-mode filter projection for top quick bar in `core/components/TopBar.vue`
+- [X] T032 [US3] Sync quick-action display source with new preference model in `core/components/TopBar.vue` (`topBarFields` consumes `computedVisibleQuickSettingIds` from `core/store/app.ts`)
+- [X] T033 [US3] Add reset/fallback handling for invalid quick-order snapshots in `core/store/app.ts`
+- [X] T034 [US3] Validate US3 runtime flow for ordering/filtering/pinned-item rules in `specs/002-more-settings-modal/quickstart.md`
 
 **Checkpoint**: All user stories are independently functional
 
@@ -108,10 +118,10 @@
 
 **Purpose**: 完成跨故事一致性、文档回填与最终验收。
 
-- [X] T035 [P] Normalize modal visual spacing, typography, and responsive polish in `/Users/alex/Desktop/works/js/eHunter/core/components/MoreSettingsDialog.vue`
-- [ ] T036 [P] Clean up obsolete i18n keys/usages related to removed second-row settings in `/Users/alex/Desktop/works/js/eHunter/core/assets/i18n.ts`
-- [ ] T037 Run type validation for final changes with `npm run type-check` from `/Users/alex/Desktop/works/js/eHunter/package.json`
-- [X] T038 Run runtime verification with `npm run dev` and browser checks documented in `/Users/alex/Desktop/works/js/eHunter/specs/001-more-settings-modal/quickstart.md`
+- [X] T035 [P] Normalize modal visual spacing, typography, and responsive polish in `core/components/MoreSettingsDialog.vue`
+- [ ] T036 [P] Clean up obsolete i18n keys/usages related to removed second-row settings in `core/assets/i18n.ts`
+- [ ] T037 Run type validation for final changes with `npm run type-check` from `package.json`
+- [X] T038 Run runtime verification with `npm run dev` and browser checks documented in `specs/002-more-settings-modal/quickstart.md`
 
 ---
 
@@ -151,22 +161,22 @@
 ## Parallel Example: User Story 1
 
 ```bash
-Task: "T013 Implement two-column modal shell in /Users/alex/Desktop/works/js/eHunter/core/components/MoreSettingsDialog.vue"
-Task: "T016 Update top-bar and modal interaction style rules in /Users/alex/Desktop/works/js/eHunter/core/components/TopBar.vue"
+Task: "T013 Implement two-column modal shell in core/components/MoreSettingsDialog.vue"
+Task: "T016 Update top-bar and modal interaction style rules in core/components/TopBar.vue"
 ```
 
 ## Parallel Example: User Story 2
 
 ```bash
-Task: "T018 Add missing category and setting labels in /Users/alex/Desktop/works/js/eHunter/core/assets/i18n.ts"
-Task: "T022 Render Other section with github/version in /Users/alex/Desktop/works/js/eHunter/core/components/MoreSettingsDialog.vue"
+Task: "T018 Add missing category and setting labels in core/assets/i18n.ts"
+Task: "T022 Render Other section with github/version in core/components/MoreSettingsDialog.vue"
 ```
 
 ## Parallel Example: User Story 3
 
 ```bash
-Task: "T029 Implement quick-item selection persistence in /Users/alex/Desktop/works/js/eHunter/core/store/app.ts"
-Task: "T030 Implement drag-and-drop reorder in /Users/alex/Desktop/works/js/eHunter/core/components/MoreSettingsDialog.vue"
+Task: "T029 Implement quick-item selection persistence in core/store/app.ts"
+Task: "T030 Implement drag-and-drop reorder in core/components/MoreSettingsDialog.vue"
 ```
 
 ---
@@ -202,4 +212,4 @@ Task: "T030 Implement drag-and-drop reorder in /Users/alex/Desktop/works/js/eHun
 - Every task line follows required checklist format with Task ID and file path.
 - [P] tasks are parallel-safe by file/dependency separation.
 - [USx] labels are used only in user story phases.
-- Runtime validation (`npm run dev` + `chrome-devtools-mcp`) is mandatory before completion.
+- Runtime validation (`npm run dev` + `ego-browser`) is mandatory before completion.

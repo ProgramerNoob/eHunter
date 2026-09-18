@@ -14,7 +14,7 @@
 npm run dev
 ```
 
-2. Open the reader page and verify runtime behavior with `chrome-devtools-mcp`.
+2. Open the reader page and verify runtime behavior with [ego-browser](../../.pi/browser-testing.md); follow the linked guide for common operations.
 
 ## Validation Checklist
 

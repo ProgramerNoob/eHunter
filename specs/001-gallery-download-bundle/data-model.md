@@ -8,7 +8,7 @@
   - `albumId` (string, required): Gallery identity from album service.
   - `albumTitle` (string, required): Original gallery title.
   - `sanitizedBaseName` (string, required): Cross-platform safe filename base.
-  - `introUrl` (string, required): Intro HTML URL written to YAML.
+  - `introUrl` (string, required): Intro HTML URL written to `metadata.json`.
   - `totalPages` (number, required): Total gallery page count.
   - `chunkSize` (number, required): Effective chunk size after validation.
   - `totalChunks` (number, required): Computed from `totalPages/chunkSize`.
@@ -33,7 +33,7 @@
   - `imageCount` (number, required): Count of successful image files in this chunk.
   - `failedPageNumbers` (number[], required): Pages that failed in this chunk.
   - `zipFileName` (string, required): Final downloadable file name.
-  - `yamlFileName` (string, required): Metadata file name bundled in zip.
+  - `metadataFileName` (string, required): Fixed archive entry name `metadata.json` at the ZIP root; a conceptual artifact field, not an added runtime status property.
 - Validation rules:
   - `startPage <= endPage`.
   - `chunkIndex` MUST be within `[1, totalChunks]`.
@@ -55,20 +55,23 @@
   - Each stage allows maximum 3 attempts (initial + 2 retries).
   - `result=success` requires non-empty `extension` and resolved source URL.
 
-## 4) GalleryMetadataYaml
+## 4) GalleryMetadataJson
 
-- Description: Metadata document included in every chunk archive.
-- Fields:
-  - `introUrl` (string, required)
-  - `galleryTitle` (string, required)
-  - `totalPages` (number, required)
-  - `downloadTime` (datetime string, required)
-  - `eHunterVersion` (string, required)
-  - `totalChunks` (number, required)
-  - `chunkIndex` (number, required)
+- Description: UTF-8 JSON document named `metadata.json` in every ZIP archive, including single-chunk exports. This replaces the historical YAML model under the [2026-09-18 decision, section 1](../decisions/2026-09-18-reader-behavior.md#1-下载格式).
+- Fields (exactly these seven; all required):
+  - `introUrl` (string): Gallery intro HTML URL.
+  - `galleryTitle` (string): Original gallery title, before ZIP filename sanitization.
+  - `totalPages` (integer): Total gallery page count, at least 1 for an exported archive.
+  - `downloadTime` (datetime string): Timestamp captured once for the task, readable and parseable with an explicit timezone.
+  - `eHunterVersion` (string): eHunter version recorded for the task.
+  - `totalChunks` (integer): Planned number of ZIP chunks, at least 1.
+  - `chunkIndex` (integer): 1-based index of the current ZIP chunk.
 - Validation rules:
-  - `chunkIndex` MUST align with actual chunk file.
-  - `downloadTime` MUST be task-local captured timestamp for traceability.
+  - Every archive MUST include a complete, independently parseable metadata object; JSON is the single metadata format.
+  - `totalChunks = ceil(totalPages / effectiveChunkSize)` and `1 <= chunkIndex <= totalChunks`; the index MUST align with the actual chunk file.
+  - A single-chunk export MUST carry `totalChunks=1` and `chunkIndex=1`.
+  - Task-level fields, including `downloadTime`, MUST remain consistent across chunks; only `chunkIndex` changes.
+  - The existing user-local-time assumption in `spec.md` remains applicable. The current producer uses UTC ISO 8601 (`toISOString()`); the unresolved difference is recorded in `plan.md`.
 
 ## 5) StatusNotification
 
@@ -92,7 +95,7 @@
 
 - A `DownloadTask` has one or many `DownloadChunk`.
 - A `DownloadChunk` contains many `ImageDownloadItem` records for its page window.
-- Each `DownloadChunk` emits one `GalleryMetadataYaml` snapshot.
+- Each `DownloadChunk` emits one `GalleryMetadataJson` snapshot as `metadata.json`, serialized with native JSON and encoded/packaged using existing `fflate`.
 - A `DownloadTask` drives one or many `StatusNotification` updates over lifecycle.
 
 ## State Transitions

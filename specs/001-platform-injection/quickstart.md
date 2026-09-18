@@ -322,7 +322,7 @@ switch (platform) {
    npm run dev
    ```
 
-2. **Test each platform** using `chrome-devtools-mcp`:
+2. **Test each platform** using [ego-browser](../../.pi/browser-testing.md) (follow the linked guide for common operations):
    - [ ] EH: Navigate to `e-hentai.org/g/[gallery-id]`
    - [ ] EH: Navigate to `exhentai.org/s/[page-id]`
    - [ ] NH: Navigate to `nhentai.net/g/[gallery-id]/1/`

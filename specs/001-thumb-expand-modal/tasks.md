@@ -1,9 +1,9 @@
 # Tasks: Thumb Expand Modal
 
-**Input**: Design documents from `/specs/001-thumb-expand-modal/`
+**Input**: Design documents from `specs/001-thumb-expand-modal/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/, quickstart.md
 
-**Tests**: 规格未要求先写自动化测试；本任务单以实现与手动验收为主，并保留 `npm run type-check`、`npm run dev`、`chrome-devtools-mcp` 验证任务。
+**Tests**: 规格未要求先写自动化测试；本任务单以实现与手动验收为主，并保留 `npm run type-check`、`npm run dev`、`ego-browser` 验证任务。
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -98,7 +98,7 @@
 
 - [X] T023 [P] Align `spec.md` and quick verification notes with final behavior in `specs/001-thumb-expand-modal/quickstart.md`
 - [X] T024 Run static type validation with `npm run type-check` from project root using `package.json`
-- [X] T025 Run runtime verification with `npm run dev` and browser flow checks via `chrome-devtools-mcp`, then record results in `specs/001-thumb-expand-modal/quickstart.md`
+- [X] T025 Run `npm run dev` and perform browser verification of runtime flows, then record results in `specs/001-thumb-expand-modal/quickstart.md`
 - [X] T026 Verify no unintended changes outside planned files using `specs/001-thumb-expand-modal/plan.md` as scope baseline
 
 ---
@@ -173,7 +173,7 @@ Task: "T018 [P] [US3] Implement segment slicing helpers in core/model/thumbExpan
 
 1. Complete Phase 1 and Phase 2
 2. Complete Phase 3 (US1)
-3. Validate US1 independently with `npm run dev` + `chrome-devtools-mcp`
+3. Validate US1 independently with `npm run dev` + `ego-browser`
 4. Demo/commit MVP
 
 ### Incremental Delivery
@@ -198,4 +198,4 @@ Task: "T018 [P] [US3] Implement segment slicing helpers in core/model/thumbExpan
 - [P] tasks = different files, no blocking dependency on incomplete tasks
 - [USx] labels keep traceability to user stories and acceptance criteria
 - Avoid changes to `core_old/` and `old/`
-- Final completion requires runtime verification (`npm run dev` + `chrome-devtools-mcp`)
+- Final completion requires runtime verification (`npm run dev` + `ego-browser`)

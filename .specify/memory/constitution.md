@@ -1,22 +1,17 @@
 <!--
 Sync Impact Report
-- Version change: template -> 1.0.0
-- Modified principles:
-  - Template Principle 1 -> I. Refactor-First Boundaries
-  - Template Principle 2 -> II. Behavior-Preserving Changes
-  - Template Principle 3 -> III. Validation Before Completion (NON-NEGOTIABLE)
-  - Template Principle 4 -> IV. Story-Independent Delivery
-  - Template Principle 5 -> V. Built-in UI and Mode Consistency
-- Added sections:
-  - Additional Constraints
-  - Development Workflow & Quality Gates
-- Removed sections: None
-- Templates requiring updates:
-  - ✅ updated: /Users/alex/Desktop/works/js/eHunter/.specify/templates/plan-template.md
-  - ✅ updated: /Users/alex/Desktop/works/js/eHunter/.specify/templates/tasks-template.md
-  - ✅ updated: /Users/alex/Desktop/works/js/eHunter/.specify/templates/spec-template.md
-  - ⚠ pending: .specify/templates/commands/*.md (directory not present; no files to update)
-  - ✅ updated: /Users/alex/Desktop/works/js/eHunter/AGENTS.md
+- Version change: 1.0.0 -> 1.0.1 (2026-09-18)
+- Change request: user-approved migration of project browser verification to ego-browser.
+- Modified principles: III. Validation Before Completion — browser tooling updated;
+  required end-to-end verification and acceptance criteria are preserved.
+- Added/removed principles or sections: None
+- Propagation:
+  - updated: AGENTS.md, .pi/skills/eh-test/SKILL.md
+  - added: .pi/browser-testing.md (shared browser operations)
+  - updated: 30 specs documents; completed checks and historical results retain their
+    dates, status, and outcomes using tool-neutral browser-verification wording.
+  - reviewed: .specify/templates/*.md and .pi/prompts/*.md; no old browser-tool references
+    requiring updates.
 - Follow-up TODOs: None
 -->
 
@@ -45,8 +40,10 @@ multiple platform paths.
 
 ### III. Validation Before Completion (NON-NEGOTIABLE)
 
-After each development completion cycle, contributors MUST run `npm run dev` and MUST
-use `chrome-devtools-mcp` to open the page and verify the changed behavior end-to-end.
+After each development completion cycle, contributors MUST verify the changed behavior
+end-to-end using `ego-browser`, following [the browser testing guide](../../.pi/browser-testing.md)
+and the scope-specific requirements in AGENTS.md: run `npm run dev` for local UI changes;
+use the `eh-test` skill and the production build on EH for platform changes.
 A task is NOT complete until this manual verification is performed and the result is
 documented in the feature notes, task output, or PR description.
 
@@ -86,8 +83,8 @@ and dependency drift.
 2. Every implementation plan MUST include a Constitution Check section mapping the feature
    to all five core principles.
 3. Task lists MUST include explicit validation tasks for:
-   - `npm run dev`
-   - browser verification via `chrome-devtools-mcp`
+   - `npm run dev` for local UI changes, or the `eh-test` production-build flow for platform changes
+   - browser verification via `ego-browser`
 4. Before handoff, contributors MUST confirm:
    - acceptance scenarios pass
    - required manual runtime checks pass
@@ -113,4 +110,4 @@ Compliance expectations:
   explicit justification.
 - Unjustified violations MUST block progression to implementation completion.
 
-**Version**: 1.0.0 | **Ratified**: 2026-02-18 | **Last Amended**: 2026-02-18
+**Version**: 1.0.1 | **Ratified**: 2026-02-18 | **Last Amended**: 2026-09-18

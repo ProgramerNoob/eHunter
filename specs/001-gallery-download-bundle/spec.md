@@ -3,7 +3,10 @@
 **Feature Branch**: `001-gallery-download-bundle`  
 **Created**: 2026-02-22  
 **Status**: Draft  
+**状态注**：Draft 表示规格生命周期；`tasks.md` 的勾选记录历史进度，均不代表当前 HEAD 已验收。涉及本功能的行为改动，须按 [quickstart.md](./quickstart.md) 重新验收。
 **Input**: User description: "DownloadConfirmDialog中点击确定时，触发下载功能，要求如下：包含图片打包下载、YAML元信息、进度状态通知、分片压缩、失败重试与换源策略。"
+
+**决策更新（2026-09-18）**：本规格组的有效正文、模型、计划、契约及验收步骤已按 [已确认决策第 1 节](../decisions/2026-09-18-reader-behavior.md#1-下载格式) 同步：每个 ZIP 使用 UTF-8 `metadata.json` 七字段，沿用 `fflate`。原始 Input 与历史研究/任务中的 YAML、`jszip`/`yaml` 约定已被替代，原文仅保留演进背景；其余要求继续有效。实现核对与产物验收在 [tasks.md](./tasks.md#2026-09-18-d03-决策验收) 单独追踪，历史勾选不代表新决策已验收。
 
 ## Clarifications
 
@@ -13,7 +16,7 @@
 
 ## User Scenarios & Testing *(mandatory)*
 
-**Validation Note**: For each completed development cycle, run `npm run dev` and verify changed behavior in browser using `chrome-devtools-mcp` before marking work complete.
+**Validation Note**: For each completed development cycle, run `npm run dev` and verify changed behavior in browser using `ego-browser` before marking work complete.
 
 ### User Story 1 - 一键下载画廊压缩包 (Priority: P1)
 
@@ -21,13 +24,13 @@
 
 **Why this priority**: 这是核心业务价值，若无法稳定导出离线包，本功能整体无意义。
 
-**Independent Test**: 在有 20-50 页的画廊中触发下载，验证下载产物可打开，图片按页码命名且 YAML 信息完整。
+**Independent Test**: 在有 20-50 页的画廊中触发下载，验证下载产物可打开，图片按页码命名且 UTF-8 `metadata.json` 七字段完整，单包的 `totalChunks`、`chunkIndex` 均为 1。
 
 **Acceptance Scenarios**:
 
 1. **Given** 用户打开 DownloadConfirmDialog 且画廊可访问, **When** 用户点击确定, **Then** 系统开始顺序下载图片并最终触发压缩包下载。
 2. **Given** 图片下载成功, **When** 压缩包生成后, **Then** 压缩包内图片文件名按页码零填充编号（如 `001.jpg`、`002.webp`）且扩展名与图片格式一致。
-3. **Given** 画廊页数超过单包分片阈值, **When** 下载完成, **Then** 系统触发多个分片压缩包下载，每个分片均包含对应 YAML 文件。
+3. **Given** 画廊页数超过单包分片阈值, **When** 下载完成, **Then** 系统触发多个分片压缩包下载，每个分片均包含独立的 UTF-8 `metadata.json`，七字段完整且 `totalChunks`、`chunkIndex` 与实际分包一致。
 
 ---
 
@@ -76,9 +79,9 @@
 - **FR-001**: 系统 MUST 在 DownloadConfirmDialog 点击确定后启动下载任务，并按画廊页码顺序逐张处理图片。
 - **FR-002**: 系统 MUST 将下载图片写入压缩包，图片文件名使用固定宽度零填充页码编号，最小宽度为 3 位（例如 `001`、`045`、`300`）。
 - **FR-003**: 系统 MUST 保留每张图片的实际格式扩展名（如 `.jpg`、`.webp`），不得统一强制转换格式。
-- **FR-004**: 系统 MUST 在每个压缩包中写入一个 YAML 元信息文件，至少包含：intro HTML URL、画廊标题、画廊总页数、下载时间、eHunter 版本号。
+- **FR-004**: 系统 MUST 在每个 ZIP 压缩包根目录写入一个 UTF-8 `metadata.json` 元信息文件，字段固定为：`introUrl`（intro HTML URL）、`galleryTitle`（画廊标题）、`totalPages`（画廊总页数）、`downloadTime`（下载时间）、`eHunterVersion`（eHunter 版本号）、`totalChunks`（总分片数量）、`chunkIndex`（当前分片索引）。元信息采用 JSON 单格式。
 - **FR-005**: 系统 MUST 支持下载分片配置项，默认值为 200；当总页数超过分片大小时，系统必须按顺序拆分为多个压缩包下载。
-- **FR-006**: 系统 MUST 在分片下载模式下，于 YAML 元信息中新增并填写总分片数量与当前分片索引。
+- **FR-006**: 系统 MUST 在单包和多包的 `metadata.json` 中均填写 `totalChunks` 与 `chunkIndex`；单包二者均为 1，多包索引从 1 开始且与对应 ZIP 分片一致，每包元信息可独立读取。
 - **FR-007**: 系统 MUST 使用画廊标题作为压缩包名称基础，并在生成文件名前执行跨平台非法字符清洗，确保在 Windows、macOS、Linux 上可保存。
 - **FR-008**: 系统 MUST 提供通用状态通知组件，悬浮于页面右下角且位于 status-pannel 上方，支持多个通知同时显示并垂直排列。
 - **FR-009**: 系统 MUST 通过状态通知实时反馈下载进度与阶段，包括但不限于：当前处理页数/总页数、正在压缩、下载完成、下载失败。
@@ -91,14 +94,14 @@
 ### Key Entities *(include if feature involves data)*
 
 - **Download Task**: 一次由用户确认触发的完整下载流程，包含画廊上下文、进度状态、失败统计、开始与结束时间。
-- **Download Chunk**: 按分片大小切分后的打包单元，包含分片索引、分片内页码范围、分片图片集合、分片级 YAML 元信息。
+- **Download Chunk**: 按分片大小切分后的打包单元，包含分片索引、分片内页码范围、分片图片集合、分片级 `metadata.json` 元信息。
 - **Image Item**: 单页图片下载对象，包含页码、目标文件名、来源地址、请求结果、重试次数与最终状态。
 - **Status Notification**: 用于前端展示任务状态的通知实体，包含任务标识、状态类型、展示文案、时间戳、可见性状态。
-- **Gallery Metadata YAML**: 随压缩包导出的元信息文档，记录画廊基础信息、下载时间、版本号及分片上下文信息。
+- **Gallery Metadata JSON**: 随每个压缩包导出的 UTF-8 `metadata.json`，以 FR-004 的七字段记录画廊基础信息、下载时间、版本号及分片上下文信息。
 
 ### Assumptions
 
-- 下载时间以用户本地时间写入 YAML，格式保持可读且可解析。
+- 下载时间以用户本地时间写入 `metadata.json`，格式保持可读且可解析。
 - 分片索引从 1 开始计数，总分片数量在任务开始后可确定。
 - 当无法获取某张图片时，允许该分片继续打包已成功图片，同时输出失败记录。
 
@@ -111,7 +114,7 @@
 
 ### Measurable Outcomes
 
-- **SC-001**: 在 300 页画廊、默认分片 200 的场景下，用户一次点击可获得 2 个可正常解压的下载包，且每包都包含 YAML 元信息文件。
+- **SC-001**: 在 300 页画廊、默认分片 200 的场景下，用户一次点击可获得 2 个可正常解压的下载包，每包均含可独立解析的 UTF-8 `metadata.json`，七字段完整，`totalChunks=2`，`chunkIndex` 分别为 1 和 2；单包场景七字段同样完整且二者均为 1。
 - **SC-002**: 95% 的正常网络下载任务可在触发后 1 秒内出现首条状态通知，并在任务结束时给出明确完成或失败结果。
 - **SC-003**: 在包含 10% 随机图片请求失败的测试场景中，启用自动换源重试后，整任务成功下载图片占比达到 98% 及以上。
 - **SC-004**: 在并发触发 3 个下载任务时，通知区域可同时展示 3 组状态信息，用户可明确区分各任务进度且无明显重叠遮挡。

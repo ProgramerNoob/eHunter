@@ -37,7 +37,7 @@ Main directory responsibilities:
 ```
 |-eHunter
   |-src
-  |  |-main.ts               // Entry: initialize and mount app (currently test mounting by default)
+  |  |-main.ts               // Entry: detect platform, initialize EH/NH/TEST service, mount app
   |  |-config.ts             // Runtime config
   |  |-platform/             // Platform layer (site detection, initialization, service factory)
   |     |-detector.ts        // Host/environment detection

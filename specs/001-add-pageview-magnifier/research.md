@@ -1,5 +1,7 @@
 # Phase 0 Research - PageView Magnifier Menu
 
+**历史研究保留（2026-09-18）**：下文原文作为演进记录保留。修改或验收时以 [已确认决策](../decisions/2026-09-18-reader-behavior.md) 第 3、4 节及已同步的 [spec.md](./spec.md) 为准；Decision 3、5 中冲突取舍已被决策替代，历史研究本身不构成实施或验收结果。
+
 ## Decision 1: Desktop-only magnifier activation scope
 
 - Decision: 放大镜能力限定为桌面端（细指针设备）可用，移动端菜单不展示放大镜开关和倍率项。
@@ -18,6 +20,8 @@
 
 ## Decision 3: Magnifier overlay placement and boundary strategy
 
+> **已被决策替代（冲突部分）**：可用边界为 PageView∩viewport，受限时同步缩小取样与镜头、保持倍率；避焦点为优先级而非绝对限制。空间恢复即还原设定，见决策第 4 节。下文保留原取舍。
+
 - Decision: 放大镜默认显示在鼠标右侧并保持不遮挡鼠标；当右侧超出 PageView 边界时切换到左侧，必要时进行容器内钳制；鼠标离开 PageView 即隐藏放大镜和焦点框。
 - Rationale: 与规格要求一致，且该策略在边缘场景下可保持可见性与操作稳定性。
 - Alternatives considered:
@@ -33,6 +37,8 @@
   - 点击后再提示不支持（拒绝：引入无效操作路径）
 
 ## Decision 5: Session-level magnifier state inheritance
+
+> **已被决策替代（冲突部分）**：尺寸与倍率长期保存，按决策第 3 节共享、降级及迁移；仅开关属于当前页面会话，翻页/模式切换保留，刷新或新页面关闭。下文“不长期持久化”及其理由仅为历史原文。
 
 - Decision: 在同一阅读会话内跨 PageView 继承放大镜开关状态与倍率，初始默认值为关闭 + 3x，不进行长期持久化。
 - Rationale: 已在澄清中确认；可减少跨页重复操作，且满足“仅在当前会话有效”的范围约束。
@@ -50,7 +56,7 @@
 
 ## Decision 7: Validation baseline for delivery
 
-- Decision: 交付验收必须覆盖 `npm run type-check`、`npm run dev`，并使用 `chrome-devtools-mcp` 在 1200x900 与 390x844 双视口完成关键交互与视觉检查。
+- Decision: 交付验收必须覆盖 `npm run type-check`、`npm run dev`，并使用 `ego-browser` 在 1200x900 与 390x844 双视口完成关键交互与视觉检查。
 - Rationale: Constitution Principle III 与 AGENTS.md 明确要求运行时验收；本功能包含强交互和视觉定位逻辑，需真实浏览器验证。
 - Alternatives considered:
   - 仅类型检查（拒绝：无法覆盖运行时手势与边界行为）

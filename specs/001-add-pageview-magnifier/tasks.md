@@ -1,9 +1,12 @@
 # Tasks: PageView Magnifier Menu
 
-**Input**: Design documents from `/specs/001-add-pageview-magnifier/`  
+**Input**: Design documents from `specs/001-add-pageview-magnifier/`\
 **Prerequisites**: `plan.md`, `spec.md`, `research.md`, `data-model.md`, `contracts/pageview-magnifier.openapi.yaml`, `quickstart.md`
 
-**Tests**: 不新增自动化测试任务；本特性按规格要求执行 `npm run type-check` + `npm run dev` + `chrome-devtools-mcp` 手动验收。  
+**同步状态（2026-09-18）**：规格正文已同步 [已确认决策](../decisions/2026-09-18-reader-behavior.md) 第 3、4 节；本次仅编辑文档，未执行实现或验收。Phase 1–6 中的已勾条目、Checkpoint、并行示例与交付顺序保留历史原文，不表示当前版本满足新规则。
+**已被决策替代**：T005/T018 的倍率仅内存继承、T015 的旧容器边界策略、T016 的固定 80×80，以及 Phase 4 的旧 Independent Test/并行示例，冲突部分按 Phase 7 重新实施与验收。T001/T020/T029/T030 的历史文档勾选也不证明新规则通过。未冲突的手势、桌面范围、菜单、样式和阅读要求继续有效。
+
+**Tests**: 不新增自动化测试任务；本特性按规格要求执行 `npm run type-check` + `npm run dev` + `ego-browser` 手动验收。\
 **Organization**: Tasks are grouped by user story for independent implementation and verification.
 
 ## Format: `[ID] [P?] [Story] Description`
@@ -100,7 +103,7 @@
 - [X] T029 [P] 在 `specs/001-add-pageview-magnifier/contracts/pageview-magnifier.openapi.yaml` 对齐最终动作行为与字段说明
 - [X] T030 在 `specs/001-add-pageview-magnifier/quickstart.md` 完成最终回归清单（桌面 1200x900 + 移动 390x844）
 - [ ] T031 运行 `npm run type-check` 并处理问题（仓库根目录）
-- [ ] T032 启动 `npm run dev` 并用 `chrome-devtools-mcp` 完成端到端验收与截图记录（依据 `specs/001-add-pageview-magnifier/quickstart.md`）
+- [ ] T032 启动 `npm run dev` 并用 `ego-browser` 完成端到端验收与截图记录（依据 `specs/001-add-pageview-magnifier/quickstart.md`）
 
 ---
 
@@ -167,3 +170,17 @@ Task: "T025 [US3] Wire odd-even action for book mode in core/components/BookPage
 2. 交付 US2（桌面端放大镜完整体验）。
 3. 交付 US3（上下文动作显隐与禁用态说明）。
 4. 最后执行 Phase 6 跨故事回归与文档对齐。
+
+## Phase 7: 2026-09-18 决策实施与验收（全部待办）
+
+**依据**：以 [决策](../decisions/2026-09-18-reader-behavior.md) 第 3、4 节及本组同步正文为准；当前静态偏差见 [plan.md](./plan.md#当前实现偏差与实施顺序)。以下新增编号与历史 T001–T032 不重用，本轮不执行这些实施/验收任务。
+
+- [ ] T033 [US2] 在 `core/components/PageView.vue` 与 `core/store/app.ts` 统一尺寸/倍率设置和快捷动作：任意整数 20–300px、默认 80/3x、倍率四档、快捷 ±10 跨界 clamp 及边界禁用；自由整数不吸附到旧四档，设置与菜单即时一致且仅桌面提供放大镜操作。
+- [ ] T034 [US2] 在 `core/store/app.ts` 复用统一偏好保存尺寸/倍率，补齐输入及恢复的逐项合法性；协调 D04 的 GM 权限、共享、origin 降级、旧值补缺/重复迁移、GM 恢复和重置防复活，确保临时几何与开关不被持久化。依赖 D04 存储工作就绪后验收。
+- [ ] T035 [US2] 在 `core/components/PageView.vue` 核对并补齐页面会话开关：翻页/书页卷轴切换保留，刷新/新页面关闭；只让当前交互 PageView 显示镜头，显示层清理不误改开关。
+- [ ] T036 [US2] 在 `core/components/composables/useMagnifier.ts` 区分设定与有效取样尺寸，以 PageView∩viewport 计算可用区域；镜头放不下时保持倍率，同步缩小参考框与镜头（可小于 20px），优先避焦点、必要时允许覆盖以确保完整可视。
+- [ ] T037 [US2] 在 `core/components/composables/useMagnifier.ts` 与 `core/components/PageView.vue` 接入指针、滚动、窗口和布局变化后的重算及清理；交集为空隐藏，恢复空间即恢复设定，不写回临时尺寸，并保留加载/失败占位与既有样式。
+- [ ] T038 [US2] 按 `specs/001-add-pageview-magnifier/quickstart.md` US2-A/B/C 完成两种桌面阅读模式的新规则验收，记录自由整数/边界、受限小于20px与恢复、长期共享/降级/迁移/重置、开关页面会话的实际版本与证据；保存结果前保持未勾选。
+- [ ] T039 [US1] [US3] 在 T033–T037 完成且版本固定后执行 T031/T032，并按 `specs/001-add-pageview-magnifier/quickstart.md` 回归桌面/移动菜单手势、原图、奇偶切换、翻页和桌面限制；将实际证据与未覆盖项写入本组验收记录。
+
+**依赖顺序**：T033→T034；T035 依赖入口状态语义对齐；T036→T037；T038/T039 依赖实施完成及 D04 存储依赖就绪。涉及相同文件的任务串行处理，验收期间固定实现版本。

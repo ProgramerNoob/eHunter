@@ -1,7 +1,7 @@
 # Implementation Plan: Dockable Block Layout
 
-**Branch**: `001-dockable-panel-layout` | **Date**: 2026-02-20 | **Spec**: `/Users/alex/Desktop/works/js/eHunter/specs/001-dockable-panel-layout/spec.md`
-**Input**: Feature specification from `/specs/001-dockable-panel-layout/spec.md`
+**Branch**: `001-dockable-panel-layout` | **Date**: 2026-02-20 | **Spec**: `specs/001-dockable-panel-layout/spec.md`
+**Input**: Feature specification from `specs/001-dockable-panel-layout/spec.md`
 
 ## Summary
 
@@ -12,7 +12,7 @@ Implement a reusable dock layout system for reader blocks so users can drag the 
 **Language/Version**: TypeScript 5.9 + Vue 3.5 SFC + SCSS  
 **Primary Dependencies**: Vue runtime (`vue`), existing eHunter components and store modules, no new UI library  
 **Storage**: Userscript storage (`GM_getValue`/`GM_setValue`) preferred, fallback to `PlatformService.storageGet/storageSet`  
-**Testing**: Manual runtime verification via `npm run dev` + `chrome-devtools-mcp`; static type-check via `npm run type-check`  
+**Testing**: Manual runtime verification via `npm run dev` + `ego-browser`; static type-check via `npm run type-check`\
 **Target Platform**: Browser userscript runtime on EH reader UI (desktop + touch-enabled browsers)
 **Project Type**: Single frontend userscript app  
 **Performance Goals**: Drag/resize visual response appears within one frame budget (target <=16ms per frame on common desktop); mode switch applies saved layout immediately with no visible flicker  
@@ -27,7 +27,7 @@ Implement a reusable dock layout system for reader blocks so users can drag the 
 
 - Principle I (Refactor-First Boundaries): PASS. Planned code touches are in `core/components`, `core/store`, and optionally `src/platform/base/service` only if storage adapter extension is needed.
 - Principle II (Behavior-Preserving Changes): PASS. Plan keeps existing scroll/book rendering branches and only changes container layout orchestration; includes invalid drop and small viewport safeguards.
-- Principle III (Validation Before Completion): PASS. Quickstart includes mandatory `npm run dev` and browser verification using `chrome-devtools-mcp`.
+- Principle III (Validation Before Completion): PASS. Quickstart includes mandatory `npm run dev` and browser verification using `ego-browser`.
 - Principle IV (Story-Independent Delivery): PASS. Work can be sliced by story: docking first, resize second, reusable registration + persistence third.
 - Principle V (Built-in UI and Mode Consistency): PASS. Uses self-built Vue components/SCSS only; layout persistence explicitly independent per mode with auto-apply on switch.
 
@@ -85,6 +85,8 @@ No constitution violations requiring justification.
 
 ## Validation Log
 
+> 历史验证记录：以下结果保留自原实施阶段，不代表当前 HEAD 的验收结果；涉及本功能的行为改动，须重新执行 [quickstart.md](./quickstart.md)。
+
 - `npm run type-check`: fails due to extensive pre-existing type issues outside this feature scope (legacy files in `src/platform/*`, widget typings, and historical strictness gaps). New feature files compile in dev runtime and do not introduce additional blocking runtime errors.
 - `npm run dev`: passes and serves app on local Vite port (verified at `http://localhost:5175/`).
-- `chrome-devtools-mcp` runtime check: page loads with dock handle, thumbnail panel, and reader content visible; manual flow validation can proceed per `quickstart.md`.
+- Browser verification runtime check: page loads with dock handle, thumbnail panel, and reader content visible; manual flow validation can proceed per `quickstart.md`.

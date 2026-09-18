@@ -3,11 +3,12 @@
 **Feature Branch**: `001-platform-injection`  
 **Created**: 2026-02-21  
 **Status**: Draft  
+**状态注**：Draft 表示规格生命周期；`tasks.md` 的勾选记录历史进度，均不代表当前 HEAD 已验收。涉及本功能的行为改动，须按 [quickstart.md](./quickstart.md) 重新验收。
 **Input**: User description: "修改main.ts,只是EH和NH两个平台的实现注入。根据window.location.host的不同,来实现不同平台的注入（如果是localhost或者ip地址,则使用test实现）。EH和NH两个平台实现的需要完成重构,尽量适配新的实现,如有不能满足的再直接迁移。整体的平台实现支持的重构,需要简洁清晰易懂,有抽象,易维护。"
 
 ## User Scenarios & Testing *(mandatory)*
 
-**Validation Note**: For each completed development cycle, run `npm run dev` and verify changed behavior in browser using `chrome-devtools-mcp` before marking work complete.
+**Validation Note**: For each completed development cycle, run `npm run dev` and verify changed behavior in browser using `ego-browser` before marking work complete.
 
 ### User Story 1 - Host-Based Platform Detection (Priority: P1)
 

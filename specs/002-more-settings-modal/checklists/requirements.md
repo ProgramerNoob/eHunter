@@ -4,6 +4,15 @@
 **Created**: 2026-02-18
 **Feature**: [spec.md](../spec.md)
 
+**状态说明（2026-09-18）**：以下已勾条目保留历史规格审查记录；正文已按新决策同步，不代表当前实现满足新规则。运行时按 [quickstart](../quickstart.md) 重新验收。
+
+## 新规则验收（待完成）
+
+- [ ] 真实脚本环境覆盖 EH/EX/NH 共享、逐项补缺、降级/恢复、幂等、重置防复活矩阵。
+- [ ] 翻页初始化与保持、放大镜持久化/会话边界有证据，桌面与移动弹窗/快捷栏回归通过。
+
+以下各节保留历史检查记录。
+
 ## Content Quality
 
 - [x] No implementation details (languages, frameworks, APIs)

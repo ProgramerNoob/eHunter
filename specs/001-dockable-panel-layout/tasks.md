@@ -1,6 +1,6 @@
 # Tasks: Dockable Block Layout
 
-**Input**: Design documents from `/specs/001-dockable-panel-layout/`
+**Input**: Design documents from `specs/001-dockable-panel-layout/`
 **Prerequisites**: `plan.md`, `spec.md`, `research.md`, `data-model.md`, `contracts/layout-contract.openapi.yaml`, `quickstart.md`
 
 **Tests**: No mandatory automated test tasks were explicitly requested in the spec; this plan includes required manual runtime verification tasks.
@@ -102,7 +102,7 @@
 
 - [X] T027 [P] Review and tighten edge-case handling notes in `specs/001-dockable-panel-layout/spec.md`
 - [X] T028 Run static validation (`npm run type-check`) and record results in `specs/001-dockable-panel-layout/plan.md`
-- [X] T029 Run runtime verification (`npm run dev` + `chrome-devtools-mcp`) and record outcomes in `specs/001-dockable-panel-layout/plan.md`
+- [X] T029 Run runtime verification (`npm run dev` + browser verification) and record outcomes in `specs/001-dockable-panel-layout/plan.md`
 - [X] T030 [P] Update feature validation checklist with final manual pass criteria in `specs/001-dockable-panel-layout/checklists/requirements.md`
 - [X] T031 Tighten bottom-docked thumbnail spacing density in `core/components/ThumbScrollView.vue`
 - [X] T032 Fix resize-handle highlight artifact after drag in `core/components/layout/SplitHandle.vue`

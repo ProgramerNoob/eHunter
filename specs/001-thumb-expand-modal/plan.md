@@ -1,7 +1,7 @@
 # Implementation Plan: Thumb Expand Modal
 
-**Branch**: `[001-thumb-expand-modal]` | **Date**: 2026-02-21 | **Spec**: `/Users/alex/Desktop/works/js/eHunter/specs/001-thumb-expand-modal/spec.md`
-**Input**: Feature specification from `/specs/001-thumb-expand-modal/spec.md`
+**Branch**: `[001-thumb-expand-modal]` | **Date**: 2026-02-21 | **Spec**: `specs/001-thumb-expand-modal/spec.md`
+**Input**: Feature specification from `specs/001-thumb-expand-modal/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
 
@@ -20,7 +20,7 @@
 **Language/Version**: TypeScript 5.9 + Vue 3.5 SFC + SCSS  
 **Primary Dependencies**: Vue runtime, existing core widget components (`AwesomeScrollView`, `Pagination`), existing app store/actions  
 **Storage**: N/A（本功能不新增持久化）  
-**Testing**: `npm run type-check` + `npm run dev` + `chrome-devtools-mcp` 手动验收  
+**Testing**: `npm run type-check` + `npm run dev` + `ego-browser` 手动验收\
 **Target Platform**: 浏览器端 userscript 注入场景（EH 优先）
 **Project Type**: 单体前端（Vite + Vue）  
 **Performance Goals**: 弹层首次打开在常规数据量（<=300 页）下保持可感知即时（目标 <=300ms）；缩略图点击跳转 1 次交互闭环完成  
@@ -33,7 +33,7 @@
 
 - Principle I (Refactor-First Boundaries): PASS. 仅修改 `core/components/` 及相关样式/状态，不触碰 `core_old/`、`old/`。
 - Principle II (Behavior-Preserving Changes): PASS. 仅扩展缩略图导航入口与弹层，不改变现有解析/缓存链路；书页与卷轴均复用同一跳转动作。
-- Principle III (Validation Before Completion): PASS. 实施与验收明确包含 `npm run dev` 以及 `chrome-devtools-mcp` 端到端验证。
+- Principle III (Validation Before Completion): PASS. 实施与验收明确包含 `npm run dev` 以及 `ego-browser` 端到端验证。
 - Principle IV (Story-Independent Delivery): PASS. 入口、网格展示、分页跳转三条故事可分步实现并独立验收。
 - Principle V (Built-in UI and Mode Consistency): PASS. 仅使用仓库内组件，不引入第三方 UI；模式一致性与风格边界已在 spec 明确。
 

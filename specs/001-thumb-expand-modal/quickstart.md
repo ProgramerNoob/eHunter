@@ -14,7 +14,7 @@
 npm run dev
 ```
 
-2. Open reader page and validate runtime behavior with `chrome-devtools-mcp`.
+2. Open reader page and validate runtime behavior with [ego-browser](../../.pi/browser-testing.md); follow the linked guide for common operations.
 
 ## Validation Checklist
 
@@ -54,8 +54,10 @@ npm run type-check
 
 ## Verification Record (2026-02-21)
 
+> 历史验证记录：以下结果保留自 2026-02-21，不代表当前 HEAD 的验收结果；涉及本功能的行为改动，须重新执行本 quickstart。
+
 - `npm run type-check`: PASS
-- `npm run dev` + `chrome-devtools-mcp`: PASS
+- `npm run dev` + browser verification: PASS
 - Runtime checks passed:
   - Expand button is visible in thumb viewport and opens modal.
   - Modal has no title and uses settings-dialog style language.

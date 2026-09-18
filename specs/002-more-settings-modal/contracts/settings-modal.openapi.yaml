@@ -5,6 +5,18 @@ info:
   description: |
     Logical contract for unified settings modal behaviors inside the reader UI.
     These endpoints describe interaction/state boundaries for implementation planning and testing.
+    This is a logical contract for local reader UI behavior; example servers and paths do not represent deployed HTTP endpoints.
+    Authoritative behavior is specs/decisions/2026-09-18-reader-behavior.md sections 2-4; implementation and runtime acceptance remain pending.
+  x-behavior-notes:
+    - GM storage shares preferences across EH/EX/NH within one browser and userscript installation; unavailable GM falls back to origin-local localStorage.
+    - For each item, keep a valid shared value, then fill missing or invalid items from current-origin unified legacy settings, then standalone legacy settings, then defaults.
+    - With empty shared storage the first site imports its valid legacy items; later sites only fill gaps. Repeated migration must be idempotent.
+    - Preserve legacy copies for fallback; when GM returns, valid shared values win over fallback changes. Explicit reset must prevent legacy reimport.
+    - Keep every valid page-turn mode including legacy default values. Without a valid migrated mode, reduced-motion initializes none, otherwise desktop realistic or mobile slide.
+    - Persist the initialized mode; system changes and unrelated saves do not recompute it. User selection replaces it.
+    - Magnifier source size is any integer from 20 to 300 CSS px, default 80; zoom is 2, 3, 4 or 5, default 3. Persist size and zoom using the same shared/fallback rules.
+    - Quick size controls use steps of 10, clamp to the boundaries and disable the corresponding boundary button. Settings and quick controls share the same range.
+    - Magnifier enabled state is page-session-only; paging and reading-mode changes retain it, while reload or a new page starts disabled. Temporary geometry never changes stored size or zoom.
 servers:
   - url: https://ehunter.local
 paths:

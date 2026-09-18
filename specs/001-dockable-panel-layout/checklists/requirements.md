@@ -35,5 +35,5 @@
 - Scope is intentionally bounded to thumbnail panel and main content panel for initial delivery, with reusable rules defined for future blocks.
 - Implementation-phase runtime checks to pass before final sign-off:
   - `npm run dev` launches successfully.
-  - `chrome-devtools-mcp` confirms dock handle visible and reader renders without overlap.
+  - `ego-browser` confirms dock handle visible and reader renders without overlap.
   - Per-mode layout restoration verified for scroll and book modes.

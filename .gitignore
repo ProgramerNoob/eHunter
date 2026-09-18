@@ -42,3 +42,8 @@ Thumbs.db
 *.sln
 *.sw?
 .tmp
+
+# Pi local settings and installed packages
+/.pi/settings.json
+/.pi/npm/
+/.pi/git/

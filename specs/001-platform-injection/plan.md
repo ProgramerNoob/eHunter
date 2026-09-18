@@ -1,7 +1,7 @@
 # Implementation Plan: Platform-Based Injection System
 
 **Branch**: `001-platform-injection` | **Date**: 2026-02-21 | **Spec**: [spec.md](./spec.md)
-**Input**: Feature specification from `/specs/001-platform-injection/spec.md`
+**Input**: Feature specification from `specs/001-platform-injection/spec.md`
 
 **Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/plan-template.md` for the execution workflow.
 
@@ -14,7 +14,7 @@ Refactor the platform injection system to support host-based detection and initi
 **Language/Version**: TypeScript 5.9  
 **Primary Dependencies**: Vue 3.5.28, Vite 6.4.1, vite-svg-loader 5.1.0  
 **Storage**: Browser localStorage (via userscript GM_* APIs with fallback)  
-**Testing**: Manual browser testing via `chrome-devtools-mcp` (no automated test framework currently)  
+**Testing**: Manual browser testing via `ego-browser` (no automated test framework currently)\
 **Target Platform**: Browser userscript (Tampermonkey/Violentmonkey) injected into e-hentai.org, exhentai.org, nhentai.net  
 **Project Type**: Single-page application (SPA) with platform-specific injection  
 **Performance Goals**: Platform detection <100ms, initialization <60s, no host page blocking  
@@ -29,7 +29,7 @@ Refactor the platform injection system to support host-based detection and initi
 
 - **Principle II (Behavior-Preserving Changes)**: ✅ PASS - Refactored platforms must preserve existing book mode and scroll mode behavior. Parser rewrites will maintain same DOM extraction logic, just with new architecture. Async loading, page limits, and rapid user input handling will be preserved through existing shared utilities in `src/platform/base/`.
 
-- **Principle III (Validation Before Completion)**: ✅ PASS - Plan includes explicit validation tasks: (1) Run `npm run dev`, (2) Use `chrome-devtools-mcp` to test on each platform (EH, NH, localhost), (3) Verify loading states, error handling, and reader features (book/scroll modes, thumbnails, page flipping).
+- **Principle III (Validation Before Completion)**: ✅ PASS - Plan includes explicit validation tasks: (1) Run `npm run dev`, (2) Use `ego-browser` to test on each platform (EH, NH, localhost), (3) Verify loading states, error handling, and reader features (book/scroll modes, thumbnails, page flipping).
 
 - **Principle IV (Story-Independent Delivery)**: ✅ PASS - User stories are prioritized and independently testable:
   - P1: Host-based detection (can test platform detection without full refactor)
@@ -172,10 +172,10 @@ No violations detected. All principles pass.
    - How to add a new platform
    - Platform detection flow diagram
    - Parser implementation checklist
-   - Testing checklist (npm run dev + chrome-devtools-mcp)
+   - Testing checklist (npm run dev + ego-browser)
 
 4. **Agent context update**:
-   - Run `.specify/scripts/bash/update-agent-context.sh opencode`
+   - Historical plan command (opencode): `.specify/scripts/bash/update-agent-context.sh opencode`
    - Add TypeScript 5.9, Vue 3.5, Vite 6 to active technologies
    - Add userscript context and platform detection patterns
 
@@ -189,7 +189,7 @@ No violations detected. All principles pass.
 
 This phase is executed by the `/speckit.tasks` command and will generate `tasks.md` with:
 - Detailed implementation tasks for each user story
-- Validation tasks (npm run dev + chrome-devtools-mcp)
+- Validation tasks (npm run dev + ego-browser)
 - Acceptance criteria verification tasks
 - Code review checklist
 
@@ -201,4 +201,4 @@ This phase is executed by the `/speckit.tasks` command and will generate `tasks.
 - **URL Patterns**: EH uses `/g/*` and `/s/*`, NH uses `/g/[id]/[page]/` per clarification Q1 and spec FR-002 to FR-004.
 - **Error Display**: Must show user-friendly message + technical details (stack trace, platform, URL) per clarification Q5 and FR-017.
 - **Timeout**: 60 seconds per clarification Q3 and FR-019.
-- **Validation**: Every task must include browser testing via `chrome-devtools-mcp` per Principle III.
+- **Validation**: Every task must include browser testing via `ego-browser` per Principle III.

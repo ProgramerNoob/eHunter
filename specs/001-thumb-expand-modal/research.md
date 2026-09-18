@@ -43,7 +43,7 @@
 
 ## Decision 6: 验收与质量门禁
 
-- Decision: 本功能验收以规格中的场景和成功标准为准，并执行 `npm run type-check`、`npm run dev`、`chrome-devtools-mcp` 手动链路验证。
+- Decision: 本功能验收以规格中的场景和成功标准为准，并执行 `npm run type-check`、`npm run dev`、`ego-browser` 手动链路验证。
 - Rationale: 符合仓库 Constitution Principle III（Validation Before Completion）。
 - Alternatives considered:
   - 仅静态检查（拒绝：不足以覆盖 userscript DOM 运行时行为）

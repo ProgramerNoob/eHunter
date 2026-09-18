@@ -1,11 +1,13 @@
 # Tasks: Gallery Download Bundle
 
-**Input**: Design documents from `/specs/001-gallery-download-bundle/`
+**Input**: Design documents from `specs/001-gallery-download-bundle/`
 **Prerequisites**: `plan.md`, `spec.md`, `research.md`, `data-model.md`, `contracts/gallery-download.openapi.yaml`, `quickstart.md`
 
 **Tests**: No mandatory automated test tasks were explicitly requested in the spec; this task list includes mandatory manual runtime verification tasks.
 
 **Organization**: Tasks are grouped by user story so each story can be implemented and validated independently.
+
+**历史任务说明（2026-09-18）**：下方 T001–T035 的原文与勾选状态保留历史进度，历史 Phase、Checkpoint 与实施顺序也按原文留存；勾选不代表当前 HEAD 或新格式已验收。T001 的 `jszip`/`yaml`、T014 及 US1 目标/验收/策略中的 YAML 约定，均已被 [已确认决策第 1 节](../decisions/2026-09-18-reader-behavior.md#1-下载格式) 替代：沿用现有 `fflate`，每个 ZIP 独立包含 UTF-8 `metadata.json` 七字段。继续实施时以同步后的正文、模型、契约和 quickstart 为准，其余未冲突任务继续有效；D03 验收另见 T036–T037。
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -107,7 +109,7 @@
 - [ ] T031 [P] Update quickstart verification steps with finalized interaction details in `specs/001-gallery-download-bundle/quickstart.md`
 - [ ] T032 [P] Update plan validation notes with implementation-time findings in `specs/001-gallery-download-bundle/plan.md`
 - [ ] T033 Run `npm run type-check` and record result notes in `specs/001-gallery-download-bundle/plan.md`
-- [ ] T034 Run `npm run dev` and validate changed flows via `chrome-devtools-mcp` in desktop/mobile, then record outcomes in `specs/001-gallery-download-bundle/plan.md`
+- [ ] T034 Run `npm run dev` and validate changed flows via `ego-browser` in desktop/mobile, then record outcomes in `specs/001-gallery-download-bundle/plan.md`
 - [ ] T035 [P] Verify task/spec/contract terminology consistency (`status-pannel`, chunk fields, retry wording) in `specs/001-gallery-download-bundle/spec.md`
 
 ---
@@ -194,4 +196,11 @@ Task T030 in specs/001-gallery-download-bundle/contracts/gallery-download.openap
 
 - `[P]` tasks are isolated by file path and can run concurrently.
 - Story labels map each task to independently testable user value slices.
-- Manual runtime verification with `npm run dev` + `chrome-devtools-mcp` is mandatory before completion.
+- Manual runtime verification with `npm run dev` + `ego-browser` is mandatory before completion.
+
+## 2026-09-18 D03 决策验收
+
+本节独立追踪新格式验收。正文同步与只读代码核对已完成；本次未运行测试，未以历史勾选代替产物验证。现有生产者已具备 `fflate` + JSON 七字段路径，因此不新增重复实现任务。旧规格与实现的时间格式、顺序抓取差异记录于 `plan.md`，仍需另行落实或验收。
+
+- [ ] T036 [US1] 按 `specs/001-gallery-download-bundle/quickstart.md` 的 P1 步骤验证单包与 300 页/默认 200 的多包产物：ZIP 可解压，每包根目录只有一个 UTF-8 `metadata.json` 元信息文件，恰含七字段且类型正确，非 ASCII 标题保真，单包分片字段为 1/1，多包为 2 和对应的 1/2，后续分包独立可读、任务级字段一致；在 `specs/001-gallery-download-bundle/plan.md` 记录产物证据及与 `contracts/gallery-download.openapi.yaml` 的核对结果。
+- [ ] T037 [US1] 在 `core/service/GalleryDownloadService.ts` 核对实际打包路径仍沿用 `fflate` 与原生 JSON 序列化，按 `specs/001-gallery-download-bundle/quickstart.md` 完成两个视口及书页/卷轴、通知和失败路径回归；在 `specs/001-gallery-download-bundle/plan.md` 记录本轮结果，保留未满足的原有要求，符合验收后再勾选。

@@ -1,5 +1,13 @@
 # Phase 0 Research: Gallery Download Bundle
 
+## Current Decision (2026-09-18)
+
+[Confirmed download decision, section 1](../decisions/2026-09-18-reader-behavior.md#1-下载格式) supersedes the original YAML requirement and `jszip`/`yaml` dependency plan. Reuse existing `fflate` to create standard ZIPs, each carrying one UTF-8 `metadata.json` with exactly `introUrl`, `galleryTitle`, `totalPages`, `downloadTime`, `eHunterVersion`, `totalChunks`, and `chunkIndex`. Single- and multi-chunk archives each carry complete metadata.
+
+The original request explicitly required YAML. Commit `08b76ee` already changed the producer to JSON, which the user confirmed retaining on 2026-09-18. The decision records no discovered in-repository metadata consumer or requested external dual-format consumer. JSON is now the sole metadata format.
+
+**Historical research below**: The original decisions, rationale, and alternatives are retained verbatim. Decision 2's YAML selection/JSON rejection and Decision 7's YAML wording are superseded by the confirmed decision above. Their per-chunk self-description and platform abstraction rationale remains applicable; other non-conflicting decisions remain in force.
+
 ## Decision 1: Zip packaging approach
 
 - Decision: Use a browser-side zip builder to create one zip per chunk and trigger download immediately after each chunk is finalized.

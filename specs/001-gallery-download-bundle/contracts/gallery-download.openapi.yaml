@@ -5,6 +5,12 @@ info:
   description: >-
     Contract describing request/response shapes for starting gallery download tasks,
     tracking status notifications, and reading configurable download preferences.
+    This is a logical contract for local reader UI behavior; example servers and paths do not represent deployed HTTP endpoints.
+    Archive output follows the confirmed 2026-09-18 download decision, section 1:
+    existing fflate produces standard ZIPs, each containing a UTF-8 metadata.json at its root
+    with exactly the seven fields defined by GalleryMetadataJson, for both single and multiple chunks.
+    JSON is the sole metadata format; the historical YAML and jszip/yaml plan is superseded.
+    This OpenAPI document's YAML syntax is independent of the JSON archive payload.
 servers:
   - url: https://ehunter.local
 paths:
@@ -167,6 +173,9 @@ components:
             $ref: '#/components/schemas/DownloadChunkStatus'
 
     DownloadChunkStatus:
+      description: >-
+        Each produced ZIP has a root metadata.json entry conforming to GalleryMetadataJson.
+        That document is an archive artifact, not an extra status response property.
       type: object
       required:
         - chunkIndex
@@ -192,6 +201,52 @@ components:
           minimum: 0
         zipFileName:
           type: string
+
+    GalleryMetadataJson:
+      type: object
+      additionalProperties: false
+      description: >-
+        Complete UTF-8 metadata.json stored in every ZIP, including single-chunk exports.
+        All fields except chunkIndex remain identical across chunks of the same task.
+        totalChunks equals ceil(totalPages / effectiveChunkSize); chunkIndex identifies the
+        corresponding ZIP and must be between 1 and totalChunks. For a single ZIP both are 1.
+      required:
+        - introUrl
+        - galleryTitle
+        - totalPages
+        - downloadTime
+        - eHunterVersion
+        - totalChunks
+        - chunkIndex
+      properties:
+        introUrl:
+          type: string
+          description: Gallery intro HTML URL
+        galleryTitle:
+          type: string
+          description: Original gallery title before ZIP filename sanitization
+        totalPages:
+          type: integer
+          minimum: 1
+          description: Total gallery page count
+        downloadTime:
+          type: string
+          format: date-time
+          description: >-
+            Timestamp captured once for the task. The existing user-local-time requirement
+            in spec.md remains applicable; the current producer's UTC toISOString() value
+            is a known unresolved difference documented in plan.md.
+        eHunterVersion:
+          type: string
+          description: eHunter version recorded for the task
+        totalChunks:
+          type: integer
+          minimum: 1
+          description: Planned total number of ZIP chunks
+        chunkIndex:
+          type: integer
+          minimum: 1
+          description: 1-based index matching the containing ZIP
 
     StatusNotification:
       type: object

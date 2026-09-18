@@ -3,6 +3,7 @@
 **Feature Branch**: `001-dockable-panel-layout`  
 **Created**: 2026-02-20  
 **Status**: Draft  
+**状态注**：Draft 表示规格生命周期；`tasks.md` 的勾选记录历史进度，均不代表当前 HEAD 已验收。涉及本功能的行为改动，须按 [quickstart.md](./quickstart.md) 重新验收。
 **Input**: User description: "需要支持不同Block之间的调整相对位置、宽度和高度，类似jetbrains的IDE那样。目前需要缩略图栏(ThumbScrollView)和其右侧的内容主体区域之间调整。比如缩略图栏可以点按住顶部的‘EHUNTER’，然后拖拽调整到页面右侧或底部。缩略图栏和主题展示区域之间悬浮鼠标，可以触发调整缩略图栏的宽度。要求：1. 需要考虑到以后的扩展性和复用性，避免hardcode或者仅针对缩略图栏做过于简单或不可复用的实现 2. 交互设计需要美观简洁易懂"
 
 ## Clarifications
@@ -16,7 +17,7 @@
 
 ## User Scenarios & Testing *(mandatory)*
 
-**Validation Note**: For each completed development cycle, run `npm run dev` and verify changed behavior in browser using `chrome-devtools-mcp` before marking work complete.
+**Validation Note**: For each completed development cycle, run `npm run dev` and verify changed behavior in browser using `ego-browser` before marking work complete.
 
 <!--
   IMPORTANT: User stories should be PRIORITIZED as user journeys ordered by importance.

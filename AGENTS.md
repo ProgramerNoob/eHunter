@@ -1,178 +1,42 @@
 # AGENTS.md
 
-本文件用于说明本仓库中 AI Agent / 自动化协作者 的工作边界与项目上下文，帮助在重构期间保持一致性。
+## 项目与实现边界
 
-## 项目概述
+- eHunter 是面向 e-hentai/exhentai、nhentai 的油猴阅读器，支持书页模式和卷轴模式；项目仍处于重构阶段。
+- `core/`、`src/` 是当前实现，新增和修复优先落在这两个目录；`core_old/`、`old/` 是历史实现，修改时须说明目的，参考时避免直接复制旧结构。
+- 入口 `src/main.ts` 根据平台识别结果初始化，并通过 `src/platform/factory.ts` 创建 EH、NH 或 TEST 服务；不支持的平台跳过初始化。根组件目前名为 `core/TestApp.vue`，组件名不表示始终使用测试服务。
+- 平台迁移优先保证 `src/platform/eh/` 链路，再处理 `src/platform/nh/`；修改 `src/platform/base/` 时同步评估两端影响。
+- `src/` 与 `core/` 存在交叉依赖，import 调整采用最小改动，避免一次性大迁移。重构需可读、可迁移、可回退。
 
-- 项目名称：eHunter
-- 项目类型：面向 e-hentai 网站的油猴脚本插件
-- 核心能力：解析原站 DOM，提取漫画图片地址，并渲染更友好的阅读体验
-- 阅读模式：
-  - 书页模式（Book Mode）
-  - 卷轴模式（Scroll Mode）
+## 技术与 UI 约束
 
-## 当前状态
+- 使用 Vue 3、TypeScript、Vite；当前样式以 SCSS 为主，历史样式含 Less。
+- 依赖和版本以 [package.json](package.json) 与锁文件为准；开发构建见 [vite.config.ts](vite.config.ts)，脚本注入产物见 [vite.config.prod.ts](vite.config.prod.ts)（IIFE、CSS 注入）。
+- 所有 UI 组件自建，不使用第三方 UI 库。
+- UI 默认使用 flex 布局，显式指定 `flex-direction`。
 
-- 项目处于**重构阶段**，整体尚未完成。
-- 重构与历史代码并存，修改前请先确认目标目录。
-- 当前默认入口以测试挂载为主：`src/main.ts` 目前注入 `core/TestApp.vue` + `src/platform/test/AlbumService.ts`，真实站点注入逻辑仍在整理中。
+## 修改前按需读取
 
-## 目录职责约定
+- 改变阅读模式、设置或平台设计时，读取 [design.md](design.md) 的产品目标及对应 `specs/<feature>/spec.md`、契约和 quickstart。目标、历史计划与当前实现有冲突时，先追溯决策；无法确定的用户可见行为须对齐后修改。
+- 涉及 DOM 解析时，检查选择器稳定性、异步加载和页面结构变化的容错。
+- 涉及渲染时，检查书页/卷轴模式一致性、图片加载与缓存、渲染性能和滚动体验。
+- 涉及 EH 的 `AlbumCacheService`、`ImgUrlListParser` 时，额外检查 Normal/Large 缩略图切换、缓存版本迁移与刷新、并发队列及超时重试。
 
-- `core/`：重构版本核心代码
-- `src/`：重构版本业务与前端代码
-- `core_old/`：旧版本核心代码（历史实现）
-- `old/`：旧版本遗留代码（历史实现）
+## 通知、调试与验收（强制）
 
-建议：
+- 每次测试开始前执行 [notify-complete](.pi/skills/notify-complete/SKILL.md) 的短通知；每次任务完成后执行长通知（实现、修复、排查、文档、测试、说明均适用）。只有用户明确要求静音或跳过通知时省略。
+- 日志、截图、trace、临时导出等调试产物统一放在仓库 `.tmp/` 下。
+- 每次功能新增或修改后必须完成对应功能测试。纯文档修改验证引用、格式和所述命令；未运行的功能验收不得报告为通过。
+- 非平台功能改动：按 [.pi/browser-testing.md](.pi/browser-testing.md) 启动本地后台服务并使用当前会话的 `ego-browser` 技能验收。指南集中维护服务归属与清理、任务空间、视口、控制台日志、刷新和截图流程；开始调试或页面操作前必须读取。
+- 平台改动（尤其 `src/platform/**`、注入链路、DOM 抓取、请求适配）：使用 [eh-test](.pi/skills/eh-test/SKILL.md)，在 EH 场景验证实际表现。
+- 浏览器验收须确认本次代码已加载、无 Vite 编译错误，检查控制台与未捕获异常，完成涉及的打开/关闭、切换、数据抓取、渲染和异常分支。
+- UI 改动须按浏览器指南完成桌面和移动两种视口的关键交互、截图与视觉检查；涉及断点时补测边界。
+- 抓取、解析、缓存改动至少验证首屏页数/标题/当前页、书页与卷轴切换、缩略图加载与定位，以及平台支持的原图/换源操作。
+- 修改 `TextReq`、`ReqQueue`、`MultiAsyncReq` 等基础请求层时，优先回归 EH 与 NH 两条链路。
+- 交付时说明已验证和未验证范围；清理本次创建且无需保留的服务和临时产物，核实进程退出与端口释放，保留交付物及用户已有资源。
 
-- 新功能、问题修复、结构优化优先落在 `core/` 与 `src/`。
-- 若需参考旧实现，可阅读 `core_old/` 与 `old/`，但避免把历史结构直接复制回重构目录。
+## 文档维护与提交
 
-## 技术栈
-
-- 构建工具：Vite
-- 前端框架：Vue 3
-- 样式：Less（历史）+ SCSS（当前 `core/` 中大量样式为 SCSS）
-- 语言：TypeScript
-- 构建形态：
-  - 开发：`vite.config.ts`
-  - 产物：`vite.config.prod.ts`（IIFE + `vite-plugin-css-injected-by-js`，用于脚本注入场景）
-
-## 平台范围与重构优先级
-
-- 目标站点不仅有 e-hentai/exhentai，代码中还包含 nhentai 平台实现（`src/platform/nh/`）。
-- 若进行重构迁移，优先保证 **EH 平台链路可用**（`src/platform/eh/`），再处理 NH 平台一致性。
-- `src/platform/base/` 为跨平台基础层（请求队列、重试、平台 fetch 适配），改动时需同步评估 EH/NH 两端影响。
-
-## 协作原则（给 Agent）
-
-- 在重构完成前，优先保证改动**可读、可迁移、可回退**。
-- 涉及旧目录（`core_old/`, `old/`）的改动需明确目的（修复历史 bug / 对照迁移 / 文档补充）。
-- 当前存在“新旧模块交叉依赖”现象（`src/` 仍引用部分 `core/` 产物），修改 import 路径时优先做最小改动，避免一次性大迁移。
-- 涉及 DOM 解析逻辑时，优先关注：
-  - 选择器稳定性
-  - 异步加载场景
-  - 页面结构变化下的容错
-- 涉及阅读器渲染逻辑时，优先关注：
-  - 书页模式与卷轴模式行为一致性
-  - 图片加载与缓存策略
-  - 渲染性能与滚动体验
-- 涉及 EH 缓存/抓取链路（`AlbumCacheService`、`ImgUrlListParser`）时，额外注意：
-  - 缩略图 Normal/Large 模式切换兼容
-  - 本地缓存版本号变更带来的迁移与刷新行为
-  - 并发请求队列与超时重试参数对稳定性的影响
-
-## 完成通知（强制）
-
-- 每次完成任务后（无论任务类型：实现、修复、排查、文档、测试、说明等），都必须执行 `notify-complete` 的**长通知**（`for i in $(seq 1 10)`）。
-- 每次开始测试前，都必须执行 `notify-complete` 的**短通知**（`for i in $(seq 1 5)`），提醒用户准备介入观察或操作。
-- 通知目的：提醒用户在测试开始前介入观察，并在任务完成后进行下一步操作或验收。
-- 默认策略：测试前短通知 + 任务完成后长通知，不等待整个会话结束。
-- 仅当用户明确要求“静音/跳过通知”时，才可不执行该 skill。
-
-## 调试与验证建议
-
-### 调试产物目录与 Vite 启动规范
-
-- 调试相关产物（如日志、截图、trace、临时导出文件）必须统一放在 `./.tmp/` 目录下，禁止写入仓库其他位置（如 `/tmp`、项目根目录）。
-- 开始调试前，必须先清理历史 Vite 进程并重新启动开发服务器，统一使用以下命令：
-
-```bash
-pkill -9 -f vite && npm run dev > ./.tmp/vite-dev.log 2>&1 &
-```
-
-- 启动后可通过查看 `./.tmp/vite-dev.log` 确认服务端口与编译状态。
-
-## 功能改动后的测试要求（强制）
-
-- 每次完成功能新增或修改后，必须进行对应功能测试，不可跳过。
-- 非平台相关改动：先运行 `npm run dev`，再使用 `chrome-devtools-mcp` 对本次新增/修改功能进行页面级验证。
-- 平台相关改动（尤其 `src/platform/**`、注入链路、DOM 抓取、平台请求适配）：必须直接使用 `eh-test` skill，在 EH 平台场景下验证实际表现。
-- 测试目标需覆盖本次变更涉及的关键交互与结果（打开/关闭、切换、数据抓取、渲染、异常分支等）。
-
-- 与抓取、解析、缓存相关的改动，至少手动验证：
-  - 首屏是否可正常拉取页数/标题/当前页
-  - 书页模式与卷轴模式切换是否正常
-  - 缩略图加载与定位是否正确
-  - 原图/换源逻辑（若平台支持）是否可用
-- 若修改平台基础请求层（`TextReq`/`ReqQueue`/`MultiAsyncReq`），优先在 EH 与 NH 两个平台链路都做回归。
-- 每次开发完后，按“功能改动后的测试要求（强制）”执行验收，确认行为符合预期后才可视为完成。
-
-### 使用 chrome-devtools-mcp 进行测试的注意事项
-
-**重要：开发服务器后台运行**
-- 在使用 `chrome-devtools-mcp` 测试前，必须将 `npm run dev` 启动的开发服务器放到后台运行
-- 推荐命令：`pkill -9 -f vite && npm run dev > ./.tmp/vite-dev.log 2>&1 &`
-- 原因：如果在前台运行 `npm run dev`，Bash 工具会因为超时（默认 2 分钟）而中断服务器进程，导致无法进行浏览器测试
-- 测试前可通过 `tail ./.tmp/vite-dev.log` 确认服务器已成功启动
-
-**UI 效果验证流程**
-1. 使用 `chrome-devtools-mcp_new_page` 或 `chrome-devtools-mcp_navigate_page` 打开测试页面
-2. **重要**：使用 `chrome-devtools-mcp_take_snapshot` 检查页面 DOM 中是否存在 `vite-error-overlay` 元素
-   - 如果存在该元素，说明 Vite 编译出错，需要先查看错误信息并修复
-   - 可以通过 snapshot 中的错误信息或使用 `chrome-devtools-mcp_take_screenshot` 截图查看详细错误
-   - 必须先解决 Vite 错误后才能继续后续测试
-3. 使用 `chrome-devtools-mcp_take_snapshot` 获取页面结构，定位交互元素
-4. 使用 `chrome-devtools-mcp_click` 等工具进行交互操作
-5. **关键步骤**：使用 `chrome-devtools-mcp_take_screenshot` 截图，利用多模态能力确认 UI 视觉效果
-   - 截图可以验证样式、布局、颜色、间距等视觉细节
-   - 对于弹窗、悬停效果、动画等需要视觉确认的场景尤为重要
-6. 重复步骤 3-5 完成完整的交互流程测试
-
-**响应式测试要求**
-- 每次 UI 相关的改动都需要测试**两种视口宽度**：
-  1. **桌面端（PC）**：1200px × 900px
-     - 使用 `chrome-devtools-mcp_emulate` 设置：`{ "viewport": { "width": 1200, "height": 900, "deviceScaleFactor": 1 } }`
-  2. **移动端（iPhone 12 Pro）**：390px × 844px
-     - 使用 `chrome-devtools-mcp_emulate` 设置：`{ "viewport": { "width": 390, "height": 844, "deviceScaleFactor": 3, "isMobile": true, "hasTouch": true } }`
-- 验证响应式布局是否正确：
-  - 网格列数变化（如 5 列 → 3 列）
-  - 间距和尺寸调整
-  - 移动端特定的交互优化
-  - 边界情况（如 767px、1023px 等断点附近）
-
-**测试检查清单**
-- [ ] 开发服务器已后台运行且可访问
-- [ ] 页面加载后已检查 `vite-error-overlay` 元素，确认无编译错误
-- [ ] 桌面端视口测试完成并截图确认
-- [ ] 移动端视口测试完成并截图确认
-- [ ] 关键交互流程（打开、关闭、点击、滚动等）已验证
-- [ ] UI 视觉效果（颜色、间距、阴影、圆角等）符合设计预期
-- [ ] 响应式断点处的布局变化正常
-
-## 提交建议
-
-- 提交信息建议明确标注作用域，例如：
-  - `refactor(core): ...`
-  - `feat(src): ...`
-  - `fix(platform-eh): ...`
-  - `fix(platform-base): ...`
-  - `fix(parser): ...`
-- 对重构迁移类提交，建议在描述中附上“来源目录/目标目录/迁移原因”。
-
-
-## 要求
-- 所有UI组件都需要自建，不能使用第三方库
-- UI默认使用flex布局，且需要显示指定flex-direction
-
-# 平台设计说明和目标
-- 参考./design.md
-
-## Active Technologies
-- TypeScript 5.9 + Vue 3.5 (Vite 6) + Vue 3 runtime, existing core widget components, existing i18n/store modules (001-add-pageflip-toggle)
-- 浏览器端偏好存储（优先 userscript storage，降级 localStorage） (001-add-pageflip-toggle)
-- TypeScript 5.9 + Vue 3.5 + Vue runtime, Vite 6, existing core widget components (`DropOption`, `NumDropOption`, `SimpleSwitch`, `SimpleDialog`, `Popover`, `CircleIconButton`) (001-more-settings-modal)
-- Userscript storage (`GM_*`) preferred with Platform storage/localStorage fallback; existing reader/cache storage keys (001-more-settings-modal)
-- TypeScript 5.9 + Vue 3.5 SFC + SCSS + Vue runtime (`vue`), existing eHunter components and store modules, no new UI library (001-dockable-panel-layout)
-- Userscript storage (`GM_getValue`/`GM_setValue`) preferred, fallback to `PlatformService.storageGet/storageSet` (001-dockable-panel-layout)
-- TypeScript 5.9 + Vue 3.5 SFC + SCSS + Vue runtime, existing core widget components (`AwesomeScrollView`, `Pagination`), existing app store/actions (001-thumb-expand-modal)
-- N/A（本功能不新增持久化） (001-thumb-expand-modal)
-- TypeScript 5.9 + Vue 3.5.28, Vite 6.4.1, vite-svg-loader 5.1.0 (001-platform-injection)
-- TypeScript 5.9 + Vue 3.5 SFC + SCSS + Vue runtime (`vue`), existing `AlbumService`/store modules, zip generation library (`jszip`), YAML serialization library (`yaml`) (001-gallery-download-bundle)
-- Userscript storage preference via existing unified settings persistence (`GM_*` first, platform/local fallback) (001-gallery-download-bundle)
-- TypeScript 5.9 + Vue 3.5 SFC + SCSS + Vue runtime, existing core components (`PageView`, `BookPageView`, `MoreMenuPopover` pattern), existing store/actions and platform capability checks (001-add-pageview-magnifier)
-- In-memory session state only for magnifier toggle/zoom inheritance within one reading session (no persistent storage) (001-add-pageview-magnifier)
-
-## Recent Changes
-- 001-add-pageflip-toggle: Added TypeScript 5.9 + Vue 3.5 (Vite 6) + Vue 3 runtime, existing core widget components, existing i18n/store modules
+- 本文件保留项目边界、稳定约束和按需读取入口。具体功能约定归 `specs/`，版本/依赖归配置文件，操作步骤归上面的专项指南。
+- 修改 Spec Kit 提示、升级安装、抽取 hooks 或启用 agent-context 扩展时，读取 [.pi/speckit-maintenance.md](.pi/speckit-maintenance.md)，核对本地修正及上下文维护边界。
+- 提交信息建议标注作用域，例如 `refactor(core)`、`feat(src)`、`fix(platform-eh)`、`fix(platform-base)`、`fix(parser)`；迁移说明注明来源目录、目标目录和原因。

@@ -1,9 +1,9 @@
 # Tasks: Platform-Based Injection System
 
-**Input**: Design documents from `/specs/001-platform-injection/`
+**Input**: Design documents from `specs/001-platform-injection/`
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/
 
-**Tests**: No automated tests requested in specification. Manual browser testing via `chrome-devtools-mcp` is required per Constitution Principle III.
+**Tests**: No automated tests requested in specification. Manual browser testing via `ego-browser` is required per Constitution Principle III.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -93,7 +93,7 @@
 ### Validation Tasks
 
 - [x] T033 [US1] Run `npm run dev` and start development server in background per AGENTS.md testing requirements
-- [x] T034 [US1] Use chrome-devtools-mcp to navigate to localhost:5175 and verify test platform initializes with mock data
+- [x] T034 [US1] Perform browser verification: navigate to localhost:5175 and verify test platform initializes with mock data
 - [x] T035 [US1] Verify loading animation displays during initialization
 - [x] T036 [US1] Verify reader UI renders after initialization completes
 - [ ] T037 [US1] Test non-album page: navigate to localhost:5173/search and verify no initialization occurs (no errors in console)
@@ -184,7 +184,7 @@
 ### Validation Tasks
 
 - [ ] T099 [US2] Run `npm run dev` and start development server in background
-- [ ] T100 [US2] Use chrome-devtools-mcp to navigate to e-hentai.org/g/[real-gallery-id] (use actual EH gallery URL)
+- [ ] T100 [US2] Use ego-browser to navigate to e-hentai.org/g/[real-gallery-id] (use actual EH gallery URL)
 - [ ] T101 [US2] Verify EH platform initializes with loading animation
 - [ ] T102 [US2] Verify EH reader UI renders with correct album title, page count
 - [ ] T103 [US2] Verify EH book mode displays pages correctly
@@ -192,7 +192,7 @@
 - [ ] T105 [US2] Verify EH thumbnail navigation works (click thumbnail, page changes)
 - [ ] T106 [US2] Verify EH page flipping works (keyboard arrows, click navigation)
 - [ ] T107 [US2] Test EH error handling: navigate to invalid gallery URL, verify error displays with technical details
-- [ ] T108 [US2] Use chrome-devtools-mcp to navigate to nhentai.net/g/[real-gallery-id]/1/ (use actual NH gallery URL)
+- [ ] T108 [US2] Use ego-browser to navigate to nhentai.net/g/[real-gallery-id]/1/ (use actual NH gallery URL)
 - [ ] T109 [US2] Verify NH platform initializes with loading animation
 - [ ] T110 [US2] Verify NH reader UI renders with correct album title, page count
 - [ ] T111 [US2] Verify NH book mode displays pages correctly
@@ -351,7 +351,7 @@ With multiple developers:
 - **URL Patterns**: EH uses /g/* and /s/*, NH uses /g/[id]/[page]/ per FR-002 to FR-004
 - **Timeout**: 60 seconds per FR-020
 - **Error Display**: User-friendly message + technical details per FR-017, FR-018
-- **Validation**: Every phase MUST include browser testing via `chrome-devtools-mcp` per Constitution Principle III
+- **Validation**: Every phase MUST include browser testing via `ego-browser` per Constitution Principle III
 - **EH Priority**: EH platform correctness prioritized over NH per Constitution Additional Constraints
 - **No Legacy Code**: Verify no references to core.launcher or core.createAppView per FR-010, SC-007
 - **Commit Strategy**: Commit after each logical group of tasks (e.g., after completing all EH parsers)
@@ -385,3 +385,13 @@ With multiple developers:
 - US3: Code structure is clean and maintainable (code review)
 
 **Suggested MVP Scope**: Phase 1-3 (T001-T042) - Test platform on localhost
+
+## Planned Artifacts Not Yet Delivered
+
+以下路径为计划产物，当前仓库中尚未交付；任务引用不代表已有验证证据或说明文档：
+
+- `specs/001-platform-injection/validation-us1.md`
+- `specs/001-platform-injection/validation-us2.md`
+- `specs/001-platform-injection/validation-us3.md`
+- `specs/001-platform-injection/final-validation.md`
+- `src/platform/README.md`

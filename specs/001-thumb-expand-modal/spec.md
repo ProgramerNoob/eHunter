@@ -3,6 +3,7 @@
 **Feature Branch**: `[001-thumb-expand-modal]`  
 **Created**: 2026-02-21  
 **Status**: Draft  
+**状态注**：Draft 表示规格生命周期；`tasks.md` 的勾选记录历史进度，均不代表当前 HEAD 已验收。涉及本功能的行为改动，须按 [quickstart.md](./quickstart.md) 重新验收。
 **Input**: User description: "在ThumbScrollView底部(相当于当前屏幕底部)悬浮一个半透明的“展开”按钮。如果ThumbScrollView是横向展示的，则是最右侧。这个底部或则右侧，并不是指列表的底部，而是用户可视区域的底部或右侧。这个点击这个展开按钮后，会出发一个展示“全部缩略图”的弹窗。"
 
 ## Clarifications
@@ -13,7 +14,7 @@
 
 ## User Scenarios & Testing *(mandatory)*
 
-**Validation Note**: For each completed development cycle, run `npm run dev` and verify changed behavior in browser using `chrome-devtools-mcp` before marking work complete.
+**Validation Note**: For each completed development cycle, run `npm run dev` and verify changed behavior in browser using `ego-browser` before marking work complete.
 
 ### User Story 1 - 快速展开全部缩略图 (Priority: P1)
 

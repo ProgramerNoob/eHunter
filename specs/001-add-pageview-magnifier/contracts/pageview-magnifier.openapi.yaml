@@ -1,13 +1,43 @@
 openapi: 3.0.3
 info:
   title: PageView Magnifier Menu Contract
-  version: 1.0.0
+  version: 1.1.0
   description: >-
     Contract for PageView contextual menu interactions, desktop-only magnifier control,
     book/scroll mode action visibility, and platform-gated load-original behavior.
+    This is a logical contract for local reader UI behavior; example servers and paths do not represent deployed HTTP endpoints.
+    Target behavior is synchronized with [the 2026-09-18 decision](../../decisions/2026-09-18-reader-behavior.md),
+    sections 3 and 4. Implementation and acceptance remain pending; see ../tasks.md.
+    Settings and menu shortcuts share persistent size/zoom preferences; enabled is page-session state.
 servers:
   - url: https://ehunter.local
 paths:
+  /reader/magnifier/preferences:
+    put:
+      summary: Set desktop magnifier size and zoom from settings
+      operationId: setMagnifierPreferences
+      description: >-
+        The settings surface accepts every integer sample size from 20 to 300 CSS px,
+        and the same four zoom levels as menu shortcuts. Changes take effect immediately
+        and persist through the shared preference path without changing enabled.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MagnifierPersistentPreference'
+      responses:
+        '200':
+          description: Updated persistent preferences, also reflected in menu shortcuts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MagnifierPersistentPreference'
+        '400':
+          description: Invalid size or zoom; no invalid preference is committed
+        '409':
+          description: Magnifier controls unavailable on mobile
+
   /reader/pageview/{pageViewId}/menu/open:
     post:
       summary: Open contextual menu for a PageView
@@ -58,6 +88,10 @@ paths:
     post:
       summary: Increase or decrease magnifier zoom level
       operationId: changeMagnifierZoom
+      description: >-
+        Desktop and enabled only. Step once through 2x/3x/4x/5x, persist the new value,
+        and reflect it in settings. At 2x disable out; at 5x disable in. Disabled
+        actions do not mutate state. Constrained geometry does not change this range.
       parameters:
         - name: pageViewId
           in: path
@@ -84,6 +118,43 @@ paths:
                 $ref: '#/components/schemas/MagnifierState'
         '409':
           description: Zoom action not available
+
+  /reader/pageview/{pageViewId}/menu/actions/size:
+    post:
+      summary: Increase or decrease the configured sample size
+      operationId: changeMagnifierSize
+      description: >-
+        Desktop and enabled only. Set sampleSize to clamp(current sampleSize +/- 10,
+        20, 300), persist it and reflect it in settings. For example, 27 minus 10
+        becomes 20, and 295 plus 10 becomes 300. At 20 disable decrease; at 300
+        disable increase. Disabled actions do not mutate state. Always use the
+        configured size as the starting value, not effectiveSampleSize.
+      parameters:
+        - name: pageViewId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [direction]
+              properties:
+                direction:
+                  type: string
+                  enum: [increase, decrease]
+      responses:
+        '200':
+          description: Updated magnifier state with saved configured size
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MagnifierState'
+        '409':
+          description: Size action unavailable or disabled at the corresponding boundary
 
   /reader/pageview/{pageViewId}/menu/actions/load-original:
     post:
@@ -174,29 +245,86 @@ components:
     MagnifierZoom:
       type: string
       enum: [2x, 3x, 4x, 5x]
+      default: 3x
+      description: Selected multiplier; never reduced to fit available space.
+
+    MagnifierSampleSize:
+      type: integer
+      minimum: 20
+      maximum: 300
+      default: 80
+      description: Configured sample side in CSS px; every integer is valid, not a preset list.
+
+    MagnifierPersistentPreference:
+      type: object
+      required: [sampleSize, zoomLevel]
+      description: >-
+        Long-lived preferences shared across EH/EX/NH through GM within one browser and
+        script installation; when GM is unavailable, use origin-local localStorage.
+        Per-field validation, migration priority, GM recovery and reset behavior follow
+        section 3 of the decision. Legal existing values take precedence over defaults.
+        Enabled and temporary geometry are excluded from storage.
+      properties:
+        sampleSize:
+          $ref: '#/components/schemas/MagnifierSampleSize'
+        zoomLevel:
+          $ref: '#/components/schemas/MagnifierZoom'
+      additionalProperties: false
 
     MagnifierState:
       type: object
+      description: >-
+        Desktop-only display for the currently interacted PageView. Available bounds
+        are the intersection of that PageView and viewport, in CSS px. For a nonempty
+        intersection whose largest fitting square has side L, effectiveSampleSize =
+        min(sampleSize, L / selected multiplier), and lensSize = effectiveSampleSize
+        times selected multiplier. The focus reference square uses effectiveSampleSize.
+        Prefer a location beside the focus, initially right; when avoiding the focus
+        cannot fit, overlap is allowed to keep the whole lens inside available bounds.
+        Recompute on pointer, scroll, viewport and layout changes. Hide both overlays
+        on empty intersection or pointer leave without changing preferences or enabled.
+        Restore the configured size as soon as space permits; never persist geometry.
       required:
         - enabled
         - zoomLevel
+        - sampleSize
+        - effectiveSampleSize
+        - lensSize
         - lensVisible
         - focusIndicatorVisible
       properties:
         enabled:
           type: boolean
+          default: false
+          description: Page-session only; retained on page turns and reading-mode changes, false after reload or in a new page.
         zoomLevel:
           $ref: '#/components/schemas/MagnifierZoom'
+        sampleSize:
+          $ref: '#/components/schemas/MagnifierSampleSize'
+        effectiveSampleSize:
+          type: number
+          minimum: 0
+          description: Actual sample/reference side in CSS px; may be below 20 when constrained. Zero is only valid while hidden.
+        lensSize:
+          type: number
+          minimum: 0
+          description: Actual square lens side in CSS px, effectiveSampleSize times selected multiplier.
         lensVisible:
           type: boolean
         focusIndicatorVisible:
           type: boolean
         lensSide:
           type: string
-          enum: [left, right]
+          enum: [left, right, above, below, clamped]
 
     PageMenuAction:
       type: object
+      description: >-
+        All magnifier actions are hidden on mobile. On desktop, toggleMagnifier is
+        visible; zoomIn/zoomOut/sizeIncrease/sizeDecrease are visible only while enabled.
+        Zoom shortcuts disable the corresponding direction at 2x/5x, size shortcuts
+        at configured 20/300, independent of temporary geometry. Hidden or disabled
+        actions must not execute. Existing original-source and odd/even rules remain.
       required:
         - actionKey
         - visible
@@ -204,7 +332,7 @@ components:
       properties:
         actionKey:
           type: string
-          enum: [toggleMagnifier, loadOriginal, toggleOddEven, zoomIn, zoomOut]
+          enum: [toggleMagnifier, loadOriginal, toggleOddEven, zoomIn, zoomOut, sizeIncrease, sizeDecrease]
         visible:
           type: boolean
         enabled:

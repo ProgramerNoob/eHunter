@@ -2,10 +2,17 @@ openapi: 3.0.3
 info:
   title: eHunter Reader Preference Contract
   version: 1.0.0
-  description: Contract for global book-mode page turn animation preference and application behavior.
+  description: >-
+    Contract for global book-mode page turn animation preference and application behavior.
+    This is a logical contract for local reader UI behavior; example servers and paths do not represent deployed HTTP endpoints.
   x-behavior-notes:
-    - Default mode is realistic when no valid preference exists.
-    - If system reduced-motion is enabled and no stored preference exists, effective mode is none.
+    - Authoritative decision is specs/decisions/2026-09-18-reader-behavior.md sections 2 and 3; runtime acceptance is pending.
+    - Preserve any valid stored value, including legacy values equal to the old default.
+    - Fill missing or invalid shared items from current-origin unified then standalone legacy preferences before computing defaults.
+    - Only without a valid migrated value, initialize to none for reduced-motion, otherwise realistic on desktop or slide on mobile.
+    - Persist the initialized value; system changes and unrelated saves do not recompute it. A later user selection replaces it.
+    - Global means GM storage shared across EH/EX/NH in one browser and userscript installation; unavailable GM falls back to origin-local localStorage.
+    - Keep legacy data for fallback, preserve valid shared values when GM returns, make migration idempotent, and prevent legacy reimport after explicit reset.
     - Rapid inputs may be coalesced and reported as coalesced status.
 servers:
   - url: https://reader.local

@@ -4,6 +4,7 @@ info:
   version: 1.0.0
   description: >-
     Contract for reading-mode-scoped dock layout retrieval and persistence.
+    This is a logical contract for local reader UI behavior; example servers and paths do not represent deployed HTTP endpoints.
 servers:
   - url: https://ehunter.local
 paths:
