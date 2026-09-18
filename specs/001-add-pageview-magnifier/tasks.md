@@ -171,16 +171,30 @@ Task: "T025 [US3] Wire odd-even action for book mode in core/components/BookPage
 3. 交付 US3（上下文动作显隐与禁用态说明）。
 4. 最后执行 Phase 6 跨故事回归与文档对齐。
 
-## Phase 7: 2026-09-18 决策实施与验收（全部待办）
+## Phase 7: 2026-09-18 决策实施与验收（T033–T037 已实施，T038–T039 待验收）
 
-**依据**：以 [决策](../decisions/2026-09-18-reader-behavior.md) 第 3、4 节及本组同步正文为准；当前静态偏差见 [plan.md](./plan.md#当前实现偏差与实施顺序)。以下新增编号与历史 T001–T032 不重用，本轮不执行这些实施/验收任务。
+**依据**：以 [决策](../decisions/2026-09-18-reader-behavior.md) 第 3、4 节及本组同步正文为准；当前静态偏差见 [plan.md](./plan.md#当前实现偏差与实施顺序)。以下新增编号与历史 T001–T032 不重用。
 
-- [ ] T033 [US2] 在 `core/components/PageView.vue` 与 `core/store/app.ts` 统一尺寸/倍率设置和快捷动作：任意整数 20–300px、默认 80/3x、倍率四档、快捷 ±10 跨界 clamp 及边界禁用；自由整数不吸附到旧四档，设置与菜单即时一致且仅桌面提供放大镜操作。
-- [ ] T034 [US2] 在 `core/store/app.ts` 复用统一偏好保存尺寸/倍率，补齐输入及恢复的逐项合法性；协调 D04 的 GM 权限、共享、origin 降级、旧值补缺/重复迁移、GM 恢复和重置防复活，确保临时几何与开关不被持久化。依赖 D04 存储工作就绪后验收。
-- [ ] T035 [US2] 在 `core/components/PageView.vue` 核对并补齐页面会话开关：翻页/书页卷轴切换保留，刷新/新页面关闭；只让当前交互 PageView 显示镜头，显示层清理不误改开关。
-- [ ] T036 [US2] 在 `core/components/composables/useMagnifier.ts` 区分设定与有效取样尺寸，以 PageView∩viewport 计算可用区域；镜头放不下时保持倍率，同步缩小参考框与镜头（可小于 20px），优先避焦点、必要时允许覆盖以确保完整可视。
-- [ ] T037 [US2] 在 `core/components/composables/useMagnifier.ts` 与 `core/components/PageView.vue` 接入指针、滚动、窗口和布局变化后的重算及清理；交集为空隐藏，恢复空间即恢复设定，不写回临时尺寸，并保留加载/失败占位与既有样式。
+**状态（2026-09-18）**：T033–T037 已实现并在 dev 页（Vite 127.0.0.1:5173、ego-browser）完成对应验证，证据见各条目；T038（US2-A/B/C 验收）与 T039（T031/T032 + 跨故事回归）仍待统一验收。
+
+- [X] T033 [US2] 在 `core/components/PageView.vue` 与 `core/store/app.ts` 统一尺寸/倍率设置和快捷动作：任意整数 20–300px、默认 80/3x、倍率四档、快捷 ±10 跨界 clamp 及边界禁用；自由整数不吸附到旧四档，设置与菜单即时一致且仅桌面提供放大镜操作。
+  - 实现（2026-09-18，`core/components/PageView.vue`）：删除旧四档 `menuAreaSizeOptions`，新增 `magnifierAreaMin = 20`、`magnifierAreaMax = 300`、`magnifierAreaStep = 10`；尺寸增减按钮改用新边界禁用；`changeMagnifierAreaSize(step)` 以 `clamp(设定值 + step × 10, 20, 300)` 写回统一偏好；`core/store/app.ts` 的 `setMagnifierZoom`（2–5）与 `setMagnifierAreaSize`（20–300）负责钳制与持久化。
+  - 验证（dev 页，桌面 1200×900 DPR1，`.tmp/t033/` 事件与截图）：菜单文案「关闭放大镜/原图/增大放大镜倍率/缩小放大镜倍率/增大放大镜区域/缩小放大镜区域」；设置弹窗自定义输入 83 生效、19/301 被拒、80.5 → 80；快捷 83→93→83、27→20（缩小按钮禁用）→30、295→300（增大按钮禁用）→290；倍率 3→4→5（增大禁用）→4→3→2（缩小禁用）每次一档；设置与菜单即时一致；移动视口 390×844 DPR3 长按菜单仅「原图」，无放大镜项。
+- [X] T034 [US2] 在 `core/store/app.ts` 复用统一偏好保存尺寸/倍率，补齐输入及恢复的逐项合法性；协调 D04 的 GM 权限、共享、origin 降级、旧值补缺/重复迁移、GM 恢复和重置防复活，确保临时几何与开关不被持久化。依赖 D04 存储工作就绪后验收。
+  - 实现：尺寸/倍率沿用统一偏好快照（`magnifierZoom`、`magnifierAreaSize` 已纳入 `unifiedSettingsValueNormalizers`、`persistUnifiedSettingsState()` 与 `migrateLegacySettingsIfNeeded()` 的逐项补缺范围），临时几何与会话开关不落盘。
+  - 验证：开关切换只改 `globalThis.__ehunterMagnifierSessionState__.enabled`，快照 `updatedAt` 不变，且键集合中放大镜相关仅 `magnifierZoom`/`magnifierAreaSize`（无会话、几何临时键）；刷新后恢复的仍是已存尺寸/倍率。GM 权限、共享、origin 降级、旧值补缺、重复迁移、GM 恢复与重置防复活矩阵见 `specs/002-more-settings-modal/tasks.md` T039/T040 条目（同一存储层）。
+- [X] T035 [US2] 在 `core/components/PageView.vue` 核对并补齐页面会话开关：翻页/书页卷轴切换保留，刷新/新页面关闭；只让当前交互 PageView 显示镜头，显示层清理不误改开关。
+  - 实现：会话开关仅存于内存 `globalThis.__ehunterMagnifierSessionState__`，各 PageView 在挂载与 `props.index` 变化时用 `setEnabledFromSession` 恢复；镜头显隐由当前实例的指针状态驱动。
+  - 验证：开 → 滚动/书页切换 → `ArrowRight`/`ArrowLeft` 翻页 → 返回滚动，全程 `session.enabled === true`；书页模式可见 2 个 PageView 时仅 1 个 `.magnifier-lens`；`page.reload()` 后 `session.enabled === false`、无镜头、菜单回到「打开放大镜」；移动视口无放大镜项。
+- [X] T036 [US2] 在 `core/components/composables/useMagnifier.ts` 区分设定与有效取样尺寸，以 PageView∩viewport 计算可用区域；镜头放不下时保持倍率，同步缩小参考框与镜头（可小于 20px），优先避焦点、必要时允许覆盖以确保完整可视。
+  - 实现（`useMagnifier.ts` 重写 + `PageView.vue` 镜头样式）：新增 `effectiveSampleSize`/`effectiveLensSize` 与 `getIntersectionRect()`（PageView ∩ viewport）；`lensSide = min(设定尺寸 × 倍率, min(交集宽, 交集高))`、`sampleSize = lensSide / 倍率`，始终保持「镜头边长＝实际取样边长×倍率」（可小于 20px）；`resolveLensPlacement()` 依次尝试右/左/下/上并夹紧进交集，取与参考框重叠面积最小者（优先避焦点、必要时允许覆盖，交集足够时留 `viewportPadding = 8`）；`.magnifier-lens` 外边框改为内描边 `box-shadow`，使元素盒尺寸等于镜头边长，保证边界判定与 `getBoundingClientRect()` 一致。
+  - 验证（dev 页，1200×900 DPR1，`.tmp/t036/browser-events.jsonl`）：卷轴 200px/5x，视口 900 → 交集 840×717.25、实际 143.45/717.25（不变量 143.45×5 = 717.25、镜头完整落在交集内、偏好仍 200/5）；视口 600 → 83.45/417.25；视口 420 → 79.08/237.25（不变量成立、镜头底边贴合交集底边）；视口 250 → 交集高 67.25 → 参考框 13.45（小于 20px）且镜头 67.25 完整可视；视口 110 → 交集为空、参考框与镜头隐藏；书页模式 200/5（单页 525×735）→ 105/525、镜头 525×525 位于页内；恢复空间后精确回到设定值（80/3 → 80/240，200/5 → 143.45/717.25）。
+- [X] T037 [US2] 在 `core/components/composables/useMagnifier.ts` 与 `core/components/PageView.vue` 接入指针、滚动、窗口和布局变化后的重算及清理；交集为空隐藏，恢复空间即恢复设定，不写回临时尺寸，并保留加载/失败占位与既有样式。
+  - 实现：`onViewportChange()` 统一重算；`onMounted` 绑定 `window.resize`、`window.scroll`（capture + passive）与 `ResizeObserver`（PageView 与图片），`onBeforeUnmount` 全部解除；`renderMagnifierCanvas()` 使用有效尺寸与实际取样坐标；交集为空时关闭参考框与镜头，pending 与加载失败占位保留。
+  - 验证：滚动容器 `.awesome-scroll-view.scroll-view` 的 `scrollTop += 40`（不派发 mousemove）→ 交集 717.25 → 757.25 并跟随重算；`scrollTop += 2000`（指针离开页面）→ 镜头隐藏；回到原位并移动指针 → 恢复 143.45/717.25；视口 1200×900 → 600 → 420 → 900×900 → 1200×900 循环后精确恢复 80/240；书页↔卷轴切换 2s 后镜头实例归零（无残留），再悬停书页得 1 个 525×525 镜头；全程页面 `error`/`unhandledrejection` 收集 0 条、无 Vite overlay；临时尺寸未写回偏好。
 - [ ] T038 [US2] 按 `specs/001-add-pageview-magnifier/quickstart.md` US2-A/B/C 完成两种桌面阅读模式的新规则验收，记录自由整数/边界、受限小于20px与恢复、长期共享/降级/迁移/重置、开关页面会话的实际版本与证据；保存结果前保持未勾选。
+  - 进度（2026-09-18）：US2-A（自由整数、边界、倍率）与 US2-B（受限缩小与恢复、两种桌面阅读模式）已在 dev 页取得证据（见 T033–T037 条目，事件与截图位于 `.tmp/t033/`、`.tmp/t036/`）；US2-C 的长期共享/降级/迁移/重置部分复用设置组 T039/T040 的矩阵；真实脚本环境与移动真机回归待统一验收补测。
 - [ ] T039 [US1] [US3] 在 T033–T037 完成且版本固定后执行 T031/T032，并按 `specs/001-add-pageview-magnifier/quickstart.md` 回归桌面/移动菜单手势、原图、奇偶切换、翻页和桌面限制；将实际证据与未覆盖项写入本组验收记录。
+  - 进度（2026-09-18）：待 T038 完成后执行。本轮观察：桌面菜单、书页翻页与镜头联动正常；移动端长按在按住期间菜单显示「原图」（无放大镜项），松手时合成的 `click` 走非桌面分支 `clickBackground` 会关闭菜单——该路径不在 T036/T037 改动范围（`git diff` 未触及 `onClickBg`），列为待确认的既有交互行为。
 
 **依赖顺序**：T033→T034；T035 依赖入口状态语义对齐；T036→T037；T038/T039 依赖实施完成及 D04 存储依赖就绪。涉及相同文件的任务串行处理，验收期间固定实现版本。

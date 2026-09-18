@@ -18,6 +18,26 @@ interface UseMagnifierOptions {
     onSyncEnabled?: (enabled: boolean) => void
 }
 
+interface RectBox {
+    left: number
+    top: number
+    right: number
+    bottom: number
+    width: number
+    height: number
+}
+
+interface LensCandidate {
+    placement: LensPlacement
+    x: number
+    y: number
+}
+
+type LensPlacement = 'right' | 'left' | 'bottom' | 'top'
+
+const viewportPadding = 8
+const minLensSide = 1
+
 export function useMagnifier(options: UseMagnifierOptions) {
     const {
         pageViewRef,
@@ -36,24 +56,29 @@ export function useMagnifier(options: UseMagnifierOptions) {
     const pointerX = ref(0)
     const pointerY = ref(0)
     const hasPointerInView = ref(false)
-    const lensSide = ref<'left' | 'right'>('right')
+    const hasVisibleIntersection = ref(false)
+    const lensPlacement = ref<LensPlacement>('right')
     const lensX = ref(0)
     const lensY = ref(0)
+    const focusX = ref(0)
+    const focusY = ref(0)
+    const effectiveSampleSize = ref(magnifierAreaSize.value)
+    const effectiveLensSize = ref(magnifierAreaSize.value * magnifierZoom.value)
     const lensWarmState = ref<'pending' | 'ready'>('pending')
     const magnifierReady = ref(false)
     const showPendingIndicator = ref(false)
     const pendingRevealTimerId = ref<number | null>(null)
     const magnifierWarmToken = ref(0)
 
-    const focusBoxSize = computed(() => magnifierAreaSize.value)
-    const lensSize = computed(() => magnifierAreaSize.value * magnifierZoom.value)
+    const focusBoxSize = computed(() => effectiveSampleSize.value)
+    const lensSize = computed(() => effectiveLensSize.value)
 
     const showFocusIndicator = computed(() => {
-        return isDesktopPointer.value && magnifierEnabled.value && hasPointerInView.value && lensWarmState.value === 'ready'
+        return isDesktopPointer.value && magnifierEnabled.value && hasPointerInView.value && hasVisibleIntersection.value && lensWarmState.value === 'ready'
     })
 
     const showMagnifierLens = computed(() => {
-        return isDesktopPointer.value && magnifierEnabled.value && hasPointerInView.value
+        return isDesktopPointer.value && magnifierEnabled.value && hasPointerInView.value && hasVisibleIntersection.value
     })
 
     const showMagnifierPending = computed(() => {
@@ -64,24 +89,32 @@ export function useMagnifier(options: UseMagnifierOptions) {
         return pageViewRef.value?.getBoundingClientRect() || null
     }
 
+    function getIntersectionRect(rect: DOMRect): RectBox | null {
+        const left = Math.max(rect.left, 0)
+        const top = Math.max(rect.top, 0)
+        const right = Math.min(rect.right, window.innerWidth)
+        const bottom = Math.min(rect.bottom, window.innerHeight)
+        const width = right - left
+        const height = bottom - top
+        if (width <= 0 || height <= 0) {
+            return null
+        }
+        return { left, top, right, bottom, width, height }
+    }
+
     const focusIndicatorStyle = computed(() => {
-        const rect = getPageRect()
-        if (!rect) {
+        if (!hasVisibleIntersection.value) {
             return {}
         }
-        const half = focusBoxSize.value / 2
-        const x = clamp(pointerX.value - rect.left - half, 0, rect.width - focusBoxSize.value)
-        const y = clamp(pointerY.value - rect.top - half, 0, rect.height - focusBoxSize.value)
         return {
             width: `${focusBoxSize.value}px`,
             height: `${focusBoxSize.value}px`,
-            transform: `translate(${x}px, ${y}px)`,
+            transform: `translate(${focusX.value}px, ${focusY.value}px)`,
         }
     })
 
     const magnifierLensStyle = computed(() => {
-        const rect = getPageRect()
-        if (!rect) {
+        if (!hasVisibleIntersection.value) {
             return {}
         }
         return {
@@ -144,7 +177,7 @@ export function useMagnifier(options: UseMagnifierOptions) {
             magnifierReady.value = true
             lensWarmState.value = 'ready'
             if (showMagnifierLens.value) {
-                renderMagnifierCanvas()
+                updateLensPosition()
             }
         } catch (warmError) {
             Logger.logText('MAGNIFIER', `warm magnifier source failed: ${String(warmError)}`)
@@ -160,12 +193,11 @@ export function useMagnifier(options: UseMagnifierOptions) {
         const canvas = magnifierCanvasRef.value
         const imgEl = imgRef.value
         const rect = getPageRect()
-        if (!canvas || !imgEl || !rect || !magnifierReady.value) {
+        if (!canvas || !imgEl || !rect || !magnifierReady.value || !hasVisibleIntersection.value) {
             return
         }
-        const zoom = magnifierZoom.value
-        const areaSize = magnifierAreaSize.value
-        const outputSize = areaSize * zoom
+        const sampleSize = effectiveSampleSize.value
+        const outputSize = effectiveLensSize.value
         const dpr = window.devicePixelRatio || 1
         const targetWidth = Math.max(1, Math.round(outputSize * dpr))
         const targetHeight = Math.max(1, Math.round(outputSize * dpr))
@@ -183,48 +215,101 @@ export function useMagnifier(options: UseMagnifierOptions) {
         ctx.clearRect(0, 0, outputSize, outputSize)
         ctx.imageSmoothingEnabled = true
 
-        const localX = clamp(pointerX.value - rect.left, 0, rect.width)
-        const localY = clamp(pointerY.value - rect.top, 0, rect.height)
-        const sourceWidthCss = Math.min(areaSize, rect.width)
-        const sourceHeightCss = Math.min(areaSize, rect.height)
-        const sourceLeftCss = clamp(localX - sourceWidthCss / 2, 0, Math.max(0, rect.width - sourceWidthCss))
-        const sourceTopCss = clamp(localY - sourceHeightCss / 2, 0, Math.max(0, rect.height - sourceHeightCss))
-
         const scaleX = imgEl.naturalWidth / Math.max(1, rect.width)
         const scaleY = imgEl.naturalHeight / Math.max(1, rect.height)
+        const sourceLeftCss = clamp(focusX.value, 0, Math.max(0, rect.width - sampleSize))
+        const sourceTopCss = clamp(focusY.value, 0, Math.max(0, rect.height - sampleSize))
         const sourceX = sourceLeftCss * scaleX
         const sourceY = sourceTopCss * scaleY
-        const sourceWidth = sourceWidthCss * scaleX
-        const sourceHeight = sourceHeightCss * scaleY
+        const sourceWidth = sampleSize * scaleX
+        const sourceHeight = sampleSize * scaleY
 
         ctx.drawImage(imgEl, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, outputSize, outputSize)
     }
 
+    function resolveSamplingAxis(pointer: number, size: number, preferredMin: number, preferredMax: number, fallbackMin: number, fallbackMax: number) {
+        if (preferredMax - preferredMin >= size) {
+            return clamp(pointer - size / 2, preferredMin, preferredMax - size)
+        }
+        if (fallbackMax - fallbackMin >= size) {
+            return clamp(pointer - size / 2, fallbackMin, fallbackMax - size)
+        }
+        return clamp(pointer - size / 2, fallbackMin, Math.max(fallbackMin, fallbackMax - size))
+    }
+
+    function getOverlapArea(ax: number, ay: number, aSize: number, bx: number, by: number, bSize: number) {
+        const width = Math.min(ax + aSize, bx + bSize) - Math.max(ax, bx)
+        const height = Math.min(ay + aSize, by + bSize) - Math.max(ay, by)
+        if (width <= 0 || height <= 0) {
+            return 0
+        }
+        return width * height
+    }
+
+    function resolveLensPlacement(lensSide: number, sampleSize: number, bounds: { minX: number, maxX: number, minY: number, maxY: number }) {
+        const candidates: LensCandidate[] = [
+            { placement: 'right', x: focusX.value + sampleSize + lensGap, y: focusY.value + sampleSize / 2 - lensSide / 2 },
+            { placement: 'left', x: focusX.value - lensGap - lensSide, y: focusY.value + sampleSize / 2 - lensSide / 2 },
+            { placement: 'bottom', x: focusX.value + sampleSize / 2 - lensSide / 2, y: focusY.value + sampleSize + lensGap },
+            { placement: 'top', x: focusX.value + sampleSize / 2 - lensSide / 2, y: focusY.value - lensGap - lensSide },
+        ]
+        let best: { placement: LensPlacement, x: number, y: number, overlap: number } | null = null
+        for (const candidate of candidates) {
+            const x = clamp(candidate.x, bounds.minX, Math.max(bounds.minX, bounds.maxX - lensSide))
+            const y = clamp(candidate.y, bounds.minY, Math.max(bounds.minY, bounds.maxY - lensSide))
+            const overlap = getOverlapArea(x, y, lensSide, focusX.value, focusY.value, sampleSize)
+            if (!best || overlap < best.overlap) {
+                best = { placement: candidate.placement, x, y, overlap }
+            }
+        }
+        return best as { placement: LensPlacement, x: number, y: number, overlap: number }
+    }
+
     function updateLensPosition() {
         const rect = getPageRect()
-        if (!rect) {
+        const intersection = rect ? getIntersectionRect(rect) : null
+        if (!rect || !intersection) {
+            hasVisibleIntersection.value = false
+            effectiveSampleSize.value = magnifierAreaSize.value
+            effectiveLensSize.value = magnifierAreaSize.value * magnifierZoom.value
             return
         }
-        const viewportPadding = 8
-        const localPointerX = clamp(pointerX.value - rect.left, 0, rect.width)
-        const localPointerY = clamp(pointerY.value - rect.top, 0, rect.height)
-        const focusHalf = focusBoxSize.value / 2
-        const rightCandidate = localPointerX + focusHalf + lensGap
-        const leftCandidate = localPointerX - focusHalf - lensGap - lensSize.value
-        const rightOverflowViewport = rect.left + rightCandidate + lensSize.value > window.innerWidth - viewportPadding
-        const leftOverflowViewport = rect.left + leftCandidate < viewportPadding
+        hasVisibleIntersection.value = true
 
-        if (rightOverflowViewport && !leftOverflowViewport) {
-            lensSide.value = 'left'
-        } else {
-            lensSide.value = 'right'
+        const isPointerInPage = pointerX.value >= rect.left && pointerX.value <= rect.right && pointerY.value >= rect.top && pointerY.value <= rect.bottom
+        if (!isPointerInPage) {
+            hasPointerInView.value = false
+            return
         }
 
-        lensX.value = lensSide.value === 'right' ? rightCandidate : leftCandidate
-        const topCandidate = localPointerY - lensSize.value / 2
-        const minLensY = viewportPadding - rect.top
-        const maxLensY = window.innerHeight - viewportPadding - rect.top - lensSize.value
-        lensY.value = clamp(topCandidate, Math.min(minLensY, maxLensY), Math.max(minLensY, maxLensY))
+        const zoom = Math.max(1, magnifierZoom.value)
+        const maxLensSide = Math.min(intersection.width, intersection.height)
+        const lensSide = Math.max(minLensSide, Math.min(magnifierAreaSize.value * zoom, maxLensSide))
+        const sampleSize = lensSide / zoom
+        effectiveSampleSize.value = sampleSize
+        effectiveLensSize.value = lensSide
+
+        const interLocalLeft = intersection.left - rect.left
+        const interLocalTop = intersection.top - rect.top
+        const interLocalRight = intersection.right - rect.left
+        const interLocalBottom = intersection.bottom - rect.top
+        const localPointerX = clamp(pointerX.value - rect.left, 0, rect.width)
+        const localPointerY = clamp(pointerY.value - rect.top, 0, rect.height)
+
+        focusX.value = resolveSamplingAxis(localPointerX, sampleSize, interLocalLeft, interLocalRight, 0, rect.width)
+        focusY.value = resolveSamplingAxis(localPointerY, sampleSize, interLocalTop, interLocalBottom, 0, rect.height)
+
+        const bounds = {
+            minX: interLocalRight - interLocalLeft >= lensSide + viewportPadding * 2 ? interLocalLeft + viewportPadding : interLocalLeft,
+            maxX: interLocalRight - interLocalLeft >= lensSide + viewportPadding * 2 ? interLocalRight - viewportPadding : interLocalRight,
+            minY: interLocalBottom - interLocalTop >= lensSide + viewportPadding * 2 ? interLocalTop + viewportPadding : interLocalTop,
+            maxY: interLocalBottom - interLocalTop >= lensSide + viewportPadding * 2 ? interLocalBottom - viewportPadding : interLocalBottom,
+        }
+        const resolved = resolveLensPlacement(lensSide, sampleSize, bounds)
+        lensPlacement.value = resolved.placement
+        lensX.value = resolved.x
+        lensY.value = resolved.y
+
         if (lensWarmState.value === 'ready') {
             renderMagnifierCanvas()
         }
@@ -246,6 +331,10 @@ export function useMagnifier(options: UseMagnifierOptions) {
 
     function onMouseLeave() {
         hideMagnifierPointerArtifacts()
+    }
+
+    function onViewportChange() {
+        updateLensPosition()
     }
 
     function applyEnabled(enabled: boolean) {
@@ -279,6 +368,8 @@ export function useMagnifier(options: UseMagnifierOptions) {
         applyEnabled(enabled)
     }
 
+    let pageResizeObserver: ResizeObserver | null = null
+
     watch([showMagnifierLens, lensWarmState], ([showLens, warmState]) => {
         clearPendingRevealTimer()
         showPendingIndicator.value = false
@@ -292,9 +383,7 @@ export function useMagnifier(options: UseMagnifierOptions) {
     })
 
     watch([magnifierZoom, magnifierAreaSize, showMagnifierLens], () => {
-        if (showMagnifierLens.value && lensWarmState.value === 'ready') {
-            renderMagnifierCanvas()
-        }
+        updateLensPosition()
     })
 
     watch(imgSrc, (newSrc, oldSrc) => {
@@ -311,11 +400,27 @@ export function useMagnifier(options: UseMagnifierOptions) {
 
     onMounted(() => {
         document.addEventListener('ehunter:magnifier-toggle', onMagnifierToggleSync as EventListener)
+        window.addEventListener('resize', onViewportChange)
+        window.addEventListener('scroll', onViewportChange, { capture: true, passive: true })
+        if (typeof ResizeObserver !== 'undefined') {
+            pageResizeObserver = new ResizeObserver(onViewportChange)
+            if (pageViewRef.value) {
+                pageResizeObserver.observe(pageViewRef.value)
+            }
+            if (imgRef.value) {
+                pageResizeObserver.observe(imgRef.value)
+            }
+        }
+        updateLensPosition()
     })
 
     onBeforeUnmount(() => {
         clearPendingRevealTimer()
         document.removeEventListener('ehunter:magnifier-toggle', onMagnifierToggleSync as EventListener)
+        window.removeEventListener('resize', onViewportChange)
+        window.removeEventListener('scroll', onViewportChange, { capture: true })
+        pageResizeObserver?.disconnect()
+        pageResizeObserver = null
     })
 
     return {

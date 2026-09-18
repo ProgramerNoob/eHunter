@@ -108,7 +108,7 @@
                         v-if="showMagnifierZoomActions"
                         type="button"
                         class="item"
-                        :disabled="magnifierAreaSize >= 150"
+                        :disabled="magnifierAreaSize >= magnifierAreaMax"
                         @click="changeMagnifierAreaSize(1)">
                         <span>{{ i18n.increaseMagnifierArea }}</span>
                     </button>
@@ -117,7 +117,7 @@
                         v-if="showMagnifierZoomActions"
                         type="button"
                         class="item"
-                        :disabled="magnifierAreaSize <= 50"
+                        :disabled="magnifierAreaSize <= magnifierAreaMin"
                         @click="changeMagnifierAreaSize(-1)">
                         <span>{{ i18n.decreaseMagnifierArea }}</span>
                     </button>
@@ -181,7 +181,9 @@ const menuOwnerId = `pageview-menu-${props.index}`
 
 const touchLongPressMs = 500
 const touchMoveTolerance = 10
-const menuAreaSizeOptions = [50, 80, 120, 150]
+const magnifierAreaMin = 20
+const magnifierAreaMax = 300
+const magnifierAreaStep = 10
 const pendingRevealDelayMs = 120
 const lensGap = 6
 
@@ -197,7 +199,7 @@ const isDesktopPointer = computed(() => {
 const showMagnifierToggleAction = computed(() => isDesktopPointer.value)
 const showOddEvenAction = computed(() => isBookMode.value)
 const magnifierZoom = computed(() => Math.max(2, Math.min(5, Math.round(store.magnifierZoom || 3))))
-const magnifierAreaSize = computed(() => Math.max(20, Math.min(300, Math.round(store.magnifierAreaSize || 80))))
+const magnifierAreaSize = computed(() => Math.max(magnifierAreaMin, Math.min(magnifierAreaMax, Math.round(store.magnifierAreaSize || 80))))
 
 const loadOriginalEnabled = computed(() => albumService.isSupportImgChangeSource())
 const loadOriginalDisabledReason = computed(() => i18n.value.notSupportedInCurrentPlatform || i18n.value.disabled)
@@ -323,19 +325,8 @@ function changeMagnifierZoom(step: number) {
 }
 
 function changeMagnifierAreaSize(step: number) {
-    const current = magnifierAreaSize.value
-    const sorted = menuAreaSizeOptions.slice().sort((a, b) => a - b)
-    if (step > 0) {
-        const next = sorted.find(item => item > current)
-        if (next !== undefined) {
-            storeAction.setMagnifierAreaSize(next)
-        }
-    } else {
-        const prev = sorted.slice().reverse().find(item => item < current)
-        if (prev !== undefined) {
-            storeAction.setMagnifierAreaSize(prev)
-        }
-    }
+    const next = clamp(magnifierAreaSize.value + step * magnifierAreaStep, magnifierAreaMin, magnifierAreaMax)
+    storeAction.setMagnifierAreaSize(next)
     updateLensPosition()
     closeMenu()
 }
@@ -530,8 +521,7 @@ span {
 
 .magnifier-lens {
     position: absolute;
-    border: 2px solid $accent_color;
-    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba($accent_color, 0.8);
+    box-shadow: inset 0 0 0 2px $accent_color, 0 8px 22px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba($accent_color, 0.8);
     overflow: hidden;
     background: rgba(0, 0, 0, 0.12);
     pointer-events: none;
