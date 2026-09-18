@@ -196,5 +196,7 @@ Task: "T025 [US3] Wire odd-even action for book mode in core/components/BookPage
   - 进度（2026-09-18）：US2-A（自由整数、边界、倍率）与 US2-B（受限缩小与恢复、两种桌面阅读模式）已在 dev 页取得证据（见 T033–T037 条目，事件与截图位于 `.tmp/t033/`、`.tmp/t036/`）；US2-C 的长期共享/降级/迁移/重置部分复用设置组 T039/T040 的矩阵；真实脚本环境与移动真机回归待统一验收补测。
 - [ ] T039 [US1] [US3] 在 T033–T037 完成且版本固定后执行 T031/T032，并按 `specs/001-add-pageview-magnifier/quickstart.md` 回归桌面/移动菜单手势、原图、奇偶切换、翻页和桌面限制；将实际证据与未覆盖项写入本组验收记录。
   - 进度（2026-09-18）：待 T038 完成后执行。本轮观察：桌面菜单、书页翻页与镜头联动正常；移动端长按在按住期间菜单显示「原图」（无放大镜项），松手时合成的 `click` 走非桌面分支 `clickBackground` 会关闭菜单——该路径不在 T036/T037 改动范围（`git diff` 未触及 `onClickBg`），列为待确认的既有交互行为。
+  - 修复（2026-09-18）：`core/components/PageView.vue` 与 `core/components/composables/usePageMenu.ts` 增加长按 click 守卫：长按打开菜单后 `onTouchEnd` 对本次手势 `preventDefault()` 吞掉合成 click；`usePageMenu.onDocumentClick` 仅在守卫命中且点击目标仍位于本实例内时忽略关闭（`shouldIgnoreClick(event)`）；守卫 1000ms 自过期，避免顶栏等区域的后续点击被吞。
+  - 修复验证（dev 页移动 390×844 DPR3，截图 `.tmp/t036/m3-mobile-after-fix.png`）：松手后菜单保持（菜单数 1，项「原图」）；松手后 120ms 内点页面外关闭（0）；菜单项「原图」正常触发（捕获阶段 click 计数 1 且菜单关闭）；快速轻点不开菜单、长按可重复触发；桌面点击开/关与点页面外关闭正常；页面 `__errs` 0、无 vite 错误遮罩；`npm run type-check` 仅既有 22 项错误。
 
 **依赖顺序**：T033→T034；T035 依赖入口状态语义对齐；T036→T037；T038/T039 依赖实施完成及 D04 存储依赖就绪。涉及相同文件的任务串行处理，验收期间固定实现版本。

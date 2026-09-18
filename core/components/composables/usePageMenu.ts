@@ -7,10 +7,11 @@ function clamp(val: number, min: number, max: number) {
 interface UsePageMenuOptions {
     pageViewRef: Ref<HTMLElement | null>
     menuOwnerId: string
+    shouldIgnoreClick?: (event: MouseEvent) => boolean
 }
 
 export function usePageMenu(options: UsePageMenuOptions) {
-    const { pageViewRef, menuOwnerId } = options
+    const { pageViewRef, menuOwnerId, shouldIgnoreClick } = options
 
     const menuOpen = ref(false)
     const menuAnchorX = ref(12)
@@ -56,6 +57,10 @@ export function usePageMenu(options: UsePageMenuOptions) {
 
     function onDocumentClick(e: MouseEvent) {
         if (!menuOpen.value) {
+            return
+        }
+        // 长按打开菜单的手势会在松手时补发一次合成 click，此时不应关闭菜单
+        if (shouldIgnoreClick?.(e)) {
             return
         }
         const root = pageViewRef.value

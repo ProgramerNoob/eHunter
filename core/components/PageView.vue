@@ -204,6 +204,19 @@ const magnifierAreaSize = computed(() => Math.max(magnifierAreaMin, Math.min(mag
 const loadOriginalEnabled = computed(() => albumService.isSupportImgChangeSource())
 const loadOriginalDisabledReason = computed(() => i18n.value.notSupportedInCurrentPlatform || i18n.value.disabled)
 
+const longPressMenuOpened = ref(false)
+// 长按开菜单后，守卫需在松手补发的合成 click 之后自行失效，避免顶栏等区域的下一次点击被吞
+const longPressClickGuardMs = 1000
+let longPressClickGuardTimerId: number | null = null
+
+function clearLongPressMenuOpened() {
+    if (longPressClickGuardTimerId !== null) {
+        window.clearTimeout(longPressClickGuardTimerId)
+        longPressClickGuardTimerId = null
+    }
+    longPressMenuOpened.value = false
+}
+
 const {
     menuOpen,
     menuAnchorStyle,
@@ -212,6 +225,9 @@ const {
 } = usePageMenu({
     pageViewRef,
     menuOwnerId,
+    shouldIgnoreClick: (event) => longPressMenuOpened.value
+        && event.target instanceof Node
+        && pageViewRef.value?.contains(event.target) === true,
 })
 
 const {
@@ -261,16 +277,41 @@ const {
 })
 
 const {
-    onTouchStart,
+    onTouchStart: handleTouchStart,
     onTouchMove,
-    onTouchEnd,
+    onTouchEnd: handleTouchEnd,
     onTouchCancel,
 } = useTouchLongPress({
     touchLongPressMs,
     touchMoveTolerance,
     shouldHandle: () => !isBookMode.value && !isDesktopPointer.value,
-    onLongPress: (x, y) => openMenuAt(x, y),
+    onLongPress: (x, y) => {
+        longPressMenuOpened.value = true
+        openMenuAt(x, y)
+    },
 })
+
+function onTouchStart(e: TouchEvent) {
+    clearLongPressMenuOpened()
+    handleTouchStart(e)
+}
+
+function onTouchEnd(e: TouchEvent) {
+    // 长按已在按住期间打开菜单：吞掉本次手势合成的 click，避免菜单刚出现就被关闭或误触菜单项
+    if (longPressMenuOpened.value) {
+        if (e.cancelable) {
+            e.preventDefault()
+        }
+        if (longPressClickGuardTimerId !== null) {
+            window.clearTimeout(longPressClickGuardTimerId)
+        }
+        longPressClickGuardTimerId = window.setTimeout(() => {
+            longPressClickGuardTimerId = null
+            longPressMenuOpened.value = false
+        }, longPressClickGuardMs)
+    }
+    handleTouchEnd()
+}
 
 onMounted(() => {
     if (props.active && !imgPageInfo.value.src) {
@@ -340,6 +381,10 @@ function loadOriginalFromMenu() {
 }
 
 function onClickBg(e: MouseEvent) {
+    if (longPressMenuOpened.value) {
+        clearLongPressMenuOpened()
+        return
+    }
     if (menuOpen.value) {
         closeMenu()
         return
