@@ -1669,8 +1669,9 @@ export const storeAction = {
         try {
             store.factoryResetStatus = 'running'
             store.factoryResetErrorMessage = ''
-            // 只清 eHunter 自己的键，避免连带清掉站点自身数据
-            PlatformService.storageClear('ehunter:')
+            // 只清 eHunter 自己的键，避免连带清掉站点自身数据；ehunter: 覆盖当前设置键，
+            // AlbumCache 覆盖 2.x 遗留相册缓存键（AlbumCache/AlbumCacheVersion），与新链路无持久化相册缓存一致
+            PlatformService.storageClear(['ehunter:', 'AlbumCache'])
             // 标记旧副本不再导入，避免被清掉的旧设置复活
             writeLegacyMigrationState(legacyImportStatusBlocked)
             window.location.reload()

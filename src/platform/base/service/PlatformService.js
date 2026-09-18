@@ -101,11 +101,21 @@ export default {
             return false;
         }
     },
-    // 清空存储；传入 keyPrefix 时只清 eHunter 自己的键，避免连带清掉站点自身数据
+    // 清空存储；keyPrefix 支持字符串或字符串数组，只清 eHunter 自己的键，避免连带清掉站点自身数据
+    // 跨平台影响：EH/NH/TEST 共用本方法，这里只扩展参数形式，传单个字符串时行为与之前一致
+    /**
+     * @param {string | string[]} [keyPrefix] 单个前缀或前缀数组；空字符串表示清空全部
+     * @returns {boolean}
+     */
     storageClear(keyPrefix = '') {
+        const clearAll = !Array.isArray(keyPrefix) && keyPrefix === '';
+        const prefixes = (Array.isArray(keyPrefix) ? keyPrefix : [keyPrefix]).filter(prefix => typeof prefix === 'string' && prefix !== '');
         const matchesPrefix = (key) => {
+            if (clearAll) {
+                return true;
+            }
             const name = typeof key === 'string' ? key : String(key);
-            return keyPrefix === '' || name.indexOf(keyPrefix) === 0;
+            return prefixes.some(prefix => name.indexOf(prefix) === 0);
         };
         try {
             if (typeof GM_listValues === 'function' && typeof GM_deleteValue === 'function') {
