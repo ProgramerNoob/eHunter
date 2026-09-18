@@ -28,6 +28,10 @@ const userscriptBanner = `// ==UserScript==
 // @connect      jp.animesales.xyz
 // @grant        GM_xmlhttpRequest
 // @grant        GM_download
+// @grant        GM_getValue
+// @grant        GM_setValue
+// @grant        GM_deleteValue
+// @grant        GM_listValues
 // @license      MIT
 // ==/UserScript==`
 

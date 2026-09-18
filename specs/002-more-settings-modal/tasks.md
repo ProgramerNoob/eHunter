@@ -4,11 +4,11 @@
 
 ## 2026-09-18 后续任务（当前）
 
-先完成 T039，再完成 T040 与翻页组 T035、放大镜组后续实现，最后统一验收；其余历史未完成任务仍需处理。
+下一步：翻页组 T035 与放大镜组后续实现，随后按 T041 统一验收；其余历史未完成任务仍需处理。
 
-- [ ] T039 在 `vite.config.prod.ts`、`src/platform/base/service/PlatformService.js` 与 `core/store/app.ts` 核对并补齐 GM 存储能力、生产权限与按 origin 降级，保留旧数据用于回退。
-- [ ] T040 在 `core/store/app.ts` 实现逐项迁移、合法共享优先、统一旧值与独立旧值补缺、GM 恢复规则、幂等及重置防复活；维持既有二次确认语义。
-- [ ] T041 按 `specs/002-more-settings-modal/quickstart.md` 完成 EH/EX/NH 真实脚本环境的共享/降级矩阵、桌面移动弹窗回归与相关设置专项；记录证据后更新任务。
+- [x] T039 在 `vite.config.prod.ts`、`src/platform/base/service/PlatformService.js` 与 `core/store/app.ts` 核对并补齐 GM 存储能力、生产权限与按 origin 降级，保留旧数据用于回退。（2026-09-18 完成：banner 补齐 GM 存储 grant；GM 优先、按 origin 降级与 `storageClear(prefix)` 已实现；EH↔EX 实测 GM 共享生效、两站点 localStorage 快照不再被改写。）
+- [x] T040 在 `core/store/app.ts` 实现逐项迁移、合法共享优先、统一旧值与独立旧值补缺、GM 恢复规则、幂等及重置防复活；维持既有二次确认语义。（2026-09-18 完成：迁移标记与逐项补缺已实现；dev 页实测首站导入、幂等、重置防复活与无效值修复，EH 真实环境实测导入与幂等。）
+- [ ] T041 按 `specs/002-more-settings-modal/quickstart.md` 完成 EH/EX/NH 真实脚本环境的共享/降级矩阵、桌面移动弹窗回归与相关设置专项；记录证据后更新任务。（进度：EH↔EX 共享、EH 首次导入与幂等已实测；NH 回归、无 GM 场景矩阵、真实环境重置防复活待补。）
 
 **Input**: Design documents from `specs/002-more-settings-modal/`
 **Prerequisites**: `specs/002-more-settings-modal/plan.md`, `specs/002-more-settings-modal/spec.md`, `specs/002-more-settings-modal/research.md`, `specs/002-more-settings-modal/data-model.md`, `specs/002-more-settings-modal/contracts/settings-modal.openapi.yaml`

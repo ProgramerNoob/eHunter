@@ -178,6 +178,17 @@ const pageTurnAnimationPreferenceSchemaVersion = 1
 const defaultPageTurnAnimationMode: PageTurnAnimationMode = 'realistic'
 const unifiedSettingsPreferenceKey = 'ehunter:reader:prefs:unified-settings'
 const unifiedSettingsPreferenceSchemaVersion = 3
+const legacyMigrationPreferenceKey = 'ehunter:reader:prefs:legacy-migration'
+const legacyMigrationPreferenceSchemaVersion = 1
+const legacyImportStatusDone = 'done'
+const legacyImportStatusBlocked = 'blocked'
+type LegacyImportStatus = typeof legacyImportStatusDone | typeof legacyImportStatusBlocked
+
+interface LegacyMigrationState {
+    schemaVersion: number
+    migratedAt: string
+    legacyImport: LegacyImportStatus
+}
 let bookTurnSettleTimerID: number = 0
 let isBookTurning = false
 let pendingBookTurn: null | { val: number, updater: string } = null
@@ -642,37 +653,75 @@ function getSystemPreferredPageTurnAnimationMode(): PageTurnAnimationMode {
     return defaultPageTurnAnimationMode
 }
 
-function readByUserscriptStorage(): any {
-    const gmGetValue = (<any>globalThis).GM_getValue
-    if (typeof gmGetValue === 'function') {
-        return gmGetValue(pageTurnAnimationPreferenceKey, null)
-    }
-    return null
+// 共享通道：有用户脚本存储时读共享数据，否则按 origin 降级到本站 localStorage
+function readSharedPreferenceRaw(key: string): any {
+    return PlatformService.storageGetShared(key, null)
 }
 
-function writeByUserscriptStorage(data: PageTurnAnimationPreference): boolean {
-    const gmSetValue = (<any>globalThis).GM_setValue
-    if (typeof gmSetValue === 'function') {
-        gmSetValue(pageTurnAnimationPreferenceKey, data)
-        return true
-    }
-    return false
+// 站点本地通道：只读当前 origin 的 localStorage，用于旧版本地副本补缺
+function readSiteLocalPreferenceRaw(key: string): any {
+    return PlatformService.storageGetLocal(key, null)
 }
 
-function readByStorageService(): any {
-    try {
-        return PlatformService.storageGet(pageTurnAnimationPreferenceKey, null)
-    } catch (e) {
+function writeSharedPreferenceRaw(key: string, data: any): boolean {
+    return PlatformService.storageSetShared(key, data)
+}
+
+function parsePreferenceObject(rawData: any): Record<string, any> | null {
+    if (!rawData) {
         return null
     }
+    let value = rawData
+    if (typeof value === 'string') {
+        try {
+            value = JSON.parse(value)
+        } catch (e) {
+            return null
+        }
+    }
+    return value && typeof value === 'object' ? value : null
 }
 
-function writeByStorageService(data: PageTurnAnimationPreference): boolean {
-    try {
-        return PlatformService.storageSet(pageTurnAnimationPreferenceKey, data)
-    } catch (e) {
-        return false
+function readLegacyMigrationState(): LegacyMigrationState | null {
+    const rawData = readSharedPreferenceRaw(legacyMigrationPreferenceKey)
+    if (!rawData) {
+        return null
     }
+    let value = rawData
+    if (typeof value === 'string') {
+        try {
+            value = JSON.parse(value)
+        } catch (e) {
+            return null
+        }
+    }
+    if (!value || typeof value !== 'object') {
+        return null
+    }
+    const status = value.legacyImport
+    if (status !== legacyImportStatusDone && status !== legacyImportStatusBlocked) {
+        return null
+    }
+    return {
+        schemaVersion: Number(value.schemaVersion) || legacyMigrationPreferenceSchemaVersion,
+        migratedAt: typeof value.migratedAt === 'string' ? value.migratedAt : '',
+        legacyImport: status,
+    }
+}
+
+function writeLegacyMigrationState(status: LegacyImportStatus) {
+    const state: LegacyMigrationState = {
+        schemaVersion: legacyMigrationPreferenceSchemaVersion,
+        migratedAt: new Date().toISOString(),
+        legacyImport: status,
+    }
+    writeSharedPreferenceRaw(legacyMigrationPreferenceKey, state)
+}
+
+// 显式重置后禁止再次导入旧副本，避免被清掉的旧设置复活
+function isLegacyImportBlocked(): boolean {
+    const state = readLegacyMigrationState()
+    return !!state && state.legacyImport === legacyImportStatusBlocked
 }
 
 function parsePageTurnPreference(rawData: any): PageTurnAnimationPreference | null {
@@ -707,47 +756,30 @@ function buildPageTurnPreference(mode: PageTurnAnimationMode): PageTurnAnimation
 }
 
 function persistPageTurnAnimationMode(mode: PageTurnAnimationMode) {
-    const preference = buildPageTurnPreference(mode)
-    const usedUserscriptStorage = writeByUserscriptStorage(preference)
-    if (!usedUserscriptStorage) {
-        writeByStorageService(preference)
-    }
+    writeSharedPreferenceRaw(pageTurnAnimationPreferenceKey, buildPageTurnPreference(mode))
 }
 
 function readPageTurnAnimationMode(): PageTurnAnimationMode {
-    const userscriptStored = parsePageTurnPreference(readByUserscriptStorage())
-    if (userscriptStored) {
-        return userscriptStored.animationMode
+    const sharedStored = parsePageTurnPreference(readSharedPreferenceRaw(pageTurnAnimationPreferenceKey))
+    if (sharedStored) {
+        return sharedStored.animationMode
     }
-    const localStored = parsePageTurnPreference(readByStorageService())
-    if (localStored) {
-        return localStored.animationMode
+    if (isLegacyImportBlocked()) {
+        return getSystemPreferredPageTurnAnimationMode()
+    }
+    const legacyStored = parsePageTurnPreference(readSiteLocalPreferenceRaw(pageTurnAnimationPreferenceKey))
+    if (legacyStored) {
+        return legacyStored.animationMode
     }
     return getSystemPreferredPageTurnAnimationMode()
 }
 
 function readUnifiedSettingsRaw(): any {
-    const gmGetValue = (<any>globalThis).GM_getValue
-    if (typeof gmGetValue === 'function') {
-        return gmGetValue(unifiedSettingsPreferenceKey, null)
-    }
-    try {
-        return PlatformService.storageGet(unifiedSettingsPreferenceKey, null)
-    } catch (e) {
-        return null
-    }
+    return readSharedPreferenceRaw(unifiedSettingsPreferenceKey)
 }
 
 function writeUnifiedSettingsRaw(data: UnifiedSettingsPreference): void {
-    const gmSetValue = (<any>globalThis).GM_setValue
-    if (typeof gmSetValue === 'function') {
-        gmSetValue(unifiedSettingsPreferenceKey, data)
-        return
-    }
-    try {
-        PlatformService.storageSet(unifiedSettingsPreferenceKey, data)
-    } catch (e) {
-    }
+    writeSharedPreferenceRaw(unifiedSettingsPreferenceKey, data)
 }
 
 function sanitizeQuickSettingSelection(rawSelection: any, rawOrder: any): { selected: string[], order: string[] } {
@@ -784,23 +816,83 @@ function sanitizeQuickSettingSelection(rawSelection: any, rawOrder: any): { sele
     }
 }
 
+function normalizeFiniteNumber(raw: any): number | undefined {
+    return typeof raw === 'number' && Number.isFinite(raw) ? raw : undefined
+}
+
+function normalizeClampedInteger(raw: any, min: number, max: number): number | undefined {
+    if (typeof raw !== 'number' || !Number.isFinite(raw)) {
+        return undefined
+    }
+    return Math.max(min, Math.min(max, Math.round(raw)))
+}
+
+function normalizeBooleanValue(raw: any): boolean | undefined {
+    return typeof raw === 'boolean' ? raw : undefined
+}
+
+// 每个设置项只接受合法值；非法值等同缺失，交给迁移与默认值处理
+const unifiedSettingsValueNormalizers: Record<string, (raw: any) => any> = {
+    readingMode: normalizeFiniteNumber,
+    widthScale: normalizeFiniteNumber,
+    loadNum: normalizeFiniteNumber,
+    downloadChunkSize: normalizeFiniteNumber,
+    volumeSize: normalizeFiniteNumber,
+    showThumbView: normalizeBooleanValue,
+    scrollPageMargin: normalizeFiniteNumber,
+    pagesPerScreen: normalizeFiniteNumber,
+    bookDirection: normalizeFiniteNumber,
+    pageTurnAnimationMode: (raw: any) => (raw === 'slide' || raw === 'none' || raw === 'realistic' ? raw : undefined),
+    showBookPagination: normalizeBooleanValue,
+    isChangeOddEven: normalizeBooleanValue,
+    isReverseFlip: normalizeBooleanValue,
+    isAutoFlip: normalizeBooleanValue,
+    autoFlipFrequency: normalizeFiniteNumber,
+    showBookThumbView: normalizeBooleanValue,
+    IsReverseBookWheeFliplDirection: normalizeBooleanValue,
+    wheelSensitivity: normalizeFiniteNumber,
+    magnifierZoom: (raw: any) => normalizeClampedInteger(raw, 2, 5),
+    magnifierAreaSize: (raw: any) => normalizeClampedInteger(raw, 20, 300),
+    lang: (raw: any) => (typeof raw === 'string' && ['cn', 'en', 'jp'].includes(raw) ? raw : undefined),
+    autoRetryByOtherSource: normalizeBooleanValue,
+    hasShownWelcomeInstruction: normalizeBooleanValue,
+    hasShownBookInstruction: normalizeBooleanValue,
+    lastSeenVersionNotice: (raw: any) => (typeof raw === 'string' ? raw : undefined),
+    lastRemoteUpdateNoticeAt: normalizeFiniteNumber,
+}
+
+function normalizeSettingsValues(rawSettings: any): Record<string, any> {
+    const result: Record<string, any> = {}
+    if (!rawSettings || typeof rawSettings !== 'object') {
+        return result
+    }
+    for (const key of Object.keys(unifiedSettingsValueNormalizers)) {
+        const value = unifiedSettingsValueNormalizers[key]((<Record<string, any>>rawSettings)[key])
+        if (typeof value !== 'undefined') {
+            result[key] = value
+        }
+    }
+    return result
+}
+
 function parseUnifiedSettingsPreference(rawData: any): UnifiedSettingsPreference | null {
-    if (!rawData) {
+    let value = rawData
+    if (!value) {
         return null
     }
-    if (typeof rawData === 'string') {
+    if (typeof value === 'string') {
         try {
-            rawData = JSON.parse(rawData)
+            value = JSON.parse(value)
         } catch (e) {
             return null
         }
     }
-    if (typeof rawData !== 'object') {
+    if (!value || typeof value !== 'object') {
         return null
     }
-    const quick = sanitizeQuickSettingSelection(rawData.quickSelection, rawData.quickOrder)
-    const schemaVersion = Number(rawData.schemaVersion) || unifiedSettingsPreferenceSchemaVersion
-    const shortcuts = normalizeShortcutBindings(rawData.shortcuts)
+    const quick = sanitizeQuickSettingSelection(value.quickSelection, value.quickOrder)
+    const schemaVersion = Number(value.schemaVersion) || unifiedSettingsPreferenceSchemaVersion
+    const shortcuts = normalizeShortcutBindings(value.shortcuts)
     if (schemaVersion < 2 && (!shortcuts.toggleQuickPreview || !shortcuts.toggleQuickPreview.trim())) {
         shortcuts.toggleQuickPreview = defaultShortcutBindings.toggleQuickPreview
     }
@@ -814,8 +906,8 @@ function parseUnifiedSettingsPreference(rawData: any): UnifiedSettingsPreference
     }
     return {
         schemaVersion,
-        updatedAt: typeof rawData.updatedAt === 'string' ? rawData.updatedAt : new Date().toISOString(),
-        settings: typeof rawData.settings === 'object' && rawData.settings ? rawData.settings : {},
+        updatedAt: typeof value.updatedAt === 'string' ? value.updatedAt : new Date().toISOString(),
+        settings: normalizeSettingsValues(value.settings),
         quickSelection: quick.selected,
         quickOrder: quick.order,
         shortcuts,
@@ -871,68 +963,13 @@ function applyUnifiedSettingsPreference() {
         return
     }
 
-    const setting = preference.settings || {}
-    const numberFields: Array<[string, string]> = [
-        ['readingMode', 'readingMode'],
-        ['widthScale', 'widthScale'],
-        ['loadNum', 'loadNum'],
-        ['downloadChunkSize', 'downloadChunkSize'],
-        ['volumeSize', 'volumeSize'],
-        ['scrollPageMargin', 'scrollPageMargin'],
-        ['pagesPerScreen', 'pagesPerScreen'],
-        ['bookDirection', 'bookDirection'],
-        ['autoFlipFrequency', 'autoFlipFrequency'],
-        ['wheelSensitivity', 'wheelSensitivity'],
-        ['magnifierZoom', 'magnifierZoom'],
-        ['magnifierAreaSize', 'magnifierAreaSize'],
-    ]
-    for (const [sourceKey, targetKey] of numberFields) {
-        if (typeof setting[sourceKey] === 'number' && Number.isFinite(setting[sourceKey])) {
-            ;(<any>store)[targetKey] = setting[sourceKey]
+    const settings = preference.settings || {}
+    for (const key of Object.keys(settings)) {
+        if (key === 'lang') {
+            lang.value = settings[key]
+            continue
         }
-    }
-
-    const boolFields: Array<[string, string]> = [
-        ['showThumbView', 'showThumbView'],
-        ['showBookPagination', 'showBookPagination'],
-        ['isChangeOddEven', 'isChangeOddEven'],
-        ['isReverseFlip', 'isReverseFlip'],
-        ['isAutoFlip', 'isAutoFlip'],
-        ['showBookThumbView', 'showBookThumbView'],
-        ['IsReverseBookWheeFliplDirection', 'IsReverseBookWheeFliplDirection'],
-        ['autoRetryByOtherSource', 'autoRetryByOtherSource'],
-        ['hasShownWelcomeInstruction', 'hasShownWelcomeInstruction'],
-        ['hasShownBookInstruction', 'hasShownBookInstruction'],
-    ]
-    for (const [sourceKey, targetKey] of boolFields) {
-        if (typeof setting[sourceKey] === 'boolean') {
-            ;(<any>store)[targetKey] = setting[sourceKey]
-        }
-    }
-
-    store.pageTurnAnimationMode = normalizePageTurnAnimationMode(setting.pageTurnAnimationMode)
-    if (typeof setting.lang === 'string' && ['cn', 'en', 'jp'].includes(setting.lang)) {
-        lang.value = setting.lang
-    }
-    if (typeof setting.hasShownWelcomeInstruction === 'boolean') {
-        store.hasShownWelcomeInstruction = setting.hasShownWelcomeInstruction
-    } else {
-        store.hasShownWelcomeInstruction = false
-    }
-    if (typeof setting.hasShownBookInstruction === 'boolean') {
-        store.hasShownBookInstruction = setting.hasShownBookInstruction
-    } else {
-        store.hasShownBookInstruction = false
-    }
-    if (typeof setting.lastSeenVersionNotice === 'string') {
-        store.lastSeenVersionNotice = setting.lastSeenVersionNotice
-    } else {
-        store.lastSeenVersionNotice = ''
-    }
-    if (typeof setting.lastRemoteUpdateNoticeAt === 'number' && Number.isFinite(setting.lastRemoteUpdateNoticeAt)) {
-        store.lastRemoteUpdateNoticeAt = setting.lastRemoteUpdateNoticeAt
-    } else {
-        store.lastRemoteUpdateNoticeAt = 0
+        ;(<any>store)[key] = settings[key]
     }
 
     const quick = sanitizeQuickSettingSelection(preference.quickSelection, preference.quickOrder)
@@ -940,6 +977,115 @@ function applyUnifiedSettingsPreference() {
     store.quickSettingOrder = quick.order
     store.shortcutBindings = normalizeShortcutBindings(preference.shortcuts)
     persistUnifiedSettingsState()
+}
+
+function pickPresentStringArray(source: Record<string, any> | null, field: string): string[] | null {
+    if (!source) {
+        return null
+    }
+    const raw = source[field]
+    if (!Array.isArray(raw) || raw.length === 0) {
+        return null
+    }
+    return raw.filter((item: any) => typeof item === 'string')
+}
+
+function collectPresentShortcuts(parsed: UnifiedSettingsPreference | null, source: Record<string, any> | null): Record<string, string> {
+    const result: Record<string, string> = {}
+    if (!parsed || !source || !source.shortcuts || typeof source.shortcuts !== 'object') {
+        return result
+    }
+    for (const definition of shortcutActionDefinitions) {
+        const key = definition.id
+        if (!Object.prototype.hasOwnProperty.call(source.shortcuts, key)) {
+            continue
+        }
+        const token = normalizeShortcutToken(parsed.shortcuts[key])
+        if (token) {
+            result[key] = token
+        }
+    }
+    return result
+}
+
+/**
+ * 逐项迁移旧设置：
+ * 1. 共享数据里的合法值优先保留；
+ * 2. 缺失或非法项按「本站点统一旧值 → 站点独立旧值 → 默认值」补缺；
+ * 3. 旧副本只读不删，用户脚本存储恢复后共享合法值仍然优先；
+ * 4. 只有确实导入到内容时才写回，因此重复执行结果一致。
+ */
+function migrateLegacySettingsIfNeeded(): boolean {
+    if (readLegacyMigrationState()) {
+        return false
+    }
+
+    const sharedRaw = readUnifiedSettingsRaw()
+    const localRaw = readSiteLocalPreferenceRaw(unifiedSettingsPreferenceKey)
+    const sharedObject = parsePreferenceObject(sharedRaw)
+    const localObject = localRaw === sharedRaw ? null : parsePreferenceObject(localRaw)
+    const sharedPreference = parseUnifiedSettingsPreference(sharedRaw)
+    const localPreference = localObject ? parseUnifiedSettingsPreference(localObject) : null
+    const legacyPageTurnPreference = parsePageTurnPreference(readSiteLocalPreferenceRaw(pageTurnAnimationPreferenceKey))
+
+    const importedSettings: Record<string, any> = {}
+    for (const key of Object.keys(unifiedSettingsValueNormalizers)) {
+        if (sharedPreference && typeof sharedPreference.settings[key] !== 'undefined') {
+            continue
+        }
+        const localValue = localPreference ? localPreference.settings[key] : undefined
+        if (typeof localValue !== 'undefined') {
+            importedSettings[key] = localValue
+            continue
+        }
+        if (key === 'pageTurnAnimationMode' && legacyPageTurnPreference) {
+            importedSettings[key] = legacyPageTurnPreference.animationMode
+        }
+    }
+
+    const sharedQuickSelection = pickPresentStringArray(sharedObject, 'quickSelection')
+    const sharedQuickOrder = pickPresentStringArray(sharedObject, 'quickOrder')
+    const legacyQuickSelection = pickPresentStringArray(localObject, 'quickSelection')
+    const legacyQuickOrder = pickPresentStringArray(localObject, 'quickOrder')
+
+    const sharedShortcuts = collectPresentShortcuts(sharedPreference, sharedObject)
+    const legacyShortcuts = collectPresentShortcuts(localPreference, localObject)
+    const importedShortcuts: Record<string, string> = {}
+    for (const key of Object.keys(legacyShortcuts)) {
+        if (typeof sharedShortcuts[key] === 'undefined') {
+            importedShortcuts[key] = legacyShortcuts[key]
+        }
+    }
+
+    const hasImportedSettings = Object.keys(importedSettings).length > 0
+    const hasImportedQuick = (!sharedQuickSelection && !!legacyQuickSelection) || (!sharedQuickOrder && !!legacyQuickOrder)
+    if (!hasImportedSettings && !hasImportedQuick && Object.keys(importedShortcuts).length === 0) {
+        writeLegacyMigrationState(legacyImportStatusDone)
+        return false
+    }
+
+    const quick = sanitizeQuickSettingSelection(
+        sharedQuickSelection || legacyQuickSelection,
+        sharedQuickOrder || legacyQuickOrder,
+    )
+    const payload: UnifiedSettingsPreference = {
+        schemaVersion: unifiedSettingsPreferenceSchemaVersion,
+        updatedAt: new Date().toISOString(),
+        settings: {
+            ...(sharedPreference ? sharedPreference.settings : {}),
+            ...importedSettings,
+        },
+        quickSelection: quick.selected,
+        quickOrder: quick.order,
+        shortcuts: {
+            ...defaultShortcutBindings,
+            ...legacyShortcuts,
+            ...sharedShortcuts,
+        },
+    }
+    writeUnifiedSettingsRaw(payload)
+    writeLegacyMigrationState(legacyImportStatusDone)
+    return true
 }
 
 function getLayoutModeKey(readingMode: number): ReaderModeLayoutKey {
@@ -1501,7 +1647,10 @@ export const storeAction = {
         try {
             store.factoryResetStatus = 'running'
             store.factoryResetErrorMessage = ''
-            localStorage.clear()
+            // 只清 eHunter 自己的键，避免连带清掉站点自身数据
+            PlatformService.storageClear('ehunter:')
+            // 标记旧副本不再导入，避免被清掉的旧设置复活
+            writeLegacyMigrationState(legacyImportStatusBlocked)
             window.location.reload()
         } catch (e) {
             store.factoryResetStatus = 'failed'
@@ -1737,6 +1886,7 @@ export function init(albumService: AlbumService) {
     
     store.albumTitle = albumService.getTitle()
     store.curViewIndex = albumService.getCurPageIndex()
+    migrateLegacySettingsIfNeeded()
     store.pageTurnAnimationMode = readPageTurnAnimationMode()
     applyUnifiedSettingsPreference()
     readerLayoutPreference = readLayoutPreference()

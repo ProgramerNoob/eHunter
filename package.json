@@ -8,7 +8,8 @@
     "preview": "vite preview",
     "build-dev": "vite build",
     "build-prod": "vite build --config vite.config.prod.ts",
-    "type-check": "vue-tsc --noEmit"
+    "type-check": "vue-tsc --noEmit",
+    "serve:bundle": "node scripts/serve-bundle.mjs"
   },
   "dependencies": {
     "fflate": "^0.8.2",

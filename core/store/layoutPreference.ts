@@ -12,27 +12,11 @@ import {
 } from '../model/layout'
 
 function readRawPreference(): any {
-    const gmGetValue = (<any>globalThis).GM_getValue
-    if (typeof gmGetValue === 'function') {
-        return gmGetValue(readerLayoutPreferenceKey, null)
-    }
-    try {
-        return PlatformService.storageGet(readerLayoutPreferenceKey, null)
-    } catch (e) {
-        return null
-    }
+    return PlatformService.storageGetShared(readerLayoutPreferenceKey, null)
 }
 
 function writeRawPreference(data: ReaderModeLayoutPreference): void {
-    const gmSetValue = (<any>globalThis).GM_setValue
-    if (typeof gmSetValue === 'function') {
-        gmSetValue(readerLayoutPreferenceKey, data)
-        return
-    }
-    try {
-        PlatformService.storageSet(readerLayoutPreferenceKey, data)
-    } catch (e) {
-    }
+    PlatformService.storageSetShared(readerLayoutPreferenceKey, data)
 }
 
 function normalizeModeLayout(mode: ReaderModeLayoutKey, raw: any): ReaderModeLayoutState {

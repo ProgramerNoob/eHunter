@@ -29,8 +29,13 @@ pi 将命令后的文本作为用户指令附在技能正文之后。解析其�
 
 1. 读取相邻的 [notify-complete](../notify-complete/SKILL.md)，在测试开始前执行短通知，任务完成后执行长通知；用户明确静音时跳过。
 2. 读取当前会话的 `ego-browser` 技能和 [浏览器验收指南](../../browser-testing.md)，通过 pi 的 `bash` 工具运行 `ego-browser nodejs`。按指南创建或复用同一任务空间；连接故障按技能排查，缺少必需能力时报告具体阻塞项。
-3. 确认 Ego 已登录 exhentai.org，Tampermonkey 已启用 eHunter，并配置为动态加载本仓库的 `dist/ehunter.iife.js`。构建后刷新即可加载新包。其他浏览器的扩展和登录状态不会自动用于 Ego；页面上下文访问不到 `GM_info` 不足以判定 Tampermonkey 未安装，需结合扩展状态、加载请求和实际注入结果判断。
-4. 本流程使用生产包，不依赖开发服务器。检查已有服务是否与当前加载方式冲突，仅在确有冲突且已获授权时停止对应进程。
+3. 确认 Ego 已登录 exhentai.org，Tampermonkey 已启用动态加载脚本，并且**本机 bundle server 正在运行**；三者缺一，页面里都不会出现阅读器。
+   - bundle server：在仓库根目录执行 `npm run serve:bundle`（即 `scripts/serve-bundle.mjs`），把 `dist/ehunter.iife.js` 发布到 `http://127.0.0.1:8787/ehunter.iife.js`；每次请求都重新读盘且响应 `cache-control: no-store`，因此 `npm run build-prod` 后刷新页面即可加载新包。
+   - 动态加载脚本：`.pi/skills/eh-test/ehunter-dev-loader.user.js`（Tampermonkey 里名为 `eHunter (dev loader)`），在 Tampermonkey 中启用；它声明了三站 `@match`、`@connect 127.0.0.1`/`localhost` 以及 bundle 原有的 4 个 `@connect` 域名和 6 个 `GM_*` `@grant`。被 `eval` 的 bundle 与本脚本同处一个沙箱，所以存储、下载和跨域请求都取决于这里的声明——bundle banner 的 `@connect`/`@grant` 变更后必须同步到这个 loader。
+   - 静态安装的 `eHunter` 3.1.0 脚本应保持停用，否则会与 loader 双注入。
+   - 浏览器禁止扩展读取本地文件（控制台出现 `Access to this local file is forbidden`），动态加载只能走 HTTP，不要改回 `file://`。
+   - 其他浏览器的扩展和登录状态不会自动用于 Ego；页面上下文访问不到 `GM_info` 不足以判定 Tampermonkey 未安装，需结合扩展状态、加载请求和实际注入结果判断。
+4. 本流程使用生产包，只需步骤 3 的 bundle server，不使用 Vite 开发服务器（`npm run dev` 的 5173 端口与本流程无关）。bundle server 默认占用 `127.0.0.1:8787`，端口冲突时用 `PORT=<其他端口> npm run serve:bundle`，并同步修改 loader 里的 `EHUNTER_BUNDLE_URL`；仅在确有冲突且已获授权时停止对应进程。
 5. 日志、截图和测试报告统一保存到仓库 `.tmp/`，按需创建子目录。
 
 ## 测试流程
