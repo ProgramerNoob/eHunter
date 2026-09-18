@@ -9,6 +9,7 @@ import { initializeWithTimeout } from './platform/initializer'
 import { applyPlatformHostActions } from './platform/hostActions'
 import PlatformService from './platform/base/service/PlatformService.js'
 import { Platform, type InitializationError } from './platform/types'
+import { isMobileLikeDevice } from '../core/utils/runtimeEnv'
 
 /// <reference types="vite-svg-loader" />
 
@@ -111,12 +112,8 @@ if (!detectionResult.platform) {
   let hadViewportMeta = false
   let viewportAdjusted = false
 
-  const isMobileLike = (): boolean => {
-    return window.matchMedia('(pointer: coarse)').matches || /iphone|ipad|ipod|android|mobile/i.test(navigator.userAgent)
-  }
-
   const ensureEHViewportForOpen = (): void => {
-    if (detectionResult.platform !== Platform.EH || !isMobileLike()) {
+    if (detectionResult.platform !== Platform.EH || !isMobileLikeDevice()) {
       return
     }
 

@@ -27,3 +27,18 @@ export function isTestEnvironmentHost(hostOrHostname: string): boolean {
 export function isTestEnvironment(): boolean {
     return isTestEnvironmentHost(window.location.host || '')
 }
+
+/**
+ * 设备形态判断：供 EH 移动端视口处理与翻页动效默认值共用。
+ * 触摸设备（粗指针）或常见移动端 UA 视为移动端。
+ */
+export function isMobileLikeDevice(): boolean {
+    try {
+        if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+            return true
+        }
+    } catch (e) {
+    }
+    const userAgent = typeof navigator === 'undefined' ? '' : navigator.userAgent || ''
+    return /iphone|ipad|ipod|android|mobile/i.test(userAgent)
+}

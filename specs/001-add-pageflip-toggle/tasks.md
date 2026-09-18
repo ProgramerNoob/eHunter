@@ -11,8 +11,12 @@ description: "Task list for 书页模式翻页动效开关"
 
 先完成设置组 T039–T040 的存储基础，再实现动效规则，最后统一验收；其余历史未完成任务仍需处理。
 
-- [ ] T035 在 `core/store/app.ts` 落实合法偏好优先、逐项补缺后按系统/设备初始化并保存实际值；保留合法旧默认，系统变化和保存其他设置不重算。
+- [X] T035 在 `core/store/app.ts` 落实合法偏好优先、逐项补缺后按系统/设备初始化并保存实际值；保留合法旧默认，系统变化和保存其他设置不重算。
+  - 实现（2026-09-18，工作区版本，待提交）：`core/store/app.ts` 读取顺序改为「共享合法值 → 未被重置标记阻止时的本站独立旧值 → 按系统/设备初始化并写回」；非法 `animationMode` 由 `parsePageTurnPreference` 视为无合法偏好（不再静默回退拟真）；`getInitialPageTurnAnimationMode()` 按「减少动态效果 → 无动效，否则桌面拟真 / 移动平移」初始化；`migrateLegacySettingsIfNeeded` 的动效缺项优先取共享独立记录，其次本站统一旧值，最后本站独立旧值；移动端判定抽到 `core/utils/runtimeEnv.ts` 的 `isMobileLikeDevice()`，`src/main.ts` 改为复用该函数。
+  - 验证（dev 页 + 隔离 GM 环境，`.tmp/t035/fake-gm-matrix.js`、`.tmp/t035/three-modes.js`）：首次矩阵 4/4、补缺与坏值 7/7（含共享优先、重置防复活、非法值初始化、移动两种条件）、三档动效 UI 与翻页 3/3 通过；`npm run type-check` 22 个既有错误不变，改动文件 0 错误。
+  - 真实脚本环境（动态加载构建 425352 字符）：EH↔EX 跨站共享判别性通过（exhentai 改「拟真翻页」后 e-hentai 同图页刷新即为拟真，两端本地旧副本 `none` 与 `updatedAt` 均未被改写；改回「无动效」后两端一致），NH `/g/682034/1/` 在本地无任何 eHunter 偏好键的情况下显示「无动效」；控制台仅既有 `update.json` 请求错误与 nhentai 自身异常。
 - [ ] T036 按 `specs/001-add-pageflip-toggle/quickstart.md` 验证首次矩阵、所有合法旧值、坏值补缺、重开、用户选择与两个阅读模式回归；跨站存储用设置组矩阵，记录证据后更新任务。
+  - 进度（2026-09-18）：首次矩阵、三种合法旧值、坏值补缺、重开、用户选择与书页/卷轴回归已在 dev 页与 EH/EX/NH 真实环境取得证据（见 T035 条目）；待补 GM 不可用降级在真实脚本环境的用例、移动视口在真实站点的回归，以及设置组统一验收时对本条的整体确认。
 
 **Input**: Design documents from `specs/001-add-pageflip-toggle/`
 **Prerequisites**: `specs/001-add-pageflip-toggle/plan.md`, `specs/001-add-pageflip-toggle/spec.md`, `specs/001-add-pageflip-toggle/research.md`, `specs/001-add-pageflip-toggle/data-model.md`, `specs/001-add-pageflip-toggle/contracts/page-turn-animation.openapi.yaml`

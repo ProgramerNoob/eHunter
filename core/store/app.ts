@@ -18,6 +18,7 @@ import {
     getThumbExpandSegmentByPage,
 } from '../model/thumbExpand'
 import { readLayoutPreference, writeLayoutPreference } from './layoutPreference'
+import { isMobileLikeDevice } from '../utils/runtimeEnv'
 import { GalleryDownloadService } from '../service/GalleryDownloadService'
 import type { DownloadStatusEvent, DownloadTaskPhase, DownloadSeverity } from '../service/GalleryDownloadService'
 
@@ -636,21 +637,31 @@ function normalizeShortcutBindings(raw: any): ShortcutBindingMap {
     return result
 }
 
-function normalizePageTurnAnimationMode(value: any): PageTurnAnimationMode {
-    if (value === 'slide' || value === 'none' || value === 'realistic') {
-        return value
-    }
-    return defaultPageTurnAnimationMode
+function isPageTurnAnimationMode(value: any): value is PageTurnAnimationMode {
+    return value === 'realistic' || value === 'slide' || value === 'none'
 }
 
-function getSystemPreferredPageTurnAnimationMode(): PageTurnAnimationMode {
+function normalizePageTurnAnimationMode(value: any): PageTurnAnimationMode {
+    return isPageTurnAnimationMode(value) ? value : defaultPageTurnAnimationMode
+}
+
+function prefersReducedMotion(): boolean {
     try {
-        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-            return 'none'
-        }
+        return Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)
     } catch (e) {
+        return false
     }
-    return defaultPageTurnAnimationMode
+}
+
+/**
+ * 无合法迁移值时的首次初始化（决策第 2 节）：系统「减少动态效果」开启则无动效，
+ * 否则桌面端拟真、移动端平移。结果随后写入存储，后续系统变化不再重算。
+ */
+function getInitialPageTurnAnimationMode(): PageTurnAnimationMode {
+    if (prefersReducedMotion()) {
+        return 'none'
+    }
+    return isMobileLikeDevice() ? 'slide' : defaultPageTurnAnimationMode
 }
 
 // 共享通道：有用户脚本存储时读共享数据，否则按 origin 降级到本站 localStorage
@@ -738,11 +749,15 @@ function parsePageTurnPreference(rawData: any): PageTurnAnimationPreference | nu
     if (typeof rawData !== 'object') {
         return null
     }
+    // 非法动效值视为“无合法偏好”，交由逐项补缺与默认初始化处理，不做静默降级
+    if (!isPageTurnAnimationMode(rawData.animationMode)) {
+        return null
+    }
     return {
         schemaVersion: Number(rawData.schemaVersion) || pageTurnAnimationPreferenceSchemaVersion,
         updatedAt: typeof rawData.updatedAt === 'string' ? rawData.updatedAt : new Date().toISOString(),
         scope: 'global',
-        animationMode: normalizePageTurnAnimationMode(rawData.animationMode),
+        animationMode: rawData.animationMode,
     }
 }
 
@@ -758,20 +773,21 @@ function buildPageTurnPreference(mode: PageTurnAnimationMode): PageTurnAnimation
 function persistPageTurnAnimationMode(mode: PageTurnAnimationMode) {
     writeSharedPreferenceRaw(pageTurnAnimationPreferenceKey, buildPageTurnPreference(mode))
 }
-
 function readPageTurnAnimationMode(): PageTurnAnimationMode {
     const sharedStored = parsePageTurnPreference(readSharedPreferenceRaw(pageTurnAnimationPreferenceKey))
     if (sharedStored) {
         return sharedStored.animationMode
     }
-    if (isLegacyImportBlocked()) {
-        return getSystemPreferredPageTurnAnimationMode()
+    if (!isLegacyImportBlocked()) {
+        const legacyStored = parsePageTurnPreference(readSiteLocalPreferenceRaw(pageTurnAnimationPreferenceKey))
+        if (legacyStored) {
+            return legacyStored.animationMode
+        }
     }
-    const legacyStored = parsePageTurnPreference(readSiteLocalPreferenceRaw(pageTurnAnimationPreferenceKey))
-    if (legacyStored) {
-        return legacyStored.animationMode
-    }
-    return getSystemPreferredPageTurnAnimationMode()
+    // 所有来源都无合法值：按系统/设备初始化并保存实际值，之后系统变化或保存其他设置都不再重算
+    const initializedMode = getInitialPageTurnAnimationMode()
+    persistPageTurnAnimationMode(initializedMode)
+    return initializedMode
 }
 
 function readUnifiedSettingsRaw(): any {
@@ -1026,11 +1042,17 @@ function migrateLegacySettingsIfNeeded(): boolean {
     const localObject = localRaw === sharedRaw ? null : parsePreferenceObject(localRaw)
     const sharedPreference = parseUnifiedSettingsPreference(sharedRaw)
     const localPreference = localObject ? parseUnifiedSettingsPreference(localObject) : null
+    // 动效字段的补缺来源优先共享独立记录，其次本站统一旧值，最后本站独立旧值
+    const sharedPageTurnPreference = parsePageTurnPreference(readSharedPreferenceRaw(pageTurnAnimationPreferenceKey))
     const legacyPageTurnPreference = parsePageTurnPreference(readSiteLocalPreferenceRaw(pageTurnAnimationPreferenceKey))
 
     const importedSettings: Record<string, any> = {}
     for (const key of Object.keys(unifiedSettingsValueNormalizers)) {
         if (sharedPreference && typeof sharedPreference.settings[key] !== 'undefined') {
+            continue
+        }
+        if (key === 'pageTurnAnimationMode' && sharedPageTurnPreference) {
+            importedSettings[key] = sharedPageTurnPreference.animationMode
             continue
         }
         const localValue = localPreference ? localPreference.settings[key] : undefined
