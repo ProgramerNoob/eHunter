@@ -1,4 +1,4 @@
-import { store, storeAction } from './app'
+import { hasStoredLangPreference, store, storeAction } from './app'
 import { i18n, lang } from './i18n'
 import config from '../../src/config'
 import { getWelcomeInstructionText } from '../assets/instructions'
@@ -208,13 +208,16 @@ export function checkInstructions() {
         return
     }
     if (!store.hasShownWelcomeInstruction) {
-        let uaLang = navigator.language.toLowerCase()
-        if (uaLang.startsWith('zh')) {
-            storeAction.setLang('cn')
-        } else if (uaLang.startsWith('ja') || uaLang.includes('jp')) {
-            storeAction.setLang('jp')
-        } else {
-            storeAction.setLang('en')
+        // 已有合法存储语言时不按浏览器语言覆盖（决策 2026-09-18 第 3 节）
+        if (!hasStoredLangPreference()) {
+            let uaLang = navigator.language.toLowerCase()
+            if (uaLang.startsWith('zh')) {
+                storeAction.setLang('cn')
+            } else if (uaLang.startsWith('ja') || uaLang.includes('jp')) {
+                storeAction.setLang('jp')
+            } else {
+                storeAction.setLang('en')
+            }
         }
         storeAction.markWelcomeInstructionShown()
         openWelcomeInstructionDialog(true)

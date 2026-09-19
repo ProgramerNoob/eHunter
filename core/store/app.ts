@@ -774,6 +774,12 @@ function persistPageTurnAnimationMode(mode: PageTurnAnimationMode) {
     writeSharedPreferenceRaw(pageTurnAnimationPreferenceKey, buildPageTurnPreference(mode))
 }
 function readPageTurnAnimationMode(): PageTurnAnimationMode {
+    // 迁移完成后统一设置是主存储，其中已有的合法值优先（决策 2026-09-18 第 3 节）
+    const unifiedPreference = parseUnifiedSettingsPreference(readUnifiedSettingsRaw())
+    const unifiedStoredMode = unifiedPreference ? unifiedPreference.settings.pageTurnAnimationMode : undefined
+    if (unifiedStoredMode) {
+        return unifiedStoredMode
+    }
     const sharedStored = parsePageTurnPreference(readSharedPreferenceRaw(pageTurnAnimationPreferenceKey))
     if (sharedStored) {
         return sharedStored.animationMode
@@ -836,11 +842,12 @@ function normalizeFiniteNumber(raw: any): number | undefined {
     return typeof raw === 'number' && Number.isFinite(raw) ? raw : undefined
 }
 
-function normalizeClampedInteger(raw: any, min: number, max: number): number | undefined {
-    if (typeof raw !== 'number' || !Number.isFinite(raw)) {
+function normalizeIntegerInRange(raw: any, min: number, max: number): number | undefined {
+    if (typeof raw !== 'number' || !Number.isInteger(raw)) {
         return undefined
     }
-    return Math.max(min, Math.min(max, Math.round(raw)))
+    // 越界与非整数等同缺失（决策 2026-09-18 第 3 节）：不做钳制，交给迁移与默认值补齐
+    return raw >= min && raw <= max ? raw : undefined
 }
 
 function normalizeBooleanValue(raw: any): boolean | undefined {
@@ -867,8 +874,8 @@ const unifiedSettingsValueNormalizers: Record<string, (raw: any) => any> = {
     showBookThumbView: normalizeBooleanValue,
     IsReverseBookWheeFliplDirection: normalizeBooleanValue,
     wheelSensitivity: normalizeFiniteNumber,
-    magnifierZoom: (raw: any) => normalizeClampedInteger(raw, 2, 5),
-    magnifierAreaSize: (raw: any) => normalizeClampedInteger(raw, 20, 300),
+    magnifierZoom: (raw: any) => normalizeIntegerInRange(raw, 2, 5),
+    magnifierAreaSize: (raw: any) => normalizeIntegerInRange(raw, 20, 300),
     lang: (raw: any) => (typeof raw === 'string' && ['cn', 'en', 'jp'].includes(raw) ? raw : undefined),
     autoRetryByOtherSource: normalizeBooleanValue,
     hasShownWelcomeInstruction: normalizeBooleanValue,
@@ -993,6 +1000,24 @@ function applyUnifiedSettingsPreference() {
     store.quickSettingOrder = quick.order
     store.shortcutBindings = normalizeShortcutBindings(preference.shortcuts)
     persistUnifiedSettingsState()
+}
+
+// 决策第 3 节：语言与其它设置项一样以已有合法存储值为准；欢迎提示未展示时也不能用浏览器语言覆盖已有值
+export function hasStoredLangPreference(): boolean {
+    const sharedRaw = readUnifiedSettingsRaw()
+    const sharedPreference = parseUnifiedSettingsPreference(sharedRaw)
+    if (sharedPreference && typeof sharedPreference.settings.lang === 'string') {
+        return true
+    }
+    if (isLegacyImportBlocked()) {
+        return false
+    }
+    const localRaw = readSiteLocalPreferenceRaw(unifiedSettingsPreferenceKey)
+    if (localRaw === sharedRaw) {
+        return false
+    }
+    const localPreference = parseUnifiedSettingsPreference(localRaw)
+    return !!(localPreference && typeof localPreference.settings.lang === 'string')
 }
 
 function pickPresentStringArray(source: Record<string, any> | null, field: string): string[] | null {

@@ -4,11 +4,14 @@
 
 ## 2026-09-18 后续任务（当前）
 
-下一步：翻页组 T035 与放大镜组后续实现，随后按 T041 统一验收；其余历史未完成任务仍需处理。
+下一步：T039–T044 均已完成；其余历史未完成任务（快捷设置/快捷键组交互细节等）仍需处理。
 
 - [x] T039 在 `vite.config.prod.ts`、`src/platform/base/service/PlatformService.js` 与 `core/store/app.ts` 核对并补齐 GM 存储能力、生产权限与按 origin 降级，保留旧数据用于回退。（2026-09-18 完成：banner 补齐 GM 存储 grant；GM 优先、按 origin 降级与 `storageClear(prefix)` 已实现；EH↔EX 实测 GM 共享生效、两站点 localStorage 快照不再被改写。）
 - [x] T040 在 `core/store/app.ts` 实现逐项迁移、合法共享优先、统一旧值与独立旧值补缺、GM 恢复规则、幂等及重置防复活；维持既有二次确认语义。（2026-09-18 完成：迁移标记与逐项补缺已实现；dev 页实测首站导入、幂等、重置防复活与无效值修复，EH 真实环境实测导入与幂等。）
-- [ ] T041 按 `specs/002-more-settings-modal/quickstart.md` 完成 EH/EX/NH 真实脚本环境的共享/降级矩阵、桌面移动弹窗回归与相关设置专项；记录证据后更新任务。（进度：EH↔EX 共享、EH 首次导入与幂等已实测；NH 回归、无 GM 场景矩阵、真实环境重置防复活待补。）
+- [x] T041 按 `specs/002-more-settings-modal/quickstart.md` 完成 EH/EX/NH 真实脚本环境的共享/降级矩阵、桌面移动弹窗回归与相关设置专项；记录证据后更新任务。（2026-09-18 完成：EH/EX/NH 真实脚本环境覆盖共享与幂等、EX 冲突不覆盖、共享缺项补站内旧值、GM 恢复、无 GM 按 origin 降级与隔离、GM 可用与降级两态重置（含防复活、取消路径）、桌面与移动弹窗回归、左侧导航定位、关闭保留阅读位置、语言写入与跨站共享。证据：`.tmp/t041/t041-evidence.md` 与同目录 round17–round27 结果 JSON/截图。未覆盖：快捷设置/快捷键组交互细节，属各自功能专项。）
+- [x] T042 修正共享值非法时的补齐语义：`core/store/app.ts` 原 `normalizeClampedInteger` 把越界整数 clamp 成合法值（如 `magnifierAreaSize: 999` → `300`）并视为已提供，导致不再从站点旧值补齐。（2026-09-19 完成：改为 `normalizeIntegerInRange`，仅接受范围内整数，越界返回 `undefined` 等同缺失；`magnifierZoom` 2–5、`magnifierAreaSize` 20–300。验收：`.tmp/t042/round4-notes.md` 第二节 T042-P1/P2/P3/P4，越界值从站点旧值补齐→`120`，无旧值→默认 `80`，合法值 `200/5` 与边界 `20/2` 保留。）
+- [x] T043 收敛迁移后独立翻页记录的写入：原 `readPageTurnAnimationMode()` 在迁移完成后仍写 `page-turn-animation` 记录，与迁移进 `unified-settings` 的值并存不一致。（2026-09-19 完成：读取顺序改为共享 unified 合法值 → 共享独立记录 → 本站独立记录 → 计算默认并持久化。验收：T043-P5 unified 有值时不再产生独立记录；P6 无来源时仍计算并持久化且两侧一致。）
+- [x] T044 修正首站语言被浏览器语言覆盖：欢迎提示未展示时 `checkInstructions()` 按浏览器 locale 设置 `lang`，使共享或迁移得到的 `lang` 首次不生效。（2026-09-19 完成：新增 `hasStoredLangPreference()`，已存合法 `lang` 时跳过浏览器 locale 初始化。验收：T044-P7 `jp` 保持、P8 迁移 `en` 生效、P9 无存储仍按浏览器语言取 `cn`；真实 TM 实测语言跨重载保持且复原，见 `.tmp/t042/round4-notes.md` 第三、四节。）
 
 **Input**: Design documents from `specs/002-more-settings-modal/`
 **Prerequisites**: `specs/002-more-settings-modal/plan.md`, `specs/002-more-settings-modal/spec.md`, `specs/002-more-settings-modal/research.md`, `specs/002-more-settings-modal/data-model.md`, `specs/002-more-settings-modal/contracts/settings-modal.openapi.yaml`
