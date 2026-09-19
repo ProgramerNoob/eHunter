@@ -24,7 +24,7 @@
 ## 已知状态差异
 
 - 平台 T043–T082/T098：EH/NH parser、service 与 factory 已存在，旧计划未按此清单验收；保持未勾，不要求从零重写。
-- 平台 T149：NH 构造器把原生 `src` 改为 `x-src`，parser 只读 `data-x-src`，45 页缩略图为空；只做过历史内存对照，业务代码未修复、未验收。
+- 平台 T149：NH 构造器把原生 `src` 改为 `x-src`，parser 只读 `data-x-src`，曾导致 45 页缩略图为空；2026-09-20 已修复（`parseData()` 增加 `x-src` 回退）并完成 T113 的真实 NH 验收，`ImgHtmlParser.ts:38` 依真实图片页证据判定无需改动。记录见 [001-platform-injection/tasks.md](001-platform-injection/tasks.md) 的 T149/T113 与 Trellis 任务 `09-20-nh-thumb-src-parser`。
 - 平台契约及旧性能目标为 60 秒，`src/platform/initializer.ts` 当前为 `TIMEOUT_MS = 120000`。保留差异，改变行为前对齐，不能把旧契约当作当前实现事实。
 - 翻页/设置旧勾选不证明新决策已通过；放大镜 tasks 全勾但 requirements/quickstart 仍有未勾；下载 T036/T037 有历史证据但 requirements 仍有未勾。详情见[独立状态表](pending-work.md#独立状态表)。
 - `.tmp/` 截图、日志、内存对照与下载产物是历史本机证据，可能不随仓库存在；缺失不补造，不声称本轮重跑。平台四份 `validation-us*.md` / `final-validation.md` 是未产出的历史计划文件名。

@@ -49,7 +49,7 @@ tasks 没有未勾项。仍须核对本组 [requirements](001-dockable-panel-lay
 
 ## 001-platform-injection
 
-98 条原未勾项。T043–T082/T098 实现已存在、旧计划未按清单验收；T149 仍未修复。以下原文中的计划产物、示例路径及旧 60 秒目标须结合[状态前言](001-platform-injection/tasks.md)解释。
+98 条原未勾项（迁移基线口径）。T043–T082/T098 实现已存在、旧计划未按清单验收；T149 已于 2026-09-20 修复并完成 T113 真实 NH 验收，两条在[组内 tasks.md](001-platform-injection/tasks.md) 中已勾选（本页计数与条目仍按基线口径保留）。以下原文中的计划产物、示例路径及旧 60 秒目标须结合[状态前言](001-platform-injection/tasks.md)解释。
 
 - [T037](001-platform-injection/tasks.md)（原未勾）：[US1] Test non-album page: navigate to localhost:5173/search and verify no initialization occurs (no errors in console)
 - [T038](001-platform-injection/tasks.md)（原未勾）：[US1] Test initialization timeout: modify init() to delay 65s, verify timeout error displays with technical details and close button

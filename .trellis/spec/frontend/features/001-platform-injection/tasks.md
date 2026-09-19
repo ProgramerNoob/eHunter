@@ -2,7 +2,7 @@
 > 迁移来源：`specs/001-platform-injection/tasks.md`（基线 `647ff26`）。正文保全，路径已重定位；命令与源码路径均从仓库根目录解释。
 > 阅读顺序与状态：先读[功能索引](../index.md)及[已确认决策](../../decisions/2026-09-18-reader-behavior.md)；决策覆盖到的旧约定以决策为准。Draft、任务勾选、独立验收清单各自保留，不证明当前版本通过验收。
 > 文中的 plan/research/tasks、原始 Input、日期及“本次/当前”描述均保留原记录时态；历史实现路径、代码示例、依赖版本和 `.tmp/` 证据不代表本轮已核实或可获取。迁移未执行产品验收，也未补造缺失产物。
-> 平台差异：原 60 秒契约/性能目标保留；`src/platform/initializer.ts` 当前为 `TIMEOUT_MS = 120000`，不能按旧值改写实现。T043–T082/T098 实现已存在，旧计划未按此清单验收；T149 的 NH `src`→`x-src` 与 parser 只读 `data-x-src` 导致 45 页缩略图为空，仍未修复/未验收，仅有历史内存对照。
+> 平台差异：原 60 秒契约/性能目标保留；`src/platform/initializer.ts` 当前为 `TIMEOUT_MS = 120000`，不能按旧值改写实现。T043–T082/T098 实现已存在，旧计划未按此清单验收；T149 的 NH `src`→`x-src` 与 parser 只读 `data-x-src` 导致 45 页缩略图为空，已于 2026-09-20 修复（`parseData()` 增加 `x-src` 回退）并完成 T113 的真实 NH 验收（Trellis 任务 `09-20-nh-thumb-src-parser`，记录见本组 `tasks.md` T149/T113）；`ImgHtmlParser.ts:38` 依真实图片页证据判定无需改动。
 > `validation-us1.md`、`validation-us2.md`、`validation-us3.md`、`final-validation.md` 为历史计划中未产出的文件名，不是有效依赖；后续实际开展时在 Trellis 任务记录验收。
 <!-- migration-note:end -->
 
@@ -191,11 +191,16 @@
 
 ### NH 缩略图缺陷修复（2026-09-19 补录）
 
-- [ ] T149 [US2] 修复 `src/platform/nh/parser/IntroHtmlParser.ts` 的缩略图地址解析：兼容旧 `data-src` 与当前原生 `src`（现有属性改写后分别为 `data-x-src`、`x-src`），保留旧格式兼容；验证两种 HTML 输入均能提取非空地址，并完成 T113 的真实 NH 浏览器验收。
+- [x] T149 [US2] 修复 `src/platform/nh/parser/IntroHtmlParser.ts` 的缩略图地址解析：兼容旧 `data-src` 与当前原生 `src`（现有属性改写后分别为 `data-x-src`、`x-src`），保留旧格式兼容；验证两种 HTML 输入均能提取非空地址，并完成 T113 的真实 NH 浏览器验收。
+  - 2026-09-20 完成。改动：`parseData()` 内提取 `img = i.children[0]`，`thumbSrc = img.getAttribute('data-x-src') || img.getAttribute('x-src')`（+6 −3）；未改 `ThumbInfo`/`AlbumService` 接口、调用链与缓存语义，EH 侧未动。
+  - 解析验证：当前页面形态 45/45 非空（实时 DOM 与原始抓取 HTML 各一遍）、构造 `data-src` 3/3、双属性并存 3/3 取到真实地址而非占位图；载具 `.tmp/nh-thumb-src-parser/harness.ts`（其 `real-page-html` 谓词原写死 `t.nhentai.net`，真实图床主机为 `t1–t4.nhentai.net` 导致误报，已改为后缀匹配，实测数据未变）。
+  - 构建与检查：`npm run build-prod` 通过（`dist/ehunter.iife.js` 445524 字节，sha256 `4adcb2735b9d8d1b9717a1b36e259ba8a3da97bb3202c66f3a07c3c81a52ab17`）；`npm run type-check` 22 条既有错误，`src/platform/nh/parser/**` 0 条。
+  - R4：`nhentai.net/g/631366/1/` 原始 HTML 的 `#image-container img` 仅 `src="https://i3.nhentai.net/galleries/3799533/1.webp"`、全页 `data-src=` 出现 0 次，判定无同类缺陷，`ImgHtmlParser.ts:38` 保持不动。
+  - 记录：Trellis 任务 `09-20-nh-thumb-src-parser`（`prd.md`/`design.md`/`implement.md`）；验收报告与截图 `.tmp/nh-thumb-src-parser/acceptance-20260920-0155.md`。
 
-关联与顺序：本项是 T093 已有能力的缺陷修复，在 T113 验收前完成，不等待 T077 整体解析器重写；完成日期尚未指定。
+关联与顺序：本项是 T093 已有能力的缺陷修复，在 T113 验收前完成，不等待 T077 整体解析器重写；业务修复与验收完成于 2026-09-20。
 
-根因与复现：NH 图集当前使用 `loading="lazy"` 和 `src`；构造函数将 `src=` 改写为 `x-src=`，但 `parseData()` 只读取 `data-x-src`，导致 `ThumbInfo.src` 为 `null`。在 `https://nhentai.net/g/631366/1/` 的 45 页图集中，侧栏生成 45 个缩略图元素，但有效 `src` 与成功加载数均为 0。内存对照增加 `x-src` 回退后提取到 45 个有效地址，首张在现有侧栏成功显示；业务代码尚未修改，不代表修复验收通过。
+根因与复现（T149 修复前记录）：NH 图集使用 `loading="lazy"` 和 `src`；构造函数将 `src=` 改写为 `x-src=`，但 `parseData()` 只读取 `data-x-src`，导致 `ThumbInfo.src` 为 `null`。在 `https://nhentai.net/g/631366/1/` 的 45 页图集中，侧栏生成 45 个缩略图元素，但有效 `src` 与成功加载数均为 0。内存对照增加 `x-src` 回退后提取到 45 个有效地址，首张在现有侧栏成功显示；该回退已于 2026-09-20 落地，并完成 T113 真实 NH 验收（见上方记录）。
 
 ### Validation Tasks
 
@@ -213,7 +218,13 @@
 - [ ] T110 [US2] Verify NH reader UI renders with correct album title, page count
 - [ ] T111 [US2] Verify NH book mode displays pages correctly
 - [ ] T112 [US2] Verify NH scroll mode displays pages correctly
-- [ ] T113 [US2] Verify NH thumbnail loading and navigation after T149: 在真实 NH 图集中确认缩略图列表数量与页数一致、各项地址非空；等待侧栏及展开面板中当前可见缩略图加载，逐张确认 `img.complete && img.naturalWidth > 0` 且图片实际可见，不能仅凭占位、页码或 DOM 数量判定通过；覆盖书页/卷轴切换及缩略图点击跳页、当前页定位，按仓库要求完成桌面与移动视口验收并记录控制台、未捕获异常和截图。
+- [x] T113 [US2] Verify NH thumbnail loading and navigation after T149: 在真实 NH 图集中确认缩略图列表数量与页数一致、各项地址非空；等待侧栏及展开面板中当前可见缩略图加载，逐张确认 `img.complete && img.naturalWidth > 0` 且图片实际可见，不能仅凭占位、页码或 DOM 数量判定通过；覆盖书页/卷轴切换及缩略图点击跳页、当前页定位，按仓库要求完成桌面与移动视口验收并记录控制台、未捕获异常和截图。
+  - 2026-09-20 完成：`https://nhentai.net/g/631366/1/`（45 页），桌面 1200×900 与移动 390×844。
+  - 缩略图逐张校验 `img.complete && img.naturalWidth > 0`：侧栏 45/45、展开面板 45/45、页面预览 45/45（`naturalWidth=400`，空 `src` 0）；书页↔卷轴双向切换正常，切回后仍 45/45。
+  - 跳页与定位：书页模式桌面点第 12 张定位 `12 / 45`、移动点第 15 张定位 `15 / 45`；滚动模式桌面点第 25 张定位 `25 / 45`（指示器 `24×170px`）。
+  - 控制台：eHunter 无 error 与未捕获异常；原站 `Uncaught Event`（`_app/immutable/chunks/C2ITVdkK.js`）、更新检查失败、广告拦截、6 条 preload 警告，以及快速跳页触发的 NH HTTP 429 均非本次改动引入。
+  - 非阻塞观察（本轮未修改，归 T148/导航范围）：窄视口滚动模式点击缩略图后进度比点击标签大 1（`AlbumScrollView.vue` 取“视口底部最后可见页”）；连续切换视口后滚动容器 `scrollTop` 停在 17891/18735、进度漂到 45/45。
+  - 未验证：EH 侧回归、真实旧格式 NH 页面、其他 NH URL 形态、移动顶栏切换阅读模式（390px 下快捷项被既有重叠逻辑隐藏）、429 长期行为。
 - [ ] T114 [US2] Verify NH page flipping works (keyboard arrows, click navigation)
 - [ ] T115 [US2] Test NH error handling: navigate to invalid gallery URL, verify error displays with technical details
 - [ ] T116 [US2] Compare EH and NH reader behavior: verify book mode, scroll mode, thumbnails work identically per FR-022
