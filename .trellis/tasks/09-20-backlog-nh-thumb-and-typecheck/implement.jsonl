@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/features/pending-work.md", "reason": "待办清单来源与验收结果回填目标"}
+{"file": ".trellis/tasks/09-20-nh-thumb-src-parser/prd.md", "reason": "子任务 C1 验收标准"}
+{"file": ".trellis/tasks/09-20-typecheck-dead-code-cleanup/prd.md", "reason": "子任务 C2 验收标准"}
+{"file": "AGENTS.md", "reason": "交付说明、未验证范围与临时资源清理规则"}

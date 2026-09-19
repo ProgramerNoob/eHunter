@@ -1,0 +1,4 @@
+{"file": ".trellis/tasks/09-20-typecheck-dead-code-cleanup/prd.md", "reason": "本任务验收标准"}
+{"file": ".trellis/tasks/09-20-typecheck-dead-code-cleanup/implement.md", "reason": "删除范围与文档同步清单"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "检查命令与验收路由"}
+{"file": "AGENTS.md", "reason": "文档维护与提交规则"}

@@ -1,0 +1,7 @@
+{"file": "core/components/TopBar.vue", "reason": "getItemStyle 联合类型导入 style prop 报错"}
+{"file": "tsconfig.json", "reason": "include 范围决定遗留文件被编译"}
+{"file": "package.json", "reason": "type-check / build 脚本定义"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "类型检查契约与修复方式"}
+{"file": ".trellis/spec/frontend/directory-structure.md", "reason": "待同步：历史文件仍在当前目录的表述"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "待同步：遗留缓存服务段落"}
+{"file": "AGENTS.md", "reason": "待同步：AlbumCacheService 引用与验收规则"}

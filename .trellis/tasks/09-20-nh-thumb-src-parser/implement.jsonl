@@ -1,0 +1,9 @@
+{"file":"AGENTS.md","reason":"平台改动验收、调试产物与清理规则"}
+{"file":".pi/skills/eh-test/SKILL.md","reason":"平台验收流程：构建、注入、实景验证"}
+{"file":".trellis/spec/frontend/index.md","reason":"规范索引与按需读取路由"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"检查命令与浏览器验收要求"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"解析结果与属性读取的类型契约"}
+{"file":".trellis/spec/frontend/state-management.md","reason":"内存缓存与持久化边界：不得改变缩略图缓存语义"}
+{"file":".tmp/nh-thumb-diagnosis.md","reason":"既有真实页面证据：45 项 src 全为 null 的诊断过程与数字"}
+{"file":".trellis/tasks/09-20-nh-thumb-src-parser/prd.md","reason":"本任务需求与验收标准"}
+{"file":".trellis/tasks/09-20-nh-thumb-src-parser/design.md","reason":"根因机制与属性回退顺序设计"}
