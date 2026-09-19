@@ -17,12 +17,15 @@ export interface ReaderModeLayoutState {
     thumbSlot: DockSlotId
     thumbSizePx: number
     updatedAt: string
+    // 写入该条目时的 reset 身份：明确重置后用于区分本次 reset 之后的新值与旧副本
+    resetId?: string
 }
 
 export interface ReaderModeLayoutPreference {
     schemaVersion: number
     updatedAt: string
     layouts: Record<ReaderModeLayoutKey, ReaderModeLayoutState>
+    resetId?: string
 }
 
 export const readerLayoutPreferenceKey = 'ehunter:reader:prefs:mode-layout'

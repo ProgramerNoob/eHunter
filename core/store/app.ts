@@ -172,6 +172,8 @@ interface PageTurnAnimationPreference {
     updatedAt: string
     scope: 'global'
     animationMode: PageTurnAnimationMode
+    // 写入时的 reset 身份：明确重置后用于按身份匹配本次 reset 之后的新值
+    resetId?: string
 }
 
 const pageTurnAnimationPreferenceKey = 'ehunter:reader:prefs:page-turn-animation'
@@ -189,6 +191,32 @@ interface LegacyMigrationState {
     schemaVersion: number
     migratedAt: string
     legacyImport: LegacyImportStatus
+    // 新重置的共享身份：同毫秒连续两次重置也能区分；历史标记缺该字段时回退 migratedAt
+    resetId?: string
+}
+
+// 本站持久记录「已观察到哪一次共享重置」，只写本站 localStorage：用于在共享通道
+// 不可读的后续会话里区分「本次 reset 之后的新本地写入」与重置前的旧副本。
+const localResetObservationKey = 'ehunter:reader:prefs:reset-observation'
+const localResetObservationSchemaVersion = 1
+
+interface LocalResetObservation {
+    schemaVersion: number
+    resetId: string
+    observedAt: string
+}
+
+// schemaVersion 只接受有限数值或可解析的数值字符串：损坏值（如 {toString:1}）不能让
+// Number 抛错中断初始化；非法或缺失仍回落到当前 schema 版本，合法 schema 契约不变。
+function pickLegalSchemaVersion(raw: any): number | null {
+    if (typeof raw === 'number') {
+        return Number.isFinite(raw) ? raw : null
+    }
+    if (typeof raw === 'string' && raw.trim() !== '') {
+        const parsed = Number(raw)
+        return Number.isFinite(parsed) ? parsed : null
+    }
+    return null
 }
 let bookTurnSettleTimerID: number = 0
 let isBookTurning = false
@@ -608,6 +636,8 @@ interface UnifiedSettingsPreference {
     quickSelection: string[]
     quickOrder: string[]
     shortcuts?: Partial<ShortcutBindingMap>
+    // 写入时的 reset 身份：明确重置后用于按身份匹配本次 reset 之后的新值
+    resetId?: string
 }
 
 function normalizeShortcutToken(raw: any): string {
@@ -664,9 +694,10 @@ function getInitialPageTurnAnimationMode(): PageTurnAnimationMode {
     return isMobileLikeDevice() ? 'slide' : defaultPageTurnAnimationMode
 }
 
-// 共享通道：有用户脚本存储时读共享数据，否则按 origin 降级到本站 localStorage
-function readSharedPreferenceRaw(key: string): any {
-    return PlatformService.storageGetShared(key, null)
+// 共享通道：有用户脚本存储时读共享数据，否则按 origin 降级到本站 localStorage。
+// allowLocalFallback=false 用于已确认重置后的读取：只信共享通道，不读本站旧副本
+function readSharedPreferenceRaw(key: string, allowLocalFallback: boolean = true): any {
+    return PlatformService.storageGetShared(key, null, allowLocalFallback)
 }
 
 // 站点本地通道：只读当前 origin 的 localStorage，用于旧版本地副本补缺
@@ -693,8 +724,7 @@ function parsePreferenceObject(rawData: any): Record<string, any> | null {
     return value && typeof value === 'object' ? value : null
 }
 
-function readLegacyMigrationState(): LegacyMigrationState | null {
-    const rawData = readSharedPreferenceRaw(legacyMigrationPreferenceKey)
+function parseLegacyMigrationState(rawData: any): LegacyMigrationState | null {
     if (!rawData) {
         return null
     }
@@ -713,26 +743,206 @@ function readLegacyMigrationState(): LegacyMigrationState | null {
     if (status !== legacyImportStatusDone && status !== legacyImportStatusBlocked) {
         return null
     }
+    // 标记里的 resetId 是本次重置身份的一部分：解析时必须原样保留，否则共享标记在
+    // 真机 JSON 往返后会退化成 migratedAt，导致同一次 reset 被当成不同身份而拒绝本站新值。
+    const resetId = typeof value.resetId === 'string' && value.resetId ? value.resetId : ''
     return {
-        schemaVersion: Number(value.schemaVersion) || legacyMigrationPreferenceSchemaVersion,
+        schemaVersion: pickLegalSchemaVersion(value.schemaVersion) ?? legacyMigrationPreferenceSchemaVersion,
         migratedAt: typeof value.migratedAt === 'string' ? value.migratedAt : '',
         legacyImport: status,
+        ...(resetId ? { resetId } : {}),
     }
 }
 
-function writeLegacyMigrationState(status: LegacyImportStatus) {
+function writeLegacyMigrationState(status: LegacyImportStatus, resetId?: string): boolean {
     const state: LegacyMigrationState = {
         schemaVersion: legacyMigrationPreferenceSchemaVersion,
         migratedAt: new Date().toISOString(),
         legacyImport: status,
     }
-    writeSharedPreferenceRaw(legacyMigrationPreferenceKey, state)
+    if (status === legacyImportStatusBlocked && resetId) {
+        state.resetId = resetId
+    }
+    if (status === legacyImportStatusBlocked) {
+        // 重置标记必须确认写入真实共享通道：仅本站降级写入成功不能保证重置防复活契约
+        return PlatformService.storageSetShared(legacyMigrationPreferenceKey, state, true)
+    }
+    return writeSharedPreferenceRaw(legacyMigrationPreferenceKey, state)
 }
+
+function readLegacyMigrationState(): LegacyMigrationState | null {
+    return parseLegacyMigrationState(readSharedPreferenceRaw(legacyMigrationPreferenceKey))
+}
+
+// 共享标记声明的 reset 身份：新标记自带 resetId（同毫秒连续两次重置也能区分）；历史标记
+// 没有 resetId，仍用 migratedAt 区分，无时间戳时退化为同一字面量，避免把「不知道是哪次」
+// 当成任意一次新重置。
+function resolveResetMarkerId(state: LegacyMigrationState | null): string | null {
+    if (!state || state.legacyImport !== legacyImportStatusBlocked) {
+        return null
+    }
+    if (typeof state.resetId === 'string' && state.resetId) {
+        return state.resetId
+    }
+    return state.migratedAt || 'blocked-without-timestamp'
+}
+
+// 新重置的本地身份：优先使用原生 crypto.randomUUID（同毫秒连续两次重置不会碰撞）；夹具或旧
+// 环境缺 crypto 时退化为「时间戳 + 计数器 + 随机数」，仍保证同毫秒内两次重置身份不同。
+let resetIdentityCounter = 0
+function mintResetIdentity(): string {
+    try {
+        const cryptoApi: any = (globalThis as any).crypto
+        if (cryptoApi && typeof cryptoApi.randomUUID === 'function') {
+            return cryptoApi.randomUUID()
+        }
+    } catch (e) {
+    }
+    resetIdentityCounter += 1
+    return `local-reset-${Date.now().toString(36)}-${resetIdentityCounter}-${Math.random().toString(36).slice(2, 8)}`
+}
+
+function readLocalResetObservation(): LocalResetObservation | null {
+    const raw = parsePreferenceObject(PlatformService.storageGetLocal(localResetObservationKey, null))
+    if (!raw) {
+        return null
+    }
+    const resetId = typeof raw.resetId === 'string' ? raw.resetId : ''
+    const observedAt = typeof raw.observedAt === 'string' ? raw.observedAt : ''
+    if (!resetId || !observedAt) {
+        return null
+    }
+    return {
+        schemaVersion: pickLegalSchemaVersion(raw.schemaVersion) ?? localResetObservationSchemaVersion,
+        resetId,
+        observedAt,
+    }
+}
+
+// 观察记录只写本站 localStorage：共享通道读写故障时也要记住「本页见过这次 reset」；
+// 存储不可写时按没有记录处理，不伪造持久化保证。
+function persistLocalResetObservation(resetId: string): void {
+    const record: LocalResetObservation = {
+        schemaVersion: localResetObservationSchemaVersion,
+        resetId,
+        observedAt: new Date().toISOString(),
+    }
+    try {
+        PlatformService.storage.local.setItem(localResetObservationKey, JSON.stringify(record))
+    } catch (e) {
+    }
+}
+
+// blocked 确认可能来自共享通道，也可能来自本地镜像（共享读不到时 PlatformService 会退避到
+// 本地副本）。共享标记读得到时按共享身份记录；读不到且本页还没有观察记录时，才用镜像里的
+// resetId/migratedAt 建立身份，否则本次 reset 之后新写的值全部没有身份，刷新后会被当作旧值
+// 丢弃（P2-1 的仅写坏/读写坏场景）。已有观察记录时不因镜像改写它：镜像不能证明发生了新 reset，
+// 改写会让「无 GM 时本地身份自洽」的既有行为退化。
+function observeSharedResetMarker(): void {
+    const observation = readLocalResetObservation()
+    const sharedResetId = resolveResetMarkerId(parseLegacyMigrationState(readSharedPreferenceRaw(legacyMigrationPreferenceKey, false)))
+    if (sharedResetId) {
+        if (observation && observation.resetId === sharedResetId) {
+            return
+        }
+        persistLocalResetObservation(sharedResetId)
+        return
+    }
+    if (observation) {
+        return
+    }
+    const mirroredResetId = resolveResetMarkerId(readLegacyMigrationState())
+    if (mirroredResetId) {
+        persistLocalResetObservation(mirroredResetId)
+    }
+}
+
+// 当前 reset 身份：以真实共享标记为准（新标记自带 resetId，历史标记回退 migratedAt）；标记
+// 本页读不到时，只在已有本站观察记录的前提下沿用其中的身份，不再比较墙钟。标记与观察记录
+// 不一致（期间又发生了新 reset）时以共享标记为准，并尽力同步本站观察记录。
+function currentResetIdentity(): string | null {
+    const markerId = resolveResetMarkerId(parseLegacyMigrationState(readSharedPreferenceRaw(legacyMigrationPreferenceKey, false)))
+    const observation = readLocalResetObservation()
+    if (markerId) {
+        if (observation && observation.resetId === markerId) {
+            return observation.resetId
+        }
+        // 观察记录写失败不影响本次判定：身份以共享标记为准
+        persistLocalResetObservation(markerId)
+        return markerId
+    }
+    return observation ? observation.resetId : null
+}
+
+// 已确认重置后，本站副本能否作为补缺来源：副本必须自带与当前 reset 身份一致的 resetId
+// （由本次 reset 之后的真实写作路径打标）。重置前的旧副本没有该身份，系统时钟回拨也不会
+// 让它蒙混过关；没有当前身份时一律按缺失处理，不伪造「一定属于本次 reset」的保证。
+function isLocalPayloadFromCurrentReset(rawData: any): boolean {
+    const raw = parsePreferenceObject(rawData)
+    if (!raw) {
+        return false
+    }
+    const currentId = currentResetIdentity()
+    return currentId !== null && raw.resetId === currentId
+}
+
+// 已确认重置后，本站副本的可信度不再按「通道整体可信」判断，而是逐条按 reset 身份判定：
+// 只有与当前 reset 身份一致（isLocalPayloadFromCurrentReset）的新值才允许补缺，
+// 旧副本一律按缺失处理，但保留在存储里不删除、不覆盖。
+
+// 本页面是否已确认「显式重置」。一旦在共享通道仍健康时读到 blocked 就锁定为 true：
+// 此后即便 GM 写异常导致普通通道降级到本站 localStorage，也不会因本地旧副本没有
+// blocked 而丢失该状态，从而避免被清掉的旧偏好复活（决策 2026-09-18 第 3 节）。
+let legacyImportBlockedConfirmed = false
 
 // 显式重置后禁止再次导入旧副本，避免被清掉的旧设置复活
 function isLegacyImportBlocked(): boolean {
+    if (legacyImportBlockedConfirmed) {
+        return true
+    }
     const state = readLegacyMigrationState()
-    return !!state && state.legacyImport === legacyImportStatusBlocked
+    if (state && state.legacyImport === legacyImportStatusBlocked) {
+        legacyImportBlockedConfirmed = true
+        // 先固化「本页已观察到这次 reset」，之后的读取只认本次 reset 之后写入本站的新副本
+        observeSharedResetMarker()
+        return true
+    }
+    // 共享通道拿不到 blocked（GM 读故障或标记缺失）时，本站持久化的观察记录同样证明本页见过
+    // 一次重置：沿用记录里的观察时刻，绝不改写（改成当前时间会作废此前保存的新本地值）
+    legacyImportBlockedConfirmed = readLocalResetObservation() !== null
+    return legacyImportBlockedConfirmed
+}
+
+// 已确认重置后：真实共享通道里的合法值优先（整条共享记录本身不可解析时等同全缺失）；共享
+// 缺失，或共享条目里缺失/非法的项（例如本页写不进 GM，只有本站镜像拿到新值）时，只接受能证明
+// 是「本次 reset 之后写入本站」的新本地副本，并按 mergeRecords 逐项补缺。
+// 共享读故障时本地降级也不会被无条件放行：旧副本没有写入时刻，一律按缺失处理。
+function readPreferenceRawRespectingReset(key: string, mergeRecords?: (sharedValue: Record<string, any>, localValue: Record<string, any>) => any): any {
+    if (!isLegacyImportBlocked()) {
+        return readSharedPreferenceRaw(key, true)
+    }
+    const sharedRaw = readSharedPreferenceRaw(key, false)
+    const localRaw = readSiteLocalPreferenceRaw(key)
+    const acceptedLocal = isLocalPayloadFromCurrentReset(localRaw) ? localRaw : null
+    if (acceptedLocal === null || !mergeRecords) {
+        return sharedRaw !== null && sharedRaw !== undefined ? sharedRaw : acceptedLocal
+    }
+    const sharedObject = parsePreferenceObject(sharedRaw)
+    if (!sharedObject) {
+        // 坏 JSON / 非对象：共享整条记录不可用，等同全缺失，只允许同代本站副本补缺
+        return acceptedLocal
+    }
+    const localObject = parsePreferenceObject(acceptedLocal)
+    return localObject ? mergeRecords(sharedObject, localObject) : sharedRaw
+}
+
+// 布局偏好：未确认重置时维持既有语义（共享优先、缺失按本站回退）；确认重置后共享真实通道
+// 优先、且不允许整体降级读本站旧副本，只按 resetId 身份逐条补缺本次 reset 之后写入的条目。
+function readReaderLayoutPreferenceRespectingReset() {
+    if (!isLegacyImportBlocked()) {
+        return readLayoutPreference(true, true, null, currentResetIdentity())
+    }
+    return readLayoutPreference(true, false, isLocalPayloadFromCurrentReset, currentResetIdentity())
 }
 
 function parsePageTurnPreference(rawData: any): PageTurnAnimationPreference | null {
@@ -754,7 +964,7 @@ function parsePageTurnPreference(rawData: any): PageTurnAnimationPreference | nu
         return null
     }
     return {
-        schemaVersion: Number(rawData.schemaVersion) || pageTurnAnimationPreferenceSchemaVersion,
+        schemaVersion: pickLegalSchemaVersion(rawData.schemaVersion) ?? pageTurnAnimationPreferenceSchemaVersion,
         updatedAt: typeof rawData.updatedAt === 'string' ? rawData.updatedAt : new Date().toISOString(),
         scope: 'global',
         animationMode: rawData.animationMode,
@@ -762,11 +972,13 @@ function parsePageTurnPreference(rawData: any): PageTurnAnimationPreference | nu
 }
 
 function buildPageTurnPreference(mode: PageTurnAnimationMode): PageTurnAnimationPreference {
+    const resetId = currentResetIdentity()
     return {
         schemaVersion: pageTurnAnimationPreferenceSchemaVersion,
         updatedAt: new Date().toISOString(),
         scope: 'global',
         animationMode: mode,
+        ...(resetId ? { resetId } : {}),
     }
 }
 
@@ -780,7 +992,7 @@ function readPageTurnAnimationMode(): PageTurnAnimationMode {
     if (unifiedStoredMode) {
         return unifiedStoredMode
     }
-    const sharedStored = parsePageTurnPreference(readSharedPreferenceRaw(pageTurnAnimationPreferenceKey))
+    const sharedStored = parsePageTurnPreference(readPreferenceRawRespectingReset(pageTurnAnimationPreferenceKey, mergePageTurnPreferenceRecord))
     if (sharedStored) {
         return sharedStored.animationMode
     }
@@ -797,11 +1009,13 @@ function readPageTurnAnimationMode(): PageTurnAnimationMode {
 }
 
 function readUnifiedSettingsRaw(): any {
-    return readSharedPreferenceRaw(unifiedSettingsPreferenceKey)
+    // 已确认重置后不读本站旧统一设置；共享通道里的合法值仍优先生效
+    return readPreferenceRawRespectingReset(unifiedSettingsPreferenceKey, mergeUnifiedSettingsRecord)
 }
 
 function writeUnifiedSettingsRaw(data: UnifiedSettingsPreference): void {
-    writeSharedPreferenceRaw(unifiedSettingsPreferenceKey, data)
+    const resetId = currentResetIdentity()
+    writeSharedPreferenceRaw(unifiedSettingsPreferenceKey, resetId ? { ...data, resetId } : data)
 }
 
 function sanitizeQuickSettingSelection(rawSelection: any, rawOrder: any): { selected: string[], order: string[] } {
@@ -842,12 +1056,24 @@ function normalizeFiniteNumber(raw: any): number | undefined {
     return typeof raw === 'number' && Number.isFinite(raw) ? raw : undefined
 }
 
-function normalizeIntegerInRange(raw: any, min: number, max: number): number | undefined {
-    if (typeof raw !== 'number' || !Number.isInteger(raw)) {
+// 数值设置复用设置字段定义的 min/max/isFloat 边界；越界、非整数与类型错误一律等同缺失
+// （决策 2026-09-18 第 3 节）：不做钳制，交给迁移与默认值补齐
+function normalizeNumberSetting(raw: any, fieldId: string): number | undefined {
+    const field = settingFieldMap[fieldId]
+    if (!field || typeof raw !== 'number' || !Number.isFinite(raw)) {
         return undefined
     }
-    // 越界与非整数等同缺失（决策 2026-09-18 第 3 节）：不做钳制，交给迁移与默认值补齐
-    return raw >= min && raw <= max ? raw : undefined
+    if (!field.isFloat && !Number.isInteger(raw)) {
+        return undefined
+    }
+    if ((typeof field.min === 'number' && raw < field.min) || (typeof field.max === 'number' && raw > field.max)) {
+        return undefined
+    }
+    return raw
+}
+
+function normalizeEnumSetting(raw: any, allowedValues: (string | number)[]): string | number | undefined {
+    return allowedValues.includes(raw) ? raw : undefined
 }
 
 function normalizeBooleanValue(raw: any): boolean | undefined {
@@ -856,26 +1082,26 @@ function normalizeBooleanValue(raw: any): boolean | undefined {
 
 // 每个设置项只接受合法值；非法值等同缺失，交给迁移与默认值处理
 const unifiedSettingsValueNormalizers: Record<string, (raw: any) => any> = {
-    readingMode: normalizeFiniteNumber,
-    widthScale: normalizeFiniteNumber,
-    loadNum: normalizeFiniteNumber,
-    downloadChunkSize: normalizeFiniteNumber,
-    volumeSize: normalizeFiniteNumber,
+    readingMode: (raw: any) => normalizeEnumSetting(raw, settingConf.readingModeList.map((item) => item.val)),
+    widthScale: (raw: any) => normalizeNumberSetting(raw, 'widthScale'),
+    loadNum: (raw: any) => normalizeNumberSetting(raw, 'loadNum'),
+    downloadChunkSize: (raw: any) => normalizeNumberSetting(raw, 'downloadChunkSize'),
+    volumeSize: (raw: any) => normalizeNumberSetting(raw, 'volumeSize'),
     showThumbView: normalizeBooleanValue,
-    scrollPageMargin: normalizeFiniteNumber,
-    pagesPerScreen: normalizeFiniteNumber,
-    bookDirection: normalizeFiniteNumber,
+    scrollPageMargin: (raw: any) => normalizeNumberSetting(raw, 'scrollPageMargin'),
+    pagesPerScreen: (raw: any) => normalizeNumberSetting(raw, 'pagesPerScreen'),
+    bookDirection: (raw: any) => normalizeEnumSetting(raw, settingConf.bookDirection.list.map((item) => item.val)),
     pageTurnAnimationMode: (raw: any) => (raw === 'slide' || raw === 'none' || raw === 'realistic' ? raw : undefined),
     showBookPagination: normalizeBooleanValue,
     isChangeOddEven: normalizeBooleanValue,
     isReverseFlip: normalizeBooleanValue,
     isAutoFlip: normalizeBooleanValue,
-    autoFlipFrequency: normalizeFiniteNumber,
+    autoFlipFrequency: (raw: any) => normalizeNumberSetting(raw, 'autoFlipFrequency'),
     showBookThumbView: normalizeBooleanValue,
     IsReverseBookWheeFliplDirection: normalizeBooleanValue,
-    wheelSensitivity: normalizeFiniteNumber,
-    magnifierZoom: (raw: any) => normalizeIntegerInRange(raw, 2, 5),
-    magnifierAreaSize: (raw: any) => normalizeIntegerInRange(raw, 20, 300),
+    wheelSensitivity: (raw: any) => normalizeNumberSetting(raw, 'wheelSensitivity'),
+    magnifierZoom: (raw: any) => normalizeNumberSetting(raw, 'magnifierZoom'),
+    magnifierAreaSize: (raw: any) => normalizeNumberSetting(raw, 'magnifierAreaSize'),
     lang: (raw: any) => (typeof raw === 'string' && ['cn', 'en', 'jp'].includes(raw) ? raw : undefined),
     autoRetryByOtherSource: normalizeBooleanValue,
     hasShownWelcomeInstruction: normalizeBooleanValue,
@@ -914,16 +1140,14 @@ function parseUnifiedSettingsPreference(rawData: any): UnifiedSettingsPreference
         return null
     }
     const quick = sanitizeQuickSettingSelection(value.quickSelection, value.quickOrder)
-    const schemaVersion = Number(value.schemaVersion) || unifiedSettingsPreferenceSchemaVersion
+    const schemaVersion = pickLegalSchemaVersion(value.schemaVersion) ?? unifiedSettingsPreferenceSchemaVersion
     const shortcuts = normalizeShortcutBindings(value.shortcuts)
-    if (schemaVersion < 2 && (!shortcuts.toggleQuickPreview || !shortcuts.toggleQuickPreview.trim())) {
-        shortcuts.toggleQuickPreview = defaultShortcutBindings.toggleQuickPreview
-    }
+    // 旧 schema 只升级旧默认绑定字面量；显式空串是用户合法偏好，不能被当作缺失恢复默认
     if (schemaVersion < 3) {
-        if (!shortcuts.toggleTopBar || shortcuts.toggleTopBar.trim() === '' || shortcuts.toggleTopBar === 'Escape') {
+        if (shortcuts.toggleTopBar === 'Escape') {
             shortcuts.toggleTopBar = defaultShortcutBindings.toggleTopBar
         }
-        if (!shortcuts.toggleThumbView || shortcuts.toggleThumbView.trim() === '' || shortcuts.toggleThumbView === '~') {
+        if (shortcuts.toggleThumbView === '~') {
             shortcuts.toggleThumbView = defaultShortcutBindings.toggleThumbView
         }
     }
@@ -1028,7 +1252,11 @@ function pickPresentStringArray(source: Record<string, any> | null, field: strin
     if (!Array.isArray(raw) || raw.length === 0) {
         return null
     }
-    return raw.filter((item: any) => typeof item === 'string')
+    // 只认已知快捷设置 ID：未知/非法成员等同缺失；全被过滤掉时返回 null，
+    // 让调用方的 `||` 回退链继续落到下一个来源，而不是被空数组挡住。
+    const validIds = new Set(quickSettingOptions.map(item => item.id))
+    const filtered = raw.filter((item: any) => typeof item === 'string' && validIds.has(item))
+    return filtered.length > 0 ? filtered : null
 }
 
 function collectPresentShortcuts(parsed: UnifiedSettingsPreference | null, source: Record<string, any> | null): Record<string, string> {
@@ -1041,12 +1269,47 @@ function collectPresentShortcuts(parsed: UnifiedSettingsPreference | null, sourc
         if (!Object.prototype.hasOwnProperty.call(source.shortcuts, key)) {
             continue
         }
-        const token = normalizeShortcutToken(parsed.shortcuts[key])
-        if (token) {
-            result[key] = token
+        const rawValue = (source.shortcuts as Record<string, any>)[key]
+        // 缺失或非法字段不迁移；显式清空（空字符串）是合法值，需保留为「已清空」
+        if (typeof rawValue !== 'string') {
+            continue
         }
+        result[key] = normalizeShortcutToken(parsed.shortcuts[key])
     }
     return result
+}
+
+// 已确认重置后共享记录里的项优先；缺失或非法（解析后不存在）的项，只从带匹配 resetId 的
+// 本站副本逐项补缺，规则与 migrateLegacySettingsIfNeeded 一致：settings、快捷选择/排序、快捷键。
+function mergeUnifiedSettingsRecord(sharedValue: Record<string, any>, localValue: Record<string, any>): Record<string, any> {
+    const sharedPreference = parseUnifiedSettingsPreference(sharedValue)
+    const localPreference = parseUnifiedSettingsPreference(localValue)
+    if (!sharedPreference || !localPreference) {
+        return sharedValue
+    }
+    const settings: Record<string, any> = { ...sharedPreference.settings }
+    for (const key of Object.keys(unifiedSettingsValueNormalizers)) {
+        if (typeof settings[key] === 'undefined' && typeof localPreference.settings[key] !== 'undefined') {
+            settings[key] = localPreference.settings[key]
+        }
+    }
+    const quickSelection = pickPresentStringArray(sharedValue, 'quickSelection') || pickPresentStringArray(localValue, 'quickSelection') || sharedValue.quickSelection
+    const quickOrder = pickPresentStringArray(sharedValue, 'quickOrder') || pickPresentStringArray(localValue, 'quickOrder') || sharedValue.quickOrder
+    // 各来源先按自身 schema 规范化再合并：否则旧 schema 的字面量会混进以当前 schema 返回的
+    // 结果，re-parse 时被再次迁移（schema2 的 Escape/~ 会变成 q/t）。
+    const sharedShortcuts = collectPresentShortcuts(sharedPreference, sharedValue)
+    const shortcuts: Record<string, any> = { ...sharedShortcuts }
+    for (const key of Object.keys(collectPresentShortcuts(localPreference, localValue))) {
+        if (typeof sharedShortcuts[key] === 'undefined') {
+            shortcuts[key] = localPreference.shortcuts[key]
+        }
+    }
+    return { ...sharedValue, schemaVersion: unifiedSettingsPreferenceSchemaVersion, settings, quickSelection, quickOrder, shortcuts }
+}
+
+// 单页动效是单字段记录：共享记录的动效合法即优先，否则整体退回同代本站副本（再由调用方按契约补缺/初始化）
+function mergePageTurnPreferenceRecord(sharedValue: Record<string, any>, localValue: Record<string, any>): any {
+    return parsePageTurnPreference(sharedValue) ? sharedValue : localValue
 }
 
 /**
@@ -1057,9 +1320,12 @@ function collectPresentShortcuts(parsed: UnifiedSettingsPreference | null, sourc
  * 4. 只有确实导入到内容时才写回，因此重复执行结果一致。
  */
 function migrateLegacySettingsIfNeeded(): boolean {
-    if (readLegacyMigrationState()) {
+    // 先在共享通道仍健康时确认本页面的重置状态：命中 blocked 后会被本页锁定，
+    // 后续写入失败降级也不会改用本站旧副本。
+    if (isLegacyImportBlocked()) {
         return false
     }
+    const migrationState = readLegacyMigrationState()
 
     const sharedRaw = readUnifiedSettingsRaw()
     const localRaw = readSiteLocalPreferenceRaw(unifiedSettingsPreferenceKey)
@@ -1107,7 +1373,10 @@ function migrateLegacySettingsIfNeeded(): boolean {
     const hasImportedSettings = Object.keys(importedSettings).length > 0
     const hasImportedQuick = (!sharedQuickSelection && !!legacyQuickSelection) || (!sharedQuickOrder && !!legacyQuickOrder)
     if (!hasImportedSettings && !hasImportedQuick && Object.keys(importedShortcuts).length === 0) {
-        writeLegacyMigrationState(legacyImportStatusDone)
+        // 已标记完成时不再重复写标记，保证重复初始化结果稳定
+        if (!migrationState) {
+            writeLegacyMigrationState(legacyImportStatusDone)
+        }
         return false
     }
 
@@ -1131,7 +1400,9 @@ function migrateLegacySettingsIfNeeded(): boolean {
         },
     }
     writeUnifiedSettingsRaw(payload)
-    writeLegacyMigrationState(legacyImportStatusDone)
+    if (!migrationState || migrationState.legacyImport !== legacyImportStatusDone) {
+        writeLegacyMigrationState(legacyImportStatusDone)
+    }
     return true
 }
 
@@ -1160,10 +1431,12 @@ function persistCurrentModeLayoutPreference() {
     const key = getLayoutModeKey(store.readingMode)
     const slot = normalizeDockSlot(store.thumbDockSlot)
     const size = slot === 'bottom' ? store.thumbViewHeight : store.thumbViewWidth
+    const resetId = currentResetIdentity()
     readerLayoutPreference.layouts[key] = {
         thumbSlot: slot,
         thumbSizePx: clampThumbSize(slot, size),
         updatedAt: new Date().toISOString(),
+        ...(resetId ? { resetId } : {}),
     }
     readerLayoutPreference.updatedAt = new Date().toISOString()
     readerLayoutPreference = writeLayoutPreference(readerLayoutPreference)
@@ -1696,9 +1969,25 @@ export const storeAction = {
             store.factoryResetErrorMessage = ''
             // 只清 eHunter 自己的键，避免连带清掉站点自身数据；ehunter: 覆盖当前设置键，
             // AlbumCache 覆盖 2.x 遗留相册缓存键（AlbumCache/AlbumCacheVersion），与新链路无持久化相册缓存一致
-            PlatformService.storageClear(['ehunter:', 'AlbumCache'])
-            // 标记旧副本不再导入，避免被清掉的旧设置复活
-            writeLegacyMigrationState(legacyImportStatusBlocked)
+            const cleared = PlatformService.storageClear(['ehunter:', 'AlbumCache'])
+            if (!cleared) {
+                store.factoryResetStatus = 'failed'
+                store.factoryResetErrorMessage = 'Factory reset failed'
+                return
+            }
+            // 标记旧副本不再导入，避免被清掉的旧设置复活；标记写入失败时不能重载，
+            // 否则内存中的标记随页面卸载，旧副本可能再次导入。
+            // 本次重置铸造统一身份：标记与本站观察记录共用，重置后的新写入都带上它。
+            const resetId = mintResetIdentity()
+            if (!writeLegacyMigrationState(legacyImportStatusBlocked, resetId)) {
+                store.factoryResetStatus = 'failed'
+                store.factoryResetErrorMessage = 'Factory reset failed'
+                return
+            }
+            // 成功重置后立即持久记录同一身份：即便后续 GM 读写故障，本页也能按身份区分
+            // 本次 reset 之后的新写入与重置前旧副本（写失败时按没有记录处理，不伪造保证）。
+            persistLocalResetObservation(resetId)
+            store.factoryResetStatus = 'success'
             window.location.reload()
         } catch (e) {
             store.factoryResetStatus = 'failed'
@@ -1937,7 +2226,7 @@ export function init(albumService: AlbumService) {
     migrateLegacySettingsIfNeeded()
     store.pageTurnAnimationMode = readPageTurnAnimationMode()
     applyUnifiedSettingsPreference()
-    readerLayoutPreference = readLayoutPreference()
+    readerLayoutPreference = readReaderLayoutPreferenceRespectingReset()
     applyCurrentModeLayoutPreference()
     initViewportSizeUpdater()
     initKeyboardListener()
