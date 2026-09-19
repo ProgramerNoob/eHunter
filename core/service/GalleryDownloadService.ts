@@ -138,8 +138,51 @@ function isDevRuntimeForDownload(): boolean {
     return isTestEnvironment()
 }
 
+type GmApi = ((options: Record<string, any>) => unknown) | undefined
+
+declare const GM_xmlhttpRequest: GmApi
+declare const GM_download: GmApi
+
+let gmApiSourceLogged = ''
+
+// 油猴沙箱里 GM_* 只挂在脚本作用域上：Tampermonkey 沙箱（@grant）下 globalThis/window 上没有副本，
+// 因此先按脚本作用域取值，再退回 window / globalThis（Chrome 扩展、Test 平台等）。
+function resolveGmApi(name: 'GM_xmlhttpRequest' | 'GM_download'): GmApi {
+    let api: GmApi = undefined
+    let source = 'missing'
+    if (name === 'GM_xmlhttpRequest') {
+        if (typeof GM_xmlhttpRequest === 'function') {
+            api = GM_xmlhttpRequest
+            source = 'script'
+        } else if (typeof (window as any)?.GM_xmlhttpRequest === 'function') {
+            api = (window as any).GM_xmlhttpRequest
+            source = 'window'
+        } else if (typeof (globalThis as any)?.GM_xmlhttpRequest === 'function') {
+            api = (globalThis as any).GM_xmlhttpRequest
+            source = 'globalThis'
+        }
+    } else {
+        if (typeof GM_download === 'function') {
+            api = GM_download
+            source = 'script'
+        } else if (typeof (window as any)?.GM_download === 'function') {
+            api = (window as any).GM_download
+            source = 'window'
+        } else if (typeof (globalThis as any)?.GM_download === 'function') {
+            api = (globalThis as any).GM_download
+            source = 'globalThis'
+        }
+    }
+    const key = `${name}:${source}`
+    if (gmApiSourceLogged !== key) {
+        gmApiSourceLogged = key
+        console.log('[GalleryDownloadService] gm api resolved', { name, source })
+    }
+    return api
+}
+
 async function fetchBlobByGMXhr(url: string, timeoutMs = 30000): Promise<Blob> {
-    const gmXhr = (globalThis as any).GM_xmlhttpRequest
+    const gmXhr = resolveGmApi('GM_xmlhttpRequest')
     if (typeof gmXhr !== 'function') {
         throw new Error('GM_XHR_NOT_AVAILABLE')
     }
@@ -234,7 +277,7 @@ async function resolveImageBlob(
 
 function downloadBlob(fileName: string, blob: Blob) {
     const url = URL.createObjectURL(blob)
-    const gmDownload = (globalThis as any).GM_download
+    const gmDownload = resolveGmApi('GM_download')
     console.log('[GalleryDownloadService] download trigger start', { fileName, size: blob.size })
 
     if (!isDevRuntimeForDownload() && typeof gmDownload === 'function') {
