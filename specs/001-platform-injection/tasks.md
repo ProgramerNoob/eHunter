@@ -174,12 +174,20 @@
 - [x] T090 [US2] Implement getCurPageIndex() in NHAlbumServiceImpl using IntroHtmlParser
 - [x] T091 [US2] Implement init() in NHAlbumServiceImpl: parse DOM using IntroHtmlParser
 - [x] T092 [US2] Add error handling in NHAlbumServiceImpl.init() for DOM parsing failures
-- [x] T093 [US2] Implement getThumbInfos() in NHAlbumServiceImpl parsing thumbnail URLs from NH gallery page
+- [x] T093 [US2] Implement getThumbInfos() in NHAlbumServiceImpl parsing thumbnail URLs from NH gallery page（历史实现状态；2026-09-19 确认当前 NH 页面缩略图地址解析失效，由 T149 跟踪修复，功能验收仍以 T113 为准）
 - [x] T094 [US2] Implement getImgPageInfos() in NHAlbumServiceImpl returning placeholder ImgPageInfo array
 - [x] T095 [US2] Implement getImgSrc() in NHAlbumServiceImpl: fetch image page HTML, parse with ImgHtmlParser, return ImgPageInfo
 - [x] T096 [US2] Add retry logic in NHAlbumServiceImpl.getImgSrc() using TextReq from platform/base/
 - [x] T097 [US2] Implement getPreviewThumbnailStyle() in NHAlbumServiceImpl returning CSS styles for individual thumbnails
 - [ ] T098 [US2] Update src/platform/factory.ts to return actual NHAlbumServiceImpl instance (remove stub)
+
+### NH 缩略图缺陷修复（2026-09-19 补录）
+
+- [ ] T149 [US2] 修复 `src/platform/nh/parser/IntroHtmlParser.ts` 的缩略图地址解析：兼容旧 `data-src` 与当前原生 `src`（现有属性改写后分别为 `data-x-src`、`x-src`），保留旧格式兼容；验证两种 HTML 输入均能提取非空地址，并完成 T113 的真实 NH 浏览器验收。
+
+关联与顺序：本项是 T093 已有能力的缺陷修复，在 T113 验收前完成，不等待 T077 整体解析器重写；完成日期尚未指定。
+
+根因与复现：NH 图集当前使用 `loading="lazy"` 和 `src`；构造函数将 `src=` 改写为 `x-src=`，但 `parseData()` 只读取 `data-x-src`，导致 `ThumbInfo.src` 为 `null`。在 `https://nhentai.net/g/631366/1/` 的 45 页图集中，侧栏生成 45 个缩略图元素，但有效 `src` 与成功加载数均为 0。内存对照增加 `x-src` 回退后提取到 45 个有效地址，首张在现有侧栏成功显示；业务代码尚未修改，不代表修复验收通过。
 
 ### Validation Tasks
 
@@ -197,7 +205,7 @@
 - [ ] T110 [US2] Verify NH reader UI renders with correct album title, page count
 - [ ] T111 [US2] Verify NH book mode displays pages correctly
 - [ ] T112 [US2] Verify NH scroll mode displays pages correctly
-- [ ] T113 [US2] Verify NH thumbnail navigation works (click thumbnail, page changes)
+- [ ] T113 [US2] Verify NH thumbnail loading and navigation after T149: 在真实 NH 图集中确认缩略图列表数量与页数一致、各项地址非空；等待侧栏及展开面板中当前可见缩略图加载，逐张确认 `img.complete && img.naturalWidth > 0` 且图片实际可见，不能仅凭占位、页码或 DOM 数量判定通过；覆盖书页/卷轴切换及缩略图点击跳页、当前页定位，按仓库要求完成桌面与移动视口验收并记录控制台、未捕获异常和截图。
 - [ ] T114 [US2] Verify NH page flipping works (keyboard arrows, click navigation)
 - [ ] T115 [US2] Test NH error handling: navigate to invalid gallery URL, verify error displays with technical details
 - [ ] T116 [US2] Compare EH and NH reader behavior: verify book mode, scroll mode, thumbnails work identically per FR-022
@@ -284,7 +292,7 @@ Phase 1 (Setup) → Phase 2 (Foundational) → Phase 3 (US1) → Phase 4 (US2) �
 3. **US1 Core** (T011-T032): Platform detection, factory, initialization, main.ts refactor
 4. **US1 Validation** (T033-T042): Browser testing on localhost
 5. **US2 EH** (T043-T072): EH parsers and service implementation
-6. **US2 NH** (T073-T098): NH parsers and service implementation
+6. **US2 NH** (T073-T098, T149): NH parsers and service implementation, including thumbnail URL compatibility fix before T113
 7. **US2 Validation** (T099-T118): Browser testing on real EH/NH pages
 8. **US3** (T119-T136): Code organization and documentation
 9. **Polish** (T137-T148): Final validation and production build
@@ -325,7 +333,7 @@ Phase 1 (Setup) → Phase 2 (Foundational) → Phase 3 (US1) → Phase 4 (US2) �
 
 1. **Iteration 1** (MVP): Complete Phase 1-3 → Test platform works
 2. **Iteration 2** (EH Platform): Complete Phase 4 EH tasks (T043-T072, T099-T107) → EH platform works
-3. **Iteration 3** (NH Platform): Complete Phase 4 NH tasks (T073-T098, T108-T118) → NH platform works
+3. **Iteration 3** (NH Platform): Complete Phase 4 NH tasks (T073-T098, T108-T118, T149) → NH platform works
 4. **Iteration 4** (Clean Code): Complete Phase 5 → Code is maintainable
 5. **Iteration 5** (Production): Complete Phase 6 → Ready for deployment
 
@@ -337,7 +345,7 @@ With multiple developers:
 2. **Once Phase 2 done**:
    - Developer A: Phase 3 (US1 - platform detection)
    - Developer B: Phase 4 EH (T043-T072 - EH implementation)
-   - Developer C: Phase 4 NH (T073-T098 - NH implementation)
+   - Developer C: Phase 4 NH (T073-T098, T149 - NH implementation and thumbnail compatibility fix)
 3. **Integration**: Merge US1 first, then EH, then NH
 4. **Final**: Team completes Phase 5-6 together
 
@@ -361,19 +369,19 @@ With multiple developers:
 
 ## Task Summary
 
-**Total Tasks**: 148
+**Total Tasks**: 149
 
 **Tasks by Phase**:
 - Phase 1 (Setup): 3 tasks
 - Phase 2 (Foundational): 7 tasks
 - Phase 3 (US1): 32 tasks (20 implementation + 12 validation)
-- Phase 4 (US2): 76 tasks (60 implementation + 16 validation)
+- Phase 4 (US2): 77 tasks (60 original implementation + 16 validation + 1 defect fix)
 - Phase 5 (US3): 18 tasks (12 implementation + 6 validation)
 - Phase 6 (Polish): 12 tasks
 
 **Tasks by User Story**:
 - US1 (Platform Detection): 32 tasks
-- US2 (Modernized Architecture): 76 tasks
+- US2 (Modernized Architecture): 77 tasks
 - US3 (Clean Abstraction): 18 tasks
 - Shared (Setup + Foundational + Polish): 22 tasks
 
