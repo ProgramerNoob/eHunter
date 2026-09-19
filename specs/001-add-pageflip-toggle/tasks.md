@@ -15,9 +15,10 @@ description: "Task list for 书页模式翻页动效开关"
   - 实现（2026-09-18，工作区版本，待提交）：`core/store/app.ts` 读取顺序改为「共享合法值 → 未被重置标记阻止时的本站独立旧值 → 按系统/设备初始化并写回」；非法 `animationMode` 由 `parsePageTurnPreference` 视为无合法偏好（不再静默回退拟真）；`getInitialPageTurnAnimationMode()` 按「减少动态效果 → 无动效，否则桌面拟真 / 移动平移」初始化；`migrateLegacySettingsIfNeeded` 的动效缺项优先取共享独立记录，其次本站统一旧值，最后本站独立旧值；移动端判定抽到 `core/utils/runtimeEnv.ts` 的 `isMobileLikeDevice()`，`src/main.ts` 改为复用该函数。
   - 验证（dev 页 + 隔离 GM 环境，`.tmp/t035/fake-gm-matrix.js`、`.tmp/t035/three-modes.js`）：首次矩阵 4/4、补缺与坏值 7/7（含共享优先、重置防复活、非法值初始化、移动两种条件）、三档动效 UI 与翻页 3/3 通过；`npm run type-check` 22 个既有错误不变，改动文件 0 错误。
   - 真实脚本环境（动态加载构建 425352 字符）：EH↔EX 跨站共享判别性通过（exhentai 改「拟真翻页」后 e-hentai 同图页刷新即为拟真，两端本地旧副本 `none` 与 `updatedAt` 均未被改写；改回「无动效」后两端一致），NH `/g/682034/1/` 在本地无任何 eHunter 偏好键的情况下显示「无动效」；控制台仅既有 `update.json` 请求错误与 nhentai 自身异常。
-- [ ] T036 按 `specs/001-add-pageflip-toggle/quickstart.md` 验证首次矩阵、所有合法旧值、坏值补缺、重开、用户选择与两个阅读模式回归；跨站存储用设置组矩阵，记录证据后更新任务。
-  - 进度（2026-09-18）：首次矩阵、三种合法旧值、坏值补缺、重开、用户选择与书页/卷轴回归已在 dev 页与 EH/EX/NH 真实环境取得证据（见 T035 条目）；待补 GM 不可用降级在真实脚本环境的用例、移动视口在真实站点的回归，以及设置组统一验收时对本条的整体确认。
-
+- [X] T036 按 `specs/001-add-pageflip-toggle/quickstart.md` 验证首次矩阵、所有合法旧值、坏值补缺、重开、用户选择与两个阅读模式回归；跨站存储用设置组矩阵，记录证据后更新任务。
+  - 验证（2026-09-18，真实站点 EH `https://exhentai.org/s/80813c92df/3482416-1` 与 NH `/g/682034/1/`，隔离 GM / noGM userscript harness，脚本与产物在 `.tmp/t036/`，结论汇总 `.tmp/t036/t036-evidence.md`）：13 项全部通过——首次矩阵 4/4；三种合法旧值（拟真/平移/无动效）优先不重算；坏值补缺；重开保持；弹窗切换三档即时生效（书页模式 live 类名 `mode-realistic` / `mode-slide` / `mode-none`）；书页与卷轴两模式回归；GM 不可用降级（真实脚本环境写入 localStorage、重载保持、恢复后共享值优先）；移动视口（390×844 + iPhone UA + touch）回归；EH↔NH 跨站共享；书页模式顶栏「更多 → 更多设置」入口；Shift 快捷键开关设置弹窗；设置组统一验收确认。
+  - 产物：`round31-matrix.mjs`、`round31b-matrix2.mjs`、`round31c-matrix3.mjs`、`round32b-matrix.mjs`、`round32c-final.mjs`、`round33-final.mjs`（全绿）、`round34-book-at-load.mjs`、`round35-moremenu.mjs`、`probe-env.mjs`、`round30-pageflip-gm.mjs`，对应 `*-result.json` 与 `t036d-*` / `t036e-*` / `t036g-*` 截图。
+  - 记录（非阻塞）：`.more-button-wrapper .circle-icon-button` 打开的是更多菜单（更多设置/快速预览/下载）而非直接打开设置弹窗；书页模式顶栏 `.inner-content` 默认带 `hide`，`q` 可切换，按钮仍在 `.inner-content` 之外可点。
 **Input**: Design documents from `specs/001-add-pageflip-toggle/`
 **Prerequisites**: `specs/001-add-pageflip-toggle/plan.md`, `specs/001-add-pageflip-toggle/spec.md`, `specs/001-add-pageflip-toggle/research.md`, `specs/001-add-pageflip-toggle/data-model.md`, `specs/001-add-pageflip-toggle/contracts/page-turn-animation.openapi.yaml`
 

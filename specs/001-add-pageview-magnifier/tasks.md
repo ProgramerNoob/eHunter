@@ -102,8 +102,10 @@
 - [X] T028 在 `core/components/PageView.vue` 清理交互分支与重复条件，统一术语（menu/magnifier/load-original/odd-even）
 - [X] T029 [P] 在 `specs/001-add-pageview-magnifier/contracts/pageview-magnifier.openapi.yaml` 对齐最终动作行为与字段说明
 - [X] T030 在 `specs/001-add-pageview-magnifier/quickstart.md` 完成最终回归清单（桌面 1200x900 + 移动 390x844）
-- [ ] T031 运行 `npm run type-check` 并处理问题（仓库根目录）
-- [ ] T032 启动 `npm run dev` 并用 `ego-browser` 完成端到端验收与截图记录（依据 `specs/001-add-pageview-magnifier/quickstart.md`）
+- [X] T031 运行 `npm run type-check` 并处理问题（仓库根目录）
+  - 结果（2026-09-18，真实工作区，日志 `.tmp/t038/type-check-npm.log`）：退出码 2、22 条 `error TS*`，与 T035 记录的 22 条既有错误一致、无新增；分布为 `src/platform/**` 21 条（含 `src/platform/eh/service/AlbumCacheService.ts` 5 条与两个 `*.old.ts` 共 11 条）与 `core/components/TopBar.vue:20` 1 条，**放大镜相关文件 0 错误**；因属历史遗留、超出本组范围，未在本轮修复。
+- [X] T032 启动 `npm run dev` 并用 `ego-browser` 完成端到端验收与截图记录（依据 `specs/001-add-pageview-magnifier/quickstart.md`）
+  - 结果（2026-09-18）：`npm run dev`（Vite 6.4.1，ready 307ms）在 ego-browser 下完成端到端验收：TEST 平台无编译 overlay、页内菜单与放大镜（80/240、`overlap=0`）正常、`window.__err` 为空、截图 `round55-dev-02-lens.png`；同时保留生产脚本环境（bundle 127.0.0.1:8787）证据，脚本与产物见 `.tmp/t038/round55*.mjs`。
 
 ---
 
@@ -192,10 +194,12 @@ Task: "T025 [US3] Wire odd-even action for book mode in core/components/BookPage
 - [X] T037 [US2] 在 `core/components/composables/useMagnifier.ts` 与 `core/components/PageView.vue` 接入指针、滚动、窗口和布局变化后的重算及清理；交集为空隐藏，恢复空间即恢复设定，不写回临时尺寸，并保留加载/失败占位与既有样式。
   - 实现：`onViewportChange()` 统一重算；`onMounted` 绑定 `window.resize`、`window.scroll`（capture + passive）与 `ResizeObserver`（PageView 与图片），`onBeforeUnmount` 全部解除；`renderMagnifierCanvas()` 使用有效尺寸与实际取样坐标；交集为空时关闭参考框与镜头，pending 与加载失败占位保留。
   - 验证：滚动容器 `.awesome-scroll-view.scroll-view` 的 `scrollTop += 40`（不派发 mousemove）→ 交集 717.25 → 757.25 并跟随重算；`scrollTop += 2000`（指针离开页面）→ 镜头隐藏；回到原位并移动指针 → 恢复 143.45/717.25；视口 1200×900 → 600 → 420 → 900×900 → 1200×900 循环后精确恢复 80/240；书页↔卷轴切换 2s 后镜头实例归零（无残留），再悬停书页得 1 个 525×525 镜头；全程页面 `error`/`unhandledrejection` 收集 0 条、无 Vite overlay；临时尺寸未写回偏好。
-- [ ] T038 [US2] 按 `specs/001-add-pageview-magnifier/quickstart.md` US2-A/B/C 完成两种桌面阅读模式的新规则验收，记录自由整数/边界、受限小于20px与恢复、长期共享/降级/迁移/重置、开关页面会话的实际版本与证据；保存结果前保持未勾选。
-  - 进度（2026-09-18）：US2-A（自由整数、边界、倍率）与 US2-B（受限缩小与恢复、两种桌面阅读模式）已在 dev 页取得证据（见 T033–T037 条目，事件与截图位于 `.tmp/t033/`、`.tmp/t036/`）；US2-C 的长期共享/降级/迁移/重置部分复用设置组 T039/T040 的矩阵；真实脚本环境与移动真机回归待统一验收补测。
-- [ ] T039 [US1] [US3] 在 T033–T037 完成且版本固定后执行 T031/T032，并按 `specs/001-add-pageview-magnifier/quickstart.md` 回归桌面/移动菜单手势、原图、奇偶切换、翻页和桌面限制；将实际证据与未覆盖项写入本组验收记录。
-  - 进度（2026-09-18）：待 T038 完成后执行。本轮观察：桌面菜单、书页翻页与镜头联动正常；移动端长按在按住期间菜单显示「原图」（无放大镜项），松手时合成的 `click` 走非桌面分支 `clickBackground` 会关闭菜单——该路径不在 T036/T037 改动范围（`git diff` 未触及 `onClickBg`），列为待确认的既有交互行为。
+- [X] T038 [US2] 按 `specs/001-add-pageview-magnifier/quickstart.md` US2-A/B/C 完成两种桌面阅读模式的新规则验收，记录自由整数/边界、受限小于20px与恢复、长期共享/降级/迁移/重置、开关页面会话的实际版本与证据；保存结果前保持未勾选。
+  - 验收（2026-09-18，生产脚本环境 bundle 127.0.0.1:8787 + 隔离 GM/noGM harness；脚本、45 个 `*-result.json`、40 张截图在 `.tmp/t038/`，汇总 `.tmp/t038/t038-evidence.md`）：US2-A 6/6、US2-B 6/6、US2-C 存储层 5/6（跨站设置行的 UI 校验受长生命周期页面限制，标注需人工）；桌面卷轴与书页两种模式各自独立验证。要点：默认 80/3；自由整数 21/27/83/295/299 原样生效，边界 20/300 与对应按钮禁用，非法 19/301/80.5/空值回退并提示；倍率 2–5 与步进禁用；受限缩小与恢复符合决策第 4 节（200px/5x → band600 镜头 600.41/参考框 120.08、band250 → 250.41/50.08、band90 → 90.41/18.08；书页 380×700 交集 115×82 → 镜头 81.76/参考框 27.25；恢复后 240/80）；交集为空隐藏、指针离开隐藏、返回恢复；临时尺寸不写回偏好；会话开关只改 `globalThis.__ehunterMagnifierSessionState__`；137/4 跨翻页/模式切换保持、刷新后开启状态复位而偏好保留；GM 跨站共享（EH→EX→NH 读到 137/4）、noGM 按 origin 隔离且恢复后共享值优先；夹具表缺字段补 80/3、越界/小数 clamp 2..5 与 20..300 并 round。未覆盖：SC-001/005/006（参与者与基线比较）需人工，本轮未做。
+- [X] T039 [US1] [US3] 在 T033–T037 完成且版本固定后执行 T031/T032，并按 `specs/001-add-pageview-magnifier/quickstart.md` 回归桌面/移动菜单手势、原图、奇偶切换、翻页和桌面限制；将实际证据与未覆盖项写入本组验收记录。
+  - 验收（2026-09-18，同 T038 环境；T031/T032 已在本条内执行）：桌面 8/8——卷轴单击逐页 5/5 打开菜单、点留白不开；书页中央带内点图片/留白开菜单、带外点图片翻页（idx0→idx2，无菜单）；「加载原图」EH 可用 / NH 禁用带原因；奇偶切换仅书页；菜单可收起。移动 4/6——长按 500ms 开菜单、200/400ms 不触发、位移 >10px 不触发、菜单内无放大镜入口、无镜头残留、滚动 `scrollTop` 0→404；2 项标注需人工：CDP 触摸往返延迟下「按住期间菜单已出现」不可判定（已用页内合成 TouchEvent 补测通过，建议真机复测）与菜单外点关闭（非清单项）。
+  - 记录（既有行为，非缺陷）：长按松手后菜单**保持打开**（`core/components/PageView.vue` 长按 click 守卫 + `core/components/composables/usePageMenu.ts` 的 `shouldIgnoreClick` 1000ms 过期），旧「松手合成 click 关闭菜单」的描述已过时。
+  - 记录（非阻塞，未修）：`core/components/settings/PopSlider.vue` 对 `80.5`/空串也提示「最小值为20, 最大值为300」，语义可优化但不写入非法值；`core/components/PageView.vue:205` `loadOriginalDisabledReason` 无条件绑 `:title`，EH 上原图可用时仍显示「当前平台不支持」；`core/components/composables/useMagnifier.ts` 的 `updateLensPosition` 仅由指针事件驱动，「滚动后指针移到另一张 PageView 是否立即重算」需人工复核。
   - 修复（2026-09-18）：`core/components/PageView.vue` 与 `core/components/composables/usePageMenu.ts` 增加长按 click 守卫：长按打开菜单后 `onTouchEnd` 对本次手势 `preventDefault()` 吞掉合成 click；`usePageMenu.onDocumentClick` 仅在守卫命中且点击目标仍位于本实例内时忽略关闭（`shouldIgnoreClick(event)`）；守卫 1000ms 自过期，避免顶栏等区域的后续点击被吞。
   - 修复验证（dev 页移动 390×844 DPR3，截图 `.tmp/t036/m3-mobile-after-fix.png`）：松手后菜单保持（菜单数 1，项「原图」）；松手后 120ms 内点页面外关闭（0）；菜单项「原图」正常触发（捕获阶段 click 计数 1 且菜单关闭）；快速轻点不开菜单、长按可重复触发；桌面点击开/关与点页面外关闭正常；页面 `__errs` 0、无 vite 错误遮罩；`npm run type-check` 仅既有 22 项错误。
 
