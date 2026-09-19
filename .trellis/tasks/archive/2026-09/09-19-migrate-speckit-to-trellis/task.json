@@ -1,0 +1,28 @@
+{
+  "id": "migrate-speckit-to-trellis",
+  "name": "migrate-speckit-to-trellis",
+  "title": "迁移 Spec Kit 规范与工作流到 Trellis",
+  "description": "核对并迁移产品目标、功能契约、验收流程和未完成事项，移除 Spec Kit 文件，更新 AGENTS.md 与有效引用。",
+  "status": "completed",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-09-19",
+  "completedAt": "2026-09-19",
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {
+    "work_commit": "fb8f136"
+  }
+}

@@ -1,0 +1,3 @@
+{"file":".trellis/spec/guides/code-reuse-thinking-guide.md","reason":"Review for reuse and minimum changes to the existing spec structure."}
+{"file":".trellis/tasks/09-19-migrate-speckit-to-trellis/research/migration-audit.md","reason":"Lossless migration review: preserve product requirements, historical evidence and unchecked state; retire only tool-specific workflow."}
+{"file":".trellis/tasks/09-19-migrate-speckit-to-trellis/research/source-inventory.json","reason":"Validate source coverage, baseline content and target mapping independently."}

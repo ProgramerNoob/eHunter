@@ -56,9 +56,11 @@ JP: [Link](https://github.com/hanFengSan/eHunter/blob/master/misc/iphone_ipad_jp
   |
   |-public/                  // 静态资源
   |-dist/                    // 构建产物
-  |-specs/                   // 功能设计与方案文档
+  |-.trellis/                // 开发工作流、工程指南与功能规范
   |-misc/                    // 说明文档与辅助资料
 ```
+
+开发从 [Trellis 工作流](.trellis/workflow.md)与[工程指南](.trellis/spec/frontend/index.md)开始。[产品目标](.trellis/spec/frontend/product-goals.md)、[功能规范](.trellis/spec/frontend/features/index.md)和[历史待办](.trellis/spec/frontend/features/pending-work.md)分别保留目标、实现历史与验收状态。
 
 简化调用链路：
 `main.ts -> platform 初始化（识别站点 + 创建平台服务）-> core 阅读器挂载 -> 组件渲染与交互 -> service/store 协同完成数据加载与状态更新`。

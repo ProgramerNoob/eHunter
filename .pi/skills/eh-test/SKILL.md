@@ -28,7 +28,7 @@ pi 将命令后的文本作为用户指令附在技能正文之后。解析其�
 ## 准备
 
 1. 读取相邻的 [notify-complete](../notify-complete/SKILL.md)，在测试开始前执行短通知，任务完成后执行长通知；用户明确静音时跳过。
-2. 读取当前会话的 `ego-browser` 技能和 [浏览器验收指南](../../browser-testing.md)，通过 pi 的 `bash` 工具运行 `ego-browser nodejs`。按指南创建或复用同一任务空间；连接故障按技能排查，缺少必需能力时报告具体阻塞项。
+2. 读取当前会话的 `ego-browser` 技能和 [浏览器验收指南](../../../.trellis/spec/frontend/browser-acceptance.md)，通过 pi 的 `bash` 工具运行 `ego-browser nodejs`。按指南创建或复用同一任务空间；连接故障按技能排查，缺少必需能力时报告具体阻塞项。
 3. 确认 Ego 已登录 exhentai.org，Tampermonkey 已启用动态加载脚本，并且**本机 bundle server 正在运行**；三者缺一，页面里都不会出现阅读器。
    - bundle server：在仓库根目录执行 `npm run serve:bundle`（即 `scripts/serve-bundle.mjs`），把 `dist/ehunter.iife.js` 发布到 `http://127.0.0.1:8787/ehunter.iife.js`；每次请求都重新读盘且响应 `cache-control: no-store`，因此 `npm run build-prod` 后刷新页面即可加载新包。
    - 动态加载脚本：`.pi/skills/eh-test/ehunter-dev-loader.user.js`（Tampermonkey 里名为 `eHunter (dev loader)`），在 Tampermonkey 中启用；它声明了三站 `@match`、`@connect 127.0.0.1`/`localhost` 以及 bundle 原有的 4 个 `@connect` 域名和 6 个 `GM_*` `@grant`。被 `eval` 的 bundle 与本脚本同处一个沙箱，所以存储、下载和跨域请求都取决于这里的声明——bundle banner 的 `@connect`/`@grant` 变更后必须同步到这个 loader。
@@ -80,7 +80,7 @@ npm run build-prod
 - 缓存读写正常；优先通过页面行为或受支持的存储接口验证，不清空用户缓存。
 - 涉及抓取、解析或缓存时，验证原图与换源功能（平台支持时）。
 
-UI 改动按 [浏览器验收指南的视口配置](../../browser-testing.md#2-每轮先配置再操作) 分别测试桌面端（1200 × 900、DPR 1、关闭触摸）和移动端（390 × 844、DPR 3、移动端与触摸模拟）。每轮重新设置参数、重复关键交互并截图确认布局、间距及可见状态。
+UI 改动按 [浏览器验收指南的视口配置](../../../.trellis/spec/frontend/browser-acceptance.md#2-每轮先配置再操作) 分别测试桌面端（1200 × 900、DPR 1、关闭触摸）和移动端（390 × 844、DPR 3、移动端与触摸模拟）。每轮重新设置参数、重复关键交互并截图确认布局、间距及可见状态。
 
 如涉及响应式断点，补测对应断点附近的宽度。截图保存到 `.tmp/`，使用当前会话支持的图片读取工具检查实际视觉效果。修改平台基础请求层时，还需按仓库要求回归 NH 链路。
 

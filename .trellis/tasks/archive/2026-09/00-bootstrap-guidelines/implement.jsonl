@@ -1,0 +1,5 @@
+{"file":"AGENTS.md","reason":"Project boundaries, UI constraints, validation routing, and scope rules"}
+{"file":".agents/skills/trellis-spec-bootstrap/SKILL.md","reason":"Bootstrap real source-backed guidelines"}
+{"file":".agents/skills/trellis-spec-bootstrap/references/spec-writing.md","reason":"Concise guidance with real examples and no placeholders"}
+{"file":"package.json","reason":"Actual dependencies and verification commands"}
+{"file":".trellis/spec/frontend/index.md","reason":"Existing six-guide scope and English documentation convention"}

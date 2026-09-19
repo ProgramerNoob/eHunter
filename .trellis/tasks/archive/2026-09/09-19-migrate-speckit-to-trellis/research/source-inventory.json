@@ -1,0 +1,819 @@
+{
+  "baseline": "647ff26",
+  "purpose": "Planning source inventory; actions and targets are proposed, not completed.",
+  "files": [
+    {
+      "source": ".pi/browser-testing.md",
+      "sha256": "a2ebe0bf0255a637f7c11cfc4e80ca0344cdf2b48e4e1cc3f1c4c66137ac4175",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/browser-acceptance.md"
+      ]
+    },
+    {
+      "source": ".pi/prompts/speckit.analyze.md",
+      "sha256": "cf411011dfda6d67be81da9c24cebcdd4c37e64d85c446b5e3a7188177d92c92",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".pi/prompts/speckit.checklist.md",
+      "sha256": "1661632574334bef74b79e63f63b0b98f66036a3b393b45ae8d6827e99ec0517",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".pi/prompts/speckit.clarify.md",
+      "sha256": "462f42164f97d3f82ef56692e0228362073033997c527c3e25b388709e3b54f1",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".pi/prompts/speckit.constitution.md",
+      "sha256": "9a7e9296f0878cdf4ed011b0de74cfb3656938680b64e43e808553fdfd054efc",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".pi/prompts/speckit.converge.md",
+      "sha256": "2642abc62947a0a3cd7c748038cf191c1e35362b9d69f76cc764fe9b53de89eb",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".pi/prompts/speckit.git.commit.md",
+      "sha256": "88f925dd64f3e3d18fa8be3a4646a752bc824ca65057e3071449a9ea9e6eb630",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".pi/prompts/speckit.git.feature.md",
+      "sha256": "cbe46296aa5115c7d047d0b73cc7c49d223de60569f49e1accbd5e8db0c48cd6",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".pi/prompts/speckit.git.initialize.md",
+      "sha256": "449a16872c1a72c6c11644749a34bf1473fa60b49d7261f638f9258fb67bab96",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".pi/prompts/speckit.git.remote.md",
+      "sha256": "b5e9dfddf2910544a508575f2e7cfe4df97098c219e4790511d855698afba670",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".pi/prompts/speckit.git.validate.md",
+      "sha256": "c51bbe35b3b7a3fda246f05ba721318c49ee396ef409018bd527ec439ebbcd3a",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".pi/prompts/speckit.implement.md",
+      "sha256": "e036ce63702db93e656e1c91ee6c02a8dc3d4a4f8624f8ba4adc69027fe68983",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".pi/prompts/speckit.plan.md",
+      "sha256": "3be8b011db9c6bb1cc77037f7d90756a6dbcbda1995cda2192818385732b27ff",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".pi/prompts/speckit.specify.md",
+      "sha256": "21634a45dfcf642fddb1645f4ad2980f98c89778442e47663df8a6c3a1eaf8bc",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".pi/prompts/speckit.tasks.md",
+      "sha256": "6754ae39649c8e73a5ed376ad5cfcf04422e321a10e07c5ccd92fd1b9bccf776",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".pi/prompts/speckit.taskstoissues.md",
+      "sha256": "3038728078c596aadb0f247c8167aa745959fc49f43642ff50f83097e88867d8",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".pi/speckit-maintenance.md",
+      "sha256": "bd00314fcb885e7f4f3ae79450d3b5220aa867e9879f45af39f555e975cf7b97",
+      "action": "merge-maintenance-boundary-retire-tool-guide",
+      "targets": [
+        "AGENTS.md"
+      ]
+    },
+    {
+      "source": ".specify/.gitignore",
+      "sha256": "8c908410d177a1ef3d0dee16d7ad55f2ac3333df3104c4d4adee1c9b82f1dbc1",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions.yml",
+      "sha256": "bf92990caa6143c6d829b51ab25ad9c8e6c36c68ded6e5890bd63ecd4f14e080",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/.registry",
+      "sha256": "5476b95a402b06f807bfcf19808be2112536580540197ff50c2534e6699f4dda",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/README.md",
+      "sha256": "a2957d9756920058e20adf108dc9754fc3f31519dcbdfe3559f08f95d489f66c",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/commands/speckit.git.commit.md",
+      "sha256": "8e6826f161365dc9c738f006d64103d967caf3ee6502dfe756bfb9ff51be3d71",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/commands/speckit.git.feature.md",
+      "sha256": "f8dec57042b3e477dae7c896bd8515cc7f5806ce9d9898445fa9f4445f660ff2",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/commands/speckit.git.initialize.md",
+      "sha256": "d89e32ec18b3305b8d00ac64069b67b80110074b8b6bd65ede1ea522baa25493",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/commands/speckit.git.remote.md",
+      "sha256": "00397aff45bf00d3111b4f162e4220fd5a9020e72e4afe9179859c21bcd8aac3",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/commands/speckit.git.validate.md",
+      "sha256": "fa5fdbed9b3fa5ecc55091ee3043a6543f3bffcf4f454ee38aa6c488c9706174",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/config-template.yml",
+      "sha256": "7451b7fcc96f368de7536f66e1caaa84525c7573b6b3c241e41561374167cab3",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/extension.yml",
+      "sha256": "89711dec9716473fba4afc54f7224bcb28ebd3c55fb5aaa30df854ab02b07a75",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/git-config.yml",
+      "sha256": "7451b7fcc96f368de7536f66e1caaa84525c7573b6b3c241e41561374167cab3",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/scripts/bash/auto-commit.sh",
+      "sha256": "351baa7f4f0ecdfb281790ef223f8981a587ec8a2582c013824b1bcfc6039869",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/scripts/bash/create-new-feature-branch.sh",
+      "sha256": "22f22cbd2ba7fa4876a94f90d90accff633dbcd8f2ea8d196930e1cf0cb238ae",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/scripts/bash/git-common.sh",
+      "sha256": "a27b59fe3d6dfc36f58754e4ad98fb65d010d0fc3b61d1d2ee5ee809588c0ca0",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/scripts/bash/initialize-repo.sh",
+      "sha256": "19f1a8bcb591d988a516bd661f9da7029b5a6f265ab27a769d390099104d0763",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/scripts/powershell/auto-commit.ps1",
+      "sha256": "79208effa0941b0e9289d014fdc33d9087159699b0d42c73cc585279dbd05a4e",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/scripts/powershell/create-new-feature-branch.ps1",
+      "sha256": "691f706758d2d7cf01014b75bc1a08b9261c5fa7b90badd8d1949d793806ea02",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/scripts/powershell/git-common.ps1",
+      "sha256": "04cd6527418ad5c04632b368342ad66915988bf8a35e2cb84d09dbd5378daaaf",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/scripts/powershell/initialize-repo.ps1",
+      "sha256": "db2aaa27e4bce62ede09d00d94eb42beaf272f4dcddd39732b311de28b4f19a1",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/scripts/python/auto_commit.py",
+      "sha256": "f82a73965dcc56d8ec085f6478abeefdb3e15cc7a7149e1bb3ff52438bad1b52",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/scripts/python/create_new_feature_branch.py",
+      "sha256": "c97285953d7ff20b00f4372ea35b75db9aa723eb18699efbec259101f7337cff",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/scripts/python/git_common.py",
+      "sha256": "0d8590aa2edebe8b251bede591dcca194720a3770974f5c964152898e5150596",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/extensions/git/scripts/python/initialize_repo.py",
+      "sha256": "c5b71ff2e3c71e4b5f1184f7bafbf86935437670e633681926483309526f4096",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/init-options.json",
+      "sha256": "c35d5c25772dc0e1a0b59dcac8d4038fea74269bb327a10d34ca423104a31862",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/integration.json",
+      "sha256": "b4931d56f4ab72c31a63a201fba6a536f38cb39754e21d71995c10174aa6aedb",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/integrations/pi.manifest.json",
+      "sha256": "2a92724958e7cad2be8e2b1dd417da4e2be4d27ab87b2bd059f2663c980e4842",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/integrations/speckit.manifest.json",
+      "sha256": "e3ff77b3c434140b79d4d3c363807dc445a054c3a75eae66549050e31d109456",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/memory/constitution.md",
+      "sha256": "f2d0d3f1de7d1fd9679aa550ffcb3724c952c5f371ef2faa187d179ac1bced8a",
+      "action": "merge-rules-retire-tool-governance",
+      "targets": [
+        "AGENTS.md",
+        ".trellis/spec/frontend/quality-guidelines.md"
+      ]
+    },
+    {
+      "source": ".specify/scripts/bash/check-prerequisites.sh",
+      "sha256": "39419d0d7100adee3eea8d6d578caea3617633013803b6b3872731c3af8f98b1",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/scripts/bash/common.sh",
+      "sha256": "170e91ece502b88d83c715e427473843e0b358f550e86e3ff524546df405a9ca",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/scripts/bash/create-new-feature.sh",
+      "sha256": "f4244c6cf95025e5726669938e9152d4a557cc7c1e8b027a43cb4de72677da16",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/scripts/bash/resolve-template.sh",
+      "sha256": "829e227096abc8bf0889889ec9f792f503ca5d395b7836a8a7eb739ee75214e7",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/scripts/bash/setup-plan.sh",
+      "sha256": "d0bd298c026446f3c63167130d65e49e4aa4485de6bef18bcdfd57b19aa0de96",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/scripts/bash/setup-tasks.sh",
+      "sha256": "cf6e99575a24b64ac01ffa3a50a40971ba95e3c1ec269b9a6dc3e35bbbb09191",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/templates/checklist-template.md",
+      "sha256": "3f4124a13ffbc0c2d8e979d9a08248f29ce53cc6c324a8303a6ae0d231b78836",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/templates/constitution-template.md",
+      "sha256": "ce7549540fa45543cca797a150201d868e64495fdff39dc38246fb17bd4024b3",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/templates/plan-template.md",
+      "sha256": "531e9f954deb34fa4750d8c30e786e474e6383b7114e9074ec08203c46a8ab2a",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/templates/spec-template.md",
+      "sha256": "3945437fc35cd30a5b2bf7beea680337c3516826d3efa5a6b92c4a7eca1ba28e",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": ".specify/templates/tasks-template.md",
+      "sha256": "66713b74ed4bcd34d772bc7025235b3efe3f1569ffc3bfdb60b4c144f6fb5e6b",
+      "action": "retire-speckit-tool",
+      "targets": []
+    },
+    {
+      "source": "design.md",
+      "sha256": "be042df15ba391e6317fc00f2e04282793a36bc08d4b67383c07e984cf5ee4b3",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/product-goals.md"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageflip-toggle/checklists/requirements.md",
+      "sha256": "76554178481b4b9cadd53534ac5b1dc4bd8fc21eca22d9dc6827aad0045c89d8",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageflip-toggle/checklists/requirements.md"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageflip-toggle/contracts/page-turn-animation.openapi.yaml",
+      "sha256": "8613dadda0ba8c341854253d1a7d71e23f30e1bab8e8795f8033b3981220ef96",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageflip-toggle/contracts/page-turn-animation.openapi.yaml"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageflip-toggle/data-model.md",
+      "sha256": "55a0e90e2c75e81a130d750cfb8cfa8cb178052b04ecf87b9a258726bed0e583",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageflip-toggle/data-model.md"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageflip-toggle/plan.md",
+      "sha256": "eb222021a8d405d3a8fb91a41846d69b1025be2f2aae56ee3d2fae5425eb1e1f",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageflip-toggle/plan.md"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageflip-toggle/quickstart.md",
+      "sha256": "415b2ef4e5c549973b1f7d384aa62e8d71c249c0d482006297b83ea311f4e19f",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageflip-toggle/quickstart.md"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageflip-toggle/research.md",
+      "sha256": "09647232dba185678298df143b3aab576037de3a82657772c60b5559613b7b75",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageflip-toggle/research.md"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageflip-toggle/spec.md",
+      "sha256": "9a6d9e5d3fe344f00e7b5a261a94d3296417f7a24eb4af57f249791a2ecaefc1",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageflip-toggle/spec.md"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageflip-toggle/tasks.md",
+      "sha256": "2ce56a583d01363c6d66dc2cd3ff4cb7f3c41c6f347c09b8df006e4cea14baf2",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageflip-toggle/tasks.md"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageview-magnifier/checklists/requirements.md",
+      "sha256": "93f6465a9bae72140c74c786e2e1d776de10919e0005131268aeed7437b2cb76",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageview-magnifier/checklists/requirements.md"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageview-magnifier/contracts/pageview-magnifier.openapi.yaml",
+      "sha256": "e3e90cc5bdc645adf73794bb3a6951dc5280c919644cf20da4e8e3fd2bf91646",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageview-magnifier/contracts/pageview-magnifier.openapi.yaml"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageview-magnifier/data-model.md",
+      "sha256": "991a6002b51d3aebd5a307f7939e74e3a24a107564314197363629ea7ea26037",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageview-magnifier/data-model.md"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageview-magnifier/plan.md",
+      "sha256": "23abd396d8d44e195ff1e3542d247ea29d6d7a2c87db817c805f39c5e05ff6b7",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageview-magnifier/plan.md"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageview-magnifier/quickstart.md",
+      "sha256": "712b81a2f11b30e238b68deb9f8ed5dc6e65ae802fcbaa5ef6cfbbaddc23cb19",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageview-magnifier/quickstart.md"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageview-magnifier/research.md",
+      "sha256": "3bee3706c4e117c567e7da8a0eaeed132c2edb9fa3220cec256fdb0e3c7da647",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageview-magnifier/research.md"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageview-magnifier/spec.md",
+      "sha256": "c8a134ed7d820d1b732b6d9eeb57fb47f66d36b33988a4465f39ffbd6eb09775",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageview-magnifier/spec.md"
+      ]
+    },
+    {
+      "source": "specs/001-add-pageview-magnifier/tasks.md",
+      "sha256": "bafd6f814e6001fb262e1def90c5e6a4978452b52be505eba88ea7fbd058073c",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-add-pageview-magnifier/tasks.md"
+      ]
+    },
+    {
+      "source": "specs/001-dockable-panel-layout/checklists/requirements.md",
+      "sha256": "b1438ce984eaaff5fe73cb87e9fe6148f0db6b58d5369b179dc3ec13f4c5874f",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-dockable-panel-layout/checklists/requirements.md"
+      ]
+    },
+    {
+      "source": "specs/001-dockable-panel-layout/contracts/layout-contract.openapi.yaml",
+      "sha256": "05257450945dcff027756b411a2c5f34cee5bd54b6ff7dbf9e26e1c8ebf09508",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-dockable-panel-layout/contracts/layout-contract.openapi.yaml"
+      ]
+    },
+    {
+      "source": "specs/001-dockable-panel-layout/data-model.md",
+      "sha256": "51fb28f88b715e9e70d68621e36b489ce962c8cd633a4bbf08e5f4113af6ef98",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-dockable-panel-layout/data-model.md"
+      ]
+    },
+    {
+      "source": "specs/001-dockable-panel-layout/plan.md",
+      "sha256": "c9c431af870db38fdbae2493b4b516b2ff7fd7b648ba64bbdb090e2567b40bf5",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-dockable-panel-layout/plan.md"
+      ]
+    },
+    {
+      "source": "specs/001-dockable-panel-layout/quickstart.md",
+      "sha256": "8f2aec1ab1b8bd1fd7f3c0eaa4aa35af0dc75419b85d71e6162c2e66d3085fc3",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-dockable-panel-layout/quickstart.md"
+      ]
+    },
+    {
+      "source": "specs/001-dockable-panel-layout/research.md",
+      "sha256": "ffd64bbd2400e5bec93cf0e5c3d9f4ce53d31c88351ba7e074964da558ba888d",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-dockable-panel-layout/research.md"
+      ]
+    },
+    {
+      "source": "specs/001-dockable-panel-layout/spec.md",
+      "sha256": "f5e5756e804fa5bf79dcc585333d66cd36b66dc22696318205db3504ac9f3b1b",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-dockable-panel-layout/spec.md"
+      ]
+    },
+    {
+      "source": "specs/001-dockable-panel-layout/tasks.md",
+      "sha256": "a99894d9e679bf149ea8af261aa542c05d08a5cc6e56476128b449201b679203",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-dockable-panel-layout/tasks.md"
+      ]
+    },
+    {
+      "source": "specs/001-gallery-download-bundle/checklists/requirements.md",
+      "sha256": "e2f81db1822f7d5a071c13cc98afccc7b12ba2dde588304985c4ac52dea08dcb",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-gallery-download-bundle/checklists/requirements.md"
+      ]
+    },
+    {
+      "source": "specs/001-gallery-download-bundle/contracts/gallery-download.openapi.yaml",
+      "sha256": "634bebbb77ad649692571b81fd8d5072c3866844e07cd7201739caeeba5570af",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-gallery-download-bundle/contracts/gallery-download.openapi.yaml"
+      ]
+    },
+    {
+      "source": "specs/001-gallery-download-bundle/data-model.md",
+      "sha256": "6b0c0e52daaf4918258c97854434e8bd7a8d7eb848ebbc66c60148eefc58f687",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-gallery-download-bundle/data-model.md"
+      ]
+    },
+    {
+      "source": "specs/001-gallery-download-bundle/plan.md",
+      "sha256": "542e11ffb66a584f4344955da41612bb5ed0ad0d4328bb777ab6af65e176fe77",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-gallery-download-bundle/plan.md"
+      ]
+    },
+    {
+      "source": "specs/001-gallery-download-bundle/quickstart.md",
+      "sha256": "dfc19c17514a8dd16f41efa3eeb531af6b71d354f2e0dd121bddc6bc1120743b",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-gallery-download-bundle/quickstart.md"
+      ]
+    },
+    {
+      "source": "specs/001-gallery-download-bundle/research.md",
+      "sha256": "0f51a5eed9883ce1157de9cb9818fc5767c565aad5987fab17ee5f2a94518c98",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-gallery-download-bundle/research.md"
+      ]
+    },
+    {
+      "source": "specs/001-gallery-download-bundle/spec.md",
+      "sha256": "2efe34b59bb0b10c9f0b58ab87d5557f9e0cad5dad63ed80eca34c3ff7b9cfca",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-gallery-download-bundle/spec.md"
+      ]
+    },
+    {
+      "source": "specs/001-gallery-download-bundle/tasks.md",
+      "sha256": "a3e9e0241fffd00d74cc4fe56ca5d1db89b3d74727eb40dc73b19536de67e99d",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-gallery-download-bundle/tasks.md"
+      ]
+    },
+    {
+      "source": "specs/001-platform-injection/checklists/requirements.md",
+      "sha256": "e5d9c8dfba9c6561e5308313f36ec97067bb8d3fab8d30e530b69c35669f007e",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-platform-injection/checklists/requirements.md"
+      ]
+    },
+    {
+      "source": "specs/001-platform-injection/contracts/AlbumService.ts",
+      "sha256": "6688cfeaca046d2a919d33458784c66410124785cb29d202cfe7fa4f10c0b7cf",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-platform-injection/contracts/AlbumService.ts"
+      ]
+    },
+    {
+      "source": "specs/001-platform-injection/data-model.md",
+      "sha256": "ec382d3cc9b5d000cef8f3a7a5707fedca426ac99db1babb60e19d3e4d9334ed",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-platform-injection/data-model.md"
+      ]
+    },
+    {
+      "source": "specs/001-platform-injection/plan.md",
+      "sha256": "ce41ed013ada017452555fba3b4f70ee5b4dd5eee66f5f336237c5dd61c50cd3",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-platform-injection/plan.md"
+      ]
+    },
+    {
+      "source": "specs/001-platform-injection/quickstart.md",
+      "sha256": "eccb62f09a93ca5c98e00fa3609ab77e63a8e685371b08afdeb0ad4ed80c9daf",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-platform-injection/quickstart.md"
+      ]
+    },
+    {
+      "source": "specs/001-platform-injection/research.md",
+      "sha256": "4788ea7e3de5ce18f72fdbe480e3cea505e23458f561fac6e0f9af93d78d0e1b",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-platform-injection/research.md"
+      ]
+    },
+    {
+      "source": "specs/001-platform-injection/spec.md",
+      "sha256": "878348cb22ca88ad8c504f89789bec27733fc304eda3bfe6fda0ee15d94260f9",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-platform-injection/spec.md"
+      ]
+    },
+    {
+      "source": "specs/001-platform-injection/tasks.md",
+      "sha256": "6f1d67bb99900448d25b9eef137f641ba1409b5919c55ecb15aadbb7db232308",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-platform-injection/tasks.md"
+      ]
+    },
+    {
+      "source": "specs/001-thumb-expand-modal/checklists/requirements.md",
+      "sha256": "cd7f2c05f250a588030467a2fe9e7f577ed0f90d81242330ab1f2e7776f091d1",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-thumb-expand-modal/checklists/requirements.md"
+      ]
+    },
+    {
+      "source": "specs/001-thumb-expand-modal/contracts/thumb-expand-modal.openapi.yaml",
+      "sha256": "32e33c834afd8b358a018a84e7380bb4144b1afbe54481f39a4a791a11bfcaf8",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-thumb-expand-modal/contracts/thumb-expand-modal.openapi.yaml"
+      ]
+    },
+    {
+      "source": "specs/001-thumb-expand-modal/data-model.md",
+      "sha256": "21234d73de07e14634183c9126724b20078ad6c05686a9244610638a3f04e632",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-thumb-expand-modal/data-model.md"
+      ]
+    },
+    {
+      "source": "specs/001-thumb-expand-modal/plan.md",
+      "sha256": "a2108d944963d105aabb6ce520da9c4ef3d38fbbbc757aa86be5e6311dd85916",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-thumb-expand-modal/plan.md"
+      ]
+    },
+    {
+      "source": "specs/001-thumb-expand-modal/quickstart.md",
+      "sha256": "81fd86b66fdd773f0b8d4c5dba21f122945b61eb9278e9541b18f8f7009b6cce",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-thumb-expand-modal/quickstart.md"
+      ]
+    },
+    {
+      "source": "specs/001-thumb-expand-modal/research.md",
+      "sha256": "591a861f613333fcdbc3135a10366b6e51d39bc9cbc6c1c0dcf5e2488811a8e9",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-thumb-expand-modal/research.md"
+      ]
+    },
+    {
+      "source": "specs/001-thumb-expand-modal/spec.md",
+      "sha256": "10e44d72d857895838bbd422a023aa81e334331d8db0b3f9ff1c6674f2a4a303",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-thumb-expand-modal/spec.md"
+      ]
+    },
+    {
+      "source": "specs/001-thumb-expand-modal/tasks.md",
+      "sha256": "f4a98265a4cf0261d970437aec309bd5e05b5fd4b832c3019212f48a012d55ce",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/001-thumb-expand-modal/tasks.md"
+      ]
+    },
+    {
+      "source": "specs/002-more-settings-modal/checklists/requirements.md",
+      "sha256": "07096c95af74a354f70f794014c635ffa3ea1af9a5be1afe5bc20897a87283c8",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/002-more-settings-modal/checklists/requirements.md"
+      ]
+    },
+    {
+      "source": "specs/002-more-settings-modal/contracts/settings-modal.openapi.yaml",
+      "sha256": "b6075d97da6326d46e8fbc2e5404376b4c59c73130b0405e617fac0b9d49bb22",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/002-more-settings-modal/contracts/settings-modal.openapi.yaml"
+      ]
+    },
+    {
+      "source": "specs/002-more-settings-modal/data-model.md",
+      "sha256": "506dbc41f21d606a68bf54e04808bbdae263db5a1138c2fdaea380eb437f1cae",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/002-more-settings-modal/data-model.md"
+      ]
+    },
+    {
+      "source": "specs/002-more-settings-modal/plan.md",
+      "sha256": "5d0723a00ddb7eb5f6ad230dc3b1efb6f29040416c6c870a1db38de047e27bc1",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/002-more-settings-modal/plan.md"
+      ]
+    },
+    {
+      "source": "specs/002-more-settings-modal/quickstart.md",
+      "sha256": "f3a82e059e5a38cff1696995dfb5188f392a793155787289e6ed9a9a1d0d69b3",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/002-more-settings-modal/quickstart.md"
+      ]
+    },
+    {
+      "source": "specs/002-more-settings-modal/research.md",
+      "sha256": "ae90f73aac6e50a5537a3d31050501fe95f27cc18205cf7ccc4315984f1e9530",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/002-more-settings-modal/research.md"
+      ]
+    },
+    {
+      "source": "specs/002-more-settings-modal/spec.md",
+      "sha256": "e7e9cf0c9415b599f94d7597c8733569f9780f25a54f07988745ea3c4c70d96e",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/002-more-settings-modal/spec.md"
+      ]
+    },
+    {
+      "source": "specs/002-more-settings-modal/tasks.md",
+      "sha256": "6bc8dda2ad19995a348d4398f193983fb91f77c576229b88d434be5400ef58e8",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/features/002-more-settings-modal/tasks.md"
+      ]
+    },
+    {
+      "source": "specs/decisions/2026-09-18-reader-behavior.md",
+      "sha256": "10e44a794d77fd4dd847b8d802bdd7b34f5953446cfd8eaaf0d941b1ead27f65",
+      "action": "move",
+      "targets": [
+        ".trellis/spec/frontend/decisions/2026-09-18-reader-behavior.md"
+      ]
+    }
+  ]
+}

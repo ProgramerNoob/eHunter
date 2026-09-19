@@ -2,7 +2,9 @@ node_modules/
 dist/
 build/
 coverage/
-specs/
+.trellis/
+.tmp/
+.pi/
 old/
 core_old/
 .DS_Store

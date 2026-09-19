@@ -1,0 +1,8 @@
+{"file":"AGENTS.md","reason":"Validate consistency with project instructions"}
+{"file":".trellis/spec/frontend/index.md","reason":"Guide inventory and reading routes"}
+{"file":".trellis/spec/frontend/directory-structure.md","reason":"Verify architecture and source paths"}
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Verify component and UI conventions"}
+{"file":".trellis/spec/frontend/hook-guidelines.md","reason":"Verify composable lifecycle and service patterns"}
+{"file":".trellis/spec/frontend/state-management.md","reason":"Verify reactive state and persistence boundaries"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"Verify compiler settings and validation contracts"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Verify check commands and acceptance routing"}

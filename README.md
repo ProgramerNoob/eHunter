@@ -58,9 +58,11 @@ Main directory responsibilities:
   |
   |-public/                  // Static assets
   |-dist/                    // Build output
-  |-specs/                   // Feature/design specs
+  |-.trellis/                // Development workflow, engineering guides and feature specifications
   |-misc/                    // Docs and supporting materials
 ```
+
+Development starts with [Trellis workflow](.trellis/workflow.md) and the [frontend guide](.trellis/spec/frontend/index.md). [Product goals](.trellis/spec/frontend/product-goals.md), [feature specifications](.trellis/spec/frontend/features/index.md), and [historical pending work](.trellis/spec/frontend/features/pending-work.md) distinguish targets, implementation history, and acceptance results.
 
 Simplified call flow:
 `main.ts -> platform initialization (detect site + create platform services) -> core reader mount -> component rendering/interaction -> service/store coordinate data loading and state updates`.
