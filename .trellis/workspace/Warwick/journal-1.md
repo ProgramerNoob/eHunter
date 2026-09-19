@@ -78,3 +78,28 @@
 ### Next Steps
 
 - 从 .trellis/spec/frontend/features/pending-work.md 选择后续工作，T149 等历史未完成项保持原状态。
+
+
+## Session 3: NH 缩略图 src 修复与 T113 真机验收（T149）
+<!-- trellis-session: v=2 fp=ca9d98a2d2b8f8d8 -->
+
+**Date**: 2026-09-20
+**Task**: NH 缩略图 src 修复与 T113 真机验收（T149）
+**Branch**: `master`
+
+### Summary
+
+修复 IntroHtmlParser 只读 data-x-src 导致 45 项 ThumbInfo.src 全空：回退读取被改写的 x-src，保留 data-src 优先；R4 依真实图片页证据判定 ImgHtmlParser.ts:38 无同类缺陷不动。完成 NH 真实图集验收（45/45 加载、双视口、跳页定位）并回填 T149/T113 记录、新增前端 Quality Check 入口与 NH 标记改写约定。C2（类型检查清理）待启动。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `e7e343c` | fix(platform-nh): 修复图集缩略图 src 取空（回退读取被改写的 x-src） |
+| `fd64ee7` | docs(specs): 回填 NH 缩略图修复与 T113 验收记录（T149） |
+| `3c5054c` | docs(specs): 新增前端质量检查入口并记录 NH 标记改写约定 |
+| `43b7ca6` | docs(tasks): 建立 NH 缩略图修复与类型检查清理任务树 |
+
+### Status
+
+[OK] **Completed**
