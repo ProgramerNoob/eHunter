@@ -79,7 +79,7 @@ compatibility.
 - For parsing/cache changes, verify title, total/current page, thumbnails and location,
   book/scroll switching, image loading, and supported original/change-source actions.
   Check Normal/Large thumbnails, cache migration and queue/retry behavior if touching
-  the legacy EH cache/parser path called out in `AGENTS.md`.
+  the legacy EH cache/parser path called out in `AGENTS.md`. NH gallery markup is rewritten during page/repository construction (`src=`→`x-src=`, and `data-src=`→`data-x-src=` through the same substring match); attribute reads must accept the rewritten name and stay compatible with legacy `data-src` markup.
 - For UI changes, cover open/close, keyboard and pointer/touch behavior, disabled states,
   loading/error paths, and mode changes. Check accessible names, visible focus and
   keyboard operation; current widgets are not a complete accessibility baseline.

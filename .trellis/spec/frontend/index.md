@@ -15,6 +15,18 @@ Engineering guides are in English; migrated product and feature records retain t
 | TypeScript contracts, external data, error unions, globals, or compiler settings | [Type safety](./type-safety.md) |
 | Selecting checks, functional acceptance, browser evidence, or completion reporting | [Quality](./quality-guidelines.md) |
 
+## Quality Check
+
+Use this list as the pre-commit entrypoint of the last quality pass; routing and detail live in
+[Quality](./quality-guidelines.md), [browser acceptance](./browser-acceptance.md) and the
+[EH testing skill](../../../.pi/skills/eh-test/SKILL.md).
+
+1. **Code actually loaded**: the fresh build/bundle is what the browser ran — no Vite error overlay, initialized reader DOM, host-site failures separated from reader failures.
+2. **Route matches the change**: pure documentation, local browser, EH production bundle, or shared EH+NH request/storage assessment, per the acceptance routing table.
+3. **Behavior exercised**: parsing/cache/queue changes cover title, total/current page, thumbnails and location, both reading modes and supported original/change-source actions; UI covers desktop **1200×900** and mobile **390×844**; persisted settings cover the quickstart matrix.
+4. **Evidence recorded**: logs, screenshots and statistics under repository `.tmp/`, with each item reported passed, failed, blocked or unrun.
+5. **Completion stated**: unverified scope and unmet constraints listed; services created for the task stopped with process exit and port release confirmed.
+
 ## Read the feature contract too
 
 - Product direction: [product goals](./product-goals.md).
