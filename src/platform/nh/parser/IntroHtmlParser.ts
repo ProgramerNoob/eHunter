@@ -20,9 +20,12 @@ export class IntroHtmlParser {
 
     private parseData() {
         Array.prototype.slice.call(this.html.querySelectorAll('.gallerythumb'), 0).forEach(i => {
-            const thumbSrc = i.children[0].getAttribute('data-x-src');
-            const thumbHeight = i.children[0].getAttribute('height') * 1;
-            const thumbWidth = i.children[0].getAttribute('width') * 1;
+            // 旧格式页面：src= 被改写成 x-src=，data-src= 被改写成 data-x-src=
+            // 当前页面：仅原生 src，改写后由 x-src 兜底
+            const img = i.children[0]
+            const thumbSrc = img.getAttribute('data-x-src') || img.getAttribute('x-src')
+            const thumbHeight = img.getAttribute('height') * 1;
+            const thumbWidth = img.getAttribute('width') * 1;
             const pageUrl = i.getAttribute('href');
             this.imgPageInfos.push({
                 id: pageUrl,
