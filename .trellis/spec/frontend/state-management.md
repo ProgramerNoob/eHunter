@@ -100,9 +100,9 @@ and resolved image URLs in memory. EH reuses an available source for `Default` a
 `Fast`; `Origin` and `ChangeSource` re-fetch. NH reuses an available source and does
 not implement EH's origin/change-source capabilities.
 
-[AlbumCacheService.ts](../../../src/platform/eh/service/AlbumCacheService.ts) is persistent
-legacy album-cache code used by `AlbumServiceImpl.old.ts`, not by the selected EH
-implementation. Its cache versioning and Normal/Large thumbnail behavior still need
-care if that path is changed, but do not describe it as the current reader's cache.
-Likewise, factory reset's removal of old album keys does not imply the current adapters
-write them. Follow [quality guidance](./quality-guidelines.md) for storage/cache acceptance.
+The historical persistent album cache (`src/platform/eh/service/AlbumCacheService.ts`,
+with its cache versioning and Normal/Large thumbnail behavior) and its consumer
+`AlbumServiceImpl.old.ts` were deleted on 2026-10-03; the selected EH implementation
+never used them. Factory reset's removal of old album keys (`AlbumCache` /
+`AlbumCacheVersion`) does not imply the current adapters write them. Follow
+[quality guidance](./quality-guidelines.md) for storage/cache acceptance.

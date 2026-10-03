@@ -18,8 +18,7 @@ The installed Vue base enables `strict`, `noUncheckedIndexedAccess`, and
 Do not describe this as fully strict TypeScript. JavaScript helpers and unchecked
 null/implicit-any paths remain. The root includes `env.d.ts`, `src/main.ts`,
 `src/platform/**/*`, and `core/**/*`, and excludes `old/**/*` and `core_old/**/*` as
-root inputs. Exclusion does not erase transitive imports or historical `.old.ts`
-files under included directories.
+root inputs. Exclusion does not erase transitive imports from excluded directories.
 
 [tsconfig.config.json](../../../tsconfig.config.json) is a separate composite project
 using Node 22 configuration for build config files. Its test-config globs are not

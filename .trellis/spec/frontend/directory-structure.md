@@ -59,11 +59,6 @@ silently change the current timeout while doing unrelated work.
 
 - `core_old/` and `old/` are historical implementations. Changes require an explicit
   migration purpose; do not copy their architecture into new reader code.
-- Historical files also remain inside current directories:
-  [AlbumServiceImpl.old.ts](../../../src/platform/eh/service/AlbumServiceImpl.old.ts)
-  constructs [AlbumCacheService](../../../src/platform/eh/service/AlbumCacheService.ts),
-  which imports `core_old` storage/tags. The factory selects the current implementation,
-  which does not use that persistent album cache.
 - Shared request infrastructure may still be relevant even when a legacy consumer is
   present. Trace imports and callers before deciding a class is active or obsolete.
 - EH is the first migration target; changes to `src/platform/base/` require assessing

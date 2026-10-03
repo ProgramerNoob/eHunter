@@ -20,7 +20,7 @@
 - 改变阅读模式、设置或平台设计时，读取[产品目标](.trellis/spec/frontend/product-goals.md)，从[功能索引](.trellis/spec/frontend/features/index.md)找到对应 spec、契约与 quickstart。涉及下载元数据、偏好、翻页默认值或放大镜时先读[已确认决策](.trellis/spec/frontend/decisions/2026-09-18-reader-behavior.md)；目标、历史计划与当前实现有冲突时，先追溯决策，无法确定的用户可见行为须对齐后修改。
 - 涉及 DOM 解析时，检查选择器稳定性、异步加载和页面结构变化的容错。
 - 涉及渲染时，检查书页/卷轴模式一致性、图片加载与缓存、渲染性能和滚动体验；解析、缓存、请求队列和阅读交互须显式处理异步加载、页码边界与快速连续输入。
-- 涉及 EH 的 `AlbumCacheService`、`ImgUrlListParser` 时，额外检查 Normal/Large 缩略图切换、缓存版本迁移与刷新、并发队列及超时重试。
+- 涉及 EH 的 `ImgUrlListParser`（intro 页抓取与图片页 URL 解析；现役于 `src/platform/eh/service/AlbumServiceImpl.ts`）时，额外检查 `ReqQueue` 并发队列、`TextReq` 超时重试与 intro 页数/页码边界。
 
 ## 通知、调试与验收（强制）
 
