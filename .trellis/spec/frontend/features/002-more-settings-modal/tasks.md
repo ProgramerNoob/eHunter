@@ -132,7 +132,7 @@
 **Purpose**: 完成跨故事一致性、文档回填与最终验收。
 
 - [X] T035 [P] Normalize modal visual spacing, typography, and responsive polish in `core/components/MoreSettingsDialog.vue`
-- [ ] T036 [P] Clean up obsolete i18n keys/usages related to removed second-row settings in `core/assets/i18n.ts`
+- [X] T036 [P] Clean up obsolete i18n keys/usages related to removed second-row settings in `core/assets/i18n.ts`（2026-10-03：删除 13 个零引用 key 的三语言条目——reverseFlip/reverseFlipTip/githubTip/bookAnimation/bookAnimationTip/loadingImgUrl/instructions/changingToSmallFailed/loadingTip/loadingFailedAndRefresh/failedMsg/version/ContractAuthor；CN/EN/JP 实机无 undefined；`npm run type-check` 退出码 0；证据 `.tmp/cleanup-pageflip-i18n-notification/i18n.diff`）
 - [X] T037 Run type validation for final changes with `npm run type-check` from `package.json`（2026-10-03：退出码 0，0 错误）
 - [X] T038 Run runtime verification with `npm run dev` and browser checks documented in `.trellis/spec/frontend/features/002-more-settings-modal/quickstart.md`
 

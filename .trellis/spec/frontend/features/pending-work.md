@@ -21,6 +21,8 @@
 
 2026-10-03：`npm run type-check`（`vue-tsc --noEmit`）已退出码 0、0 错误（清理 6 个无引用遗留文件并修正 `core/components/TopBar.vue` 的 `getItemStyle()` 返回类型）。依赖该前提的三条历史项已在各自 tasks.md 中勾选：翻页 T033、下载 T033（并已把结果写入 `001-gallery-download-bundle/plan.md`）、更多设置 T037。本页计数仍按迁移基线口径保留。
 
+2026-10-03（清理任务 `.trellis/tasks/10-03-cleanup-pageflip-i18n-notification/`）：三条原未勾项已收口并勾选——翻页 T032（清死字段/死分支 + 补最小注释）、更多设置 T036（删除 13 个零引用 i18n key 三语言条目）、下载 T024（实机复核通知栈响应式样式，未改代码，证据 `.tmp/cleanup-pageflip-i18n-notification/t024-desktop-1200x900.png` / `t024-mobile-390x844.png`）。`npm run type-check` 与 `npm run build-prod` 退出码均 0。仍有两处遗留：`isReverseFlip` 字段与 `core/store/settingFieldRuntime.ts:18/46` 路由无 UI 入口，属跨文件遗留、未处理；T024 的两处可选硬化（标题 `overflow-wrap`、通知列表 `max-height`/`overflow-y`）未做。本页计数仍按迁移基线口径保留。
+
 ## 001-add-pageflip-toggle
 
 - [T029](001-add-pageflip-toggle/tasks.md)（原未勾）：[P] 对齐实现与契约描述 in `.trellis/spec/frontend/features/001-add-pageflip-toggle/contracts/page-turn-animation.openapi.yaml`

@@ -83,7 +83,7 @@
 - [X] T021 [US2] Mount notification stack in root app layout for global visibility in `core/App.vue`
 - [X] T022 [US2] Add store notification actions (enqueue/update/complete/dismiss) and ordering policy in `core/store/app.ts`
 - [X] T023 [US2] Emit fetching/compressing/completed/failed progress events from downloader to store in `core/service/GalleryDownloadService.ts`
-- [ ] T024 [P] [US2] Add responsive styles for desktop/mobile notification readability in `core/components/status/StatusNotificationStack.vue`
+- [X] T024 [P] [US2] Add responsive styles for desktop/mobile notification readability in `core/components/status/StatusNotificationStack.vue`（2026-10-03 实机复核，无需改码：3 个并发下载通知在 1200×900 与 390×844 均位于右下角、`.status-pannel` 上方（栈底 872/812 vs 状态栏顶 882/826）、纵向堆叠间距 8px 不重叠、标题 13px/正文 12px 可读、无未捕获异常；证据 `.tmp/cleanup-pageflip-i18n-notification/t024-desktop-1200x900.png`、`t024-mobile-390x844.png`、`browser-events.jsonl`）
 
 **Checkpoint**: User Story 2 is independently functional with reusable stacked progress notifications.
 
