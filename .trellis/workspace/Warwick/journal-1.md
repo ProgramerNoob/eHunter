@@ -192,3 +192,43 @@
 
 - 从 .trellis/spec/frontend/features/pending-work.md 选择后续工作；type-check 保持阻塞项地位
 - 两条已记录遗留：isReverseFlip 字段与 core/store/settingFieldRuntime.ts:18/46 路由无 UI 入口（跨文件，未处理）；T024 的两处可选硬化（标题 overflow-wrap、通知列表 max-height/overflow-y）未做
+
+
+## Session 6: Session 6: 清理反转翻页死字段 isReverseFlip
+<!-- trellis-session: v=2 fp=5697b17fc99803dc -->
+
+**Date**: 2026-10-03
+**Task**: Session 6: 清理反转翻页死字段 isReverseFlip
+**Branch**: `master`
+
+### Summary
+
+删除从未被读取的 isReverseFlip 字段与两条运行时路由，删除后设置定义表与路由表同构 21/21
+
+### Main Changes
+
+- core/store/app.ts: 删归一化表项、序列化项、字段声明与 toggleIsReverseFlip 动作
+- core/store/settingFieldRuntime.ts: 删 getFieldValue/setFieldValue 两条 case 'isReverseFlip'
+- state-management.md: 过期示例改写为「路由表与定义表必须同步」维护规则 + 21/21 同构事实
+- pending-work.md: 标记该跨文件遗留已收口
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `9ab472a` | refactor(core): 删除反转翻页死字段与运行时路由 |
+| `5b98934` | docs(specs): 更新反转翻页死字段清理后的规范表述 |
+
+### Testing
+
+- [OK] npm run type-check exit 0；npm run build-prod exit 0（442783 字节，重建前后 sha256 一致）
+- [OK] 同构核对 routed 21 / defs 21，两侧差集均空；grep isReverseFlip 在 core/ src/ 命中 0
+- [OK] EH 生产包桌面实机：缩略图栏开关双向持久化（150→0→150，均经 ignoreCache 刷新保持），0 未捕获异常
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- T024 两处可选硬化（通知标题 overflow-wrap、通知列表 max-height/overflow-y）
