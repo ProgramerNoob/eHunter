@@ -131,7 +131,7 @@ description: "Task list for 书页模式翻页动效开关"
 - [ ] T030 [P] 更新交付说明与验证步骤 in `.trellis/spec/frontend/features/001-add-pageflip-toggle/quickstart.md`
 - [X] T031 在 `core/components/AlbumBookView.vue` 清理无用过渡样式并统一命名
 - [ ] T032 在 `core/store/app.ts` 与 `core/components/TopBar.vue` 清理临时字段/分支并补充最小注释
-- [ ] T033 运行类型检查 `npm run type-check` in `.`
+- [X] T033 运行类型检查 `npm run type-check` in `.`（2026-10-03：退出码 0，0 错误）
 - [X] T034 运行 `npm run dev` 并通过浏览器验收完成全量功能回归（US1+US2+US3）
 
 ---

@@ -19,6 +19,8 @@
 
 放大镜 tasks 39/39，但 requirements 5 项、quickstart 5 项未勾；下载 T036/T037 有完成证据，requirements 仍有 3 项未勾。保持各自历史状态。
 
+2026-10-03：`npm run type-check`（`vue-tsc --noEmit`）已退出码 0、0 错误（清理 6 个无引用遗留文件并修正 `core/components/TopBar.vue` 的 `getItemStyle()` 返回类型）。依赖该前提的三条历史项已在各自 tasks.md 中勾选：翻页 T033、下载 T033（并已把结果写入 `001-gallery-download-bundle/plan.md`）、更多设置 T037。本页计数仍按迁移基线口径保留。
+
 ## 001-add-pageflip-toggle
 
 - [T029](001-add-pageflip-toggle/tasks.md)（原未勾）：[P] 对齐实现与契约描述 in `.trellis/spec/frontend/features/001-add-pageflip-toggle/contracts/page-turn-animation.openapi.yaml`

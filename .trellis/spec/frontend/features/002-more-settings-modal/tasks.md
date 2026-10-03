@@ -133,7 +133,7 @@
 
 - [X] T035 [P] Normalize modal visual spacing, typography, and responsive polish in `core/components/MoreSettingsDialog.vue`
 - [ ] T036 [P] Clean up obsolete i18n keys/usages related to removed second-row settings in `core/assets/i18n.ts`
-- [ ] T037 Run type validation for final changes with `npm run type-check` from `package.json`
+- [X] T037 Run type validation for final changes with `npm run type-check` from `package.json`（2026-10-03：退出码 0，0 错误）
 - [X] T038 Run runtime verification with `npm run dev` and browser checks documented in `.trellis/spec/frontend/features/002-more-settings-modal/quickstart.md`
 
 ---

@@ -114,7 +114,7 @@
 
 - [ ] T031 [P] Update quickstart verification steps with finalized interaction details in `.trellis/spec/frontend/features/001-gallery-download-bundle/quickstart.md`
 - [ ] T032 [P] Update plan validation notes with implementation-time findings in `.trellis/spec/frontend/features/001-gallery-download-bundle/plan.md`
-- [ ] T033 Run `npm run type-check` and record result notes in `.trellis/spec/frontend/features/001-gallery-download-bundle/plan.md`
+- [X] T033 Run `npm run type-check` and record result notes in `.trellis/spec/frontend/features/001-gallery-download-bundle/plan.md`（2026-10-03：退出码 0，结果见 plan.md「T033 类型检查结果」）
 - [ ] T034 Run `npm run dev` and validate changed flows via `ego-browser` in desktop/mobile, then record outcomes in `.trellis/spec/frontend/features/001-gallery-download-bundle/plan.md`
 - [ ] T035 [P] Verify task/spec/contract terminology consistency (`status-pannel`, chunk fields, retry wording) in `.trellis/spec/frontend/features/001-gallery-download-bundle/spec.md`
 

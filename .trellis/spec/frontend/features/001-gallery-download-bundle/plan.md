@@ -21,7 +21,7 @@ Implement confirm-to-download workflow in `DownloadConfirmDialog` that sequentia
 **Language/Version**: TypeScript 5.9 + Vue 3.5 SFC + SCSS\
 **Primary Dependencies**: Vue runtime (`vue`), existing `AlbumService`/store modules, ZIP generation/UTF-8 encoding via existing `fflate`, native `JSON.stringify`\
 **Storage**: Userscript storage preference via existing unified settings persistence (`GM_*` first, platform/local fallback)\
-**Testing**: Manual runtime verification via `npm run dev` + `ego-browser`; static check via `npm run type-check` (non-blocking if pre-existing unrelated failures)\
+**Testing**: Manual runtime verification via `npm run dev` + `ego-browser`; static check via `npm run type-check` (non-blocking if pre-existing unrelated failures)（2026-10-03：历史 22 项失败已清理，`npm run type-check` 退出码 0，豁免条件失效；见文末「T033 类型检查结果」）\
 **Target Platform**: Browser userscript runtime on EH reader UI (desktop + mobile viewport validation)
 **Project Type**: Single frontend userscript app\
 **Performance Goals**: First status notification appears within 1s after confirm; progress updates visible at least once per processed image; chunk finalization starts immediately after chunk fill/completion\
@@ -118,3 +118,11 @@ No constitution violations requiring justification.
 - 中止后通知不收敛：`core/service/GalleryDownloadService.ts` 中 `resolveImageBlob` 之后的 `assertNotAborted`（约 :449）抛出的 `DOWNLOAD_ABORTED` 被同函数 `catch` 当作单页失败吞掉，worker 继续上报 `phase: 'fetching'`；`run()` 拒绝后 `core/components/dialog/DownloadConfirmDialog.vue:46-56` 虽写入 `partial` + `downloadAborted`，仍可能被兄弟 worker 的迟到 `fetching` 覆盖——实测计数冻结在 27→31 / 14→18、通知保持「正在处理第N/136张图片」且终止按钮未消失。
 - 移动端合成触摸（swipe/tap）不翻页、内部滚动不响应，键盘 `ArrowRight` 正常（`1/136→4/136`），疑似 harness 触摸合成限制，需真机或真实触屏复核。
 - quickstart 的「20–50 页 / 300 页画廊」用例以 136 页画廊 + 默认 200（单包）/ 100（两包）覆盖同一结构断言。
+
+## T033 类型检查结果（2026-10-03）
+
+命令：`npm run type-check`（`vue-tsc --noEmit`），工作区为提交 `655e054`。结果：**退出码 0，0 错误**。
+
+清理内容（`09-20-typecheck-dead-code-cleanup`）：删除 6 个无引用遗留文件（`src/platform/base/index.ts`、`src/platform/eh/index.ts`、`src/platform/nh/index.ts`、`src/platform/eh/service/AlbumServiceImpl.old.ts`、`src/platform/nh/service/AlbumServiceImpl.old.ts`、`src/platform/eh/service/AlbumCacheService.ts`），并为 `core/components/TopBar.vue` 的 `getItemStyle()` 补 `CSSProperties` 返回类型注解。删除前的 22 项错误全部来自这些遗留文件与 `TopBar.vue(20,14)`，与下载功能无关。
+
+因此上文 **Testing** 中「non-blocking if pre-existing unrelated failures」的豁免条件不再成立：此后 `npm run type-check` 应为阻塞项，出现错误按回归处理。`npm run build-prod` 同批次退出码 0（`dist/ehunter.iife.js` 445526 字节）。
