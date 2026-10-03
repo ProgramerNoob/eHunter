@@ -148,3 +148,47 @@
 
 - 从 .trellis/spec/frontend/features/pending-work.md 选择后续工作；type-check 恢复绿灯后应作为阻塞项，出现错误按回归处理。
 - 可选清理：core/App.vue:75 的 ThumbScrollView 未使用 import（实际渲染位于 core/components/ReaderView.vue:12）。
+
+
+## Session 5: 收尾 A 类历史待办：翻页死代码、废弃 i18n key 与下载通知验收
+<!-- trellis-session: v=2 fp=0bcddaaa74bd9c64 -->
+
+**Date**: 2026-10-03
+**Task**: 收尾 A 类历史待办：翻页死代码、废弃 i18n key 与下载通知验收
+**Branch**: `master`
+
+### Summary
+
+删除 core/store/app.ts 与 core/components/TopBar.vue 的零引用死代码、core/assets/i18n.ts 的 13 个零引用 key，并实机复核 T024 通知栈响应式表现；type-check 与 build-prod 退出码均 0，独立核验 AC1–AC9 全部通过。
+
+### Main Changes
+
+- core/store/app.ts：删 showMoreSettings、toggleShowMoreSettings、setThumbInfos、setImgPageInfos、markBookInstructionShown 与 hasShownBookInstruction（含归一化与序列化项）、volumePreloadCount 死注释、两行调试 console.log；为 isReverseFlip（由 settingFieldRuntime.ts:18/46 路由）与 toggleShowMoreSettingsDialog（event.ts:84 Shift）补最小注释
+- core/components/TopBar.vue：删未被命中的 .icon-margin，保留仍被语言字段使用的 .less-margin
+- core/assets/i18n.ts：删 13 个零引用 key 的三语言条目
+- 规范：component-guidelines.md 增补翻译 key 删除的两步审计（字面量 + i18n[...]/*I18nKey 数据驱动查找点）；state-management.md 增补「字段可被路由但无 UI 入口」的反向约定
+- 清单：勾选翻页 T032、更多设置 T036、下载 T024，pending-work.md 记录两条遗留
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `eac3d63` | refactor(core): 清理翻页残留死代码与 13 个零引用 i18n key |
+| `80b1ab3` | docs(specs): 勾选 T032/T036/T024 并补 i18n 删除与设置字段审计约定 |
+| `12c64c4` | chore(task): archive 10-03-cleanup-pageflip-i18n-notification |
+
+### Testing
+
+- [OK] [OK] [OK] npm run type-check 退出码 0、0 错误；npm run build-prod 退出码 0
+- [OK] [OK] [OK] AC8 自检：变更行号集合与保护区间 core/store/app.ts:960-1010、:1322-1360、:1834-1847 交集为空
+- [OK] [OK] [OK] T024 实机复核（eHunter 真实三并发下载）：桌面 1200×900 与移动 390×844 下通知位于右下角、.status-pannel 上方，垂直堆叠 8px 间距不重叠，无未捕获异常
+- [OK] [OK] [NOT RUN] 移动端通知截图为 DPR 1（未按指南用 DPR 3）；中止下载后通知不消失属 001-gallery-download-bundle 既有问题，非本次回归
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 从 .trellis/spec/frontend/features/pending-work.md 选择后续工作；type-check 保持阻塞项地位
+- 两条已记录遗留：isReverseFlip 字段与 core/store/settingFieldRuntime.ts:18/46 路由无 UI 入口（跨文件，未处理）；T024 的两处可选硬化（标题 overflow-wrap、通知列表 max-height/overflow-y）未做
