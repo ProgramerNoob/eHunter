@@ -103,3 +103,48 @@
 ### Status
 
 [OK] **Completed**
+
+
+## Session 4: type-check 基线清理与父任务集成验收
+<!-- trellis-session: v=2 fp=9101d66587984c78 -->
+
+**Date**: 2026-10-03
+**Task**: type-check 基线清理与父任务集成验收
+**Branch**: `master`
+
+### Summary
+
+清理 6 个无引用遗留文件（643 行）并修正 TopBar.vue 的 getItemStyle 返回类型，npm run type-check 从 22 项错误恢复到退出码 0；随后在被测版本上完成父任务的 NH 集成验收（45/45 缩略图、跳页定位、书页/卷轴切换、双视口），回填 pending-work 与三条历史 type-check 条目，归档 C2 与父任务。
+
+### Main Changes
+
+- 删除 src/platform/{base,eh,nh}/index.ts 与 eh/service/AlbumServiceImpl.old.ts、nh/service/AlbumServiceImpl.old.ts、eh/service/AlbumCacheService.ts，删除前逐文件核对 import 引用；core/components/TopBar.vue 的 getItemStyle() 补 CSSProperties 返回注解（三个返回分支取值不变）。
+- 同步 .trellis/spec/frontend/state-management.md、directory-structure.md 与 AGENTS.md 中被删文件的表述（保留 ImgUrlListParser），历史任务产物与 .tmp 证据按原样保留并说明原因。
+- 父任务新增 acceptance.md 记录集成验收结论与已验证/未验证范围；pending-work.md 新增 2026-10-03 状态说明，翻页 T033、下载 T033（结果写入 001-gallery-download-bundle/plan.md）、更多设置 T037 已勾选。
+- browser-acceptance.md 新增「计数类断言与来源判定」小节：DockWorkspace 双面板槽位计数、nhentai 自带 .webp.webp、控制台报错脚本归因、窄视口顶栏整体隐藏、429 限流节奏。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `3299da9` | refactor(src): 删除遗留平台死文件并修复 TopBar 样式类型 |
+| `655e054` | docs(specs): 同步删除遗留平台文件后的规范表述 |
+| `2b78f39` | docs(trellis): 回填 type-check 基线解锁项并记录父任务集成验收 |
+| `9842554` | chore(task): archive 09-20-typecheck-dead-code-cleanup |
+| `0df1faf` | chore(task): archive 09-20-backlog-nh-thumb-and-typecheck |
+
+### Testing
+
+- [OK] [OK] npm run type-check 退出码 0、0 错误；npm run build-prod 退出码 0，dist/ehunter.iife.js 445526 字节（sha256 3ea2726b…）。
+- [OK] [OK] C2 浏览器验收（EH 阅读页 /s/80813c92df/3482416-1，桌面 1200×900 与移动 390×844）：顶栏字段显隐、更多菜单与快捷设置重排无变化，控制台无新增报错。
+- [OK] [OK] 父任务 NH 集成验收（nhentai.net/g/631366/2/，45 页）：45/45 缩略图 complete 且 naturalWidth>0、空 src 0，点击第 20 张跳页（当前页 2→20、scrollTop 1407→25340），书页/卷轴双向切换 45⇄14，双视口截图齐全。
+- [OK] [NOT RUN] EH 链路未在本轮实机回归（改动不触及现役 EH 服务）；NH 未做多轮重载压力验证（期间触发站点 429 限流）；未做像素比对（TopBar 改动为纯类型注解）。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 从 .trellis/spec/frontend/features/pending-work.md 选择后续工作；type-check 恢复绿灯后应作为阻塞项，出现错误按回归处理。
+- 可选清理：core/App.vue:75 的 ThumbScrollView 未使用 import（实际渲染位于 core/components/ReaderView.vue:12）。
