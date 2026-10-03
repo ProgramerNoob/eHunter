@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "UI 组件自建与 SCSS 布局约定（flex 显式方向、作用域样式）"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "UI 改动的双视口实机验收流程与证据要求"}

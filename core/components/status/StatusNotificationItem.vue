@@ -65,6 +65,8 @@ article, header, footer, p, span, div {
             font-size: 13px;
             line-height: 16px;
             letter-spacing: 0.2px;
+            min-width: 0;
+            overflow-wrap: anywhere;
         }
 
         > .close {

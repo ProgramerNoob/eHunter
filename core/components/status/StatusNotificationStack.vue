@@ -41,6 +41,8 @@ div {
         align-items: flex-end;
         gap: 8px;
         pointer-events: auto;
+        max-height: calc(100vh - 48px);
+        overflow-y: auto;
     }
 }
 

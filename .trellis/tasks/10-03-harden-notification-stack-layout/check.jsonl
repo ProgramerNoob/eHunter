@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "实机验收流程（任务空间、视口、事件流、收尾），本次 UI 改动需按桌面与移动双视口验收"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "验收路由与证据要求，判断本次两行 CSS 改动应走哪些检查"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "UI 组件自建与 SCSS 约定，核对新增声明的写法是否符合既有卡片/列表惯例"}
+{"file": ".trellis/spec/frontend/features/001-gallery-download-bundle/quickstart.md", "reason": "通知栈的验收要求（右下角、.status-pannel 上方、垂直堆叠不重叠），核对 AC3 是否覆盖既有契约"}
+{"file": ".trellis/tasks/archive/2026-10/10-03-cleanup-pageflip-i18n-notification/research.md", "reason": "T024 复核时点名的两处硬化原文，核对本次改动是否与 proposal 一致、未扩大范围"}
