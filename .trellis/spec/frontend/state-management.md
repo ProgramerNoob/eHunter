@@ -61,13 +61,13 @@ A UI control alone does not create a persisted setting. `readingMode` is pinned 
 quick settings; unknown field IDs and invalid stored values are filtered during
 normalization. Retain those rules when extending settings.
 
-The converse also holds: a store field can be routed without any UI entry.
-`isReverseFlip` has no definition in `settingFieldDefinitions`
-([core/store/app.ts](../../../core/store/app.ts:354)), yet
-[settingFieldRuntime.ts](../../../core/store/settingFieldRuntime.ts:18) and `:46` still route its field id.
-Before deleting a store field, check that routing table as well as the metadata: the route becomes
-a dead branch when the definition is gone, while the field itself still participates in
+The runtime routing table and the settings definitions must stay in sync. Before deleting a store
+field, check [settingFieldRuntime.ts](../../../core/store/settingFieldRuntime.ts) as well as
+`settingFieldDefinitions` ([core/store/app.ts](../../../core/store/app.ts:354)): a route that outlives its
+definition is a dead branch, while a field kept only for that route still participates in
 persistence and normalization. Delete both sides together, or keep the field and document why.
+As of 2026-10-03 the two tables are isomorphic — 21 field ids each, with an empty difference in
+both directions — so a new asymmetry on either side is a defect.
 
 ## Persistence, migration and reset
 

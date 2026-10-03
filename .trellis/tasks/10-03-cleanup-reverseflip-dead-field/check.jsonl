@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "被修改的规范段落（字段/路由/持久化约定），核对其改写后是否仍准确、无过期示例"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "验收路由与证据要求，判断本次删除应走哪些检查"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "实机验收流程（任务空间、视口、事件、收尾），核对 AC4/AC5 证据是否合规"}
+{"file": ".trellis/spec/frontend/decisions/2026-09-18-reader-behavior.md", "reason": "已确认决策，确认本次删除未违反页面翻页默认值与偏好约定"}
+{"file": ".trellis/tasks/archive/2026-10/10-03-cleanup-pageflip-i18n-notification/research.md", "reason": "isReverseFlip 的既有调研结论（无 UI 入口、路由不可达），核对本次删除范围与历史证据一致"}

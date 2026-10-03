@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "设置字段的归一化/序列化/路由约定，删除字段前需按其核对两侧"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "改动后必须运行的命令与证据要求"}
