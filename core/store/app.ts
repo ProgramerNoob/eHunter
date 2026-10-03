@@ -1094,7 +1094,6 @@ const unifiedSettingsValueNormalizers: Record<string, (raw: any) => any> = {
     pageTurnAnimationMode: (raw: any) => (raw === 'slide' || raw === 'none' || raw === 'realistic' ? raw : undefined),
     showBookPagination: normalizeBooleanValue,
     isChangeOddEven: normalizeBooleanValue,
-    isReverseFlip: normalizeBooleanValue,
     isAutoFlip: normalizeBooleanValue,
     autoFlipFrequency: (raw: any) => normalizeNumberSetting(raw, 'autoFlipFrequency'),
     showBookThumbView: normalizeBooleanValue,
@@ -1177,7 +1176,6 @@ function persistUnifiedSettingsState() {
             pageTurnAnimationMode: store.pageTurnAnimationMode,
             showBookPagination: store.showBookPagination,
             isChangeOddEven: store.isChangeOddEven,
-            isReverseFlip: store.isReverseFlip,
             isAutoFlip: store.isAutoFlip,
             autoFlipFrequency: store.autoFlipFrequency,
             showBookThumbView: store.showBookThumbView,
@@ -1504,8 +1502,6 @@ export const store = reactive({
     bookDirection: 0, // 0: RTL, 1: LTR
     showBookPagination: responsiveDefaults.showBookPagination, // show/hide bottom floating pagination bar
     isChangeOddEven: false,
-    // No UI entry: kept because settingFieldRuntime.ts routes this field id (getFieldValue/setFieldValue cases 'isReverseFlip').
-    isReverseFlip: false, // reverse the page flipping direction
     isAutoFlip: false,
     autoFlipFrequency: 10, // sec
     showBookThumbView: responsiveDefaults.showBookThumbView,
@@ -1845,10 +1841,6 @@ export const storeAction = {
     },
     toggleOddEvenFromPageMenu: () => {
         store.isChangeOddEven = !store.isChangeOddEven
-        persistUnifiedSettingsState()
-    },
-    toggleIsReverseFlip: () => {
-        store.isReverseFlip = !store.isReverseFlip
         persistUnifiedSettingsState()
     },
     toggleIsAutoFlip: () => {

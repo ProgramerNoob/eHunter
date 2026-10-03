@@ -15,7 +15,6 @@ export function getFieldValue(id: string): any {
         case 'pageTurnAnimationMode': return store.pageTurnAnimationMode
         case 'showBookPagination': return store.showBookPagination
         case 'isChangeOddEven': return store.isChangeOddEven
-        case 'isReverseFlip': return store.isReverseFlip
         case 'isAutoFlip': return store.isAutoFlip
         case 'autoFlipFrequency': return store.autoFlipFrequency
         case 'showBookThumbView': return store.showBookThumbView
@@ -43,7 +42,6 @@ export function setFieldValue(id: string, val: any): void {
         case 'pageTurnAnimationMode': storeAction.setPageTurnAnimationMode(val); break
         case 'showBookPagination': if (store.showBookPagination !== val) storeAction.toggleShowBookPagination(); break
         case 'isChangeOddEven': if (store.isChangeOddEven !== val) storeAction.toggleIsChangeOddEven(); break
-        case 'isReverseFlip': if (store.isReverseFlip !== val) storeAction.toggleIsReverseFlip(); break
         case 'isAutoFlip': if (store.isAutoFlip !== val) storeAction.toggleIsAutoFlip(); break
         case 'autoFlipFrequency': storeAction.setAutoFlipFrequency(val); break
         case 'showBookThumbView': if (store.showBookThumbView !== val) storeAction.toggleShowBookThumbView(); break
