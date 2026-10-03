@@ -232,3 +232,42 @@
 ### Next Steps
 
 - T024 两处可选硬化（通知标题 overflow-wrap、通知列表 max-height/overflow-y）
+
+
+## Session 7: 硬化下载通知栈的标题换行与列表高度
+<!-- trellis-session: v=2 fp=a199013f5acb7540 -->
+
+**Date**: 2026-10-03
+**Task**: 硬化下载通知栈的标题换行与列表高度
+**Branch**: `master`
+
+### Summary
+
+T024 遗留的两处可选硬化落地：通知标题超长无空格串不换行会把关闭按钮挤出卡片，通知列表超高会顶出视口。改动为 4 行 scoped SCSS，静态检查与实机验收通过。
+
+### Main Changes
+
+- core/components/status/StatusNotificationItem.vue 的 header > strong 增加 min-width: 0 与 overflow-wrap: anywhere
+- core/components/status/StatusNotificationStack.vue 的 > .list 增加 max-height: calc(100vh - 48px) 与 overflow-y: auto
+- component-guidelines.md 补「定宽卡片长文本 + 列表高度」样式约定
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `adf9c45` | docs(specs): 补定宽卡片长文本与列表高度的样式约定 |
+
+### Testing
+
+- [OK] type-check exit 0；build-prod exit 0，dist/ehunter.iife.js 442864 字节（改动前 442783）
+- [OK] EH 实机桌面 1200×900：超长标题换行 5 行、关闭按钮右边界 1179 < 卡片 1192（旧声明 2052）；12 项列表 clientHeight 852 < scrollHeight 1812、顶边 20（旧声明 −940）
+- [OK] 移动 390×844 DPR3：卡片 342×140 位于 (42,672)，list 底边 812 < .status-pannel 顶边 826
+- [OK] Runtime/Log 域下重载：init 115 事件、idle 26 事件，exceptionThrown 0、error/warning 级 console 0、Log error 0
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- T024 遗留清零；下一步可从 pending-work.md 挑 B 类文档同步或 C 类实机验收
