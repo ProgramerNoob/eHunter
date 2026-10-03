@@ -1105,7 +1105,6 @@ const unifiedSettingsValueNormalizers: Record<string, (raw: any) => any> = {
     lang: (raw: any) => (typeof raw === 'string' && ['cn', 'en', 'jp'].includes(raw) ? raw : undefined),
     autoRetryByOtherSource: normalizeBooleanValue,
     hasShownWelcomeInstruction: normalizeBooleanValue,
-    hasShownBookInstruction: normalizeBooleanValue,
     lastSeenVersionNotice: (raw: any) => (typeof raw === 'string' ? raw : undefined),
     lastRemoteUpdateNoticeAt: normalizeFiniteNumber,
 }
@@ -1189,7 +1188,6 @@ function persistUnifiedSettingsState() {
             lang: lang.value,
             autoRetryByOtherSource: store.autoRetryByOtherSource,
             hasShownWelcomeInstruction: store.hasShownWelcomeInstruction,
-            hasShownBookInstruction: store.hasShownBookInstruction,
             lastSeenVersionNotice: store.lastSeenVersionNotice,
             lastRemoteUpdateNoticeAt: store.lastRemoteUpdateNoticeAt,
         },
@@ -1486,7 +1484,6 @@ export const store = reactive({
 
     // top bar
     showTopBar: false,
-    showMoreSettings: false,
     showMoreSettingsDialog: false,
     showThumbExpandDialog: false,
     showDownloadConfirmDialog: false,
@@ -1507,6 +1504,7 @@ export const store = reactive({
     bookDirection: 0, // 0: RTL, 1: LTR
     showBookPagination: responsiveDefaults.showBookPagination, // show/hide bottom floating pagination bar
     isChangeOddEven: false,
+    // No UI entry: kept because settingFieldRuntime.ts routes this field id (getFieldValue/setFieldValue cases 'isReverseFlip').
     isReverseFlip: false, // reverse the page flipping direction
     isAutoFlip: false,
     autoFlipFrequency: 10, // sec
@@ -1518,7 +1516,6 @@ export const store = reactive({
     magnifierZoom: 3,
     magnifierAreaSize: 80,
     hasShownWelcomeInstruction: false,
-    hasShownBookInstruction: false,
     lastSeenVersionNotice: '',
     lastRemoteUpdateNoticeAt: 0,
     quickSettingSelected: [...defaultQuickSettingSelected],
@@ -1542,7 +1539,6 @@ export const store = reactive({
     thumbExpandSegmentIndex: 0,
 
     // scroll view
-    // volumePreloadCount: 2,
 
     // book view
     pagesPerScreen: responsiveDefaults.pagesPerScreen, // the page quantity per screen
@@ -1691,9 +1687,7 @@ export const settingConf = {
 }
 
 export const storeAction = {
-    toggleShowMoreSettings: () => {
-        storeAction.toggleShowMoreSettingsDialog()
-    },
+    // Active entry point: 'toggleMoreSettings' shortcut (Shift) in core/store/event.ts.
     toggleShowMoreSettingsDialog: () => {
         store.showMoreSettingsDialog = !store.showMoreSettingsDialog
         if (store.showMoreSettingsDialog) {
@@ -1743,10 +1737,6 @@ export const storeAction = {
     },
     markWelcomeInstructionShown: () => {
         store.hasShownWelcomeInstruction = true
-        persistUnifiedSettingsState()
-    },
-    markBookInstructionShown: () => {
-        store.hasShownBookInstruction = true
         persistUnifiedSettingsState()
     },
     markVersionNoticeSeen: (version: string) => {
@@ -2088,12 +2078,6 @@ export const storeAction = {
 
         applyCurViewIndex(resolveBookTarget(val), updater)
     },
-    setThumbInfos: (val: Array<ThumbInfo>) => {
-        store.thumbInfos = val
-    },
-    setImgPageInfos: (val: Array<ImgPageInfo>) => {
-        store.imgPageInfos = val
-    },
     setImgPageInfoSrc: (index: number, val: string) => {
         if (index < store.imgPageInfos.length) {
             store.imgPageInfos[index].src = val
@@ -2214,11 +2198,9 @@ export function init(albumService: AlbumService) {
     runtimeAlbumService = albumService
 
     let thumbInfos = albumService.getThumbInfos(false)
-    // console.log('[init] thumbInfos:', JSON.parse(JSON.stringify(thumbInfos)))
     store.thumbInfos = JSON.parse(JSON.stringify(thumbInfos))
 
     let imgPageInfos = albumService.getImgPageInfos()
-    // console.log('[init] imgPageInfos:', JSON.parse(JSON.stringify(imgPageInfos)))
     store.imgPageInfos = JSON.parse(JSON.stringify(imgPageInfos))
     
     store.albumTitle = albumService.getTitle()

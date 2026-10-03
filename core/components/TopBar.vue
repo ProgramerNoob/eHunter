@@ -297,10 +297,6 @@ div {
                 margin-left: 10px;
             }
 
-            &.icon-margin {
-                margin-left: 15px;
-            }
-
             >.label {
                 display: flex;
                 align-items: center;

@@ -124,16 +124,6 @@ export default <any>{
         en: 'Show/hide the bottom floating pagination',
         jp: 'ボトムフローティングページネーションの表示/非表示'
     },
-    bookAnimation: {
-        cn: '换页动画',
-        en: 'Sliding animation',
-        jp: 'アニメーション'
-    },
-    bookAnimationTip: {
-        cn: '开启/关闭换页时的滑动动画(测试中)',
-        en: 'show/hide the sliding animation when changing location(Beta)',
-        jp: '場所を変更するときのスライドアニメーションの表示/非表示(测试中)'
-    },
     pageTurnAnimation: {
         cn: '翻页动效',
         en: 'Page turn animation',
@@ -158,16 +148,6 @@ export default <any>{
         cn: '无动效',
         en: 'None',
         jp: 'なし'
-    },
-    reverseFlip: {
-        cn: '反转翻页',
-        en: 'Reverse flip',
-        jp: '反転フリップ'
-    },
-    reverseFlipTip: {
-        cn: '反转翻页方向',
-        en: 'Reverse page turning direction',
-        jp: 'ページめくり方向を逆にする'
     },
     autoFlip: {
         cn: '自动翻页',
@@ -223,11 +203,6 @@ export default <any>{
         cn: '加载图片中...',
         en: 'Loading image...',
         jp: '画像を読み込む..'
-    },
-    loadingImgUrl: {
-        cn: '加载图片地址中...',
-        en: 'Loading image url..',
-        jp: '画像URLを読み込む..'
     },
     reload: {
         cn: '重载',
@@ -649,60 +624,20 @@ export default <any>{
         en: 'Reset cache and data',
         jp: 'Reset cache and data'
     },
-    githubTip: {
-        cn: '前往项目主页(Github)',
-        en: 'Go to the project home page(Github)',
-        jp: 'プロジェクトのホームページに行く(Github)'
-    },
     instructionsAndAbouts: {
         cn: '说明和关于',
         en: 'Instructions & About',
         jp: '説明と概要'
-    },
-    instructions: {
-        cn: '说明',
-        en: 'Instructions',
-        jp: '説明'
     },
     later: {
         cn: '以后再说',
         en: 'LATER',
         jp: '後で'
     },
-    changingToSmallFailed: {
-        cn: '无缝切换至`"Normal"`模式失败，可能是网络错误，可刷新重试或者返回前一页将预览图的大小模式切换为`"Normal"`。',
-        en: 'Changing to `"Normal"` mode failed, because of poor network. You can reload this page or go back to previous page and change the mode of thumbnails to `"Normal"`',
-        jp: 'ネットワークが不十分であるため、`「Normal」`モードに変更できませんでした。 このページをリロードするか、前のページに戻ってサムネイルのモードを`「Normal」`に変更することができます'
-    },
-    loadingTip: {
-        cn: '在前页采用Normal模式查看缩略图可加速加载',
-        en: 'You can use "Normal" mode of thumbnail in previous page to accelerate the load.',
-        jp: '前のページでサムネイルの「Normal」モードを使用して、読み込みを高速化できます。'
-    },
     versionUpdate: {
         cn: '版本更新说明',
         en: 'The update of this version',
         jp: 'このバージョンの更新'
-    },
-    loadingFailedAndRefresh: {
-        cn: '加载错误, 刷新重试',
-        en: 'Loading failed, please refresh to retry',
-        jp: '読み込みに失敗しました。もう一度試してください'
-    },
-    failedMsg: {
-        cn: '错误信息',
-        en: 'Error message',
-        jp: 'エラーメッセージ'
-    },
-    version: {
-        cn: '版本',
-        en: 'Version',
-        jp: 'Version'
-    },
-    ContractAuthor: {
-        cn: '联系作者',
-        en: 'Contact author',
-        jp: '作者に連絡する'
     },
     wheelSensitivity: {
         cn: '滚轮翻页',
