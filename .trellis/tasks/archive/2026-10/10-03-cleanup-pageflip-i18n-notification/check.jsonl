@@ -1,0 +1,8 @@
+{"file": ".trellis/tasks/10-03-cleanup-pageflip-i18n-notification/prd.md", "reason": "R1-R6 需求、AC1-AC9 验收标准与点名文件约束，逐条核对删除范围是否越界"}
+{"file": ".trellis/tasks/10-03-cleanup-pageflip-i18n-notification/implement.md", "reason": "Step 0-8 验出点、AC8 兼容分支未被触碰的检查方法、T024 未完成时的处理口径"}
+{"file": ".trellis/tasks/10-03-cleanup-pageflip-i18n-notification/research.md", "reason": "独立判断零引用名单是否成立、必保留项（isReverseFlip、双写、迁移分支）是否被误删"}
+{"file": ".trellis/spec/frontend/features/pending-work.md", "reason": "勾选与遗留标注是否符合迁移基线口径，是否误改历史计数与其它条目"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "验收证据完整性：双视口、控制台归因、来源判定、证据落盘"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "type-check 退出码与错误数证据的判定标准"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "store 字段与持久化删除是否影响既有契约"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "交付前检查清单与交付说明要求"}

@@ -1,0 +1,10 @@
+{"file": ".trellis/tasks/10-03-cleanup-pageflip-i18n-notification/research.md", "reason": "三条条目的逐行证据、零引用判定、必保留项与双写争议结论，是删除清单的唯一依据"}
+{"file": ".trellis/spec/frontend/features/pending-work.md", "reason": "T032/T036/T024 原文口径、迁移基线计数与本页 2026-10-03 说明段落，决定勾选与遗留标注写法"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "core/store/app.ts 的状态字段、持久化与兼容迁移约定，判断哪些分支属必要兼容而非死代码"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "类型检查基线与类型注解约定；删除死符号后以 vue-tsc 兜底捕获漏删消费者"}
+{"file": ".trellis/spec/frontend/directory-structure.md", "reason": "core/ 与 src/ 边界、活跃实现判定规则（core_old/Old 不计入引用）"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "自建 UI 组件与样式约定，涉及 TopBar.vue 样式块删除与通知栈取值判定"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "桌面/移动视口、控制台归因、截图与证据落盘流程；含 3.1 计数类断言与来源判定"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "交付前静态检查与验收记录要求"}
+{"file": ".trellis/spec/frontend/features/001-gallery-download-bundle/quickstart.md", "reason": "T024 桌面/移动通知验收步骤（第 55-58 行）与 US2 检查项"}
+{"file": ".pi/skills/eh-test/SKILL.md", "reason": "EH 实机验收流程：bundle 服务、dev loader 前提、Tampermonkey 配置与清理步骤"}
