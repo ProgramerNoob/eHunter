@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 7
-- **Last Active**: 2026-10-03
+- **Total Sessions**: 8
+- **Last Active**: 2026-10-11
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~273 | Active |
+| `journal-1.md` | ~313 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 8 | 2026-10-11 | 全会话复盘与首批环境改进收口 | `903d99e`, `6fb03d2`, `08e5cea` | `chore/retrospective-checks` |
 | 7 | 2026-10-03 | 硬化下载通知栈的标题换行与列表高度 | `adf9c45` | `master` |
 | 6 | 2026-10-03 | Session 6: 清理反转翻页死字段 isReverseFlip | `9ab472a`, `5b98934` | `master` |
 | 5 | 2026-10-03 | 收尾 A 类历史待办：翻页死代码、废弃 i18n key 与下载通知验收 | `eac3d63`, `80b1ab3`, `12c64c4` | `master` |

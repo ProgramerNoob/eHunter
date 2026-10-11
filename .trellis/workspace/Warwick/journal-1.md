@@ -271,3 +271,43 @@ T024 遗留的两处可选硬化落地：通知标题超长无空格串不换行
 ### Next Steps
 
 - T024 遗留清零；下一步可从 pending-work.md 挑 B 类文档同步或 C 类实机验收
+
+
+## Session 8: 全会话复盘与首批环境改进收口
+<!-- trellis-session: v=2 fp=4435f806bdb19128 -->
+
+**Date**: 2026-10-11
+**Task**: 全会话复盘与首批环境改进收口
+**Branch**: `chore/retrospective-checks`
+
+### Summary
+
+完成本机70条历史记录复盘，并落地验收结果门禁与存储生命周期自动检查；父子三个任务通过门禁归档，归档后证据引用与实际观察保持一致。
+
+### Main Changes
+
+- 01：逐项验收协议、run/summarize/archive CLI、37个Python回归及检查/提交/归档流程接线。
+- 02：46个真实模块VM存储用例、npm run check与GitHub Actions；未修改产品源码、依赖或锁文件。
+- 归档父子三任务，修正移动后证据路径、上下文清单与导航链接；完整复盘和交付记录保存在 .trellis/tasks/archive/2026-10/10-11-project-session-retrospective/research/。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `903d99e` | feat(tooling): 添加逐项验收门禁与收口接线 |
+| `6fb03d2` | test(storage): 固化生命周期回归并接入自动检查 |
+| `08e5cea` | docs(retro): 保存全会话复盘与整合验收 |
+
+### Testing
+
+- [OK] 实施阶段Node22/Python3.12干净副本的类型检查、37个Python用例、46个存储用例和生产构建通过；错误断言、类型错误、历史故障及阶段失败传播探针均得到预期非零。
+- [OK] 收口阶段三次archive均exit0/passed；归档后三份summarize及context validate均exit0，无豁免；193个原有本地链接文件目标和30个上下文条目有效，原始验收观察未改。未重复运行产品测试。
+- [OK] 未验证远端Actions、Ubuntu实机、分支保护、真实GM跨站与浏览器；本轮未推送。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 复盘03–08仍为建议，按后续需求另行规划；本轮已归档，当前无活动任务。
