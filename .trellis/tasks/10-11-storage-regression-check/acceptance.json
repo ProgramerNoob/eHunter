@@ -1,0 +1,348 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "首批每个场景族有具区分力的正反断言，通过公开入口测试真实模块；故障/刷新/跨站隔离模型符合现有契约。",
+    "AC2": "干净副本不读取历史.tmp、私有路径、旧结果或深Git历史，根npm锁安装后新测试可重复运行；不会触碰用户浏览器存储。",
+    "AC3": "本地统一入口执行现有类型检查、新的两套回归、生产构建，正确版本均通过；失败断言、明确TS错误与一个历史存储故障在隔离副本均非零。",
+    "AC4": "CI文件包含push/pull_request、只读仓库权限、Node22/Python3.12、根锁安装与统一命令，无continue-on-error或吞错；本地证据不冒充远端CI已运行。",
+    "AC5": "项目质量文档列出真实命令、受测范围和限制；验收逐项记录实际结果，不将VM绿写成真实GM/跨站/移动验收通过。"
+  },
+  "checks": [
+    {
+      "id": "storage-regression",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "首批十二场景族真实模块回归",
+      "scope": "真实app/layout/PlatformService + Vue的Node VM；46例",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "test"
+        ],
+        "cwd": ".tmp/storage-regression-check/clean",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T12:44:11.980444+00:00",
+        "endedAt": "2026-10-11T12:44:17.113831+00:00",
+        "log": ".tmp/storage-regression-check/clean-repeat-test.log"
+      },
+      "evidence": [
+        ".tmp/storage-regression-check/clean-repeat-test.log",
+        ".tmp/storage-regression-check/test-inventory.json",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "Node22下46例通过；npm test还包括先行Python37例；见test-inventory完整测试名。",
+      "waiver": null
+    },
+    {
+      "id": "acceptance-script-regression",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "现有验收CLI独立回归通过",
+      "scope": "未修改01两个脚本；Python3.12，37例",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "test"
+        ],
+        "cwd": ".tmp/storage-regression-check/clean",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T12:44:11.980444+00:00",
+        "endedAt": "2026-10-11T12:44:17.113831+00:00",
+        "log": ".tmp/storage-regression-check/clean-repeat-test.log"
+      },
+      "evidence": [
+        ".tmp/storage-regression-check/clean-repeat-test.log",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "npm test中的Python阶段完成37例并返回0，随后才执行存储测试。",
+      "waiver": null
+    },
+    {
+      "id": "type-check",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "现有vue-tsc语义检查通过",
+      "scope": "现役TS/Vue输入，不扩大到checkJs:false或CJS",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".tmp/storage-regression-check/clean",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T12:46:01.688393+00:00",
+        "endedAt": "2026-10-11T12:46:09.637959+00:00",
+        "log": ".tmp/storage-regression-check/restored-check.log"
+      },
+      "evidence": [
+        ".tmp/storage-regression-check/restored-check.log",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "串行check成功进入test/build并返回0，证明首个vue-tsc阶段0；TS故障负向结果另列。",
+      "waiver": null
+    },
+    {
+      "id": "production-build",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "生产IIFE构建通过",
+      "scope": "vite.config.prod.ts构建；无实际注入声明",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".tmp/storage-regression-check/clean",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T12:46:01.688393+00:00",
+        "endedAt": "2026-10-11T12:46:09.637959+00:00",
+        "log": ".tmp/storage-regression-check/restored-check.log"
+      },
+      "evidence": [
+        ".tmp/storage-regression-check/restored-check.log",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "构建236模块并生成dist/ehunter.iife.js，整体0；保留Sass/punycode既有提示。",
+      "waiver": null
+    },
+    {
+      "id": "clean-install",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "干净副本仅根锁安装成功",
+      "scope": "314明确输入；无复制node_modules/旧.tmp/Git历史",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "ci",
+          "--include=dev"
+        ],
+        "cwd": ".tmp/storage-regression-check/clean",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T12:43:42.695691+00:00",
+        "endedAt": "2026-10-11T12:43:48.960717+00:00",
+        "log": ".tmp/storage-regression-check/clean-install.log"
+      },
+      "evidence": [
+        ".tmp/storage-regression-check/clean-install.log",
+        ".tmp/storage-regression-check/snapshot.json",
+        ".tmp/storage-regression-check/versions.log",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "npm ci --include=dev实际0；根锁未变；精确输入及HEAD见snapshot。",
+      "waiver": null
+    },
+    {
+      "id": "clean-copy",
+      "ac": [
+        "AC2",
+        "AC3"
+      ],
+      "claim": "Node22/Python3.12干净副本统一check通过",
+      "scope": "Darwin arm64本地隔离副本，不是Ubuntu远端CI",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".tmp/storage-regression-check/clean",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T12:44:03.729699+00:00",
+        "endedAt": "2026-10-11T12:44:11.980010+00:00",
+        "log": ".tmp/storage-regression-check/clean-check.log"
+      },
+      "evidence": [
+        ".tmp/storage-regression-check/clean-check.log",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "type-check、37 Python、46存储、生产构建串行完成，整体0。",
+      "waiver": null
+    },
+    {
+      "id": "repeat-test",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "干净安装后独立重复执行测试通过",
+      "scope": "第二次npm test，无固定文件或旧结果依赖",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "test"
+        ],
+        "cwd": ".tmp/storage-regression-check/clean",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T12:44:11.980444+00:00",
+        "endedAt": "2026-10-11T12:44:17.113831+00:00",
+        "log": ".tmp/storage-regression-check/clean-repeat-test.log"
+      },
+      "evidence": [
+        ".tmp/storage-regression-check/clean-repeat-test.log",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "37 Python和46存储均通过；未触碰浏览器。",
+      "waiver": null
+    },
+    {
+      "id": "negative-gates",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "错误断言、TS错误、历史故障与阶段失败均非零",
+      "scope": "仅副本mutation，每项恢复后再下一项",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/storage-regression-check/negative_controls.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T12:45:08.677664+00:00",
+        "endedAt": "2026-10-11T12:45:33.064509+00:00",
+        "log": ".tmp/storage-regression-check/negative-controls.log"
+      },
+      "evidence": [
+        ".tmp/storage-regression-check/negative-controls.log",
+        ".tmp/storage-regression-check/wrong-assertion-test.log",
+        ".tmp/storage-regression-check/wrong-assertion-check.log",
+        ".tmp/storage-regression-check/typescript-error-type-check.log",
+        ".tmp/storage-regression-check/typescript-error-check.log",
+        ".tmp/storage-regression-check/historical-identity-storage.log",
+        ".tmp/storage-regression-check/historical-identity-check.log",
+        ".tmp/storage-regression-check/propagation-type-check.log",
+        ".tmp/storage-regression-check/propagation-test.log",
+        ".tmp/storage-regression-check/propagation-build-prod.log",
+        ".tmp/storage-regression-check/historical-identity.diff",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "外层命令断言负向结果后返回0；原始退出码分别1/2/1/7，后续阶段未运行，原始日志保留。",
+      "waiver": null
+    },
+    {
+      "id": "restored-inputs",
+      "ac": [
+        "AC2",
+        "AC3"
+      ],
+      "claim": "隔离负向改动全部恢复且产品/依赖无变更",
+      "scope": "314输入SHA256与当前交付脚本检查",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/storage-regression-check/static_checks.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T12:47:48.226776+00:00",
+        "endedAt": "2026-10-11T12:47:48.408899+00:00",
+        "log": ".tmp/storage-regression-check/static-checks.log"
+      },
+      "evidence": [
+        ".tmp/storage-regression-check/static-checks.log",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "全部哈希恢复；工作区core/src/lock/tsconfig无差异，暂存区为空。",
+      "waiver": null
+    },
+    {
+      "id": "ci-config",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "CI触发权限版本与命令符合契约",
+      "scope": "本地YAML解析与官方v7 tag资料，不含远端执行",
+      "method": "inspection",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/storage-regression-check/static-checks.log",
+        ".tmp/storage-regression-check/actions-versions.json",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "静态核验push/pull_request、contents:read、Node22/Python3.12、根lock/cache、ci/check和无吞错。官方v7 action使用Node24运行时，和项目Node22分开。",
+      "waiver": null
+    },
+    {
+      "id": "quality-docs",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "质量规范列出真实命令、VM范围与未验证边界",
+      "scope": "质量文档与本次交付记录/建议条目，不声称主记录已合入",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/storage-regression-check/static-checks.log",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "已检查链接、脚本命令和限制；真实GM/跨站/移动/远端CI均明确未验收，正式审查待主会话。",
+      "waiver": null
+    },
+    {
+      "id": "formal-review",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC3",
+        "AC4",
+        "AC5"
+      ],
+      "claim": "完整Standards/Spec审查无剩余问题",
+      "scope": "本任务五个冻结文件、十二场景族、01脚本及接线保留、干净副本/负向执行/CI静态/质量文档证据",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-11-storage-regression-check/research/review.md",
+        ".tmp/storage-regression-check/review-freeze-before.json",
+        ".tmp/storage-regression-check/review-freeze-after.json",
+        ".tmp/storage-regression-check/review-audit.json",
+        ".tmp/storage-regression-check/review-audit-final.log",
+        ".tmp/storage-regression-check/review-audit-final-command.json",
+        ".tmp/storage-regression-check/review-summary.json",
+        ".tmp/storage-regression-check/review-summary-command.json"
+      ],
+      "note": "Standards与Spec独立审查均无剩余问题；未修受审文件。314副本输入逐个匹配工作区/快照，非overlay输入匹配HEAD；01两脚本和三处流程接线与R1冻结哈希相同，质量文档01内容保留。核验Node22.23.3/npm10.9.9/Python3.12.14下现有完整check日志：37 Python+46 Node及type/build通过；错误断言/TS错误/历史身份故障/逐阶段失败真实退出1/2/1/7，mutation已恢复。本轮只读证据审计exit0，未重复全套。当前保存的summarize仍partial/exit1（11passed+formal-review unrun），本建议尚未合入；远端CI、Ubuntu实机、Windows、真实GM/跨站与UI均未验证。",
+      "waiver": null
+    }
+  ]
+}

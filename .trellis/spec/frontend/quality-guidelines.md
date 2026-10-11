@@ -32,6 +32,10 @@ Run from the repository root. [package.json](../../../package.json) is authorita
 | --- | --- |
 | `npm run dev` | Starts Vite for local TEST-platform UI work |
 | `npm run type-check` | Runs `vue-tsc --noEmit` |
+| `npm run test:acceptance` | Runs Python `unittest` regressions for `scripts/acceptance.py` |
+| `npm run test:storage` | Runs Node's built-in test runner against the real storage modules in isolated VMs |
+| `npm test` | Runs acceptance CLI regressions, then storage regressions |
+| `npm run check` | Runs type-check, both regression suites, then the production build; stops at the first failure |
 | `npm run build` | Runs normal `vite build` |
 | `npm run build-only` / `npm run build-dev` | Same normal Vite build; neither adds type-checking |
 | `npm run build-prod` | Builds the IIFE userscript with the production config |
@@ -44,11 +48,49 @@ does not validate this packaging. [serve-bundle.mjs](../../../scripts/serve-bund
 serves that file from `127.0.0.1:8787` by default, rereads it per request and sends
 `cache-control: no-store`; `PORT` changes the port.
 
-There is no current root lint script, ESLint configuration/dependency, automated test
-script, or configured product unit/E2E runner. A root `.eslintignore`, historical configs under
-`old/`, and test-config include globs do not provide working lint/test tooling.
-Do not report lint or automated-test results without real configured tooling.
-Use available type/build checks for relevant source changes, then functional acceptance.
+There is no current root lint script, ESLint configuration/dependency, or automated
+browser E2E runner. A root `.eslintignore`, historical configs under `old/`, and
+test-config include globs do not provide those tools. Do not report lint results.
+
+### Repeatable local and CI checks
+
+Use Node 22 and Python 3.12, then run `npm ci --include=dev` and `npm run check`.
+The root `package-lock.json` is the installation input; no new test framework is
+required. [`check.yml`](../../../.github/workflows/check.yml) runs the same commands
+on pushes and pull requests with read-only repository permissions. It uses npm's
+download cache, not a saved `node_modules`. Runtime majors are selected in the
+workflow and actual versions are printed; patch-level reproducibility is not promised.
+The workflow file alone does not establish a remote run or required branch check.
+
+The serial `&&` chain propagates type-check, assertion and build failures as nonzero
+exit codes. Later stages after a failure are **unrun**, not passed. Production build
+success never replaces `vue-tsc`; JS with `checkJs: false` and the CJS tests are not
+fully covered by that semantic check. The helper checks transpilation diagnostics,
+and Node loads and executes the CJS tests.
+
+[`storage-lifecycle.test.cjs`](../../../tests/storage-lifecycle.test.cjs) exercises
+current `app.ts`, `layoutPreference.ts`, `PlatformService.js` and real Vue through
+public initialization/actions/storage APIs. Its
+[fixture](../../../tests/helpers/storage-fixture.cjs) keeps shared GM values and
+per-origin local strings in isolated Maps, copies GM values on reads/writes, gives
+GM operations independent fault switches, and creates a new VM/module cache/Vue
+scope for each page. Refreshes retain only the storage Maps; scopes are stopped.
+Unknown imports fail. Tests read current checkout files, not `.tmp`, historical Git
+versions or fixed result files, and may be run repeatedly with `npm test`.
+
+The suite covers GM read/write failures and recovery, origin fallback, reset success
+and failure, reset observation followed by local saves and repeated refreshes,
+single-field and single-mode saves, same/different/missing reset identities, legacy
+animation records, invalid fields and explicit empty shortcuts, mixed-schema
+migration, same-millisecond resets, clock rollback and identity/timestamp controls.
+Legal shared values stay preferred. An unobserved origin with failed GM reads cannot
+know about a remote reset; healthy shared writes do not promise a local mirror.
+
+These are synchronous storage simulations. Event/timer, i18n and album/download
+boundaries are explicit substitutes. Passing VMs do **not** prove userscript grants,
+sandbox/serialization behavior, actual EH/EX/NH sharing, browser scheduling, desktop
+or mobile UI, parsing, image loading or downloads. Product/storage changes still
+need the applicable real-platform acceptance below.
 
 ## Acceptance routing
 
@@ -56,6 +98,7 @@ Use available type/build checks for relevant source changes, then functional acc
 | --- | --- |
 | Pure documentation | Verify links, structure, examples and command/config claims; product checks are unnecessary solely for prose |
 | Project acceptance CLI / workflow | Run `python3 -m unittest discover -s scripts -p 'test_acceptance.py'` and verify affected links/commands; no product browser/build checks unless product behavior also changes |
+| Storage test harness / check scripts / CI only | Run `npm run check`; for gate changes also verify clean locked installation, repeated tests and failure propagation in an isolated copy; no browser acceptance claim |
 | Non-platform behavior | [Local browser procedure](./browser-acceptance.md), using the available `ego-browser` skill |
 | Platform adapters, injection, parsing or requests | [EH production-bundle procedure](../../../.pi/skills/eh-test/SKILL.md) |
 | Shared `TextReq`, `ReqQueue`, `MultiAsyncReq` or storage behavior | Assess both EH and NH; preference sharing also covers EH/EX/NH |

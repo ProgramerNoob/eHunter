@@ -1,0 +1,7 @@
+{"file":".trellis/tasks/10-11-project-session-retrospective/research/storage-gate-design.md","reason":"真实模块夹具和场景族的精确定位"}
+{"file":".trellis/spec/frontend/decisions/2026-09-18-reader-behavior.md","reason":"共享、降级、重置、字段补缺的确认决策"}
+{"file":".trellis/spec/frontend/state-management.md","reason":"现行持久化与生命周期规范"}
+{"file":".trellis/spec/frontend/type-safety.md","reason":"类型检查与转译的区别"}
+{"file":".trellis/spec/frontend/features/002-more-settings-modal/quickstart.md","reason":"设置迁移验收矩阵"}
+{"file":".trellis/spec/frontend/features/001-add-pageflip-toggle/quickstart.md","reason":"翻页偏好持久化边界"}
+{"file":".trellis/spec/frontend/features/001-add-pageview-magnifier/quickstart.md","reason":"放大镜长期偏好与会话态边界"}

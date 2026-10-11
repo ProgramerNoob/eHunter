@@ -9,6 +9,10 @@
     "build-dev": "vite build",
     "build-prod": "vite build --config vite.config.prod.ts",
     "type-check": "vue-tsc --noEmit",
+    "test:acceptance": "python3 -m unittest discover -s scripts -p 'test_acceptance.py'",
+    "test:storage": "node --test tests/storage-lifecycle.test.cjs",
+    "test": "npm run test:acceptance && npm run test:storage",
+    "check": "npm run type-check && npm test && npm run build-prod",
     "serve:bundle": "node scripts/serve-bundle.mjs"
   },
   "dependencies": {
