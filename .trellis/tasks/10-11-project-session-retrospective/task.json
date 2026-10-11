@@ -1,0 +1,29 @@
+{
+  "id": "project-session-retrospective",
+  "name": "project-session-retrospective",
+  "title": "项目全会话复盘与第一批环境改进",
+  "description": "保留全会话复盘证据，按报告01/02落地验收结果一致性与存储回归自动检查；父任务负责来源需求、子任务协调及整合验收。",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-11",
+  "completedAt": null,
+  "branch": "chore/retrospective-checks",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "10-11-acceptance-result-gate",
+    "10-11-storage-regression-check"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

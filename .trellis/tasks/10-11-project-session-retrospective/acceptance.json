@@ -1,0 +1,382 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "给出可复核的会话清单、平台分布、时间范围与本机历史缺失限制。",
+    "AC2": "每条高优先级发现包含原始会话 ID/行号、实际后果、现行配置核实、最小改进与验证标准。",
+    "AC3": "覆盖导航、自动检查、审查规范、常驻指令、工具成本、无效指令、信息访问；无证据的类别不强行凑建议。",
+    "AC4": "报告区分已修复历史问题、当前缺口与尚需验证的假设。",
+    "AC5": "机械性问题采用确定性检查，复用已有能力，不重复新造规范或框架。",
+    "AC6": "中文报告按严重程度排序，说明实际已验证与未验证范围。",
+    "AC7": "01 的三个历史反例（exit=2、AC4 partial、ZIP 仅结构通过）都不能形成全部通过；合法全通过与有依据豁免两条收口路径结果可区分。",
+    "AC8": "02 在不依赖旧 .tmp/资料、不操作用户浏览器存储的干净副本运行成功；错误断言、类型错误与一个历史故障均使自动检查非零。",
+    "AC9": "两个子任务均完成各自检查，统一入口包含两套新回归及现有类型检查/生产构建；整合报告保留原始结果、证据和未验证范围，不将本地通过写成远端 CI 或真实 GM 验收通过。"
+  },
+  "checks": [
+    {
+      "id": "research-coverage",
+      "ac": [
+        "AC1",
+        "AC2"
+      ],
+      "claim": "历史清单与关键证据可复核，候选都有出处和最小验证标准",
+      "scope": "项目全会话复盘及报告01/02第一批",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-11-project-session-retrospective/research/session-inventory.json",
+        ".trellis/tasks/10-11-project-session-retrospective/research/primary-evidence.json",
+        ".trellis/tasks/10-11-project-session-retrospective/research/validation.md",
+        ".trellis/tasks/10-11-project-session-retrospective/research/report.md"
+      ],
+      "note": "已核对原始71条清单及12主/58子历史范围、四片研究和关键原始行；调查验证见validation，未重新执行历史产品命令。",
+      "waiver": null
+    },
+    {
+      "id": "research-boundaries",
+      "ac": [
+        "AC3",
+        "AC4",
+        "AC6"
+      ],
+      "claim": "七类环境候选按优先级呈现，已修复/现存/假设与未验证范围区分",
+      "scope": "项目全会话复盘及报告01/02第一批",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-11-project-session-retrospective/research/report.md",
+        ".trellis/tasks/10-11-project-session-retrospective/research/integration.md"
+      ],
+      "note": "主会话已读报告和四个分片，未强凑无证据建议；原报告为调查阶段快照，整合记录承接01/02落地状态，不声称其他平台日志不存在。",
+      "waiver": null
+    },
+    {
+      "id": "minimal-implementation",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "机械规则采用确定性检查，复用标准库和现有依赖",
+      "scope": "项目全会话复盘及报告01/02第一批",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        "scripts/acceptance.py",
+        "tests/helpers/storage-fixture.cjs",
+        "package.json",
+        ".trellis/spec/frontend/quality-guidelines.md"
+      ],
+      "note": "已核对真实diff及两子审查：无产品/依赖/锁变更，Python/Node标准库，真实Vue/TS现有依赖；协议集中于quality，未新增平行规范。",
+      "waiver": null
+    },
+    {
+      "id": "acceptance-cli-regression",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "协议、历史反例、命令运行和归档委托正确",
+      "scope": "37项Python隔离测试；真实CLI、SIGINT/SIGTERM与同组孙进程；mock归档",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_acceptance.py",
+          "-v"
+        ],
+        "cwd": ".",
+        "startedAt": "2026-10-11T12:21:17.051912+00:00",
+        "log": ".tmp/acceptance-result-gate/fix-r1/unittest-final.log",
+        "exitCode": 0,
+        "endedAt": "2026-10-11T12:21:18.300066+00:00"
+      },
+      "evidence": [
+        ".tmp/acceptance-result-gate/fix-r1/unittest-final.log",
+        ".tmp/acceptance-result-gate/fix-r1/result.json"
+      ],
+      "note": "实际运行37项测试，全部通过；新增R1回归先在旧实现下捕获SIGINT/SIGTERM两种心跳增长，再在最终实现通过。直接子进程exitCode=0保持partial；此结果不替代正式复审。",
+      "waiver": null
+    },
+    {
+      "id": "interrupt-command-group",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "SIGTERM中断运行器后，直接子进程退出0时仍会清理同组孙进程，并保留partial和原返回码",
+      "scope": "macOS/POSIX原独立探针；父进程收到SIGTERM退出0，孙进程忽略SIGTERM并持续写心跳",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/acceptance-result-gate/review-process-group.py"
+        ],
+        "cwd": ".",
+        "startedAt": "2026-10-11T12:21:18.300358+00:00",
+        "log": ".tmp/acceptance-result-gate/fix-r1/original-probe-final.log",
+        "exitCode": 0,
+        "endedAt": "2026-10-11T12:21:18.614965+00:00"
+      },
+      "evidence": [
+        ".tmp/acceptance-result-gate/fix-r1/original-probe-final.log",
+        ".tmp/acceptance-result-gate/fix-r1/result.json",
+        ".tmp/acceptance-result-gate/review-process-group.py",
+        ".tmp/acceptance-result-gate/fix-r1/probe-final-result.json"
+      ],
+      "note": "未修改原探针，实际返回0。运行器返回143，observed=partial且原exitCode=0；退出后0.2秒内心跳保持0到0。孙进程PID 43235的清理检查ps返回1且输出为空。执行记录来自subprocess.returncode；原失败记录另存且原引用仍保留。",
+      "waiver": null
+    },
+    {
+      "id": "clean-install",
+      "ac": [
+        "AC8"
+      ],
+      "claim": "干净副本仅根锁安装成功",
+      "scope": "314明确输入；无复制node_modules/旧.tmp/Git历史",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "ci",
+          "--include=dev"
+        ],
+        "cwd": ".tmp/storage-regression-check/clean",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T12:43:42.695691+00:00",
+        "endedAt": "2026-10-11T12:43:48.960717+00:00",
+        "log": ".tmp/storage-regression-check/clean-install.log"
+      },
+      "evidence": [
+        ".tmp/storage-regression-check/clean-install.log",
+        ".tmp/storage-regression-check/snapshot.json",
+        ".tmp/storage-regression-check/versions.log",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "npm ci --include=dev实际0；根锁未变；精确输入及HEAD见snapshot。",
+      "waiver": null
+    },
+    {
+      "id": "clean-copy",
+      "ac": [
+        "AC8",
+        "AC9"
+      ],
+      "claim": "Node22/Python3.12干净副本统一check通过",
+      "scope": "Darwin arm64本地隔离副本，不是Ubuntu远端CI",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".tmp/storage-regression-check/clean",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T12:44:03.729699+00:00",
+        "endedAt": "2026-10-11T12:44:11.980010+00:00",
+        "log": ".tmp/storage-regression-check/clean-check.log"
+      },
+      "evidence": [
+        ".tmp/storage-regression-check/clean-check.log",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "type-check、37 Python、46存储、生产构建串行完成，整体0。",
+      "waiver": null
+    },
+    {
+      "id": "negative-gates",
+      "ac": [
+        "AC8"
+      ],
+      "claim": "错误断言、TS错误、历史故障与阶段失败均非零",
+      "scope": "仅副本mutation，每项恢复后再下一项",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/storage-regression-check/negative_controls.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T12:45:08.677664+00:00",
+        "endedAt": "2026-10-11T12:45:33.064509+00:00",
+        "log": ".tmp/storage-regression-check/negative-controls.log"
+      },
+      "evidence": [
+        ".tmp/storage-regression-check/negative-controls.log",
+        ".tmp/storage-regression-check/wrong-assertion-test.log",
+        ".tmp/storage-regression-check/wrong-assertion-check.log",
+        ".tmp/storage-regression-check/typescript-error-type-check.log",
+        ".tmp/storage-regression-check/typescript-error-check.log",
+        ".tmp/storage-regression-check/historical-identity-storage.log",
+        ".tmp/storage-regression-check/historical-identity-check.log",
+        ".tmp/storage-regression-check/propagation-type-check.log",
+        ".tmp/storage-regression-check/propagation-test.log",
+        ".tmp/storage-regression-check/propagation-build-prod.log",
+        ".tmp/storage-regression-check/historical-identity.diff",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "外层命令断言负向结果后返回0；原始退出码分别1/2/1/7，后续阶段未运行，原始日志保留。",
+      "waiver": null
+    },
+    {
+      "id": "repeat-test",
+      "ac": [
+        "AC8"
+      ],
+      "claim": "干净安装后独立重复执行测试通过",
+      "scope": "第二次npm test，无固定文件或旧结果依赖",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "test"
+        ],
+        "cwd": ".tmp/storage-regression-check/clean",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T12:44:11.980444+00:00",
+        "endedAt": "2026-10-11T12:44:17.113831+00:00",
+        "log": ".tmp/storage-regression-check/clean-repeat-test.log"
+      },
+      "evidence": [
+        ".tmp/storage-regression-check/clean-repeat-test.log",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "37 Python和46存储均通过；未触碰浏览器。",
+      "waiver": null
+    },
+    {
+      "id": "type-check",
+      "ac": [
+        "AC9"
+      ],
+      "claim": "现有vue-tsc语义检查通过",
+      "scope": "现役TS/Vue输入，不扩大到checkJs:false或CJS",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".tmp/storage-regression-check/clean",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T12:46:01.688393+00:00",
+        "endedAt": "2026-10-11T12:46:09.637959+00:00",
+        "log": ".tmp/storage-regression-check/restored-check.log"
+      },
+      "evidence": [
+        ".tmp/storage-regression-check/restored-check.log",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "串行check成功进入test/build并返回0，证明首个vue-tsc阶段0；TS故障负向结果另列。",
+      "waiver": null
+    },
+    {
+      "id": "ci-config",
+      "ac": [
+        "AC9"
+      ],
+      "claim": "CI触发权限版本与命令符合契约",
+      "scope": "本地YAML解析与官方v7 tag资料，不含远端执行",
+      "method": "inspection",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/storage-regression-check/static-checks.log",
+        ".tmp/storage-regression-check/actions-versions.json",
+        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+      ],
+      "note": "静态核验push/pull_request、contents:read、Node22/Python3.12、根lock/cache、ci/check和无吞错。官方v7 action使用Node24运行时，和项目Node22分开。",
+      "waiver": null
+    },
+    {
+      "id": "integration-evidence",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC5",
+        "AC7",
+        "AC8",
+        "AC9"
+      ],
+      "claim": "子任务均通过、受测输入与当前一致、整合资料及资源清理可核实",
+      "scope": "两子任务summarize/314输入/任务文档与接线",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-B",
+          ".tmp/retrospective-integration-check.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-11T13:16:30.892266+00:00",
+        "endedAt": "2026-10-11T13:16:31.170068+00:00",
+        "log": ".tmp/acceptance/10-11-project-session-retrospective/tmp717so1s1.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-11-project-session-retrospective/tmp717so1s1.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "integration-review",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC3",
+        "AC4",
+        "AC5",
+        "AC6",
+        "AC7",
+        "AC8",
+        "AC9"
+      ],
+      "claim": "父任务Standards/Spec最终整合审查无剩余问题",
+      "scope": "父任务AC1–AC9及01/02最终冻结版本的Standards/Spec整合审查；继承已完成子审查，未重跑产品矩阵/70份历史会话",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-11-project-session-retrospective/research/integration-review.md",
+        ".tmp/retrospective-integration/review-freeze-before.json",
+        ".tmp/retrospective-integration/review-freeze-after.json",
+        ".tmp/retrospective-integration/review-audit.json",
+        ".tmp/retrospective-integration/review-audit-command.json",
+        ".tmp/retrospective-integration/review-summary.json",
+        ".tmp/retrospective-integration/review-summary-command.json",
+        ".tmp/retrospective-integration/review-final-check.json"
+      ],
+      "note": "Standards/Spec无剩余问题；584个原有文件冻结不变，314受测输入及两子最终hash一致，62份02原证据未变。三个历史反例、负向1/2/1/7、37+46回归、CI静态边界及清理均有可复核证据。两子汇总分别4/12 passed exit0；父当前12 passed+integration-review unrun exit1，待主会话合并后重算。未验证真实GM/浏览器、远端Actions/Ubuntu/Windows、分支保护、真实归档/Trellis update；未扩大为这些范围通过。",
+      "waiver": null
+    }
+  ]
+}
