@@ -60,4 +60,18 @@ You are already the `trellis-check` sub-agent that the main session dispatched. 
 
 ## Output
 
-Report findings fixed, files changed, and verification results. If no issues remain, say that clearly.
+Report findings fixed, files changed, and verification results. Follow the project's
+[acceptance protocol](../../.trellis/spec/frontend/quality-guidelines.md#acceptance-record-schemaversion-1):
+
+- Compare PRD ACs and planned scenarios with every check, preserving partial, blocked,
+  failed and unrun observations. Agent process success is not acceptance success.
+- Return proposed check entries with scope, actual observation, execution/evidence and
+  unmet details to the main session; it alone merges/writes `acceptance.json` (including
+  command runs). Do not invent waiver authority or concurrently update that file.
+- Include the task's `acceptance.json` path and the raw JSON plus exit code from
+  `python3 scripts/acceptance.py summarize <task-dir>`. If entries still need merging,
+  say that the summary describes the current saved record and list pending entries.
+- Exit `0` means passed; `3` means waived and requires disclosure of each original
+  observation and verified authority. Exit `1` or `2` stops completion/archival until
+  unmet checks or invalid records are resolved. Missing old-task records need backfill,
+  not an assumed pass. Report remaining findings and unverified scope separately.

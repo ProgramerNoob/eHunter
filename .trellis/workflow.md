@@ -47,7 +47,7 @@ python3 ./.trellis/scripts/task.py create "<title>" [--slug <name>] [--parent <d
 python3 ./.trellis/scripts/task.py start <name>          # set active task (session-scoped when available)
 python3 ./.trellis/scripts/task.py current --source      # show active task and source
 python3 ./.trellis/scripts/task.py finish                # clear active task (triggers after_finish hooks)
-python3 ./.trellis/scripts/task.py archive <name>        # move to archive/{year-month}/
+python3 scripts/acceptance.py archive <task-dir>         # acceptance gate, then native archive
 python3 ./.trellis/scripts/task.py list [--mine] [--status <s>]
 python3 ./.trellis/scripts/task.py list-archive
 
@@ -236,6 +236,7 @@ Sub-agent dispatch protocol applies to all platforms and all sub-agents, includi
 [workflow-state:in_progress]
 Tools: `trellis-implement` / `trellis-research` are sub-agent types only (Task/Agent tool, NOT Skill; there is no skill by these names). `trellis-update-spec` is a skill. `trellis-check` exists as both; prefer the Agent form when verifying after code changes.
 Flow: `trellis-implement` -> `trellis-check` -> `trellis-update-spec` -> commit (Phase 3.4) -> `/trellis:finish-work`.
+Acceptance gate: follow Phase 2.2 / 3.4's `acceptance.py summarize` checks; finish-work uses `acceptance.py archive`. Only passed/waived may close.
 Main-session default: dispatch implement/check sub-agents. Sub-agent self-exemption: if already running as `trellis-implement`, do NOT spawn another `trellis-implement` or `trellis-check`; if already running as `trellis-check`, do NOT spawn another `trellis-check` or `trellis-implement`. Dispatch is main session only.
 Dispatch prompt starts with `Active task: <task path from task.py current>`. Read context: jsonl entries -> `prd.md` -> `design.md if present` -> `implement.md if present`.
 [/workflow-state:in_progress]
@@ -247,6 +248,7 @@ Dispatch prompt starts with `Active task: <task path from task.py current>`. Rea
 
 [workflow-state:in_progress-inline]
 Flow: `trellis-before-dev` -> edit -> `trellis-check` -> validation -> `trellis-update-spec` -> commit (Phase 3.4) -> `/trellis:finish-work`.
+Acceptance gate: follow Phase 2.2 / 3.4's `acceptance.py summarize` checks; finish-work uses `acceptance.py archive`. Only passed/waived may close.
 Do not dispatch implement/check sub-agents in inline mode.
 Read context: `prd.md` -> `design.md if present` -> `implement.md if present`, plus relevant spec/research loaded by skills.
 [/workflow-state:in_progress-inline]
@@ -349,6 +351,7 @@ The brainstorm skill will guide you to:
 - Update `prd.md` immediately after each user answer
 - Split large scopes into a parent task plus child tasks when the deliverables can be verified independently
 - Keep `prd.md` focused on requirements and acceptance criteria
+- Define unique `- [AC1] ...` standards and seed `<task-dir>/acceptance.json` with unrun checks per the [acceptance protocol](spec/frontend/quality-guidelines.md#acceptance-record-schemaversion-1). Preserve original ACs when backfilling unarchived older tasks; historical checkmarks are not passes.
 - For complex tasks, produce `design.md` and `implement.md` before implementation starts
 
 When considering a parent/child split:
@@ -567,6 +570,19 @@ If issues are found → fix → re-check, until green.
 
 **Final pass (before Phase 3.4 commit)**: the last 2.2 of a task must run full-scope, not just on the latest implement chunk. List all affected packages with `python3 ./.trellis/scripts/get_context.py --mode packages`, then load each package's spec index Quality Check section. This catches cross-layer / multi-package issues a mid-iteration local 2.2 cannot.
 
+The main session merges proposed check entries into the task's `acceptance.json` as its
+single writer. Check planned scenario coverage against PRD/quickstart, then run:
+
+```bash
+python3 scripts/acceptance.py summarize <task-dir>
+```
+
+Preserve the JSON and exit code under the [acceptance protocol](spec/frontend/quality-guidelines.md#execute-summarize-and-close).
+Exit `0` is passed; `3` is waived and requires disclosure of original observations and
+verified existing authority. Exit `1` (unmet) or `2` (invalid/missing records) stops the
+completion path; resolve/backfill results before proceeding. Never infer AC success
+from the check agent's process exit or replace the calculated result by a written total.
+
 #### 2.3 Rollback `[on demand]`
 
 - `check` reveals a prd defect → return to Phase 1, fix `prd.md`, then redo 2.1
@@ -600,6 +616,11 @@ Update the docs under `.trellis/spec/` accordingly. Even if the conclusion is "n
 #### 3.4 Commit changes `[required · once]`
 
 **Spec-sync preamble**: before drafting commits, ask: did this task fix a bug or surface non-obvious knowledge that should land in `.trellis/spec/` so future-you (or future-AI) doesn't repeat the mistake? If yes, return to Phase 3.3 first — spec writes belong in the same task's commit batch, not as a forgotten follow-up.
+
+**Acceptance preamble**: run `python3 scripts/acceptance.py summarize <task-dir>` again
+against the final saved record before drafting commits (including a clean working tree).
+Apply Phase 2.2's exit handling: only passed/waived proceeds; list all waivers and original
+observations. Changes after testing invalidate affected results and require revalidation.
 
 The AI drives a batched commit of this task's code changes so `/finish-work` can run cleanly afterwards. Goal: produce work commits FIRST, then bookkeeping (archive + journal) commits land after — never interleaved.
 

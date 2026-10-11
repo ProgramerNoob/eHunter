@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "EXIT=2 + passed 被拒绝；实际 failed 保留退出码。AC4 partial 以及 ZIP structure passed/content blocked 均不能输出全部通过。",
+    "AC2": "合法全 passed 得到 passed；有效豁免得到 waived 并保留原观察、理由及出处；未豁免失败不能被其他条目通过或豁免抵消。",
+    "AC3": "清单完整对应 PRD 标准；缺项、重复、未知 AC、空清单、变更后文本不一致、错误字段类型均非零报错。",
+    "AC4": "运行命令直接记录原返回码与日志；重跑/中断不会留下旧 passed；通过项的执行记录和证据符合协议。",
+    "AC5": "标准归档路径在 failed/partial/blocked/unrun 或无效输入下不委托归档、无任务移动/指针副作用；passed/waived 才委托，归档自身失败如实传播。",
+    "AC6": "check、workflow、finish-work 的接线一致；旧任务不默认通过；标准库回归可独立运行，文档说明真实限制、状态及操作方法。"
+  },
+  "checks": [
+    {
+      "id": "acceptance-cli-regression",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC3",
+        "AC4",
+        "AC5",
+        "AC6"
+      ],
+      "claim": "协议、历史反例、命令运行和归档委托正确",
+      "scope": "37项Python隔离测试；真实CLI、SIGINT/SIGTERM与同组孙进程；mock归档",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_acceptance.py",
+          "-v"
+        ],
+        "cwd": ".",
+        "startedAt": "2026-10-11T12:21:17.051912+00:00",
+        "log": ".tmp/acceptance-result-gate/fix-r1/unittest-final.log",
+        "exitCode": 0,
+        "endedAt": "2026-10-11T12:21:18.300066+00:00"
+      },
+      "evidence": [
+        ".tmp/acceptance-result-gate/fix-r1/unittest-final.log",
+        ".tmp/acceptance-result-gate/fix-r1/result.json"
+      ],
+      "note": "实际运行37项测试，全部通过；新增R1回归先在旧实现下捕获SIGINT/SIGTERM两种心跳增长，再在最终实现通过。直接子进程exitCode=0保持partial；此结果不替代正式复审。",
+      "waiver": null
+    },
+    {
+      "id": "acceptance-flow-wiring",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "四处流程接线、链接和命令一致",
+      "scope": "四处流程接线、14个链接/锚点、Python语法/help及diff检查；静态验证",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/acceptance-result-gate/check-wiring.py"
+        ],
+        "cwd": ".",
+        "startedAt": "2026-10-11T12:21:18.615946+00:00",
+        "log": ".tmp/acceptance-result-gate/fix-r1/wiring-final.log",
+        "exitCode": 0,
+        "endedAt": "2026-10-11T12:21:18.699351+00:00"
+      },
+      "evidence": [
+        ".tmp/acceptance-result-gate/fix-r1/wiring-final.log",
+        ".tmp/acceptance-result-gate/fix-r1/result.json"
+      ],
+      "note": "按最终文档重跑既有接线脚本，exit=0。清理说明准确限定直接子进程的回收与同组残留终止；未执行真实归档或模板更新。",
+      "waiver": null
+    },
+    {
+      "id": "formal-review",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC3",
+        "AC4",
+        "AC5",
+        "AC6"
+      ],
+      "claim": "全部改动符合规格与项目规范",
+      "scope": "六个实现/接线文件；继承上一轮完整Standards/Spec审查，核对R1三个文件增量、全部旧断言不变、37项实际日志与原探针修后证据；审查前后23个文件冻结",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-11-acceptance-result-gate/research/review-r1.md",
+        ".trellis/tasks/10-11-acceptance-result-gate/research/review.md",
+        ".tmp/acceptance-result-gate/review-r1/freeze-before.json",
+        ".tmp/acceptance-result-gate/review-r1/freeze-after.json",
+        ".tmp/acceptance-result-gate/review-r1/evidence-audit.json",
+        ".tmp/acceptance-result-gate/review-r1/evidence-audit-command.json",
+        ".tmp/acceptance-result-gate/fix-r1/result.json",
+        ".tmp/acceptance-result-gate/fix-r1/probe-final-result.json"
+      ],
+      "note": "正式只读增量复审未发现剩余问题，R1关闭；上一轮Standards/Spec全部范围继续有效。SIGINT/SIGTERM清理不再依赖直接子进程是否超时；原partial与exitCode=0保留。旧36项断言及原探针均未削弱，37项日志对应当前哈希，原探针修后exit=0、心跳0到0。旧review.md、失败探针/日志及修复首次失败均保留；没有豁免。未重复全套或产品测试，未实际归档/更新模板，Linux/Windows未实机验证。此建议只更新正式审查项，主会话仍须合并另外三项修后记录并重新summarize；本轮读取的已保存记录仍为failed/exit1。",
+      "waiver": null
+    },
+    {
+      "id": "interrupt-command-group",
+      "ac": [
+        "AC4",
+        "AC6"
+      ],
+      "claim": "SIGTERM中断运行器后，直接子进程退出0时仍会清理同组孙进程，并保留partial和原返回码",
+      "scope": "macOS/POSIX原独立探针；父进程收到SIGTERM退出0，孙进程忽略SIGTERM并持续写心跳",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/acceptance-result-gate/review-process-group.py"
+        ],
+        "cwd": ".",
+        "startedAt": "2026-10-11T12:21:18.300358+00:00",
+        "log": ".tmp/acceptance-result-gate/fix-r1/original-probe-final.log",
+        "exitCode": 0,
+        "endedAt": "2026-10-11T12:21:18.614965+00:00"
+      },
+      "evidence": [
+        ".tmp/acceptance-result-gate/fix-r1/original-probe-final.log",
+        ".tmp/acceptance-result-gate/fix-r1/result.json",
+        ".tmp/acceptance-result-gate/review-process-group.py",
+        ".tmp/acceptance-result-gate/fix-r1/probe-final-result.json"
+      ],
+      "note": "未修改原探针，实际返回0。运行器返回143，observed=partial且原exitCode=0；退出后0.2秒内心跳保持0到0。孙进程PID 43235的清理检查ps返回1且输出为空。执行记录来自subprocess.returncode；原失败记录另存且原引用仍保留。",
+      "waiver": null
+    }
+  ]
+}

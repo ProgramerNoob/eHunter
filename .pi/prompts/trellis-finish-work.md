@@ -14,7 +14,7 @@ This prints:
 - **Git status** — quick visual on what's dirty.
 - **Recent commits** — you'll need their hashes in Step 4 for `--commit`.
 
-If `--mode record` surfaces other completed tasks not tied to the current session, surface them to the user with a one-shot confirmation: "These N tasks look done — archive them too in this round? [y/N]". Default is no; the current active task is always archived in Step 3 regardless.
+If `--mode record` surfaces other completed tasks not tied to the current session, surface them to the user with a one-shot confirmation: "These N tasks look done — archive them too in this round? [y/N]". Default is no. The current task and each confirmed extra task must independently satisfy Step 3's acceptance gate.
 
 ## Step 2: Sanity check — classify dirty paths
 
@@ -44,11 +44,29 @@ Then route:
 
 ## Step 3: Archive task(s)
 
+For the current task (if any) and each extra task confirmed in Step 1, read the
+[acceptance protocol](../../.trellis/spec/frontend/quality-guidelines.md#execute-summarize-and-close)
+and invoke the wrapper with its explicit directory:
+
 ```bash
-python3 ./.trellis/scripts/task.py archive <task-name>
+python3 scripts/acceptance.py archive <task-dir>
 ```
 
-At minimum: the current active task (if any). Plus any extra tasks the user confirmed in Step 1. Each archive produces a `chore(task): archive ...` commit via the script's auto-commit.
+- Exit `0`: the native archive succeeded. Preserve the JSON and report
+  `acceptanceStatus` (`passed` or `waived`); disclose waiver reasons, authority and
+  original observations. Each successful native archive creates its usual
+  `chore(task): archive ...` commit.
+- Exit `1` or `2`: acceptance is unmet or invalid. Stop completion/archival for that
+  task; report the check/errors and backfill older tasks from their original ACs and
+  real results when needed. The wrapper has not delegated or changed task/pointer
+  state. Resolve the record before retrying; do not substitute a native archive call.
+- Exit `4`: delegation failed. Preserve `archiveExitCode` and original output, inspect
+  directory/pointer/Git state, and report the failure. Native archival may already have
+  moved the task; never automatically retry.
+
+The wrapper recomputes acceptance at archival time. Only passed/waived can delegate;
+waived archival succeeds with exit `0`, whereas summarize uses exit `3` for waived.
+Keep incomplete tasks active and describe their actual state in the journal.
 
 If there is no active task and the user did not confirm any cleanup archives, skip this step.
 
