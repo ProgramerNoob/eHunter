@@ -10,7 +10,7 @@
 - 已加载 check.jsonl 全部七份资料及 PRD、design、implement，采用最终设计与研究第 4 节十二场景族；相关 quickstart 的完整浏览器矩阵不扩大为本次 VM 接受标准。
 - 已通读 `tests/helpers/storage-fixture.cjs`、`tests/storage-lifecycle.test.cjs`、`.github/workflows/check.yml`，检查 `package.json` 的完整增量及 `.trellis/spec/frontend/quality-guidelines.md` 的 02 增量与 01 协议保留情况；按需要读取真实 app、layout、PlatformService 的存储/身份/reset/init 路径。
 - 显式检查暂存区、工作区、未跟踪文件：暂存区为空；新增 tests/CI 与 01 脚本未因不在 diff 中而漏审。已有父任务/01 文档及 `scripts/__pycache__/acceptance.cpython-313.pyc` 保持原样；后者不是交付文件。
-- [冻结前 SHA256](../../../../.tmp/storage-regression-check/review-freeze-before.json) 与 [冻结后 SHA256](../../../../.tmp/storage-regression-check/review-freeze-after.json) 覆盖五个受审文件、01 两个脚本及根锁。前后均一致。314 个副本输入也逐个与当前工作区/快照核对；其中 308 个非 overlay 输入与当前 HEAD 内容一致。
+- [冻结前 SHA256](../../../../../../.tmp/storage-regression-check/review-freeze-before.json) 与 [冻结后 SHA256](../../../../../../.tmp/storage-regression-check/review-freeze-after.json) 覆盖五个受审文件、01 两个脚本及根锁。前后均一致。314 个副本输入也逐个与当前工作区/快照核对；其中 308 个非 overlay 输入与当前 HEAD 内容一致。
 - 本轮唯一写入为本报告及 `.tmp/storage-regression-check/review-*` 证据；没有另派编码/检查子代理，没有未结束编码任务。
 
 ## Standards 独立结论
@@ -31,7 +31,7 @@
 
 ## Spec 独立结论
 
-**通过，无遗漏的首批场景族。** 下表为本轮独立审阅测试代码、契约及真实日志所得；测试名完整展开见 [审计结果](../../../../.tmp/storage-regression-check/review-audit.json) 的 `positiveStorageTests`。
+**通过，无遗漏的首批场景族。** 下表为本轮独立审阅测试代码、契约及真实日志所得；测试名完整展开见 [审计结果](../../../../../../.tmp/storage-regression-check/review-audit.json) 的 `positiveStorageTests`。
 
 | 场景族 | 受审位置（tests/storage-lifecycle.test.cjs） | 区分力与实际覆盖 |
 | --- | --- | --- |
@@ -78,7 +78,7 @@
 
 CI核验读取 `actions-versions.json`、三个 `*-v7-action.yml` 和官方 README 存档：checkout/setup-node/setup-python 使用v7，action自身运行时Node24、runner最低v2.327.1；项目执行Node22由setup-node单独选择。YAML经解析与字段检查，无混淆两种运行时。没有再次访问远端或推送。
 
-[本轮最终证据审计](../../../../.tmp/storage-regression-check/review-audit-final-command.json) **exit0**，[日志](../../../../.tmp/storage-regression-check/review-audit-final.log)、[完整结果](../../../../.tmp/storage-regression-check/review-audit.json) 包含314输入哈希、01保留检查、原执行记录及证据文件哈希。首次审计 exit1 的[记录](../../../../.tmp/storage-regression-check/review-audit-command.json)与 stderr 也保留：审计脚本从HEAD取旧段落，漏掉01已加入的 `product` 一词；改用01保存副本重建基线后通过。此为审计脚本基线错误，受审文件无变化。
+[本轮最终证据审计](../../../../../../.tmp/storage-regression-check/review-audit-final-command.json) **exit0**，[日志](../../../../../../.tmp/storage-regression-check/review-audit-final.log)、[完整结果](../../../../../../.tmp/storage-regression-check/review-audit.json) 包含314输入哈希、01保留检查、原执行记录及证据文件哈希。首次审计 exit1 的[记录](../../../../../../.tmp/storage-regression-check/review-audit-command.json)与 stderr 也保留：审计脚本从HEAD取旧段落，漏掉01已加入的 `product` 一词；改用01保存副本重建基线后通过。此为审计脚本基线错误，受审文件无变化。
 
 ## 当前保存的验收与待合并条目
 
@@ -90,11 +90,11 @@ CI核验读取 `actions-versions.json`、三个 `*-v7-action.yml` 和官方 READ
 python3 scripts/acceptance.py summarize .trellis/tasks/10-11-storage-regression-check
 ```
 
-**exit 1，stderr为空。** [完整原始 JSON](../../../../.tmp/storage-regression-check/review-summary.json) 是原始stdout字节，未手工重算或重新序列化；[命令、时间及真实退出码](../../../../.tmp/storage-regression-check/review-summary-command.json)一并交付。
+**exit 1，stderr为空。** [完整原始 JSON](../../../../../../.tmp/storage-regression-check/review-summary.json) 是原始stdout字节，未手工重算或重新序列化；[命令、时间及真实退出码](../../../../../../.tmp/storage-regression-check/review-summary-command.json)一并交付。
 
 原始JSON结果为 `valid=true`、`observedStatus=partial`、`status=partial`；counts/observedCounts均为 `passed:11, failed:0, partial:0, blocked:0, unrun:1, waived:0`，`waivedChecks=[]`。AC1–AC5均因共同的formal-review unrun而保持partial。脚本成功校验记录不等于任务通过；exit1仍阻止完成/归档。
 
-[建议条目](../../../../.tmp/storage-regression-check/review-proposed-checks.json)仅更新 `formal-review`：method=inspection、dimension=content、observed=passed、execution=null、waiver=null，证据含本报告/冻结/审计/真实summarize。待主会话合并后再计算总状态，不预测或代写passed。
+[建议条目](../../../../../../.tmp/storage-regression-check/review-proposed-checks.json)仅更新 `formal-review`：method=inspection、dimension=content、observed=passed、execution=null、waiver=null，证据含本报告/冻结/审计/真实summarize。待主会话合并后再计算总状态，不预测或代写passed。
 
 ## 未验证范围与资源
 

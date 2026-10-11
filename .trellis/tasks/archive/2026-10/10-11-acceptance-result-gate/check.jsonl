@@ -1,4 +1,4 @@
-{"file":".trellis/tasks/10-11-project-session-retrospective/research/report.md","reason":"历史反例与最小改进范围"}
-{"file":".trellis/tasks/10-11-project-session-retrospective/research/acceptance-gate-design.md","reason":"现有归档/收口实现证据，最终契约以本任务design为准"}
+{"file":".trellis/tasks/archive/2026-10/10-11-project-session-retrospective/research/report.md","reason":"历史反例与最小改进范围"}
+{"file":".trellis/tasks/archive/2026-10/10-11-project-session-retrospective/research/acceptance-gate-design.md","reason":"现有归档/收口实现证据，最终契约以本任务design为准"}
 {"file":".trellis/spec/frontend/index.md","reason":"现有质量与验收路由"}
 {"file":".trellis/spec/frontend/browser-acceptance.md","reason":"避免将部分/静态证据升级为运行验收"}

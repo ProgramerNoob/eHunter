@@ -8,31 +8,31 @@ R1 的代码修复与本轮自检已完成，待主会话定向复审。最终�
 - `scripts/test_acceptance.py:491`：新增 `test_interrupt_stops_grandchild_after_child_exits_zero`，以 SIGINT、SIGTERM 两个子场景启动真实运行器、父进程和同组孙进程。父进程收到信号退出 0，孙进程忽略信号并写心跳；断言记录保持 partial、原退出码为 0、汇总不通过，运行器退出后 0.2 秒内心跳不再增长，工作进程已停止。检查发生在测试 finally 兜底清理之前。
 - `.trellis/spec/frontend/quality-guidelines.md:205`：说明直接子进程最多等待 3 秒，提前退出也清理剩余组成员；只回收直接子进程，离开该进程组的后代不在清理范围内。不再声称回收整个进程组。
 
-完整本轮增量见 [fix-r1.diff](../../../../.tmp/acceptance-result-gate/fix-r1/fix-r1.diff)。其余三处流程文件、原探针、原失败结果及真实验收清单的前后哈希一致，暂存区保持空；检查记录见 [scope-and-cleanup.json](../../../../.tmp/acceptance-result-gate/fix-r1/scope-and-cleanup.json)。未改产品、Trellis 核心或模板 hash。
+完整本轮增量见 [fix-r1.diff](../../../../../../.tmp/acceptance-result-gate/fix-r1/fix-r1.diff)。其余三处流程文件、原探针、原失败结果及真实验收清单的前后哈希一致，暂存区保持空；检查记录见 [scope-and-cleanup.json](../../../../../../.tmp/acceptance-result-gate/fix-r1/scope-and-cleanup.json)。未改产品、Trellis 核心或模板 hash。
 
 ## 实际验证
 
-测试前执行短通知。命令由 `subprocess.run` 实际执行，`argv/cwd/startedAt/endedAt/exitCode/log` 直接落盘于 [result.json](../../../../.tmp/acceptance-result-gate/fix-r1/result.json)，其中也保存最终三个变更文件的 SHA-256。
+测试前执行短通知。命令由 `subprocess.run` 实际执行，`argv/cwd/startedAt/endedAt/exitCode/log` 直接落盘于 [result.json](../../../../../../.tmp/acceptance-result-gate/fix-r1/result.json)，其中也保存最终三个变更文件的 SHA-256。
 
 | 命令 | 实际结果 | 证据与范围 |
 | --- | --- | --- |
-| `python3 -m unittest discover -s scripts -p test_acceptance.py -v` | exit 0，`Ran 37 tests in 1.175s / OK` | [完整测试日志](../../../../.tmp/acceptance-result-gate/fix-r1/unittest-final.log)；含真实 CLI、信号、R1 两种信号回归及 mock 归档 |
-| `python3 .tmp/acceptance-result-gate/review-process-group.py` | exit 0 | [探针日志](../../../../.tmp/acceptance-result-gate/fix-r1/original-probe-final.log)、[结构化观察](../../../../.tmp/acceptance-result-gate/fix-r1/probe-final-result.json)；原探针文件未修改 |
-| `python3 .tmp/acceptance-result-gate/check-wiring.py` | exit 0 | [接线日志](../../../../.tmp/acceptance-result-gate/fix-r1/wiring-final.log)；4 份文档、14 个本地链接/锚点、活动块及规划/最终检查/提交前/归档接线、Python syntax/help、diff whitespace 和保护路径 |
+| `python3 -m unittest discover -s scripts -p test_acceptance.py -v` | exit 0，`Ran 37 tests in 1.175s / OK` | [完整测试日志](../../../../../../.tmp/acceptance-result-gate/fix-r1/unittest-final.log)；含真实 CLI、信号、R1 两种信号回归及 mock 归档 |
+| `python3 .tmp/acceptance-result-gate/review-process-group.py` | exit 0 | [探针日志](../../../../../../.tmp/acceptance-result-gate/fix-r1/original-probe-final.log)、[结构化观察](../../../../../../.tmp/acceptance-result-gate/fix-r1/probe-final-result.json)；原探针文件未修改 |
+| `python3 .tmp/acceptance-result-gate/check-wiring.py` | exit 0 | [接线日志](../../../../../../.tmp/acceptance-result-gate/fix-r1/wiring-final.log)；4 份文档、14 个本地链接/锚点、活动块及规划/最终检查/提交前/归档接线、Python syntax/help、diff whitespace 和保护路径 |
 
 原探针本次观察：运行器 **exit 143**，内部检查 **observed=partial / exitCode=0**；运行器退出后 0.2 秒，心跳 **0 → 0**，`descendantStillRunning=false`。这是中断清理断言通过，内部被中断检查仍未完成，不能将它改写成 passed。
 
 ### 保留失败事实
 
-新增回归先在旧实现上执行，真实 exit 1，SIGINT 下心跳大小 **10 → 50**、SIGTERM 下 **5 → 40**；两项均报 `grandchild still working after runner exit`。见 [回归红灯记录](../../../../.tmp/acceptance-result-gate/fix-r1/regression-red-result.json) 和 [日志](../../../../.tmp/acceptance-result-gate/fix-r1/regression-red.log)。
+新增回归先在旧实现上执行，真实 exit 1，SIGINT 下心跳大小 **10 → 50**、SIGTERM 下 **5 → 40**；两项均报 `grandchild still working after runner exit`。见 [回归红灯记录](../../../../../../.tmp/acceptance-result-gate/fix-r1/regression-red-result.json) 和 [日志](../../../../../../.tmp/acceptance-result-gate/fix-r1/regression-red.log)。
 
-首次修复尝试加入 `killpg(..., 0)` 轮询；其完整测试在既有 SIGTERM 用例出现 `[Errno 1] Operation not permitted`，运行器 exit 2，未计为通过。独立小型系统探针未再次复现该瞬时错误，不能宣称已确定其系统根因。最终实现去掉了这段新增轮询，直接复用既有等待并始终执行组清理；最终版本才得到上表结果。首次测试及代码哈希见 [attempt-1-result.json](../../../../.tmp/acceptance-result-gate/fix-r1/attempt-1-result.json)，小型观察见 [macos-group-probe.json](../../../../.tmp/acceptance-result-gate/fix-r1/macos-group-probe.json)。
+首次修复尝试加入 `killpg(..., 0)` 轮询；其完整测试在既有 SIGTERM 用例出现 `[Errno 1] Operation not permitted`，运行器 exit 2，未计为通过。独立小型系统探针未再次复现该瞬时错误，不能宣称已确定其系统根因。最终实现去掉了这段新增轮询，直接复用既有等待并始终执行组清理；最终版本才得到上表结果。首次测试及代码哈希见 [attempt-1-result.json](../../../../../../.tmp/acceptance-result-gate/fix-r1/attempt-1-result.json)，小型观察见 [macos-group-probe.json](../../../../../../.tmp/acceptance-result-gate/fix-r1/macos-group-probe.json)。
 
 正式审查时的失败结果、执行记录和日志另存为 `.tmp/acceptance-result-gate/fix-r1/pre-r1-review-process-group-result.json`、`pre-r1-review-process-group-execution.json`、`pre-r1-review-process-group.log`。原探针会写固定结果路径，本轮每次执行后将新观察复制到独立文件，再恢复原失败结果；真实验收清单仍引用的原文件内容不变。
 
 ## 建议主会话合并的验收条目
 
-[proposed-checks.json](../../../../.tmp/acceptance-result-gate/fix-r1/proposed-checks.json) 提供三个完整检查条目，执行字段来自最终实际记录，可按 ID 合并：
+[proposed-checks.json](../../../../../../.tmp/acceptance-result-gate/fix-r1/proposed-checks.json) 提供三个完整检查条目，执行字段来自最终实际记录，可按 ID 合并：
 
 | 检查 ID | 建议结果与范围 |
 | --- | --- |

@@ -11,14 +11,14 @@
 | 01 验收结果协议 | [实现](../../10-11-acceptance-result-gate/research/implementation.md)、[R1修复](../../10-11-acceptance-result-gate/research/fix-r1.md)、[最终复审](../../10-11-acceptance-result-gate/research/review-r1.md) | `scripts/acceptance.py` 保存原始退出码，验证 AC 与证据，计算逐项/逐AC/总状态；`run/summarize/archive` 接入现有流程 |
 | 02 存储回归与检查 | [实现](../../10-11-storage-regression-check/research/implementation.md)、[正式审查](../../10-11-storage-regression-check/research/review.md) | 真实模块 VM 的 46 个用例覆盖十二场景族，`npm run check` 联通 type-check、37 个 Python 回归、存储回归及生产构建；新增 Actions 配置 |
 
-质量规范为唯一协议/命令入口：[quality-guidelines.md](../../../spec/frontend/quality-guidelines.md)。没有增加 npm 依赖、修改锁文件、产品源码或公开导出，也没有改 Trellis 核心及模板 hash。四个接线文件仅承载项目流程；原始 `task.py archive` 仍能绕过包装器，证据语义与豁免授权仍需审查。
+质量规范为唯一协议/命令入口：[quality-guidelines.md](../../../../../spec/frontend/quality-guidelines.md)。没有增加 npm 依赖、修改锁文件、产品源码或公开导出，也没有改 Trellis 核心及模板 hash。四个接线文件仅承载项目流程；原始 `task.py archive` 仍能绕过包装器，证据语义与豁免授权仍需审查。
 
 ## 已完成验证
 
 - 01 的三个历史反例都有机械回归：非零返回不能 passed；AC4 partial 不能全通过；ZIP 结构通过不能抵消内容 blocked。全通过与豁免分别汇总为 exit0/exit3；归档成功均 exit0，保留不同 acceptanceStatus。归档拒绝、仅委托一次及失败 exit4 由隔离桩验证，未归档真实任务。
 - 01 初次审查发现命令组在直接子进程提前退出时可能遗留后代；修复后完整 **37 项测试通过**，原独立探针通过。原失败及修复记录均保留，未把最初失败改写成成功。
-- 02 实际环境 **Node 22.23.3 / npm 10.9.9 / Python 3.12.14 / Darwin arm64**。干净副本 314 个明确输入，无 `.git`、旧 `.tmp`、node_modules，根锁 `npm ci --include=dev` 成功；完整 check 与独立第二次 npm test 成功。精确文件及哈希见 [snapshot.json](../../../../.tmp/storage-regression-check/snapshot.json)。
-- 错误断言令 test/check exit1；类型错误令 type-check/check exit2；放宽历史 resetId 身份判断使 **6 个用例失败、exit1**；三阶段逐一注入 exit7 均原样传播且不运行后续阶段。副本全部恢复后 check 再次 exit0。外层负向审计成功不抹去被测命令失败。见 [执行元数据](../../../../.tmp/storage-regression-check/execution-metadata.json)。
+- 02 实际环境 **Node 22.23.3 / npm 10.9.9 / Python 3.12.14 / Darwin arm64**。干净副本 314 个明确输入，无 `.git`、旧 `.tmp`、node_modules，根锁 `npm ci --include=dev` 成功；完整 check 与独立第二次 npm test 成功。精确文件及哈希见 [snapshot.json](../../../../../../.tmp/storage-regression-check/snapshot.json)。
+- 错误断言令 test/check exit1；类型错误令 type-check/check exit2；放宽历史 resetId 身份判断使 **6 个用例失败、exit1**；三阶段逐一注入 exit7 均原样传播且不运行后续阶段。副本全部恢复后 check 再次 exit0。外层负向审计成功不抹去被测命令失败。见 [执行元数据](../../../../../../.tmp/storage-regression-check/execution-metadata.json)。
 - 官方 checkout/setup-node/setup-python v7 的 tag/README 已核实；CI 静态检查覆盖 push/pull_request、contents:read、Node22/Python3.12、根锁安装和统一命令。Actions 自身 Node24 与项目测试 Node22 分开。
 - 两子任务正式审查均分别覆盖 Standards/Spec，检查工作区、暂存区和未跟踪交付。审查期间受审代码/测试/规范 hash 不变；02 进一步核对 01 脚本及接线保留。具体证据见各审查报告。
 

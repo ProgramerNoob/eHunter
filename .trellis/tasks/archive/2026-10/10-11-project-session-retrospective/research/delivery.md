@@ -4,13 +4,13 @@
 
 ## 最终验收
 
-主会话已读取实际审查报告并按 ID 合入建议条目，然后真实执行三个 summarize。原始输出保留在仓库 `.tmp/retrospective-integration/`，执行时间/argv/真实返回码见 [final-summary-commands.json](../../../../.tmp/retrospective-integration/final-summary-commands.json)。
+主会话已读取实际审查报告并按 ID 合入建议条目，然后真实执行三个 summarize。原始输出保留在仓库 `.tmp/retrospective-integration/`，执行时间/argv/真实返回码见 [final-summary-commands.json](../../../../../../.tmp/retrospective-integration/final-summary-commands.json)。
 
 | 任务 | 结果 | 真实输出 |
 | --- | --- | --- |
-| 01 验收结果门禁 | 4 passed，exit0，无豁免 | [JSON](../../../../.tmp/retrospective-integration/10-11-acceptance-result-gate-final-summary.json) |
-| 02 存储回归检查 | 12 passed，exit0，无豁免 | [JSON](../../../../.tmp/retrospective-integration/10-11-storage-regression-check-final-summary.json) |
-| 父任务 AC1–AC9 | 13 passed，exit0，无豁免 | [JSON](../../../../.tmp/retrospective-integration/10-11-project-session-retrospective-final-summary.json) |
+| 01 验收结果门禁 | 4 passed，exit0，无豁免 | [JSON](../../../../../../.tmp/retrospective-integration/10-11-acceptance-result-gate-final-summary.json) |
+| 02 存储回归检查 | 12 passed，exit0，无豁免 | [JSON](../../../../../../.tmp/retrospective-integration/10-11-storage-regression-check-final-summary.json) |
+| 父任务 AC1–AC9 | 13 passed，exit0，无豁免 | [JSON](../../../../../../.tmp/retrospective-integration/10-11-project-session-retrospective-final-summary.json) |
 
 以上是验收条目数，不是测试数。实际回归为 37 个 Python 用例＋46 个存储用例；Node22/Python3.12 干净副本的 type-check、两套回归和生产构建通过，负向探针退出1/2/1/7。完整范围、失败保留和资源清理见 [整合记录](integration.md)；[最终整合审查](integration-review.md) 中 partial 是合并前快照，不能代替本节最新结果。
 
@@ -50,3 +50,13 @@
 ## 确认依据
 
 现有 `.trellis/workflow.md` Phase 3.4 要求：**“Present the plan once, ask for one-shot confirmation”**。本轮用户已对完整消息与文件分组回复“行”，因此按上述批次执行本地提交，不再重复请求确认。
+
+## 收口记录
+
+用户随后执行 finish-work，授权归档本轮父子任务并记录日志。三批工作提交为 `903d99e`、`6fb03d2`、`08e5cea`；归档包装器分别返回 exit 0、acceptanceStatus passed，自动生成 `342b1a5`（01）、`fc7a77f`（02）、`5ec381a`（父任务）。原始 JSON 保存在仓库 `.tmp/retrospective-finish/*-archive.json`。
+
+本轮三个任务均位于 `.trellis/tasks/archive/2026-10/`，状态 completed，活动任务指针已清空。归档只重定位 acceptance 的 evidence 路径、上下文清单和 Markdown 导航链接；原始 observed、execution、note、waiver、AC 与历史原文保持不变。本节及 PRD 的产物状态另行补记当前收口结果。
+
+归档后实际重新执行三份 summarize 与 task.py validate：验收条目分别为 4、12、13 个 passed、exit 0、无豁免，上下文校验均 exit 0；193 个原有本地链接的文件目标、30 个上下文条目存在，原始验收观察记录一致。详见[收口校验](../../../../../../.tmp/retrospective-finish/post-archive-validation.json)。这是记录与路径复核，没有重跑产品测试，也未验证所有历史 Markdown 标题锚点。
+
+归档路径同步作为 task 记账提交保存，之后由 add_session.py 记录三批工作提交；不包含归档提交作为工作成果哈希。远端 Actions、Ubuntu 实机、分支保护、真实 GM/跨站与浏览器仍未验证，未推送。

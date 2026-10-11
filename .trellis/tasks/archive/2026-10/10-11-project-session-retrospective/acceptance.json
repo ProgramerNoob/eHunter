@@ -25,10 +25,10 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-11-project-session-retrospective/research/session-inventory.json",
-        ".trellis/tasks/10-11-project-session-retrospective/research/primary-evidence.json",
-        ".trellis/tasks/10-11-project-session-retrospective/research/validation.md",
-        ".trellis/tasks/10-11-project-session-retrospective/research/report.md"
+        ".trellis/tasks/archive/2026-10/10-11-project-session-retrospective/research/session-inventory.json",
+        ".trellis/tasks/archive/2026-10/10-11-project-session-retrospective/research/primary-evidence.json",
+        ".trellis/tasks/archive/2026-10/10-11-project-session-retrospective/research/validation.md",
+        ".trellis/tasks/archive/2026-10/10-11-project-session-retrospective/research/report.md"
       ],
       "note": "已核对原始71条清单及12主/58子历史范围、四片研究和关键原始行；调查验证见validation，未重新执行历史产品命令。",
       "waiver": null
@@ -47,8 +47,8 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-11-project-session-retrospective/research/report.md",
-        ".trellis/tasks/10-11-project-session-retrospective/research/integration.md"
+        ".trellis/tasks/archive/2026-10/10-11-project-session-retrospective/research/report.md",
+        ".trellis/tasks/archive/2026-10/10-11-project-session-retrospective/research/integration.md"
       ],
       "note": "主会话已读报告和四个分片，未强凑无证据建议；原报告为调查阶段快照，整合记录承接01/02落地状态，不声称其他平台日志不存在。",
       "waiver": null
@@ -366,7 +366,7 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-11-project-session-retrospective/research/integration-review.md",
+        ".trellis/tasks/archive/2026-10/10-11-project-session-retrospective/research/integration-review.md",
         ".tmp/retrospective-integration/review-freeze-before.json",
         ".tmp/retrospective-integration/review-freeze-after.json",
         ".tmp/retrospective-integration/review-audit.json",

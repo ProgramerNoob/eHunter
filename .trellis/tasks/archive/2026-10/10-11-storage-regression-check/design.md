@@ -2,7 +2,7 @@
 
 ## 现有基础
 
-[研究](../10-11-project-session-retrospective/research/storage-gate-design.md)逐项定位最终历史夹具与现行公开入口；产品依据为 [设置迁移决策](../../spec/frontend/decisions/2026-09-18-reader-behavior.md)及相关quickstart。历史夹具的git show、字符串替换加载、固定wx产物和fs monkey patch不带入新测试；部分“单写坏”标题实际控制双坏，必须拆开。
+[研究](../10-11-project-session-retrospective/research/storage-gate-design.md)逐项定位最终历史夹具与现行公开入口；产品依据为 [设置迁移决策](../../../../spec/frontend/decisions/2026-09-18-reader-behavior.md)及相关quickstart。历史夹具的git show、字符串替换加载、固定wx产物和fs monkey patch不带入新测试；部分“单写坏”标题实际控制双坏，必须拆开。
 
 ## 最小文件范围
 

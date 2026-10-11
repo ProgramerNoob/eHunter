@@ -45,4 +45,4 @@
 
 ## 产物状态
 
-复盘及资料校验已完成，见 [原验证记录](research/validation.md)。01/02 的实现、功能检查及各自正式审查已结束；最新整合证据与未验证范围见 [整合记录](research/integration.md)，总状态以 acceptance.json 的 summarize 输出为准。用户已确认[三批本地提交](research/delivery.md)，实际提交结果以 Git 历史为准；归档与远端运行未发生。
+复盘及资料校验已完成，见 [原验证记录](research/validation.md)。01/02 的实现、功能检查及各自正式审查已结束；最新整合证据与未验证范围见 [整合记录](research/integration.md)，总状态以 acceptance.json 的 summarize 输出为准。[三批本地提交及归档](research/delivery.md#收口记录)已完成；父子任务归档后均为 completed，验收汇总均为 passed、无豁免。未推送或执行远端检查。

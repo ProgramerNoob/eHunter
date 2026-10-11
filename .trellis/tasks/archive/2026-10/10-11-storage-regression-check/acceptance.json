@@ -32,7 +32,7 @@
       "evidence": [
         ".tmp/storage-regression-check/clean-repeat-test.log",
         ".tmp/storage-regression-check/test-inventory.json",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "Node22下46例通过；npm test还包括先行Python37例；见test-inventory完整测试名。",
       "waiver": null
@@ -60,7 +60,7 @@
       },
       "evidence": [
         ".tmp/storage-regression-check/clean-repeat-test.log",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "npm test中的Python阶段完成37例并返回0，随后才执行存储测试。",
       "waiver": null
@@ -89,7 +89,7 @@
       },
       "evidence": [
         ".tmp/storage-regression-check/restored-check.log",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "串行check成功进入test/build并返回0，证明首个vue-tsc阶段0；TS故障负向结果另列。",
       "waiver": null
@@ -118,7 +118,7 @@
       },
       "evidence": [
         ".tmp/storage-regression-check/restored-check.log",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "构建236模块并生成dist/ehunter.iife.js，整体0；保留Sass/punycode既有提示。",
       "waiver": null
@@ -149,7 +149,7 @@
         ".tmp/storage-regression-check/clean-install.log",
         ".tmp/storage-regression-check/snapshot.json",
         ".tmp/storage-regression-check/versions.log",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "npm ci --include=dev实际0；根锁未变；精确输入及HEAD见snapshot。",
       "waiver": null
@@ -179,7 +179,7 @@
       },
       "evidence": [
         ".tmp/storage-regression-check/clean-check.log",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "type-check、37 Python、46存储、生产构建串行完成，整体0。",
       "waiver": null
@@ -207,7 +207,7 @@
       },
       "evidence": [
         ".tmp/storage-regression-check/clean-repeat-test.log",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "37 Python和46存储均通过；未触碰浏览器。",
       "waiver": null
@@ -245,7 +245,7 @@
         ".tmp/storage-regression-check/propagation-test.log",
         ".tmp/storage-regression-check/propagation-build-prod.log",
         ".tmp/storage-regression-check/historical-identity.diff",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "外层命令断言负向结果后返回0；原始退出码分别1/2/1/7，后续阶段未运行，原始日志保留。",
       "waiver": null
@@ -274,7 +274,7 @@
       },
       "evidence": [
         ".tmp/storage-regression-check/static-checks.log",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "全部哈希恢复；工作区core/src/lock/tsconfig无差异，暂存区为空。",
       "waiver": null
@@ -293,7 +293,7 @@
       "evidence": [
         ".tmp/storage-regression-check/static-checks.log",
         ".tmp/storage-regression-check/actions-versions.json",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "静态核验push/pull_request、contents:read、Node22/Python3.12、根lock/cache、ci/check和无吞错。官方v7 action使用Node24运行时，和项目Node22分开。",
       "waiver": null
@@ -311,7 +311,7 @@
       "execution": null,
       "evidence": [
         ".tmp/storage-regression-check/static-checks.log",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "已检查链接、脚本命令和限制；真实GM/跨站/移动/远端CI均明确未验收，正式审查待主会话。",
       "waiver": null
@@ -332,7 +332,7 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-11-storage-regression-check/research/review.md",
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/review.md",
         ".tmp/storage-regression-check/review-freeze-before.json",
         ".tmp/storage-regression-check/review-freeze-after.json",
         ".tmp/storage-regression-check/review-audit.json",

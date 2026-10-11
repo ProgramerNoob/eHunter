@@ -94,8 +94,8 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-11-acceptance-result-gate/research/review-r1.md",
-        ".trellis/tasks/10-11-acceptance-result-gate/research/review.md",
+        ".trellis/tasks/archive/2026-10/10-11-acceptance-result-gate/research/review-r1.md",
+        ".trellis/tasks/archive/2026-10/10-11-acceptance-result-gate/research/review.md",
         ".tmp/acceptance-result-gate/review-r1/freeze-before.json",
         ".tmp/acceptance-result-gate/review-r1/freeze-after.json",
         ".tmp/acceptance-result-gate/review-r1/evidence-audit.json",
