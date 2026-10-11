@@ -164,7 +164,7 @@
         ".tmp/storage-regression-check/clean-install.log",
         ".tmp/storage-regression-check/snapshot.json",
         ".tmp/storage-regression-check/versions.log",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "npm ci --include=dev实际0；根锁未变；精确输入及HEAD见snapshot。",
       "waiver": null
@@ -194,7 +194,7 @@
       },
       "evidence": [
         ".tmp/storage-regression-check/clean-check.log",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "type-check、37 Python、46存储、生产构建串行完成，整体0。",
       "waiver": null
@@ -232,7 +232,7 @@
         ".tmp/storage-regression-check/propagation-test.log",
         ".tmp/storage-regression-check/propagation-build-prod.log",
         ".tmp/storage-regression-check/historical-identity.diff",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "外层命令断言负向结果后返回0；原始退出码分别1/2/1/7，后续阶段未运行，原始日志保留。",
       "waiver": null
@@ -260,7 +260,7 @@
       },
       "evidence": [
         ".tmp/storage-regression-check/clean-repeat-test.log",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "37 Python和46存储均通过；未触碰浏览器。",
       "waiver": null
@@ -289,7 +289,7 @@
       },
       "evidence": [
         ".tmp/storage-regression-check/restored-check.log",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "串行check成功进入test/build并返回0，证明首个vue-tsc阶段0；TS故障负向结果另列。",
       "waiver": null
@@ -308,7 +308,7 @@
       "evidence": [
         ".tmp/storage-regression-check/static-checks.log",
         ".tmp/storage-regression-check/actions-versions.json",
-        ".trellis/tasks/10-11-storage-regression-check/research/implementation.md"
+        ".trellis/tasks/archive/2026-10/10-11-storage-regression-check/research/implementation.md"
       ],
       "note": "静态核验push/pull_request、contents:read、Node22/Python3.12、根lock/cache、ci/check和无吞错。官方v7 action使用Node24运行时，和项目Node22分开。",
       "waiver": null
