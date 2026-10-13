@@ -18,8 +18,8 @@
 
 ## 校验命令
 ```bash
-python3 .trellis/scripts/task.py validate .trellis/tasks/10-13-trellis-acp-reread-loop
-python3 scripts/acceptance.py summarize .trellis/tasks/10-13-trellis-acp-reread-loop
+python3 .trellis/scripts/task.py validate .trellis/tasks/archive/2026-10/10-13-trellis-acp-reread-loop
+python3 scripts/acceptance.py summarize .trellis/tasks/archive/2026-10/10-13-trellis-acp-reread-loop
 ```
 行为实验的最终命令随样例和生效控制点确定后写入 research/，不能将尚未支持的环境变量或 API 当作已可用命令。
 

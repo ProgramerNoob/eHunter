@@ -55,7 +55,7 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-13-trellis-acp-context/research/integration.md",
+        ".trellis/tasks/archive/2026-10/10-13-trellis-acp-context/research/integration.md",
         ".tmp/trellis-acp-reread-loop/final.result.json",
         ".tmp/trellis-acp-reread-loop/final.observe.jsonl",
         ".tmp/trellis-acp-subagent-tools/baseline-hashes.json"
@@ -77,8 +77,8 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-13-trellis-acp-context/research/final-review.md",
-        ".trellis/tasks/10-13-trellis-acp-context/research/integration.md",
+        ".trellis/tasks/archive/2026-10/10-13-trellis-acp-context/research/final-review.md",
+        ".trellis/tasks/archive/2026-10/10-13-trellis-acp-context/research/integration.md",
         ".trellis/spec/tooling/pi-context.md"
       ],
       "note": "真实trellis-check完成只读Standards+Spec审查，范围内无阻塞；已核对子任务原始证据、历史partial与当前复测、工具限制及工作区边界。",

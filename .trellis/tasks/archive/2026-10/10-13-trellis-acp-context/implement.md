@@ -1,7 +1,7 @@
 # 执行计划
 
 ## 当前状态
-用户已批准实施；两个子任务的修复、有限实验、正式审查与总任务集成验收已完成；规范已沉淀。尚未提交或归档，等待提交方案确认。
+修复、有限实验、正式审查、集成验收与规范沉淀已完成。工作提交为 `04f1365`；本次 finish-work 已通过验收包装器归档父任务及两个子任务，三次结果均为 passed、无豁免。
 
 ## 顺序
 - [x] 建立两个子任务、需求边界和初始验收记录。
@@ -12,12 +12,12 @@
 - [x] 完成子任务二的对照实验、最小修复与运行验收。
 - [x] 固定最终代码与测试版本，使用 trellis-check 核对规范、验收及两项修复的联合表现。
 - [x] 总任务复核角色限制、全局配置不变、交付物正确及回滚记录，更新 acceptance.json。
-- [ ] 按 Trellis 收口流程完成规范沉淀与交付；提交前只纳入本任务明确归属的修改。
+- [x] 按 Trellis 收口流程完成规范沉淀与交付；提交仅纳入本任务明确归属的修改。
 
 ## 规划校验命令
 ```bash
-python3 .trellis/scripts/task.py validate .trellis/tasks/10-13-trellis-acp-context
-python3 scripts/acceptance.py summarize .trellis/tasks/10-13-trellis-acp-context
+python3 .trellis/scripts/task.py validate .trellis/tasks/archive/2026-10/10-13-trellis-acp-context
+python3 scripts/acceptance.py summarize .trellis/tasks/archive/2026-10/10-13-trellis-acp-context
 ```
 summarize 在 planning 返回 valid: true、status: unrun 和退出码 1 是预期结果，不能报告为功能通过。
 

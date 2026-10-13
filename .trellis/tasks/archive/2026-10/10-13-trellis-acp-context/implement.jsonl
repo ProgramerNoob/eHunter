@@ -1,3 +1,3 @@
-{"file": ".trellis/tasks/10-13-trellis-acp-context/research/baseline.md", "reason": "历史证据与本轮静态核查、用户确认的项目内范围及待验证边界"}
+{"file": ".trellis/tasks/archive/2026-10/10-13-trellis-acp-context/research/baseline.md", "reason": "历史证据与本轮静态核查、用户确认的项目内范围及待验证边界"}
 {"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "按变更性质选择验收路线，遵守逐项证据与 acceptance.json 协议"}
 {"file": ".trellis/spec/tooling/pi-context.md", "reason": "Pi 工具白名单、注入复用、压缩续接和运行证据契约"}

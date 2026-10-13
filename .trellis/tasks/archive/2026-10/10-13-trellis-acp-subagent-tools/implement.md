@@ -25,8 +25,8 @@ pi --mode json -p --no-session --tools read,bash,compress,acp_status "先列出�
 
 ## 校验命令
 ```bash
-python3 .trellis/scripts/task.py validate .trellis/tasks/10-13-trellis-acp-subagent-tools
-python3 scripts/acceptance.py summarize .trellis/tasks/10-13-trellis-acp-subagent-tools
+python3 .trellis/scripts/task.py validate .trellis/tasks/archive/2026-10/10-13-trellis-acp-subagent-tools
+python3 scripts/acceptance.py summarize .trellis/tasks/archive/2026-10/10-13-trellis-acp-subagent-tools
 ```
 
 ## 失败与回滚
