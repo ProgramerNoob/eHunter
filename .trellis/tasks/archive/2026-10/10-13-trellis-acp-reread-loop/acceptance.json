@@ -31,7 +31,7 @@
       },
       "evidence": [
         ".tmp/acceptance/10-13-trellis-acp-reread-loop/tmp1ykvfo8d.log",
-        ".trellis/tasks/10-13-trellis-acp-reread-loop/research/experiment.md",
+        ".trellis/tasks/archive/2026-10/10-13-trellis-acp-reread-loop/research/experiment.md",
         ".tmp/trellis-acp-reread-loop/final-metrics.json",
         ".tmp/trellis-acp-reread-loop/final.observe.jsonl",
         ".tmp/trellis-acp-reread-loop/final.result.json",
@@ -64,7 +64,7 @@
       },
       "evidence": [
         ".tmp/acceptance/10-13-trellis-acp-reread-loop/tmpca9_2i_7.log",
-        ".trellis/tasks/10-13-trellis-acp-reread-loop/research/experiment.md",
+        ".trellis/tasks/archive/2026-10/10-13-trellis-acp-reread-loop/research/experiment.md",
         ".tmp/trellis-acp-reread-loop/final-metrics.json",
         ".tmp/trellis-acp-reread-loop/final.observe.jsonl",
         ".tmp/trellis-acp-reread-loop/final.result.json",
@@ -97,7 +97,7 @@
       },
       "evidence": [
         ".tmp/acceptance/10-13-trellis-acp-reread-loop/tmphhqv072g.log",
-        ".trellis/tasks/10-13-trellis-acp-reread-loop/research/experiment.md",
+        ".trellis/tasks/archive/2026-10/10-13-trellis-acp-reread-loop/research/experiment.md",
         ".tmp/trellis-acp-reread-loop/final-metrics.json",
         ".tmp/trellis-acp-reread-loop/final.observe.jsonl",
         ".tmp/trellis-acp-reread-loop/final.result.json",
@@ -130,7 +130,7 @@
       },
       "evidence": [
         ".tmp/acceptance/10-13-trellis-acp-reread-loop/tmpydyc83ad.log",
-        ".trellis/tasks/10-13-trellis-acp-reread-loop/research/experiment.md",
+        ".trellis/tasks/archive/2026-10/10-13-trellis-acp-reread-loop/research/experiment.md",
         ".tmp/trellis-acp-reread-loop/final-metrics.json",
         ".tmp/trellis-acp-reread-loop/final.observe.jsonl",
         ".tmp/trellis-acp-reread-loop/final.result.json",
@@ -163,7 +163,7 @@
       },
       "evidence": [
         ".tmp/acceptance/10-13-trellis-acp-reread-loop/tmpsu5hzczn.log",
-        ".trellis/tasks/10-13-trellis-acp-reread-loop/research/experiment.md",
+        ".trellis/tasks/archive/2026-10/10-13-trellis-acp-reread-loop/research/experiment.md",
         ".tmp/trellis-acp-reread-loop/final-metrics.json",
         ".tmp/trellis-acp-reread-loop/final.observe.jsonl",
         ".tmp/trellis-acp-reread-loop/final.result.json",

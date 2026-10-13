@@ -18,7 +18,7 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-13-trellis-acp-subagent-tools/research/runtime.md",
+        ".trellis/tasks/archive/2026-10/10-13-trellis-acp-subagent-tools/research/runtime.md",
         ".tmp/trellis-acp-subagent-tools/compress-full.observe.jsonl",
         ".tmp/trellis-acp-subagent-tools/native-exit-return.json"
       ],
@@ -37,7 +37,7 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-13-trellis-acp-reread-loop/research/experiment.md",
+        ".trellis/tasks/archive/2026-10/10-13-trellis-acp-reread-loop/research/experiment.md",
         ".tmp/trellis-acp-reread-loop/final-metrics.json"
       ],
       "note": "受测轨迹任务组读取由6降至0，修复后无连续整组循环；final正确交付并自然退出。完整轨迹及usage口径见子二。",
