@@ -3,7 +3,7 @@
 日期：2026-10-13。用途：规划依据；不代表功能验收通过。
 
 ## 历史交接
-来源：[2026-10-13-agent-context-review.md](/Users/warwick/claude/2026-10-13-agent-context-review.md)。
+来源：[2026-10-13-agent-context-review.md](2026-10-13-agent-context-review.md)。
 文档报告：
 - Trellis 子代理白名单不含 ACP 工具，部分子会话发生 nudge 抑制、preflight 失败与输出预算缩减。
 - S2：139 请求、20,099,357 input tokens、55.4% cache hit、23 次 zero-hit；对照会话 97.6% 命中。
