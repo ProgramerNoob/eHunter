@@ -311,3 +311,41 @@ T024 遗留的两处可选硬化落地：通知标题超长无空格串不换行
 ### Next Steps
 
 - 复盘03–08仍为建议，按后续需求另行规划；本轮已归档，当前无活动任务。
+
+
+## Session 9: Trellis ACP 工具与压缩续接修复
+<!-- trellis-session: v=2 fp=e4a81c6d362df691 -->
+
+**Date**: 2026-10-14
+**Task**: Trellis ACP 工具与压缩续接修复
+**Branch**: `fix/trellis-acp-context`
+
+### Summary
+
+完成项目内 ACP 工具白名单和上下文复用修复、有限行为对照与正式审查；父任务及两个子任务通过验收包装器归档，归档后 12 项验收通过且无豁免。
+
+### Main Changes
+
+- 为 implement/check/research 保留原工具限制并增加 compress、decompress、search_context、acp_status；复用完整注入上下文，压缩后继续下一动作。
+- 规范沉淀到 .trellis/spec/tooling/pi-context.md；任务与证据归档到 .trellis/tasks/archive/2026-10/10-13-trellis-acp-*，同步清单、验收引用及文档命令路径，保留原始观察和执行记录。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `04f1365` | fix(trellis): 恢复 ACP 工具并复用压缩后的任务上下文 |
+
+### Testing
+
+- [OK] 实现阶段：真实 ACP 压缩、事实恢复及原生代表派发完成；最终样本 191.426 秒自然退出；有限对照的任务/规范读取从 6 次降为 0 次，37 项验收协议回归通过，trellis-check 无阻塞项。
+- [OK] 本轮收口：三次 archive 均 exit 0、acceptanceStatus passed；归档后 summarize 共 12 passed，无豁免；三个 manifest validate 通过，18 个 Markdown 文件目标存在，原始 observed/execution/note/waiver 未修改。
+- [OK] 未重跑产品构建、类型检查或浏览器验收；未覆盖其他模型、长期压力或主会话长窗口。旧超时及重试样本保持原记录，pi-graft 约 120 秒退出计时器仅作本地版本观察，未修改全局配置或安装包，不承诺长期缓存收益。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 浏览器验收前置检查任务保持 in_progress，其已有未提交改动未纳入本轮归档或提交。
+- 如需进一步验证，另行安排长期运行或主会话场景；本轮分支未推送。
