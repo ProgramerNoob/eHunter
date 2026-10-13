@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "子任务一提供真实子进程中 ACP 工具可见、主动压缩成功、压缩后继续完成任务的证据，并注明覆盖的角色与未验证边界。",
+    "AC2": "子任务二提供可比的前后轨迹，记录文件读取、压缩、实际推进和 token/cache 指标，受测场景不再出现无变更、无进展的重复重读空转。",
+    "AC3": "两项修复联合启用后，代表性 Trellis 任务能完成；记录最终生效配置、适用范围和回滚方法，确认已有角色限制与无关工作区改动得到保留。"
+  },
+  "checks": [
+    {
+      "id": "ac1-verification",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "子任务一提供真实子进程中 ACP 工具可见、主动压缩成功、压缩后继续完成任务的证据，并注明覆盖的角色与未验证边界。",
+      "scope": "子一实际请求工具表、compress-full 正常退出及原生 research 交付",
+      "method": "inspection",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-13-trellis-acp-subagent-tools/research/runtime.md",
+        ".tmp/trellis-acp-subagent-tools/compress-full.observe.jsonl",
+        ".tmp/trellis-acp-subagent-tools/native-exit-return.json"
+      ],
+      "note": "主会话核对三个角色原工具限制与四项ACP；真实主动压缩后事实正确，原生短派发 succeeded。早期超时保留。",
+      "waiver": null
+    },
+    {
+      "id": "ac2-verification",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "子任务二提供可比的前后轨迹，记录文件读取、压缩、实际推进和 token/cache 指标，受测场景不再出现无变更、无进展的重复重读空转。",
+      "scope": "子二有限 before/after/after2/final 原始读取、压缩、write 和 message_end usage",
+      "method": "inspection",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-13-trellis-acp-reread-loop/research/experiment.md",
+        ".tmp/trellis-acp-reread-loop/final-metrics.json"
+      ],
+      "note": "受测轨迹任务组读取由6降至0，修复后无连续整组循环；final正确交付并自然退出。完整轨迹及usage口径见子二。",
+      "waiver": null
+    },
+    {
+      "id": "ac3-verification",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "两项修复联合启用后，代表性 Trellis 任务能完成；记录最终生效配置、适用范围和回滚方法，确认已有角色限制与无关工作区改动得到保留。",
+      "scope": "两修复联合 final 同形 CLI、原生代表派发、角色限制及基线哈希",
+      "method": "inspection",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-13-trellis-acp-context/research/integration.md",
+        ".tmp/trellis-acp-reread-loop/final.result.json",
+        ".tmp/trellis-acp-reread-loop/final.observe.jsonl",
+        ".tmp/trellis-acp-subagent-tools/baseline-hashes.json"
+      ],
+      "note": "最终联合样本191.426秒exit0，实际compress/恢复/写交付；受保护全局及已有文件SHA256未变。规则影响和回滚见integration.md。",
+      "waiver": null
+    },
+    {
+      "id": "final-review",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC3"
+      ],
+      "claim": "固定最终实现和证据后，正式审查覆盖规范及三任务接受标准。",
+      "scope": "本任务三个角色、workflow、tooling规范及三任务资料",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-13-trellis-acp-context/research/final-review.md",
+        ".trellis/tasks/10-13-trellis-acp-context/research/integration.md",
+        ".trellis/spec/tooling/pi-context.md"
+      ],
+      "note": "真实trellis-check完成只读Standards+Spec审查，范围内无阻塞；已核对子任务原始证据、历史partial与当前复测、工具限制及工作区边界。",
+      "waiver": null
+    }
+  ]
+}

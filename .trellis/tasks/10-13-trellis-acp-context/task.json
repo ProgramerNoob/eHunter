@@ -1,0 +1,29 @@
+{
+  "id": "trellis-acp-context",
+  "name": "trellis-acp-context",
+  "title": "Trellis × ACP 上下文问题验证与修复",
+  "description": "基于 2026-10-13 复盘，分别验证并修复子代理 ACP 工具缺失和压缩后重复读取空转，汇总集成验收。",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-13",
+  "completedAt": null,
+  "branch": "fix/trellis-acp-context",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "10-13-trellis-acp-subagent-tools",
+    "10-13-trellis-acp-reread-loop"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

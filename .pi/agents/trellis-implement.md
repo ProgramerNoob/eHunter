@@ -2,12 +2,14 @@
 name: trellis-implement
 description: |
   Code implementation expert. Understands Trellis specs and requirements, then implements features. No git commit allowed.
-tools: read, write, edit, bash, find, grep
+tools: read, write, edit, bash, find, grep, compress, decompress, search_context, acp_status
 ---
 
 ## Required: Load Trellis Context First
 
-This platform does NOT auto-inject task context via hook. Before doing anything else, you MUST load context yourself.
+The dispatch prompt may already include the active task's curated specs and planning artifacts. Reuse complete, current injected content; read only missing or truncated material, changed files, or the exact span needed for a fresh edit anchor. Without injected context, load all required material using the sequence below.
+
+Before compression, preserve the task path, approved scope, completed actions, verification results with evidence paths, unresolved work, and next action. After compression, perform that next action. Do not reread unchanged task files merely because compression occurred. New changes invalidate affected facts and evidence; refresh those before relying on them.
 
 ### Step 1: Find the active task path
 
@@ -19,10 +21,10 @@ Try in order — stop at the first one that yields a task path:
 
 ### Step 2: Load task context from the resolved path
 
-1. Read `<task-path>/implement.jsonl` — JSONL list of spec/research files relevant to this agent.
-2. For each entry in the JSONL, Read its `file` path — these are the specs and research notes you must follow.
+1. Inspect `<task-path>/implement.jsonl` once to identify the required spec/research files.
+2. For each JSONL entry, use its complete, current injected content or read the missing material from its `file` path. These specs and research notes remain required.
    **Skip rows without a `"file"` field** (e.g. `{"_example": "..."}` placeholder rows left over from an older `task.py create`).
-3. Read the task's `prd.md` (requirements), then `design.md` if present (technical design), then `implement.md` if present (execution plan).
+3. Likewise, use the injected task artifacts or load what is missing: `prd.md` (requirements), then `design.md` if present (technical design), then `implement.md` if present (execution plan).
 
 If `implement.jsonl` has no curated entries (empty, only a placeholder row, or the file is missing), fall back to: read the task artifacts, list available specs with `python3 ./.trellis/scripts/get_context.py --mode packages`, and pick the specs that match the task domain yourself. Do NOT block on the missing jsonl — lightweight tasks may be PRD-only, while complex tasks may also include `design.md` and `implement.md`.
 

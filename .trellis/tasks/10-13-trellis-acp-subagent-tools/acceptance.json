@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "在与 Trellis 一致的 --mode json -p --no-session 子进程中，记录修复前后工具暴露情况，三个角色能获得所需 ACP 工具且保留现有业务工具限制。",
+    "AC2": "真实子进程中存在可压缩范围时，模型主动调用 compress 成功；记录调用与结果，并在压缩后正确使用预先放入的任务事实。",
+    "AC3": "通过真实 trellis_subagent 派发完成一个有明确交付物的代表性任务，输出可验证结果，并将角色覆盖范围、耗时、失败情况和回滚方式写入交付记录。"
+  },
+  "checks": [
+    {
+      "id": "ac1-verification",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "在与 Trellis 一致的 --mode json -p --no-session 子进程中，记录修复前后工具暴露情况，三个角色能获得所需 ACP 工具且保留现有业务工具限制。",
+      "scope": "三个角色同形 no-session 子进程实际请求表与状态调用；对照 before/after",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/trellis-acp-subagent-tools/before.observe.jsonl",
+        ".tmp/trellis-acp-subagent-tools/after.observe.jsonl",
+        ".tmp/trellis-acp-subagent-tools/after.result.json",
+        ".tmp/trellis-acp-subagent-tools/trellis-implement.observe.jsonl",
+        ".tmp/trellis-acp-subagent-tools/trellis-check.observe.jsonl",
+        ".tmp/trellis-acp-subagent-tools/trellis-research.observe.jsonl",
+        ".trellis/tasks/10-13-trellis-acp-subagent-tools/research/runtime.md"
+      ],
+      "note": "真实请求表显示三个角色原工具限制不变且新增四项 ACP；after 工具调用成功但该次完整运行超时，角色各自的正常退出另有 result 记录。",
+      "waiver": null
+    },
+    {
+      "id": "ac2-verification",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "真实子进程中存在可压缩范围时，模型主动调用 compress 成功；记录调用与结果，并在压缩后正确使用预先放入的任务事实。",
+      "scope": "compress-full 子进程主动压缩与后续回答",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/trellis-acp-subagent-tools/compress-full.observe.jsonl",
+        ".tmp/trellis-acp-subagent-tools/compress-full.jsonl",
+        ".tmp/trellis-acp-subagent-tools/compress-full.result.json",
+        ".trellis/tasks/10-13-trellis-acp-subagent-tools/research/runtime.md"
+      ],
+      "note": "原始 compress 工具结果 applied/1 block，之后准确回答 eh-731/96/7c92de41；47.835 秒 exit 0，无 timeout。",
+      "waiver": null
+    },
+    {
+      "id": "ac3-verification",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "通过真实 trellis_subagent 派发完成一个有明确交付物的代表性任务，输出可验证结果，并将角色覆盖范围、耗时、失败情况和回滚方式写入交付记录。",
+      "scope": "真实 research 原生短派发交付；首轮压缩派发单独记录超时",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/trellis-acp-subagent-tools/native-research-proxy.log",
+        ".trellis/tasks/10-13-trellis-acp-subagent-tools/research/runtime.md",
+        ".trellis/tasks/10-13-trellis-acp-subagent-tools/research/native-exit.md",
+        ".tmp/trellis-acp-subagent-tools/native-exit-return.json"
+      ],
+      "note": "主会话真实 trellis_subagent 后续调用正常返回并产生 native-exit.md，ACP 状态成功；首轮原生压缩超时未改报成功。各角色/耗时/失败/回滚详见 runtime.md。 原始主会话 toolResult 已提取：isError=false、run succeeded、157.966秒、三项工具成功。",
+      "waiver": null
+    }
+  ]
+}

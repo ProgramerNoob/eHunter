@@ -238,7 +238,7 @@ Tools: `trellis-implement` / `trellis-research` are sub-agent types only (Task/A
 Flow: `trellis-implement` -> `trellis-check` -> `trellis-update-spec` -> commit (Phase 3.4) -> `/trellis:finish-work`.
 Acceptance gate: follow Phase 2.2 / 3.4's `acceptance.py summarize` checks; finish-work uses `acceptance.py archive`. Only passed/waived may close.
 Main-session default: dispatch implement/check sub-agents. Sub-agent self-exemption: if already running as `trellis-implement`, do NOT spawn another `trellis-implement` or `trellis-check`; if already running as `trellis-check`, do NOT spawn another `trellis-check` or `trellis-implement`. Dispatch is main session only.
-Dispatch prompt starts with `Active task: <task path from task.py current>`. Read context: jsonl entries -> `prd.md` -> `design.md if present` -> `implement.md if present`.
+Dispatch prompt starts with `Active task: <task path from task.py current>`. Read context from injected curated specs and planning artifacts when present; inspect the relevant manifest once and read only missing, truncated, changed, or newly anchored files. Without injected context, use the fallback sequence: jsonl entries -> `prd.md` -> `design.md if present` -> `implement.md if present`. After compression, retain the task path, approved scope, completed actions, verification/evidence, and next action; continue directly, and reread only when facts are missing, files changed, a new edit anchor is needed, or evidence was invalidated.
 [/workflow-state:in_progress]
 
 <!-- Per-turn breadcrumb: shown while status='in_progress' when
@@ -250,7 +250,7 @@ Dispatch prompt starts with `Active task: <task path from task.py current>`. Rea
 Flow: `trellis-before-dev` -> edit -> `trellis-check` -> validation -> `trellis-update-spec` -> commit (Phase 3.4) -> `/trellis:finish-work`.
 Acceptance gate: follow Phase 2.2 / 3.4's `acceptance.py summarize` checks; finish-work uses `acceptance.py archive`. Only passed/waived may close.
 Do not dispatch implement/check sub-agents in inline mode.
-Read context: `prd.md` -> `design.md if present` -> `implement.md if present`, plus relevant spec/research loaded by skills.
+Read context from injected curated specs and planning artifacts when present; inspect the relevant manifest once and read only missing, truncated, changed, or newly anchored files. Without injected context, use the fallback sequence: `prd.md` -> `design.md if present` -> `implement.md if present`, plus relevant spec/research loaded by skills. After compression, retain the task path, approved scope, completed actions, verification/evidence, and next action; continue directly, and reread only when facts are missing, files changed, a new edit anchor is needed, or evidence was invalidated.
 [/workflow-state:in_progress-inline]
 
 ### Phase 3: Finish
@@ -279,7 +279,8 @@ Code committed. Run `/trellis:finish-work`; if dirty, return to Phase 3.4 first.
 2. Run steps in order inside each Phase; `[required]` steps can't be skipped
 3. Phases can roll back (e.g., Execute reveals a prd defect → return to Plan to fix, then re-enter Execute)
 4. Steps tagged `[once]` are skipped if the output already exists; don't re-run
-5. Artifact presence informs the next step; missing `design.md` / `implement.md` is valid for lightweight tasks and incomplete planning for complex tasks.
+5. Preserve current task state across context compression; continue the next action from the preserved task path, scope, completed actions, evidence and pending work. Reuse unchanged injected or previously verified facts, and reread only for missing or truncated facts, changed files, new edit anchors, or invalidated evidence.
+6. Artifact presence informs the next step; missing `design.md` / `implement.md` is valid for lightweight tasks and incomplete planning for complex tasks.
 
 ### Active Task Routing
 

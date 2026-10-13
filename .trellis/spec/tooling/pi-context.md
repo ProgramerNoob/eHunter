@@ -1,0 +1,53 @@
+# Pi 子代理上下文与压缩
+
+## 1. 适用范围
+
+修改 `.pi/agents/trellis-*.md`、`.pi/extensions/trellis/index.ts` 的工具/上下文传递或 `.trellis/workflow.md` 时使用。角色规则与工作流是执行入口，本文件定义可验证边界。此规则不配置用户级 ACP，也不保证主会话外部代理的压缩行为。
+
+## 2. 命令与入口
+
+`resolveRunCfg` 取角色 frontmatter 的 `tools`，`buildPiArgs` 生成：
+
+```text
+pi --mode json -p --no-session --tools <comma-separated-tools>
+```
+
+`--tools` 是替换白名单，不能假设扩展注册的工具自动保留。派发 prompt 首行为 `Active task: <task.py current 返回的路径>`。启动器通过 `buildContext/buildPrompt` 注入角色所需 curated specs 与 PRD/design/implement；单独 CLI 调用是否注入由调用方决定。
+
+## 3. 契约
+
+- implement/check 原工具为 `read,write,edit,bash,find,grep`；research 为 `read,write,bash,find,grep`。各角色另有 `compress,decompress,search_context,acp_status`，不能借此放开全部业务工具。
+- manifest 核对一次；完整且当前的注入内容可复用。缺失、截断、源文件变化、证据失效或需要新编辑锚点时，读取对应内容；无注入时走角色完整加载序列。
+- 压缩前保留任务路径、批准范围、已完成动作、证据路径、未决项和下一动作；压缩后继续下一动作。只对具体缺失事实搜索/恢复，不因发生折叠重读全部未变文件。
+- `acp_status` 有合法范围后，实际模型 `compress` 调用及工具成功结果才证明主动压缩；`fold=` 日志、工具声明或模型口述都不足。
+- 交付事实正确与宿主正常退出分别验证；`agent_end`/`session_shutdown` 不等于 exit 0。超时或信号终止保留原始状态，复测结果单独记录。
+
+## 4. 验证与错误边界
+
+| 观察 | 结论与动作 |
+| --- | --- |
+| 请求工具表没有 ACP | 先检查角色白名单，再检查扩展加载/过滤；不直接改全局包 |
+| 工具可见但没有合法范围 | 检查消息数、保护区和最小范围；不能据此断言 no-session 不支持压缩 |
+| 压缩成功但关键事实缺失 | 按需 search_context，再恢复对应块；交付后核对实际事实 |
+| 相同未变整组文件连续两轮读取且无推进 | 记录循环，停止该样本并检查角色/工作流规则 |
+| 模型完成但执行器超时 | 交付可正确，运行仍是 partial；定位退出资源并保留证据 |
+
+## 5. 基础、正常与异常场景
+
+基础：没有可压缩范围，状态查询成功，不强行压缩。正常：有已消费内容，压缩成功，按摘要或定向恢复取得事实，写交付并正常退出。异常：压缩失败、事实错误或超时，验收不能只凭文件存在判通过。
+
+## 6. 必要验收
+
+保持模型、cwd、输入及工具条件可比；有意差异逐项列出。记录真实请求工具表、调用/返回、原始 write 内容、退出码/超时、读取路径及压缩后的推进。三角色核对限制，至少一个真实原生派发完成代表任务。工具名称变动用真实派发验证；启动器逻辑变动另加对应参数回归。
+
+只累加 assistant `message_end` 中 usage，排除流式更新和 agent_end 的重复快照。零 usage 失败仍计入请求数。cacheRead 比例口径明确，短样本不用于承诺长期收益。测试夹具中的合成“passed”文字不是产品验收证据。
+
+工作流改动运行 `python3 -m unittest discover -s scripts -p 'test_acceptance.py'`；校验文档链接、manifest 及 acceptance.json。当前入口遵循 [项目验收协议](../frontend/quality-guidelines.md#acceptance-record-schemaversion-1)。
+
+## 7. 错误与正确示例
+
+错误：白名单只含原业务工具，认定“扩展已加载，所以 compress 可用”；或压缩后无条件读取整组任务资料。
+
+正确：在原白名单追加所需 ACP 名称，用实际请求/调用确认；复用完整注入上下文，压缩后执行保留的下一步，只查缺失字段。
+
+退出诊断示例：2026-10-13 的本地 pi-graft 在 `agent_settled` 后创建 120000 ms 的引用计时器，导致无模型请求时仍等待。此为特定版本观察，不是固定验收宽限值。按实际日志区分执行/清理预算，不以修改退出上限代替证明交付，也不改写此前超时结果。

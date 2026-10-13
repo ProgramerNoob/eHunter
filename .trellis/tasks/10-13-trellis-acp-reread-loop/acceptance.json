@@ -1,0 +1,176 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "记录实际版本、压缩配置来源及有效覆盖关系，并用可复查的轨迹识别空转触发条件与合理重读，不把历史文档中的推断当成本轮实测。",
+    "AC2": "在相同收口任务的前后对照中，列出整组文件重读次数、compress 次数、可观察的任务推进和完成情况；修复后的受测轨迹不存在连续两轮相同整组重读且状态无变化、任务无推进的循环。",
+    "AC3": "受测任务最终交付正确结果；压缩所需的关键事实保持可用，未因关闭提醒而将上下文窗口溢出或输出预算耗尽视为正常完成。",
+    "AC4": "交付记录列出配置或项目文件的精确变更、适用会话范围、回滚方法以及 token/cache 观测，明确短期样本不能证明长期性能收益。"
+  },
+  "checks": [
+    {
+      "id": "ac1-verification",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "实际版本、压缩配置来源和有效覆盖关系已记录，有限前后轨迹区分了合理读取与无推进循环。",
+      "scope": "before/after/after2/final 原始记录；项目限定的三角色与工作流",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/trellis-acp-reread-loop/verify_experiment.py",
+          "AC1"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-13T18:23:11.693958+00:00",
+        "endedAt": "2026-10-13T18:23:11.738726+00:00",
+        "log": ".tmp/acceptance/10-13-trellis-acp-reread-loop/tmp1ykvfo8d.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-13-trellis-acp-reread-loop/tmp1ykvfo8d.log",
+        ".trellis/tasks/10-13-trellis-acp-reread-loop/research/experiment.md",
+        ".tmp/trellis-acp-reread-loop/final-metrics.json",
+        ".tmp/trellis-acp-reread-loop/final.observe.jsonl",
+        ".tmp/trellis-acp-reread-loop/final.result.json",
+        ".tmp/trellis-acp-reread-loop/after2.result.json"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac2-verification",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "相同有限收口任务的前后轨迹已列出读取、compress、推进和退出情况，修复后没有连续两轮相同整组未变化文件读取。",
+      "scope": "before/after/after2/final 原始记录；项目限定的三角色与工作流",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/trellis-acp-reread-loop/verify_experiment.py",
+          "AC2"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-13T18:23:11.764527+00:00",
+        "endedAt": "2026-10-13T18:23:11.804801+00:00",
+        "log": ".tmp/acceptance/10-13-trellis-acp-reread-loop/tmpca9_2i_7.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-13-trellis-acp-reread-loop/tmpca9_2i_7.log",
+        ".trellis/tasks/10-13-trellis-acp-reread-loop/research/experiment.md",
+        ".tmp/trellis-acp-reread-loop/final-metrics.json",
+        ".tmp/trellis-acp-reread-loop/final.observe.jsonl",
+        ".tmp/trellis-acp-reread-loop/final.result.json",
+        ".tmp/trellis-acp-reread-loop/after2.result.json"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac3-delivery-verification",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "受测交付写出正确 task_path 和关键事实，且实际调用压缩并保留了压缩后的事实。",
+      "scope": "四个样本原始 write 与 compress 返回、final-delivery.md",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/trellis-acp-reread-loop/verify_experiment.py",
+          "AC3"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-13T18:23:11.830044+00:00",
+        "endedAt": "2026-10-13T18:23:11.868508+00:00",
+        "log": ".tmp/acceptance/10-13-trellis-acp-reread-loop/tmphhqv072g.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-13-trellis-acp-reread-loop/tmphhqv072g.log",
+        ".trellis/tasks/10-13-trellis-acp-reread-loop/research/experiment.md",
+        ".tmp/trellis-acp-reread-loop/final-metrics.json",
+        ".tmp/trellis-acp-reread-loop/final.observe.jsonl",
+        ".tmp/trellis-acp-reread-loop/final.result.json",
+        ".tmp/trellis-acp-reread-loop/after2.result.json"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac3-runtime-settlement",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "最终代表运行完成正确交付后，宿主自然退出；明确保留旧超时观察。",
+      "scope": "before/after/after2/final 原始记录；项目限定的三角色与工作流",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/trellis-acp-reread-loop/verify_experiment.py",
+          "SETTLEMENT"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-13T18:23:11.892991+00:00",
+        "endedAt": "2026-10-13T18:23:11.930907+00:00",
+        "log": ".tmp/acceptance/10-13-trellis-acp-reread-loop/tmpydyc83ad.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-13-trellis-acp-reread-loop/tmpydyc83ad.log",
+        ".trellis/tasks/10-13-trellis-acp-reread-loop/research/experiment.md",
+        ".tmp/trellis-acp-reread-loop/final-metrics.json",
+        ".tmp/trellis-acp-reread-loop/final.observe.jsonl",
+        ".tmp/trellis-acp-reread-loop/final.result.json",
+        ".tmp/trellis-acp-reread-loop/after2.result.json"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac4-verification",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "交付记录包含精确项目文件变更、会话范围、回滚方式和 token/cache 可观测性边界。",
+      "scope": "before/after/after2/final 原始记录；项目限定的三角色与工作流",
+      "method": "command",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/trellis-acp-reread-loop/verify_experiment.py",
+          "AC4"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-13T18:23:11.955505+00:00",
+        "endedAt": "2026-10-13T18:23:11.993900+00:00",
+        "log": ".tmp/acceptance/10-13-trellis-acp-reread-loop/tmpsu5hzczn.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-13-trellis-acp-reread-loop/tmpsu5hzczn.log",
+        ".trellis/tasks/10-13-trellis-acp-reread-loop/research/experiment.md",
+        ".tmp/trellis-acp-reread-loop/final-metrics.json",
+        ".tmp/trellis-acp-reread-loop/final.observe.jsonl",
+        ".tmp/trellis-acp-reread-loop/final.result.json",
+        ".tmp/trellis-acp-reread-loop/after2.result.json"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    }
+  ]
+}
