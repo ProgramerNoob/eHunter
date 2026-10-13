@@ -24,7 +24,7 @@
         ".tmp/trellis-acp-subagent-tools/trellis-implement.observe.jsonl",
         ".tmp/trellis-acp-subagent-tools/trellis-check.observe.jsonl",
         ".tmp/trellis-acp-subagent-tools/trellis-research.observe.jsonl",
-        ".trellis/tasks/10-13-trellis-acp-subagent-tools/research/runtime.md"
+        ".trellis/tasks/archive/2026-10/10-13-trellis-acp-subagent-tools/research/runtime.md"
       ],
       "note": "真实请求表显示三个角色原工具限制不变且新增四项 ACP；after 工具调用成功但该次完整运行超时，角色各自的正常退出另有 result 记录。",
       "waiver": null
@@ -44,7 +44,7 @@
         ".tmp/trellis-acp-subagent-tools/compress-full.observe.jsonl",
         ".tmp/trellis-acp-subagent-tools/compress-full.jsonl",
         ".tmp/trellis-acp-subagent-tools/compress-full.result.json",
-        ".trellis/tasks/10-13-trellis-acp-subagent-tools/research/runtime.md"
+        ".trellis/tasks/archive/2026-10/10-13-trellis-acp-subagent-tools/research/runtime.md"
       ],
       "note": "原始 compress 工具结果 applied/1 block，之后准确回答 eh-731/96/7c92de41；47.835 秒 exit 0，无 timeout。",
       "waiver": null
@@ -62,8 +62,8 @@
       "execution": null,
       "evidence": [
         ".tmp/trellis-acp-subagent-tools/native-research-proxy.log",
-        ".trellis/tasks/10-13-trellis-acp-subagent-tools/research/runtime.md",
-        ".trellis/tasks/10-13-trellis-acp-subagent-tools/research/native-exit.md",
+        ".trellis/tasks/archive/2026-10/10-13-trellis-acp-subagent-tools/research/runtime.md",
+        ".trellis/tasks/archive/2026-10/10-13-trellis-acp-subagent-tools/research/native-exit.md",
         ".tmp/trellis-acp-subagent-tools/native-exit-return.json"
       ],
       "note": "主会话真实 trellis_subagent 后续调用正常返回并产生 native-exit.md，ACP 状态成功；首轮原生压缩超时未改报成功。各角色/耗时/失败/回滚详见 runtime.md。 原始主会话 toolResult 已提取：isError=false、run succeeded、157.966秒、三项工具成功。",
