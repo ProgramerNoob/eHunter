@@ -45,6 +45,67 @@ Use capability methods (`isSupportOriginImg`, `isSupportImgChangeSource`,
 casts, not an `InjectionKey<AlbumService>`; type casts alone do not guarantee a provider.
 See [type safety](./type-safety.md) when changing this boundary.
 
+## Optional update notices and EH mobile viewport lifecycle
+
+### Scope / trigger
+
+The optional remote notice must not turn a network outage into reader initialization
+failure. EH mobile viewport handling isolates wide host content while the reader is open.
+
+### Signatures
+
+[core/store/event.ts](../../../core/store/event.ts) owns
+`checkVersion(): void` and `fetchRemoteUpdateMessage(): Promise<UpdateMessage | null>`.
+[src/main.ts](../../../src/main.ts) owns `ensureEHViewportForOpen(): void`
+and `restoreEHViewportOnClose(): void`.
+
+### Contracts
+
+Version checks schedule once per page, after 5000 ms. Deduplicate identical configured
+URLs, use one GET per unique URL through `PlatformService.fetch` (native credentials
+`omit`), and bound fetch plus body reading to 15000 ms. Keep first-settled competition,
+the existing language/version/time/duration gates, and remote-before-local notice order.
+The deadline stops logical waiting; it does not promise cancellation of a GM request.
+
+For EH mobile opening, snapshot the original viewport and inline root `overflow-x` /
+`overflow-y` values **and priorities** once, then apply `hidden !important` to both axes.
+Repeated open calls retain that snapshot. Ordinary close and initialization-error close
+restore or remove only the managed properties and viewport; unrelated styles remain.
+Desktop and non-EH paths do not acquire this root overflow state.
+
+### Validation and error matrix
+
+| Input or transition | Required result |
+| --- | --- |
+| Network, non-200 HTTP, body, JSON/shape failure or deadline | Warning with URL/reason; no remote dialog or success timestamp; local notice continues |
+| Valid eligible remote message | Existing localized dialog/actions and timestamp behavior |
+| Dialog or storage throws | Error remains observable outside the fetch/parse catch |
+| Response arrives after deadline | No late dialog or timestamp write |
+| Close, error close, or repeated open/close | Restore original viewport and both overflow values/priorities |
+
+### Good/base/bad cases
+
+Good: a valid eligible notice opens; base: no eligible message leaves reading and local
+notes available; bad: a hung body reaches the same deadline as a hung fetch.
+
+### Required tests
+
+Run the assertions against the real notification and entry modules:
+Run `npm run test:reader-lifecycle`:
+[update-notice.test.cjs](../../../tests/update-notice.test.cjs) exercises native/GM
+failure, success gates, timers, late results and real product exceptions;
+[entry-viewport.test.cjs](../../../tests/entry-viewport.test.cjs) exercises ordinary/error
+close, rapid repeated transitions, styles/priorities and non-EH/desktop isolation.
+DOM fixtures prove lifecycle logic, not layout: also run the shared browser preflight
+on Vite and real EH, desktop and mobile, through the update deadline and close/reopen.
+
+### Wrong versus correct
+
+Do not suppress global request errors or whitelist the update URL in preflight. Complete
+the optional operation's bounded failure path locally and retain its diagnostic. Do not
+set a viewport in the test or accept `clientWidth` instead of `innerWidth`; isolate host
+overflow in the product lifecycle, then independently assert the fixed CSS viewport.
+
 ## Adding or changing a setting
 
 Trace the entire path in `app.ts` and

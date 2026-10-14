@@ -34,8 +34,10 @@ Run from the repository root. [package.json](../../../package.json) is authorita
 | `npm run type-check` | Runs `vue-tsc --noEmit` |
 | `npm run test:acceptance` | Runs Python `unittest` regressions for `scripts/acceptance.py` |
 | `npm run test:storage` | Runs Node's built-in test runner against the real storage modules in isolated VMs |
-| `npm test` | Runs acceptance CLI regressions, then storage regressions |
-| `npm run check` | Runs type-check, both regression suites, then the production build; stops at the first failure |
+| `npm run test:browser-preflight` | Runs Node's built-in test runner against controlled browser-preflight fixtures |
+| `npm run test:reader-lifecycle` | Runs Node regressions for optional update notices and entry viewport restoration |
+| `npm test` | Runs acceptance CLI, storage, browser-preflight and reader-lifecycle regressions |
+| `npm run check` | Runs type-check, all four regression suites, then the production build; stops at the first failure |
 | `npm run build` | Runs normal `vite build` |
 | `npm run build-only` / `npm run build-dev` | Same normal Vite build; neither adds type-checking |
 | `npm run build-prod` | Builds the IIFE userscript with the production config |
@@ -98,6 +100,7 @@ need the applicable real-platform acceptance below.
 | --- | --- |
 | Pure documentation | Verify links, structure, examples and command/config claims; product checks are unnecessary solely for prose |
 | Project acceptance CLI / workflow | Run `python3 -m unittest discover -s scripts -p 'test_acceptance.py'` and verify affected links/commands; no product browser/build checks unless product behavior also changes |
+| Browser-preflight helper / its entry procedures | Run `npm run test:browser-preflight` and `npm run check` for helper changes, then exercise local Vite and real EH, desktop and mobile, using the [shared preflight procedure](./browser-acceptance.md); controlled fixtures do not prove browser capabilities. Prose-only entry changes use the documentation route |
 | Storage test harness / check scripts / CI only | Run `npm run check`; for gate changes also verify clean locked installation, repeated tests and failure propagation in an isolated copy; no browser acceptance claim |
 | Non-platform behavior | [Local browser procedure](./browser-acceptance.md), using the available `ego-browser` skill |
 | Platform adapters, injection, parsing or requests | [EH production-bundle procedure](../../../.pi/skills/eh-test/SKILL.md) |

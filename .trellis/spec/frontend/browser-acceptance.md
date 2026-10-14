@@ -1,5 +1,5 @@
 <!-- migration-note:start -->
-> 迁移来源：`.pi/browser-testing.md`（基线 `647ff26`）。正文保全，路径已重定位；命令与源码路径均从仓库根目录解释。
+> 迁移来源：`.pi/browser-testing.md`（基线 `647ff26`）。当前流程接入浏览器预检；命令与源码路径均从仓库根目录解释。
 <!-- migration-note:end -->
 
 # 使用 ego-browser 验收
@@ -22,7 +22,7 @@ npm run dev -- --host 127.0.0.1 --port 5173 --strictPort > .tmp/vite-dev.log 2>&
 echo "$!" > .tmp/vite-dev.pid
 ```
 
-4. 查看 `.tmp/vite-dev.log`，用 `lsof -nP -iTCP:5173 -sTCP:LISTEN` 核对监听进程，并用 `curl --fail --silent --show-error http://127.0.0.1:5173/` 确认可访问。记录实际 URL、npm 父进程和 Vite 监听 PID。日志出现错误或进程提前退出时先解决再打开页面。
+4. 查看 `.tmp/vite-dev.log`，用 `lsof -nP -iTCP:5173 -sTCP:LISTEN` 核对监听进程，用 `lsof -a -p PID -d cwd` 核对本仓库目录，并用 `curl --fail --silent --show-error http://127.0.0.1:5173/` 确认可访问。将实际 origin、cwd、npm 父进程、Vite 监听 PID 和核实输出保存到 `.tmp/` 的服务证据文件，供下文 `source.service` 引用。日志出现错误或进程提前退出时先解决再打开页面。
 5. 收尾时停止本次启动的具体服务进程（包括仍存活的 npm 父进程），再次确认归属、进程退出和端口释放；清理本次 PID 文件，保留需要交付的日志。
 
 服务启动成功只证明本地页面可访问；功能是否通过仍须按下文完成浏览器验收。
@@ -47,88 +47,136 @@ JS
 
 ## 2. 每轮先配置，再操作
 
-下面的 JavaScript 示例放在 `ego-browser nodejs` 的 heredoc 中，接在恢复 `task`、`page` 之后。每轮按需重新声明变量；真实 URL 和绝对产物目录由当前任务提供。
+每轮在 `ego-browser nodejs` 中导入 [browser-preflight.mjs](../../../scripts/browser-preflight.mjs)，用 `withBrowserPreflight(options, runChecks)` 包住导航、正常打开准备和功能检查。先确认服务或构建证据可读，再恢复同一 `task`、`page`；每次调用使用本仓库 `.tmp/` 内新的绝对 `artifactDir`，最后一级目录必须尚不存在，由 helper 创建。
 
-先启用需要的事件域，再设置本轮视口。需要检查加载请求时加上 `Network.enable`：
+helper 自己启用 Runtime、Log、Page、Network、Debugger、Profiler，启动 precise coverage，保存旧文档事件，重发以下固定 profile，并执行 `navigate`。调用方选择 `'desktop'` 或 `'mobile'`，预期独立于页面实测值：
 
-```js
-await page.cdp("Runtime.enable");
-await page.cdp("Log.enable");
-await page.cdp("Network.enable");
+| profile | 阅读器 CSS 宽×高 | 实际 DPR | mobile 命令参数 | 实际 touchPoints / coarse |
+| --- | --- | --- | --- | --- |
+| `desktop` | 1200×900 | 1 | false | 0 / false |
+| `mobile` | 390×844 | 3 | true | 5 / true |
 
-// 桌面端
-await page.cdp("Emulation.setDeviceMetricsOverride", {
-  width: 1200, height: 900, deviceScaleFactor: 1, mobile: false
-});
-await page.cdp("Emulation.setTouchEmulationEnabled", { enabled: false });
-```
+CSS 主断言是 `innerWidth` / `innerHeight`；DPR 容差固定为 `1e-6`。client 尺寸、visualViewport / scale、viewport meta 和 layout metrics 留作诊断。mobile 的证据是本轮完整命令参数与成功 CDP 回执，没有直接回读接口；窄屏、UA、触摸或截图像素不能替代这项回执。取证期间由 helper 独占模拟配置和 `page.events()`；配置需要变化时结束本轮，重新准备。
 
-移动端改用下面两条命令，保持同一轮的操作和截图在该视口下完成：
+正常 UI 打开阅读器属于独立准备阶段。helper 先确认新主文档 frame / loaderId / context、代码身份与执行、日志、DPR 和触摸能力，保存关闭状态的原站环境，再调用 `prepareReader`。打开后等待挂载与可见 DOM，严格核对阅读器 CSS 尺寸，通过后才进入 `runChecks`。EH 缺 viewport meta 时打开前原站宽度可能大于390；保留该观察，按正常 UI 打开后检查。尺寸仍错误即 blocked，保持预期和 mobile 开关，不向页面补 meta。
 
-```js
-await page.cdp("Emulation.setDeviceMetricsOverride", {
-  width: 390, height: 844, deviceScaleFactor: 3, mobile: true
-});
-await page.cdp("Emulation.setTouchEmulationEnabled", {
-  enabled: true, maxTouchPoints: 5
-});
-```
+### Vite source 与代码身份
 
-**每轮重新设置视口、DPR 和触摸参数**，不能假定这些参数全部跨轮保留。截图或交互前可核对实际环境；发生意外尺寸变化时先解决，再记录验收结果：
+服务归属由上面的启动流程核实，helper 只检查记录字段和证据文件可读性；外层负责记录真实性。以下示例中的 `root` 是当前仓库绝对路径，`origin`、`viteListenerPid`、`viteServiceEvidencePath` 来自本轮服务核实；`sceneVueUrl`、`sceneStyleUrl` 是当前场景应加载的深层 Vue 组件及 style 虚拟模块 exact URL，保留真实 query，可从当前场景已保存的模块请求核对：
 
 ```js
-console.log(await page.evaluate(() => ({
-  width: innerWidth, height: innerHeight, dpr: devicePixelRatio,
-  touchPoints: navigator.maxTouchPoints,
-  coarsePointer: matchMedia("(pointer: coarse)").matches
-})));
+const source = {
+  kind: 'vite',
+  origin,
+  service: { cwd: root, pid: viteListenerPid, origin, evidence: viteServiceEvidencePath },
+  requiredModules: [`${origin}/src/main.ts`, sceneVueUrl, sceneStyleUrl],
+  // inputs: ['additional-scene-input.json'], // 仅追加本场景实际需要的仓库输入
+};
 ```
 
-这里模拟的是移动端视口、像素比例和触摸能力，浏览器仍为 Chromium。页面缺少 viewport meta 时，移动端布局视口可能宽于 390；记录实际布局及原因，勿修改被测页面来制造通过结果。
+例如路径形如 `/core/components/widget/CircleIconButton.vue`；对应 style URL 必须带本轮实际的 `?vue&type=style&...`，从当前请求取值，不复制历史 query。必需模块缺失会阻断场景。默认输入指纹包含 `src/`、`core/`、`index.html`、两个 Vite 配置、`package.json` 和锁文件；追加 `inputs` 不能移除它们。
 
-## 3. 导航、错误检查与交互
+helper 比对当前文档**全部已加载项目模块**：Node 从已确认 origin 获取同一 exact URL 的转换全文作为 expected，actual 来自 `Debugger.getScriptSource`。每项保存 SHA-256、scriptId、当前文档/context 和同一脚本全长顶层非零 coverage 范围；Vue/style/query 与仓库内 `/@fs/` 模块均纳入。源码保持原样，只有解析、入口相符或 DOM 存在都不满足执行证据。
 
-- 导航：`await page.goto(url, { waitUntil: "domcontentloaded", timeout: 15000 })`。
-- 普通刷新：`await page.reload()`；生产包需要忽略缓存刷新时：`await page.cdp("Page.reload", { ignoreCache: true })`，再用 `waitForSelector` / `waitForFunction` 等待本次加载完成。跨刷新等待元素时，结合导航事件确认新文档已提交，避免把刷新前的 DOM 当作新结果。
-- DOM 精确检查：用 `page.evaluate()` 查询 `vite-error-overlay`、挂载节点等；语义快照不保证包含所有隐藏元素。发现编译错误先读取错误、修复后再继续。
-- 页面结构：`console.log(await page.snapshot())`；需要视口外内容时用 `{ scope: "full_page" }`。
-- 交互：依据快照使用 `page.click("@编号")`，或使用已观察到的稳定语义/CSS 选择器；输入、悬停、滚动、键盘等操作见技能 API。
-- 等待：按预期结果使用 `waitForURL`、`waitForSelector` 或 `waitForFunction`。无页面参数时，后者的选项位于第三个参数，例如 `await page.waitForFunction(() => document.readyState === "complete", undefined, { timeout: 10000 })`。
+`inventory` 分列已加载、必需但缺失、未加载输入、非项目脚本及锁文件关联。第三方预构建脚本不属于项目源码比对；独立 CSS/图片/字体记录响应、本地同源 body 和页面应用观察，视觉检查仍由验收者完成。范围仅覆盖清单中的当前文档 JS，未触发分支、整个工作树和独立资源的视觉新鲜度须另列未验证。
 
-原始 `page.cdp()` 调用会使旧快照的 ref 失效。顺序应为 **CDP 配置 → 快照 → 交互 → 等待结果**。页面变化后重新观察；一轮末尾打印快照，供下一轮选择目标。
+### 一轮调用
+
+以下为放在恢复 `task`、`page` 之后的 JavaScript 模板。每轮重新声明 `root`（真实仓库绝对路径）、`origin` 和上述 `source`；`profile` 为固定 profile 名，`openSelector`、`modeSelector`、`closeSelector` 是本轮快照已观察的稳定选择器。EH 使用 [eh-test 的 source](../../../.pi/skills/eh-test/SKILL.md#2-准备-eh-source)。所有方法顺序 `await`：
+
+```js
+const { pathToFileURL } = await import('node:url');
+const { randomUUID } = await import('node:crypto');
+const { withBrowserPreflight, BrowserPreflightError } = await import(
+  pathToFileURL(`${root}/scripts/browser-preflight.mjs`).href
+);
+const artifactDir = `${root}/.tmp/browser-preflight/${profile}-${randomUUID()}`;
+try {
+  const result = await withBrowserPreflight({
+    page, artifactDir, profile, source,
+    timeoutMs: 15000,
+    checksTimeoutMs: 120000,
+    navigate: ({ timeoutMs }) => page.goto(`${origin}/`, {
+      waitUntil: 'domcontentloaded', timeout: timeoutMs,
+    }),
+    prepareReader: async ({ signal, timeoutMs }) => {
+      signal.throwIfAborted();
+      console.log(await page.snapshot());
+      await page.click(openSelector, { timeout: timeoutMs });
+    },
+  }, async check => {
+    await check.phase('switch-mode', async ({ signal, timeoutMs }) => {
+      signal.throwIfAborted();
+      console.log(await page.snapshot());
+      await page.click(modeSelector, { timeout: timeoutMs });
+      // 在此按本功能契约等待状态，并用 check.assert(...) 检查产品结果。
+    });
+    const actual = await check.checkpoint('reader-visible');
+    check.assert(actual.open, '阅读器应可见', actual);
+    console.log({ screenshot: await check.screenshot('reader.png') });
+    await check.closeReader(async ({ signal, timeoutMs }) => {
+      signal.throwIfAborted();
+      console.log(await page.snapshot());
+      await page.click(closeSelector, { timeout: timeoutMs });
+    });
+    await check.openReader();
+  });
+  console.log(JSON.stringify(result)); // finally 和必要保存全部完成后才返回
+  console.log(await page.snapshot());
+} catch (error) {
+  if (!(error instanceof BrowserPreflightError)) throw error;
+  console.error(JSON.stringify(error.result));
+  process.exitCode = error.exitCode;
+}
+```
+
+该模板演示取证顺序，功能断言按对应 quickstart 补齐；执行点击或 helper 返回成功本身不证明模式正确。不要将准备检查的断言当成全部功能验收。
+
+`navigate` 必须产生新文档导航或刷新，可换为 `page.reload({ timeout: timeoutMs })`，或 `page.cdp('Page.reload', { ignoreCache: true }, { timeout: timeoutMs })`；helper 等待并校验新提交，历史文档证据不放行。`prepareReader` 仅正常打开，不做功能检查。单条命令/动作默认15秒、最大60秒；整个功能回调默认120秒、最大600秒。回调接收 `signal` 和有限 `timeoutMs`，遵守中止信号。helper 的超时不能强制取消任意 Promise；超时后停止直接操作 `page`，处理可能仍在执行的动作，再开始下一轮。
+
+## 3. 功能阶段与观察
+
+| 方法 | 责任与通过条件 |
+| --- | --- |
+| `phase(name, action, { requiredModules?: [...] })` | 关键动作前后检查身份、日志与严格环境；动作完成后新增的必需懒加载 exact URLs 写在 options，检查通过前不记该功能通过 |
+| `checkpoint(name, options)` | 重新检查；可追加 `requiredModules`，不执行功能动作 |
+| `screenshot('name.png')` | 简单 PNG 文件名，固定 `scale: 'css'`；前后重新检查并确认文件保存，返回绝对路径 |
+| `closeReader(action)` | 正常 UI 关闭；比较本轮打开前原站 viewport meta，保存恢复状态，不要求关闭后原站宽度390 |
+| `openReader()` | 复用 `prepareReader` 正常打开，再通过严格环境门；关闭后下一阅读器操作先调用它 |
+| `assert(condition, message, details?)` | 明确的产品断言；进入功能后的失败为 failed，其余操作/准备/取证异常为 blocked |
+
+导航或新增模块触发身份复查；输入、bundle、loader 的变化或 Vite HMR 使本轮失效，停止相关分支并用新目录重新导航取证。不能在同轮修改代码后沿用旧结果。受保护方法失败后，即使调用者捕获异常，也不能继续后续受保护动作或取得通过结果。
+
+若导航后阅读器已经自动打开，helper 没有本轮原站基线，`closeReader` 会 blocked；先在外层以已观察的正常 UI 关闭，再开始新的导航取证轮，让 helper 保存关闭状态基线。保留用户存储，不从 managed meta 构造原站基线。
+
+使用 `page.snapshot()` 观察界面，视口外内容用 `{ scope: 'full_page' }`；用 `page.evaluate()` 精确查询 DOM。每个受保护动作在其前置 CDP 检查后取快照，再使用本轮观察的 ref 或稳定选择器；CDP 会使旧 ref 失效，页面变化后重新观察。输入、悬停、滚动、键盘等操作见技能 API。
+
+等待按预期结果使用 `waitForURL`、`waitForSelector` 或 `waitForFunction`；无页面参数时选项位于第三个参数，例如 `await page.waitForFunction(() => document.readyState === 'complete', undefined, { timeout: 10000 })`。将功能等待和产品断言放在对应 `phase` 中，保留动作前后事件。
 
 ## 3.1 计数类断言与来源判定
 
 - **DOM 计数不等于可见数量**：`DockWorkspace` 的 `.thumb-panel.side` 与 `.thumb-panel.bottom` 各持一份槽位内容，45 页图集会出现 90 个 `.thumb-container`（一份可见面板 + 一份 `display:none` 的备用槽位）。断言前按可见性过滤（`getBoundingClientRect().width > 0`），别把备用槽位当成重复渲染缺陷。
 - **站点自带产物不是 eHunter 缺陷**：nhentai 图集 HTML 自带双后缀（实测 49 处 `.webp.webp`，如 `<meta itemprop="image" content="https://t3.nhentai.net/galleries/3799533/cover.webp.webp">`），`src/platform/nh/parser/IntroHtmlParser.ts` 只读取改写后的 `data-x-src`/`x-src`，`core/components/ThumbView.vue:8` 直接 `:src="thumbInfo.src"`，都不拼接后缀；遇到这类可疑串先回站点原始 HTML 复核。
-- **控制台报错按脚本来源归因**：NH 页面上的 `Uncaught (in promise)` 可能来自站点自身 bundle（实测 `https://nhentai.net/_app/immutable/chunks/C2ITVdkK.js`），另有广告拦截导致的 `net::ERR_BLOCKED_BY_CLIENT` 与 Cloudflare RUM 的 `net::ERR_CONNECTION_CLOSED`。只有来自 `dist/ehunter.iife.js` 或 loader 的异常才计入回归。
+- **控制台报错按脚本来源归因**：NH 页面上的 `Uncaught (in promise)` 可能来自站点自身 bundle（实测 `https://nhentai.net/_app/immutable/chunks/C2ITVdkK.js`），另有广告拦截导致的 `net::ERR_BLOCKED_BY_CLIENT` 与 Cloudflare RUM 的 `net::ERR_CONNECTION_CLOSED`。结合 helper 的当前文档 scriptId/context、来源和原始事件判断；原站/第三方错误保留影响供审阅，无法归因的严重错误先 blocked，不归为产品断言失败。
 - **顶栏字段在窄视口会整体隐藏**：字段按与 `.float-content`（`float-content` 左边界）的重叠规则设 `display:none`，390 × 844 下全部字段被判重叠，属预期行为。另外 `store.showTopBar` 为 false 时 `.inner-content` 带 `.hide`，字段被 translateY 顶出视口（`getBoundingClientRect().top` 为负，点击会落空），核对顶栏前先点击 float-content 的「显示/隐藏顶栏」按钮。
 - **站点限流要计入验收节奏**：反复重载 nhentai 会触发 429（表现为 `TextReq … : 429` → `Platform initialization failed`），一轮验收尽量在单次加载会话内完成，重试前等待冷却。
 
-## 4. 保存日志和截图
+## 4. 证据、截图和失败回填
 
-导航前启用 Runtime/Log；`page.events()` 返回并清空事件缓冲区。每次读取都将需要的事件追加保存，按导航阶段、来源和时间区分本轮记录。不能用最后一批事件代表全程日志。建议在导航/刷新前、加载完成后和关键交互后各收集一次；即使等待超时，也在 `finally` 中保存可获取的事件。
+helper 是本轮唯一 `page.events()` 消费者。所有捕获的原始事件先追加到 `events.jsonl`，再共同分析身份与错误；每批含 runId、roundId、page、phase、sequence、recordedAt 和完整 events。导航前旧文档、导航/加载、准备、关键动作及截图前后分阶段保存；不要另行 drain 或用最后一批替代全程日志。
 
-```js
-const fs = await import("node:fs/promises");
-// artifactDir 为本次任务在仓库 .tmp/ 下创建的绝对目录。
-await fs.mkdir(artifactDir, { recursive: true });
-const events = await page.events();
-const relevant = events.filter(event => [
-  "Runtime.consoleAPICalled", "Runtime.exceptionThrown", "Log.entryAdded",
-  "Network.requestWillBeSent", "Network.responseReceived", "Network.loadingFailed",
-  "Page.frameNavigated", "Page.loadEventFired"
-].includes(event.method));
-await fs.appendFile(`${artifactDir}/browser-events.jsonl`,
-  JSON.stringify({ recordedAt: new Date().toISOString(), phase, events: relevant }) + "\n");
-```
+每轮目录保存初始 `manifest.json`（incomplete）、`commands.jsonl`、`source.json`、指纹、身份、环境记录及源码副本；EH 另有权限记录，Vite 另有资源记录。`result.json` 在 finally 完成后原子保存。读取其中的 `logs`，检查 console 的 log/info/warning/error、未捕获异常和 Log 事件；身份和 coverage 仅证明该文本执行，不能替代异步平台初始化及功能结果。
 
-`phase` 使用当前阶段名，例如 `before-reload`、`after-load`。需要导航事件时先启用 `Page.enable`。检查 `Runtime.consoleAPICalled` 的 log/info/warning/error、`Runtime.exceptionThrown` 和 `Log.entryAdded`；区分 eHunter、原站、扩展或第三方来源，记录影响。验证新生产包时结合实际加载请求及响应内容/版本；仅有挂载节点不足以证明加载的是本次构建。
+超时或异常仍保存 finally 事件、原始错误及采集/写盘错误。`page.events()` 超时不取消底层读取：helper 保留唯一在途读取及原阶段，finally 额外有界等待1000毫秒；迟到批次仍先追加落盘，超时状态保持 blocked。`result.eventCollection.unresolved` 非空表示返回结果时读取尚未结束，外层须处理该在途调用后才开始下一轮；进程退出后的批次无法保证保存。drain 后保存失败保留内存批次，在 `BrowserPreflightError.result.unsaved` 与 stderr 给出诊断；result 保存失败也禁止成功。硬终止不能保证 finally，只有初始 incomplete manifest 或 `result.pending.json` 不表示完成；CDP buffer 容量未知，不承诺绝对无事件丢失。coverage 持续启用以覆盖新增模块，可能影响时序，不作为严格手势时间或性能验收证据。
 
-用 `await page.screenshot({ path: artifactDir + "/desktop.png" })` 保存桌面截图，移动端另存。截图后用当前会话的图片读取工具查看布局、颜色、间距、阴影、圆角、弹窗与可见状态。UI 改动必须完成桌面（1200 × 900、DPR 1、关闭触摸）和移动（390 × 844、DPR 3、开启触摸）两种视口的关键交互与截图，核对网格列数、尺寸和移动端操作；涉及断点时补测对应边界附近（如 767px、1023px）。
+截图用 `check.screenshot(...)` 保存，再用当前会话图片读取工具检查布局、颜色、间距、阴影、圆角、弹窗和可见状态；helper 的 `visualReview` 仍为 unrun，主会话记录实际视觉检查。PNG 使用 CSS scale，像素宽度不能推导 DPR。UI 改动完成桌面与移动两种固定 profile 的关键交互与截图；涉及断点时补测边界。helper 只支持两个固定 profile，其他断点须另记实际配置与证据，严格预检覆盖范围保持明确。
+
+主会话依 [逐项验收协议](./quality-guidelines.md#acceptance-record-schemaversion-1) 唯一回填 `acceptance.json`。准备或必要取证/保存失败记 runtime/blocked，下游未执行功能与截图记 unrun；进入功能后的明确 `check.assert` 失败记 failed。若产品失败与 finally 保存失败并存，保留产品 failed 项及证据 blocked 项，不能互相覆盖。`result.observed` 只代表本次 helper 调用；`checks: 'executed'` 表示回调执行完，具体产品结果和视觉项仍据实回填。
+
+失败抛出的 `BrowserPreflightError.result` 保留分项事实，外层保存调用日志并传播 `error.exitCode` 非零。`acceptance.py run` 会把普通非零命令记为 failed，不能自动映射浏览器准备 blocked；浏览器项由主会话读取真实结果回填，工具自测/静态断言可走 command。最后运行既有 summarize，由其计算结果，不手写整体 passed。
 
 ## 5. 收尾或交还用户
 
-成功完成后，保存结果、日志和截图，在同一任务空间执行一次 `await task.finish({ keep: [] })` 并等待返回。仅在交付物需留在浏览器供用户继续操作时保留相应页面。清理本次创建且无需保留的服务和临时产物，保留用户已有资源，执行完成长通知。
+成功完成后，保存逐项结果、日志和已阅读的截图，在同一任务空间执行一次 `await task.finish({ keep: [] })` 并等待返回。仅在交付物需留在浏览器供用户继续操作时保留相应页面。helper 不创建/结束空间或管理服务；外层按服务归属核实并停止本次服务及 npm 父进程，确认退出和端口释放，清理本次创建且无需保留的临时产物，保留用户已有资源、存储和交付证据，执行完成长通知。
 
 遇到登录、浏览器权限提示或用户接管时，遵循 ego-browser 技能的 `handOff()` / 接管流程，说明用户需要完成的动作；恢复时继续使用同一空间。阻塞或报错时报告已验证与未验证部分，不把局部通过写成完整验收通过。

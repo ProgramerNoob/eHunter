@@ -11,7 +11,7 @@ Engineering guides are in English; migrated product and feature records retain t
 | File placement, entry point, platform detection, imports, or migration boundaries | [Directory structure](./directory-structure.md) |
 | Vue templates, props/events, dialogs, layout, styling, or translations | [Components](./component-guidelines.md) |
 | `use*` composables, image loading, gestures, DOM listeners, or cleanup | [Composables](./hook-guidelines.md) |
-| Shared reader state, service injection, settings, persistence, reset, or caching | [State management](./state-management.md) |
+| Shared reader state, service injection, settings, persistence, reset, caching, optional update notices or EH mobile viewport lifecycle | [State management](./state-management.md) |
 | TypeScript contracts, external data, error unions, globals, or compiler settings | [Type safety](./type-safety.md) |
 | Selecting checks, functional acceptance, browser evidence, or completion reporting | [Quality](./quality-guidelines.md) |
 
