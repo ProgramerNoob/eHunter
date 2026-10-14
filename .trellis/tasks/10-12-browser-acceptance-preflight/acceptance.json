@@ -1,0 +1,702 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "正确桌面与移动准备产生实际环境记录；错误阅读器 CSS 尺寸、DPR、移动命令或触摸能力阻断功能验收与截图；正常打开的准备阶段与关闭后的原站 viewport 恢复分别留证。",
+    "AC2": "EH 完整生产包及 Vite 本轮已加载项目模块具有当前文档的源码身份和执行证据；旧代码、缺失或历史证据被阻断，未加载模块和独立资源范围明确记录。",
+    "AC3": "正确仓库 grant/connect 配置通过，缺一项生产权限被阻断，本地 connect 扩展允许存在，静态声明与浏览器安装前提分开记录。",
+    "AC4": "导航、加载、关键交互及 finally 日志可追溯；异常分支保留先前事件，事件收集或保存失败不得报告通过。",
+    "AC5": "本地与真实 EH 入口接入同一套准备检查；失败后不执行对应功能回调，逐项报告区分环境阻断、产品失败和未执行。",
+    "AC6": "所需自动检查、桌面与移动浏览器验证和正式审查完成；交付说明已验证与未验证范围，并按归属清理任务资源。",
+    "AC7": "更新请求的网络、HTTP、正文、解析和超时失败均保留诊断且不产生严重运行错误、远端弹窗或成功时间写入；本地说明继续。成功通知的语言、版本与时间门槛不变，实际弹窗/存储异常不被吞掉。",
+    "AC8": "EH 移动打开后严格390×844通过，书页/卷轴及关闭重开正常；原站viewport与接管的根节点溢出样式在普通关闭、加载错误关闭和快速重复开关后正确恢复，桌面及非EH不新增该样式接管。"
+  },
+  "checks": [
+    {
+      "id": "planning-artifacts",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "实施与验收文件、上下文清单及相对引用有效，当前任务状态与记录一致",
+      "scope": "只覆盖文档结构、引用和验收记录合法性，不证明功能通过",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/browser-preflight/post-fix-runtime/closing/audit.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T03:50:14.244197+00:00",
+        "endedAt": "2026-10-14T03:50:14.576619+00:00",
+        "log": ".tmp/acceptance/10-12-browser-acceptance-preflight/tmp1ry08dcr.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-12-browser-acceptance-preflight/tmp1ry08dcr.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "helper-contract-tests",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC3",
+        "AC4",
+        "AC5"
+      ],
+      "claim": "受控工具测试覆盖身份、环境、权限、日志异常及回调阻断契约",
+      "scope": "Node工具测试，不代替真实浏览器",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T02:55:04.627567+00:00",
+        "endedAt": "2026-10-14T02:55:18.247507+00:00",
+        "log": ".tmp/acceptance/10-12-browser-acceptance-preflight/tmpejpmt16t.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-12-browser-acceptance-preflight/tmpejpmt16t.log",
+        ".tmp/browser-preflight/post-fix-runtime/build-command.json",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md"
+      ],
+      "note": "最终npm run check含96项预检回归通过；helper及测试与受控浏览器异常矩阵的指纹相同。",
+      "waiver": null
+    },
+    {
+      "id": "project-check",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "现有类型检查、测试及生产构建通过",
+      "scope": "npm run check，使用最终代码版本",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T02:55:04.627567+00:00",
+        "endedAt": "2026-10-14T02:55:18.247507+00:00",
+        "log": ".tmp/acceptance/10-12-browser-acceptance-preflight/tmpejpmt16t.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-12-browser-acceptance-preflight/tmpejpmt16t.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "permissions",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "实际产物和仓库loader的grant相等、connect覆盖生产及本地host",
+      "scope": "当前产物与仓库loader静态声明；缺grant/connect的.tmp副本阻断；安装声明单独只读观察",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "ego-browser",
+          "nodejs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T03:20:13.278412+00:00",
+        "endedAt": "2026-10-14T03:20:13.414642+00:00",
+        "log": ".tmp/browser-preflight/post-fix-runtime/permissions.log"
+      },
+      "evidence": [
+        ".tmp/browser-preflight/post-fix-runtime/permissions.log",
+        ".tmp/browser-preflight/post-fix-runtime/permissions-command.json",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".tmp/browser-preflight/post-fix-runtime/permissions-summary.json",
+        ".tmp/browser-preflight/post-fix-runtime/installation.json"
+      ],
+      "note": "最终生产包权限集合通过；.tmp缺GM_download/缺hath.network副本均导航0/回调0阻断，浏览器安装声明另外观察。",
+      "waiver": null
+    },
+    {
+      "id": "vite-desktop",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC4",
+        "AC5",
+        "AC6"
+      ],
+      "claim": "本地桌面新代码身份与环境通过后完成开关、模式切换、阶段日志和截图",
+      "scope": "当前helper；Vite桌面1200×900、DPR1、mobile false、无触摸；空间3/p1",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "ego-browser",
+          "nodejs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T03:00:55.760174+00:00",
+        "endedAt": "2026-10-14T03:01:21.314191+00:00",
+        "log": ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete.log"
+      },
+      "evidence": [
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete.log",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete-command.json",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/result.json",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/events.jsonl",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete-counts.json",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/reader-initial.png",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/reader-book.png",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/reader-scroll.png",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/reader-reopened.png",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/reader-after-update.png"
+      ],
+      "note": "新版本完整运行通过：正常打开、书页/卷轴、关闭重开、更新请求结束后继续阅读；EH包含标题1/136及缩略图加载定位第2页。已逐张读取本轮截图，详见最终运行报告。",
+      "waiver": null
+    },
+    {
+      "id": "vite-mobile",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC4",
+        "AC5",
+        "AC6"
+      ],
+      "claim": "本地移动新代码身份与环境通过后完成开关、模式切换、阶段日志和截图",
+      "scope": "当前helper；Vite移动390×844、DPR3、mobile true、触摸5/coarse；空间3/p1",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "ego-browser",
+          "nodejs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T03:09:17.923870+00:00",
+        "endedAt": "2026-10-14T03:09:48.025321+00:00",
+        "log": ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2.log"
+      },
+      "evidence": [
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2.log",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2-command.json",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/result.json",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/events.jsonl",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2-counts.json",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/reader-book-mode.png",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/reader-scroll-mode.png",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/reader-after-update.png",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/reader-reopened.png"
+      ],
+      "note": "新版本完整运行通过：正常打开、书页/卷轴、关闭重开、更新请求结束后继续阅读；EH包含标题1/136及缩略图加载定位第2页。已逐张读取本轮截图，详见最终运行报告。",
+      "waiver": null
+    },
+    {
+      "id": "eh-desktop",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC3",
+        "AC4",
+        "AC5",
+        "AC6"
+      ],
+      "claim": "真实EH桌面确认完整生产包执行、初始化及关键交互和截图",
+      "scope": "当前helper；真实EH图片页桌面1200×900、DPR1、无触摸；空间3/p1",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "ego-browser",
+          "nodejs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T03:07:32.512573+00:00",
+        "endedAt": "2026-10-14T03:08:32.084586+00:00",
+        "log": ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete.log"
+      },
+      "evidence": [
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete.log",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete-command.json",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/result.json",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/events.jsonl",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete-counts.json",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/reader-book.png",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/reader-scroll-page2.png",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/reader-reopened.png",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/reader-after-update.png"
+      ],
+      "note": "新版本完整运行通过：正常打开、书页/卷轴、关闭重开、更新请求结束后继续阅读；EH包含标题1/136及缩略图加载定位第2页。已逐张读取本轮截图，详见最终运行报告。",
+      "waiver": null
+    },
+    {
+      "id": "eh-mobile",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC3",
+        "AC4",
+        "AC5",
+        "AC6"
+      ],
+      "claim": "真实EH移动确认完整生产包执行、准备打开与关闭恢复及关键交互和截图",
+      "scope": "当前helper；真实EH图片页移动390×844、DPR3、mobile true、触摸5/coarse；空间3/p1",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "ego-browser",
+          "nodejs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T03:15:33.698238+00:00",
+        "endedAt": "2026-10-14T03:17:40.757320+00:00",
+        "log": ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3.log"
+      },
+      "evidence": [
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3.log",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3-command.json",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/result.json",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/events.jsonl",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3-counts.json",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/reader-book-mode.png",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/reader-scroll-mode.png",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/reader-after-update.png",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/reader-reopened.png"
+      ],
+      "note": "新版本完整运行通过：正常打开、书页/卷轴、关闭重开、更新请求结束后继续阅读；EH包含标题1/136及缩略图加载定位第2页。已逐张读取本轮截图，详见最终运行报告。",
+      "waiver": null
+    },
+    {
+      "id": "browser-negative",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC4",
+        "AC5"
+      ],
+      "claim": "受控错误环境/旧代码/导航超时保存真实阶段事件并阻断功能回调",
+      "scope": "当前helper在真实Ego中的受控HTTP夹具；不是产品Vite服务；不修改原站、存储或扩展权限",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "ego-browser",
+          "nodejs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T01:30:28.624239+00:00",
+        "endedAt": "2026-10-14T01:30:32.714821+00:00",
+        "log": ".tmp/browser-preflight/current-runtime/browser-negative.log"
+      },
+      "evidence": [
+        ".tmp/browser-preflight/current-runtime/browser-negative.log",
+        ".tmp/browser-preflight/current-runtime/negative-v2-summary.json",
+        ".tmp/browser-preflight/current-runtime/negative-v2-navigation-timeout/events.jsonl",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/current-runtime.md"
+      ],
+      "note": "正常对照passed/callback1；错CSS、同长度旧文本、1500ms导航load超时均blocked/callback0/screenshot0且finally可读；超时前console事件保留。所有场景事件maxConcurrent1，无unresolved或事件drain超时。矩阵断言exit0。",
+      "waiver": null
+    },
+    {
+      "id": "formal-review",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "固定最终代码和测试版本后完成 Standards 与 Spec 审查，并核验当前验收证据、工作区和清理记录",
+      "scope": "当前产品修复、预检、回归测试、规范与21项验收记录；包含暂存区/工作区及最新运行证据",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/post-fix-runtime/final-review/review.md",
+        ".tmp/browser-preflight/post-fix-runtime/final-review/findings.json",
+        ".tmp/browser-preflight/post-fix-runtime/final-review/acceptance-summary.json",
+        ".tmp/browser-preflight/post-fix-runtime/final-review/acceptance-summary-command.json",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".tmp/browser-preflight/post-fix-runtime/cleanup.json",
+        ".tmp/browser-preflight/post-fix-runtime/space-finished.json",
+        ".tmp/browser-preflight/post-fix-runtime/closing-frozen-inputs.json",
+        ".tmp/browser-preflight/post-fix-runtime/closing/evidence-audit.json"
+      ],
+      "note": "正式Standards/Spec审查完成，无新功能缺陷。唯一S1/P3规范函数名由主会话改为实际restoreEHViewportOnClose并复核；本轮服务四进程退出/端口释放，空间3一次finish完成，证据已核验。",
+      "waiver": null
+    },
+    {
+      "id": "cleanup",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "结束本任务空间并核实本任务服务退出及端口释放，保留用户资源和交付物",
+      "scope": "记录实际创建的服务/父进程/PID、空间及保留证据",
+      "method": "inspection",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/post-fix-runtime/cleanup.json",
+        ".tmp/browser-preflight/post-fix-runtime/space-finished.json",
+        ".tmp/browser-preflight/post-fix-runtime/finish-space-command.json",
+        ".tmp/browser-preflight/current-runtime/cleanup.json"
+      ],
+      "note": "核实并停止Vite8890/npm8871、bundle96619/npm96593，5175/8787释放；之前.fixture8788已清理。空间3成功finish一次。保留证据、用户资源/存储与既有__pycache__。",
+      "waiver": null
+    },
+    {
+      "id": "formal-static-review",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC3",
+        "AC4",
+        "AC5",
+        "AC6",
+        "AC7",
+        "AC8"
+      ],
+      "claim": "固定工作区的Standards与Spec静态审查已执行，范围及剩余问题可追溯",
+      "scope": "最终产品修复与预检、测试命令链、入口文档和稳定规范；含工作区与暂存区",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/post-fix-runtime/final-review/review.md",
+        ".tmp/browser-preflight/post-fix-runtime/final-review/scope-fingerprints.json",
+        ".tmp/browser-preflight/post-fix-runtime/final-review/evidence-audit.json",
+        ".tmp/browser-preflight/post-fix-runtime/final-review/findings.json",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".tmp/browser-preflight/post-fix-runtime/cleanup.json",
+        ".tmp/browser-preflight/post-fix-runtime/space-finished.json",
+        ".tmp/browser-preflight/post-fix-runtime/closing-frozen-inputs.json",
+        ".tmp/browser-preflight/post-fix-runtime/closing/evidence-audit.json"
+      ],
+      "note": "固定31文件及空暂存区完成Standards与Spec静态审查，包含产品、helper、真实接缝测试、入口文档及AC1-8。未发现P0/P1/P2或新功能缺陷；剩余S1/P3：state-management.md:60应使用restoreEHViewportOnClose()。本条passed只表示审查已执行、范围和问题可追溯，不表示剩余问题或任务资源已收尾。 主会话已修正S1，仅文档变化，产品/测试保持冻结。",
+      "waiver": null
+    },
+    {
+      "id": "post-repair-browser-evidence",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC4",
+        "AC5",
+        "AC6"
+      ],
+      "claim": "最终修复版本的真实浏览器与异常矩阵证据覆盖受影响契约",
+      "scope": "Vite/EH桌面移动、更新请求结束、串行事件、EH全活动脚本、旧代码/错误CSS/超时阻断；保留历史失败但使用最新完整通过。",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".tmp/browser-preflight/post-fix-runtime/summary.json",
+        ".tmp/browser-preflight/post-fix-runtime/frozen-inputs.json",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/result.json",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/result.json",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/result.json",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/result.json"
+      ],
+      "note": "四轮当前版本均实际退出0；身份、固定环境、更新降级、模式/开关/缩略图与截图完成。当前helper异常矩阵指纹未变，事件串行且finally完整。",
+      "waiver": null
+    },
+    {
+      "id": "acceptance-evidence-freshness",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "验收记录和当前实现保持一致，不将修复前结果表述为当前通过",
+      "scope": "browser-negative、eh-mobile及final-runtime.md的当前版本声明",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/post-fix-runtime/final-review/evidence-audit.json",
+        ".tmp/browser-preflight/post-fix-runtime/final-review/runtime-audit.json",
+        ".tmp/browser-preflight/post-fix-runtime/final-review/review.md",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".tmp/browser-preflight/post-fix-runtime/cleanup.json",
+        ".tmp/browser-preflight/post-fix-runtime/space-finished.json",
+        ".tmp/browser-preflight/post-fix-runtime/closing-frozen-inputs.json",
+        ".tmp/browser-preflight/post-fix-runtime/closing/evidence-audit.json"
+      ],
+      "note": "重新比对冻结代码/测试/规范和focused-green指纹、最终dist、Vite全部实际输入和源码副本；四轮最终目录的命令/身份/环境/原始事件符合当前版本。旧受控负例helper哈希逐项一致，旧final-runtime/current-runtime及EH mobile-v2超时仅作为历史。17PNG结构尺寸检查，独立抽查4张原图，其余视觉结论引用主会话记录。",
+      "waiver": null
+    },
+    {
+      "id": "vite-desktop-remaining",
+      "ac": [
+        "AC1",
+        "AC4",
+        "AC5",
+        "AC6"
+      ],
+      "claim": "vite-desktop剩余阅读器功能场景完成",
+      "scope": "卷轴切换、关闭恢复、重新打开及书页/卷轴截图",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "ego-browser",
+          "nodejs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T03:00:55.760174+00:00",
+        "endedAt": "2026-10-14T03:01:21.314191+00:00",
+        "log": ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete.log"
+      },
+      "evidence": [
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete.log",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete-command.json",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/result.json",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/events.jsonl",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete-counts.json",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/reader-initial.png",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/reader-book.png",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/reader-scroll.png",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/reader-reopened.png",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/reader-after-update.png"
+      ],
+      "note": "原先未进入的下游场景已在修复后完整重跑通过，旧失败证据保留在历史报告。",
+      "waiver": null
+    },
+    {
+      "id": "vite-mobile-remaining",
+      "ac": [
+        "AC1",
+        "AC4",
+        "AC5",
+        "AC6"
+      ],
+      "claim": "vite-mobile剩余阅读器功能场景完成",
+      "scope": "重新打开、随后书页/卷轴模式切换及相应截图",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "ego-browser",
+          "nodejs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T03:09:17.923870+00:00",
+        "endedAt": "2026-10-14T03:09:48.025321+00:00",
+        "log": ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2.log"
+      },
+      "evidence": [
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2.log",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2-command.json",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/result.json",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/events.jsonl",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2-counts.json",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/reader-book-mode.png",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/reader-scroll-mode.png",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/reader-after-update.png",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/reader-reopened.png"
+      ],
+      "note": "原先未进入的下游场景已在修复后完整重跑通过，旧失败证据保留在历史报告。",
+      "waiver": null
+    },
+    {
+      "id": "eh-desktop-remaining",
+      "ac": [
+        "AC1",
+        "AC4",
+        "AC5",
+        "AC6"
+      ],
+      "claim": "eh-desktop剩余阅读器功能场景完成",
+      "scope": "书页/卷轴模式切换、缩略图加载定位、关闭恢复、重新打开及截图",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "ego-browser",
+          "nodejs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T03:07:32.512573+00:00",
+        "endedAt": "2026-10-14T03:08:32.084586+00:00",
+        "log": ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete.log"
+      },
+      "evidence": [
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete.log",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete-command.json",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/result.json",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/events.jsonl",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete-counts.json",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/reader-book.png",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/reader-scroll-page2.png",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/reader-reopened.png",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/reader-after-update.png"
+      ],
+      "note": "原先未进入的下游场景已在修复后完整重跑通过，旧失败证据保留在历史报告。",
+      "waiver": null
+    },
+    {
+      "id": "eh-mobile-remaining",
+      "ac": [
+        "AC1",
+        "AC4",
+        "AC5",
+        "AC6"
+      ],
+      "claim": "eh-mobile剩余阅读器功能场景完成",
+      "scope": "功能回调内全部断言，包括首屏、模式、缩略图、关闭恢复及截图",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "ego-browser",
+          "nodejs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T03:15:33.698238+00:00",
+        "endedAt": "2026-10-14T03:17:40.757320+00:00",
+        "log": ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3.log"
+      },
+      "evidence": [
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3.log",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3-command.json",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/result.json",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/events.jsonl",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3-counts.json",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/reader-book-mode.png",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/reader-scroll-mode.png",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/reader-after-update.png",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/reader-reopened.png"
+      ],
+      "note": "原先未进入的下游场景已在修复后完整重跑通过，旧失败证据保留在历史报告。",
+      "waiver": null
+    },
+    {
+      "id": "update-notice-regression",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "可选更新失败完成降级并保留成功通知行为",
+      "scope": "真实event和PlatformService的原生/GM受控回归",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:reader-lifecycle"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T02:47:47.520632+00:00",
+        "endedAt": "2026-10-14T02:47:48.099439+00:00",
+        "log": ".tmp/browser-preflight/blocker-fix/focused-green.log"
+      },
+      "evidence": [
+        ".tmp/browser-preflight/blocker-fix/focused-green.log",
+        ".tmp/browser-preflight/blocker-fix/focused-green-command.json",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md"
+      ],
+      "note": "50项联合回归中的37项通知回归通过：原生/GM网络、HTTP、正文、JSON、超时、晚到、成功门槛、真实UI/存储异常和普通TextReq控制例。",
+      "waiver": null
+    },
+    {
+      "id": "viewport-lifecycle-regression",
+      "ac": [
+        "AC8"
+      ],
+      "claim": "EH移动根节点与viewport生命周期正确恢复",
+      "scope": "入口开关、重复调用、初始化失败关闭及桌面/NH隔离",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:reader-lifecycle"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T02:47:47.520632+00:00",
+        "endedAt": "2026-10-14T02:47:48.099439+00:00",
+        "log": ".tmp/browser-preflight/blocker-fix/focused-green.log"
+      },
+      "evidence": [
+        ".tmp/browser-preflight/blocker-fix/focused-green.log",
+        ".tmp/browser-preflight/blocker-fix/focused-green-command.json",
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md"
+      ],
+      "note": "50项联合回归中的13项入口生命周期回归通过：普通/错误关闭、重复调用、根节点值/priority恢复和非EH/桌面隔离；布局由真实EH另验证。",
+      "waiver": null
+    },
+    {
+      "id": "blocker-fix-runtime",
+      "ac": [
+        "AC1",
+        "AC6",
+        "AC7",
+        "AC8"
+      ],
+      "claim": "新构建解除两个阻塞且完整阅读验收通过",
+      "scope": "Vite及真实EH双视口、更新结束后的日志、模式缩略图及开关截图",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".tmp/browser-preflight/post-fix-runtime/summary.json",
+        ".tmp/browser-preflight/post-fix-runtime/frozen-inputs.json",
+        ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/result.json",
+        ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/result.json",
+        ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/result.json",
+        ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/result.json"
+      ],
+      "note": "四轮当前版本均实际退出0；身份、固定环境、更新降级、模式/开关/缩略图与截图完成。当前helper异常矩阵指纹未变，事件串行且finally完整。",
+      "waiver": null
+    }
+  ]
+}

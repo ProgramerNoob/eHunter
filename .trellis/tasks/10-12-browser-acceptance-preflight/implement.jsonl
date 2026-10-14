@@ -1,0 +1,7 @@
+{"file":".trellis/spec/frontend/index.md","reason":"验收入口与项目质量路由"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"逐项验收协议、主会话单写、阻塞/失败/未执行映射和证据契约"}
+{"file":".trellis/tasks/10-12-browser-acceptance-preflight/research/browser-preflight-design.md","reason":"已核实源码事实、候选与运行能力限制；所选方案和准备边界以本任务design.md为准"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "注入阅读器样式与宿主页隔离"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "通知响应/异步边界类型约束"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "通知成功状态与入口挂载生命周期"}
+{"file": ".trellis/tasks/10-12-browser-acceptance-preflight/research/update-error-root-cause.md", "reason": "用户已授权的更新错误修复根因及测试入口，以design扩展方案为准"}

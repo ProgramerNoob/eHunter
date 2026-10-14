@@ -29,14 +29,21 @@ pi 将命令后的文本作为用户指令附在技能正文之后。解析其�
 
 1. 读取相邻的 [notify-complete](../notify-complete/SKILL.md)，在测试开始前执行短通知，任务完成后执行长通知；用户明确静音时跳过。
 2. 读取当前会话的 `ego-browser` 技能和 [浏览器验收指南](../../../.trellis/spec/frontend/browser-acceptance.md)，通过 pi 的 `bash` 工具运行 `ego-browser nodejs`。按指南创建或复用同一任务空间；连接故障按技能排查，缺少必需能力时报告具体阻塞项。
-3. 确认 Ego 已登录 exhentai.org，Tampermonkey 已启用动态加载脚本，并且**本机 bundle server 正在运行**；三者缺一，页面里都不会出现阅读器。
-   - bundle server：在仓库根目录执行 `npm run serve:bundle`（即 `scripts/serve-bundle.mjs`），把 `dist/ehunter.iife.js` 发布到 `http://127.0.0.1:8787/ehunter.iife.js`；每次请求都重新读盘且响应 `cache-control: no-store`，因此 `npm run build-prod` 后刷新页面即可加载新包。
-   - 动态加载脚本：`.pi/skills/eh-test/ehunter-dev-loader.user.js`（Tampermonkey 里名为 `eHunter (dev loader)`），在 Tampermonkey 中启用；它声明了三站 `@match`、`@connect 127.0.0.1`/`localhost` 以及 bundle 原有的 4 个 `@connect` 域名和 6 个 `GM_*` `@grant`。被 `eval` 的 bundle 与本脚本同处一个沙箱，所以存储、下载和跨域请求都取决于这里的声明——bundle banner 的 `@connect`/`@grant` 变更后必须同步到这个 loader。
-   - 静态安装的 `eHunter` 3.1.0 脚本应保持停用，否则会与 loader 双注入。
-   - 浏览器禁止扩展读取本地文件（控制台出现 `Access to this local file is forbidden`），动态加载只能走 HTTP，不要改回 `file://`。
-   - 其他浏览器的扩展和登录状态不会自动用于 Ego；页面上下文访问不到 `GM_info` 不足以判定 Tampermonkey 未安装，需结合扩展状态、加载请求和实际注入结果判断。
-4. 本流程使用生产包，只需步骤 3 的 bundle server，不使用 Vite 开发服务器（`npm run dev` 的 5173 端口与本流程无关）。bundle server 默认占用 `127.0.0.1:8787`，端口冲突时用 `PORT=<其他端口> npm run serve:bundle`，并同步修改 loader 里的 `EHUNTER_BUNDLE_URL`；仅在确有冲突且已获授权时停止对应进程。
-5. 日志、截图和测试报告统一保存到仓库 `.tmp/`，按需创建子目录。
+3. 确认 Ego 已登录 exhentai.org，Tampermonkey 已启用动态加载脚本、停用所有静态 eHunter 脚本。将本轮登录与安装检查依据保存到 `.tmp/` 可读文件；仓库 loader 声明与浏览器安装副本分别核实。
+   - 动态脚本为相邻的 [ehunter-dev-loader.user.js](ehunter-dev-loader.user.js)，Tampermonkey 中名为 `eHunter (dev loader)`。它通过 HTTP 获取并 eval 生产包，沙箱权限来自安装的 loader；更新仓库文件不会自动更新安装副本。生产 metadata 变化时同步并核实安装副本，避免静态脚本双注入。
+   - 默认 bundle URL 为 `http://127.0.0.1:8787/ehunter.iife.js`。server 每请求重新读盘并返回 `cache-control: no-store`，可达性只证明服务可访问，当前文档执行身份仍由预检确认。
+   - 遇 `Access to this local file is forbidden` 使用 HTTP 动态加载；其他浏览器的扩展/登录状态不属于 Ego。页面访问不到 `GM_info` 不足以判定 Tampermonkey 未安装，结合扩展和安装脚本状态核实。
+4. 本流程只使用生产 bundle server。先执行下文步骤1并保存成功构建记录，再按通用指南核对旧服务的具体 PID、命令和 cwd；保留用户已有或归属不明的服务。在仓库根目录后台启动并核实：
+
+```bash
+mkdir -p .tmp
+npm run serve:bundle > .tmp/eh-bundle-server.log 2>&1 &
+echo "$!" > .tmp/eh-bundle-server.pid
+```
+
+用 `lsof -nP -iTCP:8787 -sTCP:LISTEN`、`lsof -a -p PID -d cwd` 及 `curl --fail --silent --show-error http://127.0.0.1:8787/ehunter.iife.js` 核实监听者、目录和实际 URL，保存 npm 父进程、监听 PID 与核实输出。端口冲突时用 `PORT=<其他端口> npm run serve:bundle`，同步 loader 的 `EHUNTER_BUNDLE_URL` 与下文 `bundleUrl`，并核实浏览器安装副本；停止冲突进程按归属确认。
+
+5. 日志、截图、安装记录、构建与服务证据均保存到仓库 `.tmp/`。按通用指南创建/复用同一任务空间；每轮使用新的绝对产物目录，保存外层 `ego-browser nodejs` 调用的开始/结束时间、退出码及 stdout/stderr。
 
 ## 测试流程
 
@@ -45,32 +52,53 @@ pi 将命令后的文本作为用户指令附在技能正文之后。解析其�
 用 `bash` 在仓库根目录执行：
 
 ```bash
-npm run build-prod
+mkdir -p .tmp
+npm run build-prod > .tmp/eh-build-prod.log 2>&1
 ```
 
-退出码为 0 且 `dist/ehunter.iife.js` 存在、非空才可继续。构建失败时停止后续浏览器测试并报告错误；TypeScript 问题可用 `npm run type-check` 定位。
+保存本次命令、cwd、开始/结束时间及实际退出码。只有退出码0且 `dist/ehunter.iife.js` 存在、非空才继续启动/核实 server；失败停止后续浏览器验收。`source.build` 引用这份实际结果和可读日志，不能只填一个0。TypeScript 问题可用 `npm run type-check` 定位。
 
-### 2. 打开图片页并刷新
+### 2. 准备 EH source
 
-默认测试地址：`https://exhentai.org/s/80813c92df/3482416-1`。优先使用用户指定的可访问图片页。
+默认图片页：`https://exhentai.org/s/80813c92df/3482416-1`，优先使用用户指定的可访问 `/s/` 页面。若给出 `/g/` 页，先通过正常页面进入一张图片，记录实际地址；默认地址失效时取得可访问图片页。登录页、403、Sad Panda 或权限提示属于准备阻塞，按 Ego 技能交还同一空间。
 
-测试加载器使用 `/s/` 图片页触发注入。若用户给出 `/g/` 图集页，先从页面进入一张图片，再验证注入。默认地址失效时说明原因并取得可访问的图片页。
+复用 [通用指南的一轮调用](../../../.trellis/spec/frontend/browser-acceptance.md#一轮调用)，将 `source` 换为以下 EH 配置。变量 `root` 为真实仓库绝对路径；`buildExecution.exitCode`、`buildLogPath` 来自步骤1；`installationFacts`、`installationEvidencePath` 来自本轮登录和安装核实；`actualBundleUrl` 与 server 及安装 loader 的 URL 一致：
 
-通过 `page.goto()` 打开图片页。按通用指南启用 Runtime/Log/Network/Page 事件，在构建后执行 `page.cdp("Page.reload", { ignoreCache: true })`。结合导航事件确认新文档已提交，再等待 `#ehunter-app` 包含子节点；使用有超时上限的条件等待，避免把刷新前的 DOM 当作新构建结果。
+```js
+const source = {
+  kind: 'eh',
+  bundlePath: `${root}/dist/ehunter.iife.js`,
+  loaderPath: `${root}/.pi/skills/eh-test/ehunter-dev-loader.user.js`,
+  bundleUrl: actualBundleUrl,
+  build: { exitCode: buildExecution.exitCode, evidence: buildLogPath },
+  installation: {
+    loggedIn: installationFacts.loggedIn,
+    dynamicLoaderEnabled: installationFacts.dynamicLoaderEnabled,
+    staticScriptDisabled: installationFacts.staticScriptDisabled,
+    evidence: installationEvidencePath,
+  },
+};
+const navigate = ({ timeoutMs }) => page.goto(ehImagePageUrl, {
+  waitUntil: 'domcontentloaded', timeout: timeoutMs,
+});
+```
 
-页面超时后先检查当前页面状态，可重试一次，重试超时设为 10 秒。遇到登录页、403 或 Sad Panda 时，报告认证阻塞，按 ego-browser 技能交还任务空间，请用户在 Ego 中完成登录。
+在通用模板的 options 中使用这里的 `source, navigate`，并以正常 UI `prepareReader` 打开阅读器。需要构建后忽略缓存刷新时，将 `navigate` 换为 `({ timeoutMs }) => page.cdp('Page.reload', { ignoreCache: true }, { timeout: timeoutMs })`。每轮 helper 配置域/模拟、确认新文档，再取证，调用方不另调 `page.events()`。
 
-### 3. 检查控制台和 DOM
+helper 对**最终产物完整 UTF-8 字节**（含 banner、CSS 注入）与仓库 loader 留指纹；阶段间和 finally 复算，变化使本轮失效。它比较实际产物 metadata：`grant(loader) == grant(bundle)`、`connect(loader) ⊇ connect(bundle)`，并覆盖实际 `bundleUrl` 的 host；权限顺序/重复不影响集合，本地 connect 扩展允许，缺项输出精确差异并 blocked。这只证明仓库声明，安装副本权限和启用状态由上述证据单独确认。helper 检查 evidence 文件存在且可读，外层负责内容真实性。
 
-按通用指南使用 `page.events()` 收集并保存 Runtime/Log 事件（log、info、warning、error 和未捕获异常）。该方法读取后会清空缓冲区，每批日志都需保存；保留导航前后记录，并按阶段、时间和来源区分本轮错误与历史记录。检查平台识别、初始化以及标题、页数、当前页信息。区分 eHunter 错误、原站错误和第三方错误，并记录影响。
+### 3. 通过准备门
 
-使用 `page.evaluate()` 精确查询 `vite-error-overlay` 和 `#ehunter-app`，确认无编译错误且挂载节点包含子节点；再用 `page.snapshot()` 观察界面。若阅读器处于关闭状态，依据快照通过 eHunter 开关打开，再确认界面可见。
+helper 对当前主文档的所有活动脚本读取 `Debugger.getScriptSource`，包含匿名 eval、static userscript 包装和普通站点脚本。通过 metadata 块内与当前产物相同的 `@name` 或全文相等识别生产候选；生产包与 loader 的 metadata 名称必须非空且不同。长度、URL 或正文中的 loader 标记不用于豁免旧包。必须恰好一个生产候选，且 actual 与最终包原样相等，具有同一 scriptId 的全长顶层非零 coverage；重复注入和不同长度旧包均 blocked。普通 host/loader 脚本记录为已检查，不冒称生产身份已验证。
+新脚本在交互、截图前观察或收尾期间到达都会使清单过期并触发复查；coverage 停止后新生产脚本缺自己的执行证据也不能放行。SHA-256 按 UTF-8 留证，coverage 偏移按 JavaScript UTF-16 code unit，关联当前 frame / loaderId / executionContext。旧文档、仅解析、同版本/同长度或 loader 的“已加载”日志不能放行。
 
-挂载失败时依次检查图片页 URL、Tampermonkey 启用状态、最新生产包加载请求和初始化错误。此步骤通过的标准是当前构建成功注入、界面可见且没有阻断功能的脚本错误。
+再按 [通用准备流程](../../../.trellis/spec/frontend/browser-acceptance.md#2-每轮先配置再操作) 检查初始化、日志和正常打开后的严格环境，通过后才进入 `runChecks`。挂载/执行证据不等于异步平台初始化成功；打开前原站观察与打开后阅读器观察分别保存。打开后 CSS 不符时停止该视口分支，后续功能及截图 unrun，保持预期及页面原状。关闭/重开用通用接口，缺本轮原站基线时按指南正常关闭并重新导航取证。
+
+准备完成标准是当前完整包执行证据、初始化与日志、严格环境均通过且必要事件已保存。必需取证能力不可用即 blocked，返回规划；不以 HTTP 响应、loader 日志或挂载 DOM 降级替代。异常、超时与写盘失败按 [通用证据/回填流程](../../../.trellis/spec/frontend/browser-acceptance.md#4-证据截图和失败回填) 保存并传播非零；认证问题按 Ego 接管流程处理。
 
 ### 4. 验证功能与视觉效果
 
-默认覆盖下列项目；用户指定 `tests` 时重点验证指定功能，并补齐本次改动涉及的仓库强制验收项：
+在 `runChecks` 内按 [通用阶段接口](../../../.trellis/spec/frontend/browser-acceptance.md#3-功能阶段与观察) 执行关键交互、产品断言及截图。完整流程默认覆盖下列项目；用户指定 `tests` 时重点验证指定功能，并补齐本次改动涉及的仓库强制验收项：
 
 - 首屏标题、总页数和当前页正确。
 - 缩略图正常加载，布局、展开和定位正确。
@@ -80,18 +108,18 @@ npm run build-prod
 - 缓存读写正常；优先通过页面行为或受支持的存储接口验证，不清空用户缓存。
 - 涉及抓取、解析或缓存时，验证原图与换源功能（平台支持时）。
 
-UI 改动按 [浏览器验收指南的视口配置](../../../.trellis/spec/frontend/browser-acceptance.md#2-每轮先配置再操作) 分别测试桌面端（1200 × 900、DPR 1、关闭触摸）和移动端（390 × 844、DPR 3、移动端与触摸模拟）。每轮重新设置参数、重复关键交互并截图确认布局、间距及可见状态。
-
-如涉及响应式断点，补测对应断点附近的宽度。截图保存到 `.tmp/`，使用当前会话支持的图片读取工具检查实际视觉效果。修改平台基础请求层时，还需按仓库要求回归 NH 链路。
+UI 改动分别用通用指南的 desktop / mobile 固定 profile 运行预检、关键交互和截图；`mode: quick` 同样通过准备门，只缩小功能范围。响应式断点、截图读取和 NH 基础请求层回归按通用指南与仓库要求执行，实际覆盖范围据实记录。
 
 ### 5. 输出报告
 
 将报告写入 `.tmp/test-reports/eh-test-<timestamp>.md`，包含：
 
 - 时间、实际测试 URL、测试模式和范围。
-- 构建结果、页面加载结果、控制台错误及 DOM 挂载情况。
-- 每个功能用例的通过、失败或未执行状态；失败时附复现步骤。
+- 构建/服务/安装前提依据、helper 产物目录、当前文档身份、初始化、控制台来源及影响。
+- 各项实际 passed、failed、blocked 或 unrun；失败附复现步骤，阻塞列明准备条件与下游未执行范围。
 - 桌面端、移动端及相关断点的截图路径。
 - 阻塞项与可执行的下一步；明确区分已验证结果和未验证部分。
 
-按通用指南结束任务空间，清理本次测试创建且无需保留的临时资源，保留报告和验收截图。执行完成通知后向用户报告结果；构建成功本身不代表功能验收通过。
+主会话按通用指南回填逐项 `acceptance.json`，引用实际命令日志和 helper 证据；准备 blocked 与产品断言 failed 分开，不能经 `acceptance.py run` 的普通非零映射冒充浏览器分类，也不手写整体 passed。报告列出未验证范围，构建成功不能替代功能验收。
+
+按 [通用收尾/接管流程](../../../.trellis/spec/frontend/browser-acceptance.md#5-收尾或交还用户) 处理同一空间；清理前核实本轮 server 的具体监听 PID 和 npm 父进程，确认退出及端口释放，清理本轮 PID 文件，保留用户资源、存储和交付证据。成功才 finish 空间；阻塞/接管保留同一空间并按 Ego 规则处理。最终回复前执行完成通知。

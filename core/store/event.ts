@@ -3,7 +3,7 @@ import { i18n, lang } from './i18n'
 import config from '../../src/config'
 import { getWelcomeInstructionText } from '../assets/instructions'
 import { getVersionNotesText } from '../assets/versionNotes'
-import { TextReq } from '../../src/platform/base/request/TextReq'
+import PlatformService from '../../src/platform/base/service/PlatformService.js'
 import pkgJson from '../../package.json'
 
 interface UpdateDialogOperation {
@@ -258,19 +258,39 @@ function normalizeUpdateMessage(data: any): UpdateMessage | null {
 }
 
 async function fetchRemoteUpdateMessage(): Promise<UpdateMessage | null> {
-    const requestList = [config.updateServer1, config.updateServer2]
-        .filter(url => typeof url === 'string' && url.length > 0)
-        .map(url => new TextReq(url, true, true).setCredentials('omit').request())
-    if (requestList.length === 0) {
-        return null
-    }
-    try {
-        const rawText = await Promise.race(requestList)
-        const parsed = JSON.parse(rawText)
-        return normalizeUpdateMessage(parsed)
-    } catch (e) {
-        return null
-    }
+    const urls = [...new Set([config.updateServer1, config.updateServer2]
+        .filter(url => typeof url === 'string' && url.length > 0))]
+    const requestList = urls.map(async url => {
+        let timeoutId: number | undefined
+        try {
+            const requestUrl = new URL(url, window.location.href)
+            requestUrl.searchParams.set('_t', String(Date.now()))
+            const timeout = new Promise<never>((_, reject) => {
+                timeoutId = window.setTimeout(() => reject(new Error('Update request timed out after 15000ms')), 15000)
+            })
+            // The deadline includes body reading. A late GM response cannot show a notice.
+            const request = (async () => {
+                const response = await PlatformService.fetch(requestUrl.href, { method: 'GET', credentials: 'omit' })
+                if (response.status !== 200) {
+                    throw new Error(`Update request HTTP status ${response.status}`)
+                }
+                return response.text()
+            })()
+            const rawText = await Promise.race([request, timeout])
+            const message = normalizeUpdateMessage(JSON.parse(rawText))
+            if (!message) {
+                throw new Error('Invalid remote update message structure')
+            }
+            return message
+        } catch (error) {
+            console.warn(`eHunter: Remote update notice unavailable; skipping ${url}`, error)
+            return null
+        } finally {
+            window.clearTimeout(timeoutId)
+        }
+    })
+    // Preserve first-settled behavior, including an unavailable source winning the race.
+    return requestList.length ? Promise.race(requestList) : null
 }
 
 function checkNewVersionNotice() {

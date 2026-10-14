@@ -111,6 +111,7 @@ if (!detectionResult.platform) {
   let originalViewportContent: string | null = null
   let hadViewportMeta = false
   let viewportAdjusted = false
+  let originalRootOverflow: { property: string; value: string; priority: string }[] = []
 
   const ensureEHViewportForOpen = (): void => {
     if (detectionResult.platform !== Platform.EH || !isMobileLikeDevice()) {
@@ -125,7 +126,18 @@ if (!detectionResult.platform) {
       originalViewportContent = viewportMeta
         ? viewportMeta.getAttribute('content')
         : null
+      const rootStyle = document.documentElement.style
+      originalRootOverflow = ['overflow-x', 'overflow-y'].map(property => ({
+        property,
+        value: rootStyle.getPropertyValue(property),
+        priority: rootStyle.getPropertyPriority(property),
+      }))
       viewportAdjusted = true
+    }
+
+    // EH's wide host content can enlarge the mobile layout viewport behind the reader.
+    for (const { property } of originalRootOverflow) {
+      document.documentElement.style.setProperty(property, 'hidden', 'important')
     }
 
     if (!viewportMeta) {
@@ -156,6 +168,15 @@ if (!detectionResult.platform) {
       }
     }
 
+    const rootStyle = document.documentElement.style
+    for (const { property, value, priority } of originalRootOverflow) {
+      if (value) {
+        rootStyle.setProperty(property, value, priority)
+      } else {
+        rootStyle.removeProperty(property)
+      }
+    }
+    originalRootOverflow = []
     originalViewportContent = null
     hadViewportMeta = false
     viewportAdjusted = false

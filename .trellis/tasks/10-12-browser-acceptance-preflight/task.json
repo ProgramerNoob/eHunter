@@ -1,0 +1,31 @@
+{
+  "id": "browser-acceptance-preflight",
+  "name": "browser-acceptance-preflight",
+  "title": "浏览器验收前置检查与证据保存",
+  "description": "落实复盘第03项，在现有ego-browser与EH验收入口校验实际构建、视口、权限及分阶段日志，准备失败时阻断误验。",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": "tooling",
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-12",
+  "completedAt": null,
+  "branch": "fix/trellis-acp-context",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [
+    "scripts/browser-preflight.mjs",
+    "tests/browser-preflight.test.mjs",
+    ".trellis/spec/frontend/browser-acceptance.md",
+    ".pi/skills/eh-test/SKILL.md"
+  ],
+  "notes": "最终21项acceptance全部passed，无豁免。Vite/EH双视口、当前源码执行、模式/缩略图/开关/更新降级与17截图通过；229项自动回归、类型与生产构建通过。正式审查唯一P3规范符号已修正；服务/npm四进程已退出，空间3一次finish结束。准备本地提交与协议归档；既有scripts/__pycache__不纳入提交。",
+  "meta": {}
+}
