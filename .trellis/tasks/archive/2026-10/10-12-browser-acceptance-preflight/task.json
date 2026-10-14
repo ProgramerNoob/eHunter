@@ -12,10 +12,10 @@
   "assignee": "Warwick",
   "createdAt": "2026-10-12",
   "completedAt": "2026-10-14",
-  "branch": "fix/trellis-acp-context",
+  "branch": "feat/browser-acceptance-preflight",
   "base_branch": "master",
   "worktree_path": null,
-  "commit": "6f3dc84",
+  "commit": "13fc961",
   "pr_url": null,
   "subtasks": [],
   "children": [],
@@ -32,6 +32,6 @@
     "tests/helpers/runtime-fixture.cjs",
     "package.json"
   ],
-  "notes": "最终21项acceptance全部passed，无豁免。Vite/EH双视口、当前源码执行、模式/缩略图/开关/更新降级与17截图通过；229项自动回归、类型与生产构建通过。正式审查唯一P3规范符号已修正；服务/npm四进程已退出，空间3一次finish结束。实现已本地提交6f3dc84；acceptance archive退出0且原生归档提交23910a2，归档引用同步校正；既有scripts/__pycache__不纳入提交。",
+  "notes": "最终21项acceptance全部passed，无豁免。Vite/EH双视口、当前源码执行、模式/缩略图/开关/更新降级与17截图通过；229项自动回归、类型与生产构建通过。正式审查唯一P3规范符号已修正；服务/npm四进程已退出，空间3一次finish结束。经用户确认，本任务4个提交从ACP分支迁到基于master的feat/browser-acceptance-preflight，实现提交13fc961、归档提交067894c；原始提交及验收记录保留，映射见research/branch-correction.md。既有scripts/__pycache__不纳入提交。",
   "meta": {}
 }
