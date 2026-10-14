@@ -34,7 +34,7 @@
 - [x] 固定版本trellis-check审查全范围Standards与Spec；未发现产品/测试缺陷，P3规范函数名已修正并复核。
 - [x] 所属四个服务/npm进程退出、5175/8787释放；空间3正常finish一次，保留用户资源、既有__pycache__与交付证据。
 - [x] 记录/文档检查、task validate与acceptance summarize通过；21 passed、0 failed/blocked/partial/unrun/waived。
-- [ ] 本地提交后经acceptance archive归档，核对归档路径、记录日志及完成长通知。
+- [x] 实现提交6f3dc84后经acceptance archive成功归档（23910a2），重定位本任务文档与证据引用，归档后审计通过且21项仍passed。会话日志及长通知按finish-work收尾。
 
 ## 回退
 

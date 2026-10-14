@@ -4,14 +4,14 @@
 
 ## 该历史版本的自动检查与改动
 
-- `node --test tests/browser-preflight.test.mjs`：当时70项通过。后续96项固定版本检查见 [正式检查报告](../../../../.tmp/browser-preflight/formal-check-20261013/review.md)，不以本报告替代。
-- `npm run check`：当时类型检查、37项Python、46项存储、70项preflight及生产构建通过，见 [历史日志](../../../../.tmp/acceptance/10-12-browser-acceptance-preflight/tmpczizk9iq.log)。没有 lint 脚本，未声称 lint 或远端 CI 通过。
+- `node --test tests/browser-preflight.test.mjs`：当时70项通过。后续96项固定版本检查见 [正式检查报告](../../../../../../.tmp/browser-preflight/formal-check-20261013/review.md)，不以本报告替代。
+- `npm run check`：当时类型检查、37项Python、46项存储、70项preflight及生产构建通过，见 [历史日志](../../../../../../.tmp/acceptance/10-12-browser-acceptance-preflight/tmpczizk9iq.log)。没有 lint 脚本，未声称 lint 或远端 CI 通过。
 - 新增 helper 与工具测试；修改 package 测试链、通用浏览器指南、EH 技能与质量指南。未修改产品、loader 或锁文件。
 - 该轮修复了 Vite 同源 favicon 404 被归为 eHunter 的问题，并新增 favicon 与项目模块错误的区分测试。
 
 ## 真实入口与未满足范围
 
-证据根目录：[final-verification](../../../../.tmp/browser-preflight/final-verification/)。全部复用空间2/p1，没有替换浏览器、清用户缓存、改用户存储、注入 viewport 或放宽完整源码比较。
+证据根目录：[final-verification](../../../../../../.tmp/browser-preflight/final-verification)。全部复用空间2/p1，没有替换浏览器、清用户缓存、改用户存储、注入 viewport 或放宽完整源码比较。
 
 | 检查 | 历史观察 | 已验证及阻塞 |
 | --- | --- | --- |
@@ -28,13 +28,13 @@ EH产物UTF-8为442864字节，SHA-256 `36dfa0deac3c3555c484e7b23be89fb19ded2e65
 
 ## 该历史版本的异常与权限复测
 
-[negative-recheck-summary.json](../../../../.tmp/browser-preflight/final-verification/negative-recheck-summary.json)：真实浏览器受控HTTP夹具正常对照passed/callback1；错误CSS、同长度旧文本及1500ms导航load超时均blocked/callback0/screenshot0，finally日志可读。矩阵断言实际退出0；HTTP夹具明确不是产品Vite服务。
+[negative-recheck-summary.json](../../../../../../.tmp/browser-preflight/final-verification/negative-recheck-summary.json)：真实浏览器受控HTTP夹具正常对照passed/callback1；错误CSS、同长度旧文本及1500ms导航load超时均blocked/callback0/screenshot0，finally日志可读。矩阵断言实际退出0；HTTP夹具明确不是产品Vite服务。
 
-[permissions-summary.json](../../../../.tmp/browser-preflight/final-verification/permissions-summary.json)：最终产物的6个grant与仓库loader完全相等，4个生产connect被覆盖，本地127.0.0.1/localhost扩展允许；副本少 `GM_download` 或 `hath.network` 时均在导航前blocked、navigate0、callback0。该结果仅证明仓库声明，浏览器安装副本完整声明及所有实际请求未验证。
+[permissions-summary.json](../../../../../../.tmp/browser-preflight/final-verification/permissions-summary.json)：最终产物的6个grant与仓库loader完全相等，4个生产connect被覆盖，本地127.0.0.1/localhost扩展允许；副本少 `GM_download` 或 `hath.network` 时均在导航前blocked、navigate0、callback0。该结果仅证明仓库声明，浏览器安装副本完整声明及所有实际请求未验证。
 
 ## 资源与交付状态
 
-[cleanup.json](../../../../.tmp/browser-preflight/final-verification/cleanup.json) 确认本轮Vite的npm/监听PID59172/59191、bundle的63124/63143及夹具64643全部退出；5173、5174、8787、8788均释放。用户资源和全部必要证据保留。空间2/p1为agent所有并回到about:blank；因浏览器验证blocked，遵守Ego的成功专用finish约束而保留空间。
+[cleanup.json](../../../../../../.tmp/browser-preflight/final-verification/cleanup.json) 确认本轮Vite的npm/监听PID59172/59191、bundle的63124/63143及夹具64643全部退出；5173、5174、8787、8788均释放。用户资源和全部必要证据保留。空间2/p1为agent所有并回到about:blank；因浏览器验证blocked，遵守Ego的成功专用finish约束而保留空间。
 
 主会话将按逐项协议回填真实执行信息；工具不写acceptance.json。运行blocked不经 `acceptance.py run` 自动映射。最终正式审查与gate结果另行记录；在必需浏览器项未满足前，任务不完成、不提交、不归档。
 

@@ -7,7 +7,7 @@
 ## 背景与事实
 
 - 用户已审阅最终方案并于 2026-10-12 批准实施，任务已启动。首步能力探针取得 Vite/EH 源码与执行证据；EH 移动严格视口未通过，见[能力报告](research/capability-probe.md)。
-- 来源：[复盘第 03 项](../archive/2026-10/10-11-project-session-retrospective/research/report.md)。历史反例包括旧 bundle、CSS 视口与预期不一致，以及移动模拟与截图记录不匹配。
+- 来源：[复盘第 03 项](../10-11-project-session-retrospective/research/report.md)。历史反例包括旧 bundle、CSS 视口与预期不一致，以及移动模拟与截图记录不匹配。
 - 通用浏览器指南与 EH 技能已有服务归属、视口配置、动态 loader、分阶段事件采集及资源清理步骤，本任务补足可执行检查。
 - loader 在 eval 前输出“已加载”，不足以证明执行成功；EH 只在阅读器打开时修正移动 viewport，关闭时恢复原站配置。依据与能力限制见 [研究记录](research/browser-preflight-design.md)。
 

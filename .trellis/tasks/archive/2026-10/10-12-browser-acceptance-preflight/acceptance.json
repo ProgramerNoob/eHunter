@@ -24,16 +24,16 @@
       "execution": {
         "argv": [
           "python3",
-          ".tmp/browser-preflight/post-fix-runtime/closing/audit.py"
+          ".tmp/browser-preflight/post-fix-runtime/archive-audit.py"
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-14T03:50:14.244197+00:00",
-        "endedAt": "2026-10-14T03:50:14.576619+00:00",
-        "log": ".tmp/acceptance/10-12-browser-acceptance-preflight/tmp1ry08dcr.log"
+        "startedAt": "2026-10-14T03:53:24.220097+00:00",
+        "endedAt": "2026-10-14T03:53:24.480717+00:00",
+        "log": ".tmp/acceptance/10-12-browser-acceptance-preflight/tmpnljatep_.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-12-browser-acceptance-preflight/tmp1ry08dcr.log"
+        ".tmp/acceptance/10-12-browser-acceptance-preflight/tmpnljatep_.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -67,7 +67,7 @@
       "evidence": [
         ".tmp/acceptance/10-12-browser-acceptance-preflight/tmpejpmt16t.log",
         ".tmp/browser-preflight/post-fix-runtime/build-command.json",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md"
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md"
       ],
       "note": "最终npm run check含96项预检回归通过；helper及测试与受控浏览器异常矩阵的指纹相同。",
       "waiver": null
@@ -124,7 +124,7 @@
       "evidence": [
         ".tmp/browser-preflight/post-fix-runtime/permissions.log",
         ".tmp/browser-preflight/post-fix-runtime/permissions-command.json",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
         ".tmp/browser-preflight/post-fix-runtime/permissions-summary.json",
         ".tmp/browser-preflight/post-fix-runtime/installation.json"
       ],
@@ -159,7 +159,7 @@
       "evidence": [
         ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete.log",
         ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete-command.json",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
         ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/result.json",
         ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/events.jsonl",
         ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete-counts.json",
@@ -200,7 +200,7 @@
       "evidence": [
         ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2.log",
         ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2-command.json",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
         ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/result.json",
         ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/events.jsonl",
         ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2-counts.json",
@@ -241,7 +241,7 @@
       "evidence": [
         ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete.log",
         ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete-command.json",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
         ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/result.json",
         ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/events.jsonl",
         ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete-counts.json",
@@ -282,7 +282,7 @@
       "evidence": [
         ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3.log",
         ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3-command.json",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
         ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/result.json",
         ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/events.jsonl",
         ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3-counts.json",
@@ -322,7 +322,7 @@
         ".tmp/browser-preflight/current-runtime/browser-negative.log",
         ".tmp/browser-preflight/current-runtime/negative-v2-summary.json",
         ".tmp/browser-preflight/current-runtime/negative-v2-navigation-timeout/events.jsonl",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/current-runtime.md"
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/current-runtime.md"
       ],
       "note": "正常对照passed/callback1；错CSS、同长度旧文本、1500ms导航load超时均blocked/callback0/screenshot0且finally可读；超时前console事件保留。所有场景事件maxConcurrent1，无unresolved或事件drain超时。矩阵断言exit0。",
       "waiver": null
@@ -343,7 +343,7 @@
         ".tmp/browser-preflight/post-fix-runtime/final-review/findings.json",
         ".tmp/browser-preflight/post-fix-runtime/final-review/acceptance-summary.json",
         ".tmp/browser-preflight/post-fix-runtime/final-review/acceptance-summary-command.json",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
         ".tmp/browser-preflight/post-fix-runtime/cleanup.json",
         ".tmp/browser-preflight/post-fix-runtime/space-finished.json",
         ".tmp/browser-preflight/post-fix-runtime/closing-frozen-inputs.json",
@@ -395,7 +395,7 @@
         ".tmp/browser-preflight/post-fix-runtime/final-review/scope-fingerprints.json",
         ".tmp/browser-preflight/post-fix-runtime/final-review/evidence-audit.json",
         ".tmp/browser-preflight/post-fix-runtime/final-review/findings.json",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
         ".tmp/browser-preflight/post-fix-runtime/cleanup.json",
         ".tmp/browser-preflight/post-fix-runtime/space-finished.json",
         ".tmp/browser-preflight/post-fix-runtime/closing-frozen-inputs.json",
@@ -420,7 +420,7 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
         ".tmp/browser-preflight/post-fix-runtime/summary.json",
         ".tmp/browser-preflight/post-fix-runtime/frozen-inputs.json",
         ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/result.json",
@@ -446,7 +446,7 @@
         ".tmp/browser-preflight/post-fix-runtime/final-review/evidence-audit.json",
         ".tmp/browser-preflight/post-fix-runtime/final-review/runtime-audit.json",
         ".tmp/browser-preflight/post-fix-runtime/final-review/review.md",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
         ".tmp/browser-preflight/post-fix-runtime/cleanup.json",
         ".tmp/browser-preflight/post-fix-runtime/space-finished.json",
         ".tmp/browser-preflight/post-fix-runtime/closing-frozen-inputs.json",
@@ -482,7 +482,7 @@
       "evidence": [
         ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete.log",
         ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete-command.json",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
         ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/result.json",
         ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/events.jsonl",
         ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete-counts.json",
@@ -522,7 +522,7 @@
       "evidence": [
         ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2.log",
         ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2-command.json",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
         ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/result.json",
         ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2/events.jsonl",
         ".tmp/browser-preflight/post-fix-runtime/vite-mobile-v2-counts.json",
@@ -561,7 +561,7 @@
       "evidence": [
         ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete.log",
         ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete-command.json",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
         ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/result.json",
         ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete/events.jsonl",
         ".tmp/browser-preflight/post-fix-runtime/eh-desktop-complete-counts.json",
@@ -600,7 +600,7 @@
       "evidence": [
         ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3.log",
         ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3-command.json",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
         ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/result.json",
         ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3/events.jsonl",
         ".tmp/browser-preflight/post-fix-runtime/eh-mobile-v3-counts.json",
@@ -637,7 +637,7 @@
       "evidence": [
         ".tmp/browser-preflight/blocker-fix/focused-green.log",
         ".tmp/browser-preflight/blocker-fix/focused-green-command.json",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md"
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md"
       ],
       "note": "50项联合回归中的37项通知回归通过：原生/GM网络、HTTP、正文、JSON、超时、晚到、成功门槛、真实UI/存储异常和普通TextReq控制例。",
       "waiver": null
@@ -667,7 +667,7 @@
       "evidence": [
         ".tmp/browser-preflight/blocker-fix/focused-green.log",
         ".tmp/browser-preflight/blocker-fix/focused-green-command.json",
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md"
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md"
       ],
       "note": "50项联合回归中的13项入口生命周期回归通过：普通/错误关闭、重复调用、根节点值/priority恢复和非EH/桌面隔离；布局由真实EH另验证。",
       "waiver": null
@@ -687,7 +687,7 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
+        ".trellis/tasks/archive/2026-10/10-12-browser-acceptance-preflight/research/post-fix-runtime.md",
         ".tmp/browser-preflight/post-fix-runtime/summary.json",
         ".tmp/browser-preflight/post-fix-runtime/frozen-inputs.json",
         ".tmp/browser-preflight/post-fix-runtime/vite-desktop-complete/result.json",
