@@ -7,7 +7,7 @@
 - Active task：`.trellis/tasks/10-12-browser-acceptance-preflight`。按 `check.jsonl` 读取五份指定上下文，再核对 `prd.md`、`design.md`、`implement.md`、`acceptance.json`、通用浏览器及质量规范、EH 技能接入 diff。
 - 本轮使用 trellis-check 的 Spec 轴。先读取现有 `graft/scripts/browser-preflight.md`、`graft/tests/browser-preflight.test.md` 定位；卡片仍是旧跨度，修复细节以当前文件带行号内容为准。为保持只读，没有调用会自动刷新图的 graft CLI。没有派发子代理，也没有替 Standards 轴给结论。
 - 基线 `3b64ddf676b5cf0fe6e94c91de0e17c2abc0b4e1`，分支 master。工作区四个已跟踪修改为 `.pi/skills/eh-test/SKILL.md`、`.trellis/spec/frontend/browser-acceptance.md`、`.trellis/spec/frontend/quality-guidelines.md`、`package.json`；新文件 `scripts/browser-preflight.mjs`、`tests/browser-preflight.test.mjs` 及任务目录。暂存区为空；已检查工作区、暂存区和新增文件。`git diff --check` exit 0。
-- 冻结依据：[review-freeze-repair.json](../../../../.tmp/browser-preflight/final-verification/review-freeze-repair.json)。开始审查及生成报告前，13 项 SHA-256 全部匹配。helper SHA-256 `f253286722bebdd2364f2d2957e69d715a654d8c280814a491ea6d352840b025`；测试 SHA-256 `ecac9dce5cf3a2fed5862e01daf28fb65dc9003989c286604638e5fed1f2419f`。
+- 冻结依据：[review-freeze-repair.json](../../../../../../.tmp/browser-preflight/final-verification/review-freeze-repair.json)。开始审查及生成报告前，13 项 SHA-256 全部匹配。helper SHA-256 `f253286722bebdd2364f2d2957e69d715a654d8c280814a491ea6d352840b025`；测试 SHA-256 `ecac9dce5cf3a2fed5862e01daf28fb65dc9003989c286604638e5fed1f2419f`。
 - 唯一文件写入为本报告。未改源码、测试、指南、任务状态、acceptance.json 或冻结记录；未启动/操作浏览器、服务；未重跑会写入产物的完整测试/build。额外复核仅在内存替换文件系统并复用现有 PageFixture，源码仅加载进内存，下面保存完整可复查命令与观察。
 
 ## 发现
@@ -44,7 +44,7 @@ requireCondition(bundleRows.length === 1, 'Exactly one current production bundle
 
 定位：`.trellis/tasks/10-12-browser-acceptance-preflight/acceptance.json:284`（browser-negative 的 passed）、`.trellis/tasks/10-12-browser-acceptance-preflight/acceptance.json:302`（“当前helper”说明）；失效规则：`.trellis/spec/frontend/quality-guidelines.md:154`。
 
-该项执行时间为 `2026-10-12T17:34:08.056695+00:00` 至 `2026-10-12T17:34:12.241668+00:00`。修复轮事件收集改变了超时后读取/保存、finally路径，冻结时间为 `2026-10-12T19:34:23.376128+00:00`，新增回归运行在19:20/19:21。17:34 的真实浏览器负例仍有历史价值，但不能作为修复后版本的真实事件超时/保存通过证据。现有文件 [negative-recheck-summary.json](../../../../.tmp/browser-preflight/final-verification/negative-recheck-summary.json) 证明当时正常对照callback1，错误CSS/旧文本/导航超时均blocked、callback0/screenshot0、finallySaved=true；它没有执行修复后的在途 drain 逻辑。
+该项执行时间为 `2026-10-12T17:34:08.056695+00:00` 至 `2026-10-12T17:34:12.241668+00:00`。修复轮事件收集改变了超时后读取/保存、finally路径，冻结时间为 `2026-10-12T19:34:23.376128+00:00`，新增回归运行在19:20/19:21。17:34 的真实浏览器负例仍有历史价值，但不能作为修复后版本的真实事件超时/保存通过证据。现有文件 [negative-recheck-summary.json](../../../../../../.tmp/browser-preflight/final-verification/negative-recheck-summary.json) 证明当时正常对照callback1，错误CSS/旧文本/导航超时均blocked、callback0/screenshot0、finallySaved=true；它没有执行修复后的在途 drain 逻辑。
 
 主会话应保留原始历史观察和执行记录，明确该检查当前版本待重验（建议 partial，并保留旧 execution/证据和已验证部分）；新运行前不能继续写“当前 helper passed”。本代理不写 acceptance.json。四个完整场景原本均 blocked，不应覆盖或改成 passed；EH移动1232×2666的原始观察也不能删掉。
 
@@ -87,8 +87,8 @@ requireCondition(bundleRows.length === 1, 'Exactly one current production bundle
 
 | 检查 | 现有实际执行 | 证据 |
 | --- | --- | --- |
-| helper契约测试 | 2026-10-12T19:20:21.333378+00:00 至19:20:26.583866+00:00，exit0，tests74/pass74/fail0/skipped0 | [tmpsm_jtgnd.log](../../../../.tmp/acceptance/10-12-browser-acceptance-preflight/tmpsm_jtgnd.log)，新增双包第4/5行、晚回执第45行、第三方第46行、汇总第76行 |
-| 项目check | 2026-10-12T19:21:16.304633+00:00 至19:21:27.810529+00:00，exit0；vue-tsc、Python37、storage46、preflight74、Vite6.4.1生产build（922ms） | [tmpsge9kg64.log](../../../../.tmp/acceptance/10-12-browser-acceptance-preflight/tmpsge9kg64.log)，第4/11/62/147/3653行；存在Sass等构建警告，不是零警告结果 |
+| helper契约测试 | 2026-10-12T19:20:21.333378+00:00 至19:20:26.583866+00:00，exit0，tests74/pass74/fail0/skipped0 | [tmpsm_jtgnd.log](../../../../../../.tmp/acceptance/10-12-browser-acceptance-preflight/tmpsm_jtgnd.log)，新增双包第4/5行、晚回执第45行、第三方第46行、汇总第76行 |
+| 项目check | 2026-10-12T19:21:16.304633+00:00 至19:21:27.810529+00:00，exit0；vue-tsc、Python37、storage46、preflight74、Vite6.4.1生产build（922ms） | [tmpsge9kg64.log](../../../../../../.tmp/acceptance/10-12-browser-acceptance-preflight/tmpsge9kg64.log)，第4/11/62/147/3653行；存在Sass等构建警告，不是零警告结果 |
 | 本轮只读检查 | freeze13/13匹配、暂存区为空、git diff --check exit0、纯内存三场景probe exit0 | 本报告及冻结文件；probe成功输出包含两个误放行，不能标功能passed |
 | acceptance汇总 | exit1；valid=true、observedStatus=status=blocked；passed5/failed0/partial1/blocked4/unrun1/waived0，全部AC blocked | 附录B保存完整原始JSON及命令信息；当前保存记录尚未合并本报告建议 |
 
@@ -98,12 +98,12 @@ requireCondition(bundleRows.length === 1, 'Exactly one current production bundle
 
 直接读取以下 result/summary/cleanup 文件，与报告和acceptance逐项对比：
 
-- [Vite桌面result](../../../../.tmp/browser-preflight/final-verification/vite-desktop-recheck/result.json)：identity120/verified120、1200×900/DPR1/touch0，preparation verified、checks blocked；截图后的eHunter runtime/initialization error阻断。原始日志含更新请求 `net::ERR_HTTP2_PROTOCOL_ERROR` / `TextReq: request error`。开关恢复及模式切换未验收，截图未记完整通过。
-- [Vite移动result](../../../../.tmp/browser-preflight/final-verification/vite-mobile-recheck/result.json)：identity120/verified120、390×844/DPR3/touch5；`select-book timed out after 15000ms`，finally还记eHunter错误。历史初始截图阅读只属部分视觉记录，完整模式/关闭/重开未验收。本轮没有重新打开图片做视觉检查。
-- [EH桌面result](../../../../.tmp/browser-preflight/final-verification/eh-desktop-recheck/result.json)：两个候选（loader包装及完整包），一个verified；完整包442864 UTF-8字节，SHA-256 `36dfa0deac3c3555c484e7b23be89fb19ded2e651784ac834e1c3134037b7d3a`；桌面环境及历史标题/1/136局部断言后，`switch-book:waiting:events` 出现 `page.events timed out after 15000ms`。缩略图加载定位、模式切换和关闭恢复未验证；不把采集超时记成产品断言failed。
-- [EH移动result](../../../../.tmp/browser-preflight/runtime-verification/eh-mobile/result.json)：实际1232×2666，期望390×844；DPR3/touch5/coarse true及mobile true回执不足以通过CSS门。preparation blocked、checks unrun，counts证据callback0/screenshot0；早期探针742×1606是另一轮值，不能混写。本次保留历史阻塞，未重跑移动产品功能。
-- [权限summary](../../../../.tmp/browser-preflight/final-verification/permissions-summary.json)：静态集合与缺项阻断成立；登录/脚本启用状态来自历史只读安装证据，不能推导安装副本完整metadata。
-- [cleanup](../../../../.tmp/browser-preflight/final-verification/cleanup.json)、[space-final](../../../../.tmp/browser-preflight/final-verification/space-final.json)：当时本任务PID59191/59172/63143/63124/64643退出，5173/5174/8787/8788释放；空间2/p1为agent所有、about:blank、finishCalled=false。blocked时未执行成功专用finish，与cleanup partial相符。本代理没有创建服务或任务空间，没有借历史清理记录宣称当前全机端口状态。
+- [Vite桌面result](../../../../../../.tmp/browser-preflight/final-verification/vite-desktop-recheck/result.json)：identity120/verified120、1200×900/DPR1/touch0，preparation verified、checks blocked；截图后的eHunter runtime/initialization error阻断。原始日志含更新请求 `net::ERR_HTTP2_PROTOCOL_ERROR` / `TextReq: request error`。开关恢复及模式切换未验收，截图未记完整通过。
+- [Vite移动result](../../../../../../.tmp/browser-preflight/final-verification/vite-mobile-recheck/result.json)：identity120/verified120、390×844/DPR3/touch5；`select-book timed out after 15000ms`，finally还记eHunter错误。历史初始截图阅读只属部分视觉记录，完整模式/关闭/重开未验收。本轮没有重新打开图片做视觉检查。
+- [EH桌面result](../../../../../../.tmp/browser-preflight/final-verification/eh-desktop-recheck/result.json)：两个候选（loader包装及完整包），一个verified；完整包442864 UTF-8字节，SHA-256 `36dfa0deac3c3555c484e7b23be89fb19ded2e651784ac834e1c3134037b7d3a`；桌面环境及历史标题/1/136局部断言后，`switch-book:waiting:events` 出现 `page.events timed out after 15000ms`。缩略图加载定位、模式切换和关闭恢复未验证；不把采集超时记成产品断言failed。
+- [EH移动result](../../../../../../.tmp/browser-preflight/runtime-verification/eh-mobile/result.json)：实际1232×2666，期望390×844；DPR3/touch5/coarse true及mobile true回执不足以通过CSS门。preparation blocked、checks unrun，counts证据callback0/screenshot0；早期探针742×1606是另一轮值，不能混写。本次保留历史阻塞，未重跑移动产品功能。
+- [权限summary](../../../../../../.tmp/browser-preflight/final-verification/permissions-summary.json)：静态集合与缺项阻断成立；登录/脚本启用状态来自历史只读安装证据，不能推导安装副本完整metadata。
+- [cleanup](../../../../../../.tmp/browser-preflight/final-verification/cleanup.json)、[space-final](../../../../../../.tmp/browser-preflight/final-verification/space-final.json)：当时本任务PID59191/59172/63143/63124/64643退出，5173/5174/8787/8788释放；空间2/p1为agent所有、about:blank、finishCalled=false。blocked时未执行成功专用finish，与cleanup partial相符。本代理没有创建服务或任务空间，没有借历史清理记录宣称当前全机端口状态。
 
 未验证：修复后真实事件超时及完整浏览器矩阵、不同长度旧包修复、所有关键截图视觉、全部缩略图完成加载/定位、关闭meta恢复和重开、安装副本全部权限、尚未加载模块、独立资源视觉新鲜度、NH、物理移动设备和其他浏览器。未授予/推定任何waiver。
 

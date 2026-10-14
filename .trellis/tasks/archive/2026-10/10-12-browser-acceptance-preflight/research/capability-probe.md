@@ -15,7 +15,7 @@
 
 ## 证据位置与命令
 
-所有原始证据位于仓库 [`.tmp/browser-preflight/capability-20261012-230801-28482d/`](../../../../.tmp/browser-preflight/capability-20261012-230801-28482d/)。以下文件名均相对该目录。
+所有原始证据位于仓库 [`.tmp/browser-preflight/capability-20261012-230801-28482d/`](../../../../../../.tmp/browser-preflight/capability-20261012-230801-28482d)。以下文件名均相对该目录。
 
 | 执行 | 退出码 | 记录 |
 | --- | --- | --- |

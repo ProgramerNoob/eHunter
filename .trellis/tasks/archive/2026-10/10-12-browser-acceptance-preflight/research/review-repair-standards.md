@@ -6,7 +6,7 @@
 
 - Active task：`.trellis/tasks/10-12-browser-acceptance-preflight`。先读取 check.jsonl 全部五项上下文，再读 PRD、design、implement，及 AGENTS.md、frontend index/quality/browser-acceptance、EH 操作指南。
 - 采用 trellis-check 的 Standards 检查流程，用户只读约束优先于技能中的自动修复/运行构建步骤。源码先浏览 `graft/scripts/browser-preflight.md`、`graft/tests/browser-preflight.test.md`，再读取目标定义范围；图卡仍为旧行数，精确位置以冻结源码为准。没有调用会刷新图索引的命令。
-- 冻结依据：[review-freeze-repair.json](../../../../.tmp/browser-preflight/final-verification/review-freeze-repair.json)，createdAt `2026-10-12T19:34:23.376128+00:00`，branch `master`，base/HEAD `3b64ddf676b5cf0fe6e94c91de0e17c2abc0b4e1`。
+- 冻结依据：[review-freeze-repair.json](../../../../../../.tmp/browser-preflight/final-verification/review-freeze-repair.json)，createdAt `2026-10-12T19:34:23.376128+00:00`，branch `master`，base/HEAD `3b64ddf676b5cf0fe6e94c91de0e17c2abc0b4e1`。
 - 冻结清单全部 **13** 个文件均匹配 SHA-256 与字节数。冻结文件自身 SHA-256 为 `0250914e83563bc26016bd953065ee1ce00e4b615a4bd6f63b4fe6e1c2724109`。实现 SHA-256 `f253286722bebdd2364f2d2957e69d715a654d8c280814a491ea6d352840b025`，测试 SHA-256 `ecac9dce5cf3a2fed5862e01daf28fb65dc9003989c286604638e5fed1f2419f`。
 - 工作区：四个已跟踪修改（package、两个操作指南、quality）、新增 helper、测试及任务目录；暂存区为空。已核对工作区/暂存区 diff，`git diff --check` 和 `git diff --cached --check` 均 exit 0。未跟踪 helper/测试单独阅读，未用 diff 无输出代替审查。
 - 本轮范围不含产品、loader 或锁文件修改；没有 src/core/core_old/old 的任务改动。无需声称完成 EH/NH 产品基础请求层回归。
@@ -137,7 +137,7 @@ JS
 
 `tests/browser-preflight.test.mjs:190` 的两项新回归分别覆盖当前+同长度旧包与当前+当前包，并断言两项已执行候选、UI 未打开。verifiedScriptIds 现在仅纳入已验证的完整包，修正了上轮将所有候选都加入集合的问题。identityIsCurrent 对新增同长度候选也会阻断。S1 的不同长度候选/明确来源/收尾场景未被这74项测试覆盖，修复后的存在性误放行仍未完全消除。
 
-包装正常对照不仅使用夹具：旧真实 EH identity 记录中 loader scriptId **33**，URL `chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/userscript.html?name=eHunter-dev-loader.user.js&id=38667d76-bcfa-4b5b-ab25-8f065c6c96e9`，actual.length **2659**；真正生产 eval scriptId **43**，空 URL，actual.length **431923**，UTF-8 **442864**，完整源码相等。这说明包装确实需要分列，但并不证明每个长度不同的 eHunter 脚本都属于包装。证据：[eh-desktop-recheck/identity.jsonl](../../../../.tmp/browser-preflight/final-verification/eh-desktop-recheck/identity.jsonl)。
+包装正常对照不仅使用夹具：旧真实 EH identity 记录中 loader scriptId **33**，URL `chrome-extension://dhdgffkkebhmkfjojejmpbldmpobfkfo/userscript.html?name=eHunter-dev-loader.user.js&id=38667d76-bcfa-4b5b-ab25-8f065c6c96e9`，actual.length **2659**；真正生产 eval scriptId **43**，空 URL，actual.length **431923**，UTF-8 **442864**，完整源码相等。这说明包装确实需要分列，但并不证明每个长度不同的 eHunter 脚本都属于包装。证据：[eh-desktop-recheck/identity.jsonl](../../../../../../.tmp/browser-preflight/final-verification/eh-desktop-recheck/identity.jsonl)。
 
 ### 第三方错误归因：本轮未发现原问题残留
 
@@ -147,8 +147,8 @@ JS
 
 本轮未重新执行会产生夹具/构建文件的原项目检查。核验的是冻结前原始日志与命令记录，且实现 mtime `2026-10-12T19:15:24.746472+00:00`、测试 mtime `2026-10-12T19:19:10.109448+00:00` 均早于下列执行。mtime仅是补充依据，源码身份以本轮冻结哈希为准。
 
-- helper-contract-tests：19:20:21–19:20:26 UTC，exit **0**；[tmpsm_jtgnd.log](../../../../.tmp/acceptance/10-12-browser-acceptance-preflight/tmpsm_jtgnd.log) 原始结尾 `tests 74` / `pass 74` / `fail 0` / `cancelled 0` / `skipped 0` / `todo 0`。日志含同长度双包、迟到 drain 和第三方归因回归，不能覆盖 S1 的缺失场景。
-- project-check：19:21:16–19:21:27 UTC，历史命令 `npm run check` exit **0**；[tmpsge9kg64.log](../../../../.tmp/acceptance/10-12-browser-acceptance-preflight/tmpsge9kg64.log) 记录 type-check、Python **37** 项、storage **46** 项、preflight **74** 项及生产构建成功。构建有既存 Sass 弃用提示和 punycode 浏览器 externalize 提示，未声称无 warning、lint 或远端 CI 通过。
+- helper-contract-tests：19:20:21–19:20:26 UTC，exit **0**；[tmpsm_jtgnd.log](../../../../../../.tmp/acceptance/10-12-browser-acceptance-preflight/tmpsm_jtgnd.log) 原始结尾 `tests 74` / `pass 74` / `fail 0` / `cancelled 0` / `skipped 0` / `todo 0`。日志含同长度双包、迟到 drain 和第三方归因回归，不能覆盖 S1 的缺失场景。
+- project-check：19:21:16–19:21:27 UTC，历史命令 `npm run check` exit **0**；[tmpsge9kg64.log](../../../../../../.tmp/acceptance/10-12-browser-acceptance-preflight/tmpsge9kg64.log) 记录 type-check、Python **37** 项、storage **46** 项、preflight **74** 项及生产构建成功。构建有既存 Sass 弃用提示和 punycode 浏览器 externalize 提示，未声称无 warning、lint 或远端 CI 通过。
 - package.json 只增加测试入口与现有 test 链，仍由 `check` 顺序运行 type-check、test、生产构建。没有新增依赖、锁文件或旁路自动通过条件。
 - 本轮实际只读检查：两个 Node 源文件语法检查 exit **0**；上下文 validate exit **0**（implement.jsonl三项、check.jsonl五项）；工作区/暂存区 diff 检查 exit **0**；35 个指南/质量/任务相对本地引用均存在；两个操作指南共四个 JS 示例和四个 bash 代码块以 Node `--check` / bash `-n` 仅解析，均 exit **0**。未执行示例中的服务、构建、浏览器操作。
 - 指南统一 helper 单一 drain、固定 desktop/mobile profile、先身份/模拟/日志再正常打开、严格 inner 尺寸检查、截图视觉阅读及主会话唯一回填责任；blocked 与产品 assertion failed 分开，未改成弱证据放行。没有指南要求替换浏览器、注入 viewport、清用户存储或放宽实际值。

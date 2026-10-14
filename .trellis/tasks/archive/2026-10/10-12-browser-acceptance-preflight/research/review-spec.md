@@ -6,7 +6,7 @@
 
 - Active task：`.trellis/tasks/10-12-browser-acceptance-preflight`。先按 check.jsonl 的五项上下文读取 index、quality-guidelines、静态研究、capability-probe、final-runtime，再核对 PRD、design、implement；已使用 trellis-check。
 - 基线 HEAD：`3b64ddf676b5cf0fe6e94c91de0e17c2abc0b4e1`，分支 master；工作区含四个已跟踪修改、两个新实现/测试文件及新任务目录。暂存区为空，已同时检查 `git diff HEAD`、`git diff --cached` 与未跟踪文件。
-- 冻结记录：[review-freeze.json](../../../../.tmp/browser-preflight/final-verification/review-freeze.json)。审查前核对17个文件全文 SHA-256，全部匹配；审查后记录：[review-spec-freeze-after.json](../../../../.tmp/browser-preflight/final-verification/review-spec-freeze-after.json)。本轮只新增此报告及 `.tmp/browser-preflight/final-verification/review-spec-*` 证据。
+- 冻结记录：[review-freeze.json](../../../../../../.tmp/browser-preflight/final-verification/review-freeze.json)。审查前核对17个文件全文 SHA-256，全部匹配；审查后记录：[review-spec-freeze-after.json](../../../../../../.tmp/browser-preflight/final-verification/review-spec-freeze-after.json)。本轮只新增此报告及 `.tmp/browser-preflight/final-verification/review-spec-*` 证据。
 - 覆盖 `scripts/browser-preflight.mjs`、`tests/browser-preflight.test.mjs`、`package.json`、通用浏览器指南、EH技能、质量指南、任务产物与现有验收证据。没有评估未授权的 EH mobile 产品修复。
 
 ## 必须修复的发现
@@ -25,7 +25,7 @@ EH 只要求存在一个匹配且执行过的候选，随后把所有候选的 s
 
 **受控复现：** 复用当前测试的 PageFixture，在同一新 document/context 内依次发送当前 BUNDLE 与 `BUNDLE.replace('中文😀A', '中文😀B')`，两者版本/长度相同且顶层 count=1。未调整 profile、身份或覆盖率规则。实际结果：两个 identity 项中一个 exact/verified=true，另一个 exact/verified=false且有顶层执行；helper **observed=passed、功能回调1、截图1**，最终 result.json 同样 passed。正常单包对照 passed。
 
-证据：[review-spec-probe-results.json](../../../../.tmp/browser-preflight/final-verification/review-spec-probe-results.json) 的 `current-and-same-length-old-eh-bundles`，执行脚本 [review-spec-probes.mjs](../../../../.tmp/browser-preflight/final-verification/review-spec-probes.mjs)，命令及输出见下表。
+证据：[review-spec-probe-results.json](../../../../../../.tmp/browser-preflight/final-verification/review-spec-probe-results.json) 的 `current-and-same-length-old-eh-bundles`，执行脚本 [review-spec-probes.mjs](../../../../../../.tmp/browser-preflight/final-verification/review-spec-probes.mjs)，命令及输出见下表。
 
 **修复方向：** 区分已知 loader 包装候选与完整生产包候选；对当前文档中已经执行但不匹配的完整包或重复完整注入明确 blocked，阻止回调/截图。verifiedScriptIds 不能把不匹配的生产包登记为已验证。补上“当前包+同长度旧包共存”和“当前包+重复注入”的回归；保留现有 loader 包装候选的正常场景。不可简单要求所有 /ehunter/ 候选均与生产包相等，因为真实 EH 的 loader 包装脚本也带该名称，全文正常与 bundle 不同（最终桌面候选33长2659、实际bundle候选43长431923）。
 
@@ -39,7 +39,7 @@ EH 只要求存在一个匹配且执行过的候选，随后把所有候选的 s
 
 **受控复现：** 第2次 events 调用先 splice 取得新文档 commit/context/scriptParsed 批次，再延迟250ms才返回；helper timeoutMs=100，其余操作正常。实际 observed=blocked/callback0，已有旧批及finally已保存；但 maxActive=2、晚批确实返回且含 scriptParsed、events.jsonl 无该 scriptParsed、result.unsaved=[]。该缺陷没有导致本例误绿，却违反已捕获证据的保存契约；不能因 blocked 分类正确而认为 R4 满足。
 
-证据：[review-spec-probe-results.json](../../../../.tmp/browser-preflight/final-verification/review-spec-probe-results.json) 的 `late-events-after-timeout`，脚本、输出与独立 artifacts 同上。真实 EH 桌面 `switch-book:waiting:events` 已出现 `page.events timed out after 15000ms`，因此该边界有实际验收关联；本次复现没有证明真实超时或真实丢批的根因。
+证据：[review-spec-probe-results.json](../../../../../../.tmp/browser-preflight/final-verification/review-spec-probe-results.json) 的 `late-events-after-timeout`，脚本、输出与独立 artifacts 同上。真实 EH 桌面 `switch-book:waiting:events` 已出现 `page.events timed out after 15000ms`，因此该边界有实际验收关联；本次复现没有证明真实超时或真实丢批的根因。
 
 **修复方向：** 明确持有唯一的在途 drain，超时后不能把它当作已结束并并发启动新 drain；为该 Promise 的成功晚回执绑定“先保存、禁止重新放行”的路径。若当前 Ego 不能取消/确认完成，应保留 pending/incomplete 的具体诊断、停止后续读取并交还外层处理，不声称结果覆盖已返回但丢弃的事件。有限等待/finally要继续有上限。补“读取已清空后延迟返回”回归；现有立即抛错与写盘失败测试没有模拟它。
 
@@ -57,7 +57,7 @@ EH 只要求存在一个匹配且执行过的候选，随后把所有候选的 s
 
 helper 错误黏性在已经进入 protected 操作后的异常路径成立；本次另观察到并发调用的前置 `requireCondition(!activeGuard)` 位于 guarded 的 try/catch 外（helper:478）：调用方捕获该违规错误后仍可得到 helper passed/errors=[]。指南要求全部顺序 await，故本报告把它保留为 API 使用限制及可补测试项，不把违反已声明调用约束的脚本当作第三项交付阻塞。取证结果也保留在 probe-results 中。
 
-通用指南及EH技能均通过同一 helper 接线，没有另行抢 drain 的示例；独立资源/视觉范围、预构建依赖/锁文件边界、mobile命令回执性质、原站/第三方归因、原始failed与证据blocked分项、acceptance.py普通非零不能自动映射blocked均有说明。已检查81个本地Markdown文件目标均存在：[review-spec-links.json](../../../../.tmp/browser-preflight/final-verification/review-spec-links.json)。这是链接可达检查，不是所有用例的实际执行。
+通用指南及EH技能均通过同一 helper 接线，没有另行抢 drain 的示例；独立资源/视觉范围、预构建依赖/锁文件边界、mobile命令回执性质、原站/第三方归因、原始failed与证据blocked分项、acceptance.py普通非零不能自动映射blocked均有说明。已检查81个本地Markdown文件目标均存在：[review-spec-links.json](../../../../../../.tmp/browser-preflight/final-verification/review-spec-links.json)。这是链接可达检查，不是所有用例的实际执行。
 
 ## 自动检查与本轮取证
 
@@ -73,10 +73,10 @@ helper 错误黏性在已经进入 protected 操作后的异常路径成立；�
 
 本轮命令原文与完整stdout/stderr：
 
-- [review-spec-probes-execution.json](../../../../.tmp/browser-preflight/final-verification/review-spec-probes-execution.json)、[review-spec-probes.log](../../../../.tmp/browser-preflight/final-verification/review-spec-probes.log)。
-- [review-spec-task-validate-execution.json](../../../../.tmp/browser-preflight/final-verification/review-spec-task-validate-execution.json)、[原始stdout](../../../../.tmp/browser-preflight/final-verification/review-spec-task-validate.stdout)、[原始stderr](../../../../.tmp/browser-preflight/final-verification/review-spec-task-validate.stderr)。
-- [review-spec-acceptance-summary-execution.json](../../../../.tmp/browser-preflight/final-verification/review-spec-acceptance-summary-execution.json)、[原始JSON](../../../../.tmp/browser-preflight/final-verification/review-spec-acceptance-summary.json)、[原始stderr](../../../../.tmp/browser-preflight/final-verification/review-spec-acceptance-summary.stderr)。
-- [review-spec-evidence-audit.json](../../../../.tmp/browser-preflight/final-verification/review-spec-evidence-audit.json) 核对现有日志及runtime result，不变更其结果；[review-spec-document-events.json](../../../../.tmp/browser-preflight/final-verification/review-spec-document-events.json) 保存真实commit/context事件的关联观察。
+- [review-spec-probes-execution.json](../../../../../../.tmp/browser-preflight/final-verification/review-spec-probes-execution.json)、[review-spec-probes.log](../../../../../../.tmp/browser-preflight/final-verification/review-spec-probes.log)。
+- [review-spec-task-validate-execution.json](../../../../../../.tmp/browser-preflight/final-verification/review-spec-task-validate-execution.json)、[原始stdout](../../../../../../.tmp/browser-preflight/final-verification/review-spec-task-validate.stdout)、[原始stderr](../../../../../../.tmp/browser-preflight/final-verification/review-spec-task-validate.stderr)。
+- [review-spec-acceptance-summary-execution.json](../../../../../../.tmp/browser-preflight/final-verification/review-spec-acceptance-summary-execution.json)、[原始JSON](../../../../../../.tmp/browser-preflight/final-verification/review-spec-acceptance-summary.json)、[原始stderr](../../../../../../.tmp/browser-preflight/final-verification/review-spec-acceptance-summary.stderr)。
+- [review-spec-evidence-audit.json](../../../../../../.tmp/browser-preflight/final-verification/review-spec-evidence-audit.json) 核对现有日志及runtime result，不变更其结果；[review-spec-document-events.json](../../../../../../.tmp/browser-preflight/final-verification/review-spec-document-events.json) 保存真实commit/context事件的关联观察。
 
 ## 完整验收仍未满足的范围
 
@@ -90,7 +90,7 @@ helper 错误黏性在已经进入 protected 操作后的异常路径成立；�
 
 当前保存记录 `.trellis/tasks/10-12-browser-acceptance-preflight/acceptance.json` 的汇总counts为 passed5 / failed0 / partial1 / blocked4 / unrun1 / waived0，AC1–AC6均blocked；formal-review仍unrun。**该汇总描述主会话当前已保存记录，尚未合并本次Spec结论。** 不修改该记录，也不把本报告进程成功写成审查通过。
 
-[review-spec-proposed-checks.json](../../../../.tmp/browser-preflight/final-verification/review-spec-proposed-checks.json) 提供保持既有formal-review字段的建议：observed=failed、method=inspection、execution=null、证据为本报告/复现/冻结记录，说明S1/S2未修复且仅覆盖Spec。主会话等Standards结果核验完成后合并，不能由本代理声称另一轴完成；其他四个runtime/blocked与cleanup partial保持实际观察。自动测试通过也不能取消新发现的缺失场景。
+[review-spec-proposed-checks.json](../../../../../../.tmp/browser-preflight/final-verification/review-spec-proposed-checks.json) 提供保持既有formal-review字段的建议：observed=failed、method=inspection、execution=null、证据为本报告/复现/冻结记录，说明S1/S2未修复且仅覆盖Spec。主会话等Standards结果核验完成后合并，不能由本代理声称另一轴完成；其他四个runtime/blocked与cleanup partial保持实际观察。自动测试通过也不能取消新发现的缺失场景。
 
 两分钟下一步：主会话先打开probe-results的两个复现项，确认S1/S2修复范围并合并formal-review建议；在审查代理都结束后安排修复，随后仅重跑受影响自动/浏览器检查，再固定新版本审查。当前gate exit1禁止完成或归档，无验收豁免。
 

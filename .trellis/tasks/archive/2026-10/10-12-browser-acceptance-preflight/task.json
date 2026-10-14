@@ -15,7 +15,7 @@
   "branch": "fix/trellis-acp-context",
   "base_branch": "master",
   "worktree_path": null,
-  "commit": null,
+  "commit": "6f3dc84",
   "pr_url": null,
   "subtasks": [],
   "children": [],
@@ -24,8 +24,14 @@
     "scripts/browser-preflight.mjs",
     "tests/browser-preflight.test.mjs",
     ".trellis/spec/frontend/browser-acceptance.md",
-    ".pi/skills/eh-test/SKILL.md"
+    ".pi/skills/eh-test/SKILL.md",
+    "core/store/event.ts",
+    "src/main.ts",
+    "tests/update-notice.test.cjs",
+    "tests/entry-viewport.test.cjs",
+    "tests/helpers/runtime-fixture.cjs",
+    "package.json"
   ],
-  "notes": "最终21项acceptance全部passed，无豁免。Vite/EH双视口、当前源码执行、模式/缩略图/开关/更新降级与17截图通过；229项自动回归、类型与生产构建通过。正式审查唯一P3规范符号已修正；服务/npm四进程已退出，空间3一次finish结束。准备本地提交与协议归档；既有scripts/__pycache__不纳入提交。",
+  "notes": "最终21项acceptance全部passed，无豁免。Vite/EH双视口、当前源码执行、模式/缩略图/开关/更新降级与17截图通过；229项自动回归、类型与生产构建通过。正式审查唯一P3规范符号已修正；服务/npm四进程已退出，空间3一次finish结束。实现已本地提交6f3dc84；acceptance archive退出0且原生归档提交23910a2，归档引用同步校正；既有scripts/__pycache__不纳入提交。",
   "meta": {}
 }
