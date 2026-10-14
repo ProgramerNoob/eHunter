@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 9
+- **Total Sessions**: 10
 - **Last Active**: 2026-10-14
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~351 | Active |
+| `journal-1.md` | ~390 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 10 | 2026-10-14 | 浏览器预检落地与两个运行阻塞修复 | `6f3dc84`, `8b5658d` | `fix/trellis-acp-context` |
 | 9 | 2026-10-14 | Trellis ACP 工具与压缩续接修复 | `04f1365` | `fix/trellis-acp-context` |
 | 8 | 2026-10-11 | 全会话复盘与首批环境改进收口 | `903d99e`, `6fb03d2`, `08e5cea` | `chore/retrospective-checks` |
 | 7 | 2026-10-03 | 硬化下载通知栈的标题换行与列表高度 | `adf9c45` | `master` |
