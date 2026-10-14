@@ -356,7 +356,7 @@ T024 遗留的两处可选硬化落地：通知标题超长无空格串不换行
 
 **Date**: 2026-10-14
 **Task**: 浏览器预检落地与两个运行阻塞修复
-**Branch**: `fix/trellis-acp-context`
+**Branch**: `feat/browser-acceptance-preflight`
 
 ### Summary
 
@@ -371,8 +371,8 @@ T024 遗留的两处可选硬化落地：通知标题超长无空格串不换行
 
 | Hash | Message |
 |------|---------|
-| `6f3dc84` | feat(test): 增加浏览器验收预检并修复阅读器阻塞 |
-| `8b5658d` | docs(task): 校正预检归档后的证据引用 |
+| `13fc961` | feat(test): 增加浏览器验收预检并修复阅读器阻塞 |
+| `4295e8e` | docs(task): 校正预检归档后的证据引用 |
 
 ### Testing
 
