@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 8
-- **Last Active**: 2026-10-11
+- **Total Sessions**: 9
+- **Last Active**: 2026-10-14
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~313 | Active |
+| `journal-1.md` | ~352 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 9 | 2026-10-14 | 浏览器预检落地与两个运行阻塞修复 | `13fc961`, `4295e8e` | `feat/browser-acceptance-preflight` |
 | 8 | 2026-10-11 | 全会话复盘与首批环境改进收口 | `903d99e`, `6fb03d2`, `08e5cea` | `chore/retrospective-checks` |
 | 7 | 2026-10-03 | 硬化下载通知栈的标题换行与列表高度 | `adf9c45` | `master` |
 | 6 | 2026-10-03 | Session 6: 清理反转翻页死字段 isReverseFlip | `9ab472a`, `5b98934` | `master` |

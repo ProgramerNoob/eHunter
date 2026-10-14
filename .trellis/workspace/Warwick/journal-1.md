@@ -311,3 +311,42 @@ T024 遗留的两处可选硬化落地：通知标题超长无空格串不换行
 ### Next Steps
 
 - 复盘03–08仍为建议，按后续需求另行规划；本轮已归档，当前无活动任务。
+
+
+## Session 9: 浏览器预检落地与两个运行阻塞修复
+<!-- trellis-session: v=2 fp=8ce089c1eb8aa9d4 -->
+
+**Date**: 2026-10-14
+**Task**: 浏览器预检落地与两个运行阻塞修复
+**Branch**: `feat/browser-acceptance-preflight`
+
+### Summary
+
+浏览器预检及更新通知/EH移动根布局修复完成。21项验收全部passed；经acceptance协议归档并校正迁移引用。
+
+### Main Changes
+
+- 统一Vite/EH当前脚本身份、执行证据、固定视口、权限集合、分阶段日志与阻断契约。
+- 可选更新请求按唯一源单次15秒降级；EH移动打开约束根溢出，关闭恢复原属性和viewport。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `13fc961` | feat(test): 增加浏览器验收预检并修复阅读器阻塞 |
+| `4295e8e` | docs(task): 校正预检归档后的证据引用 |
+
+### Testing
+
+- [OK] npm run check通过：37 Python、46 storage、96 preflight、50 reader-lifecycle，共229项；vue-tsc和生产构建通过。
+- [OK] Vite/EH桌面1200×900和移动390×844四轮完整通过；17张截图逐张查看，EH移动两次关闭恢复；负例及权限矩阵通过。
+- [OK] Standards/Spec审查完成，P3文档符号修正；归档后记录/引用审计通过，21 passed且无豁免。
+- [OK] 服务及npm四进程退出，5175/8787释放，空间3正常finish一次；保留原有scripts/__pycache__和.tmp证据。
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 人工快速查看归档research/post-fix-runtime.md及两张移动截图。NH真站、物理设备、远端成功通知和Node22/Python3.12未验证；当前运行Node24.18.0/Python3.13.14。
