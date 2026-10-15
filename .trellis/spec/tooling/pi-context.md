@@ -73,6 +73,7 @@ pi --mode json -p --no-session --tools <comma-separated-tools>
 
 工作流源状态标记用于解析，输出索引去维护注释。任务正文、curated specs、预算、顺序及更新/恢复机制保留；不能靠降低预算、隐藏 skills 或改成仅传路径宣称等价精简。
 
+`trellis-check` 角色为双模式（2026-10-15 起）：派发方未声明时为自检模式，可就地修范围内机械问题；派发 prompt 声明 `review-only` 时为正式审查，只读返回 findings，不修改受审文件、不更新 `acceptance.json`，受审代码与测试版本当轮冻结。模式由派发方显式选择，不由子代理推断；子代理工具白名单仍含 write/edit，该约束是 prompt 契约而非机械强制。`trellis update` 后复查 `.pi/agents/trellis-check.md`、`.agents/skills/trellis-check/SKILL.md` 与项目 `AGENTS.md` 技能分工段是否仍保留双模式表述。
 验证命令：
 
 ```bash

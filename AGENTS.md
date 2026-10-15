@@ -37,7 +37,7 @@
 
 ## 技能分工
 
-- 开发收口和提交前验收使用 `trellis-check`；用户明确要求对分支、PR 或指定提交范围独立审查时使用 `code-review`。审查依据优先使用对应 Trellis 任务产物和 `.trellis/spec/`，未配置 Issue tracker 时使用本地资料；范围含未提交改动时，显式检查暂存区与工作区。
+- 开发收口和提交前验收使用 `trellis-check`（默认自检模式，可就地修机械问题）；用户明确要求对分支、PR 或指定提交范围独立审查时使用 `code-review`，或向 `trellis-check` 在派发 prompt 中声明 `review-only`——该模式只读返回 findings，受审代码与测试版本当轮冻结，修复留到下一轮。审查依据优先使用对应 Trellis 任务产物和 `.trellis/spec/`，未配置 Issue tracker 时使用本地资料；范围含未提交改动时，显式检查暂存区与工作区。
 - 常规需求澄清由 `trellis-brainstorm` 主导；压力测试或上层规则要求的追问使用 `grilling`，由它主导该轮提问，结论回填当前 Trellis 规划。
 - Trellis 任务内的研究交给 `trellis-research`；规范、术语和决策沉淀到 `.trellis/spec/` 对应文档。
 - Pi 子代理通过 `trellis_subagent` 派发 `.pi/agents/` 中已定义的角色；无活动 Trellis 任务的零散探索、规划及独立审查由主会话完成，独立审查仍分别覆盖 Standards 与 Spec。

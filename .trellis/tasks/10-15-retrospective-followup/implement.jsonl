@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/tooling/pi-context.md", "reason": "04 项双模式契约记录与 lean 回归命令来源"}
+{"file": ".trellis/spec/tooling/index.md", "reason": "tooling 层质量检查入口"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "03 项预检断言覆盖清单的增补目标文档"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "验收协议与 npm 脚本链口径"}

@@ -11,7 +11,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const baseline = 'e7e5f28';
-const task = '.trellis/tasks/10-15-trellis-lean-tool-descriptions';
+const task = '.trellis/tasks/archive/2026-10/10-15-trellis-lean-tool-descriptions';
 const evidence = '.tmp/trellis-context-measure';
 const check = process.argv.includes('--check');
 assert.ok(process.argv.slice(2).every(arg => arg === '--check'), 'Usage: node scripts/measure-trellis-context.mjs [--check]');

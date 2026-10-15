@@ -139,7 +139,7 @@
     },
     ".agents/skills/trellis-check/SKILL.md": {
       "originalSha256": "dfb0600e95c19c7a83200465b6a92a5514ec9778ba4083efa881bed541cc74a8",
-      "leanSha256": "54e99c36ceee23aa1f7d7040da68a166b54778bf304d3a862ed3207744d6143b"
+      "leanSha256": "c64a9460b4e3c5da9548a22c2815f00ceeebf33582bdb62794e2df86b8a7fc06"
     },
     ".agents/skills/trellis-meta/SKILL.md": {
       "originalSha256": "ee7bcfd0023def62688339c4b63c50f2fbeea12a34eb89e8bb63a992b58cb168",
@@ -159,7 +159,7 @@
     },
     ".pi/agents/trellis-check.md": {
       "originalSha256": "483d1b5e877ac2f2105761df8e46a1cfc569c77ed11ffbf120c7df6421c3c1ed",
-      "leanSha256": "df1724f004bf59f8eb58f18c4782a7df9484b60774202556600f196fa43f2c9c"
+      "leanSha256": "35e712c08d02b4076c34620a7e6372200aedb116dce8e00680621d892c786893"
     },
     ".pi/agents/trellis-implement.md": {
       "originalSha256": "d4342d74325c763344be7ce20801f92adbfb22454c45448770c390c87e47b1f0",
@@ -255,7 +255,7 @@
     },
     ".trellis/scripts/common/task_store.py": {
       "originalSha256": "e0c08cb52789233d2774275c4632f68b1811ade25c2a211b56ef5fc6095e1605",
-      "leanSha256": "e0c08cb52789233d2774275c4632f68b1811ade25c2a211b56ef5fc6095e1605"
+      "leanSha256": "bcec36788ba670653b1b659bc2ea856c3086af4df1dd4d535e25fcf5494fa157"
     },
     ".trellis/scripts/common/task_utils.py": {
       "originalSha256": "35f544317a95e98d05fe089794071482175739e8c1f3b3b0228dae48602ffe90",
@@ -631,13 +631,13 @@
         "sha256": "7329eae04ada83838501093b5b6021c57b8c10673a312691e9e006d4193f0edf"
       },
       "lean": {
-        "characters": 2297,
-        "utf8Bytes": 2303,
-        "proxyUnits": 575,
-        "sha256": "ba07ea76cd46c751089d26818a488025fa979b3cceb27e70bc10877e54e915ad"
+        "characters": 2945,
+        "utf8Bytes": 2953,
+        "proxyUnits": 737,
+        "sha256": "b30fe08139d96e74ce8c01c185aa88a5acc13c37f919d653e2ee927e502abbb0"
       },
-      "charactersSaved": 1121,
-      "characterReductionPercent": 32.8
+      "charactersSaved": 473,
+      "characterReductionPercent": 13.84
     },
     "skillFile.trellis-check": {
       "original": {
@@ -647,13 +647,13 @@
         "sha256": "dfb0600e95c19c7a83200465b6a92a5514ec9778ba4083efa881bed541cc74a8"
       },
       "lean": {
-        "characters": 2485,
-        "utf8Bytes": 2491,
-        "proxyUnits": 622,
-        "sha256": "54e99c36ceee23aa1f7d7040da68a166b54778bf304d3a862ed3207744d6143b"
+        "characters": 3133,
+        "utf8Bytes": 3141,
+        "proxyUnits": 784,
+        "sha256": "c64a9460b4e3c5da9548a22c2815f00ceeebf33582bdb62794e2df86b8a7fc06"
       },
-      "charactersSaved": 1247,
-      "characterReductionPercent": 33.41
+      "charactersSaved": 599,
+      "characterReductionPercent": 16.05
     },
     "skillBody.trellis-meta": {
       "original": {
@@ -887,13 +887,13 @@
         "sha256": "18a27dd5e72159b7d187306fe89fea6a13b1360d8e0ee7c50d1065d9e9b6653f"
       },
       "lean": {
-        "characters": 3338,
-        "utf8Bytes": 3340,
-        "proxyUnits": 835,
-        "sha256": "e534d1319189f148a4a5686d93d206577436ddbd9b7d63e24ffbd26e8c14e63e"
+        "characters": 4302,
+        "utf8Bytes": 4306,
+        "proxyUnits": 1076,
+        "sha256": "290c0ee2465abb7e18c461fc27c6388f8f0f1ee3fdb9b2f92114e58b13fbe866"
       },
-      "charactersSaved": 1735,
-      "characterReductionPercent": 34.2
+      "charactersSaved": 771,
+      "characterReductionPercent": 15.2
     },
     "agentFile.trellis-check": {
       "original": {
@@ -903,13 +903,13 @@
         "sha256": "483d1b5e877ac2f2105761df8e46a1cfc569c77ed11ffbf120c7df6421c3c1ed"
       },
       "lean": {
-        "characters": 3594,
-        "utf8Bytes": 3596,
-        "proxyUnits": 899,
-        "sha256": "df1724f004bf59f8eb58f18c4782a7df9484b60774202556600f196fa43f2c9c"
+        "characters": 4726,
+        "utf8Bytes": 4730,
+        "proxyUnits": 1182,
+        "sha256": "35e712c08d02b4076c34620a7e6372200aedb116dce8e00680621d892c786893"
       },
-      "charactersSaved": 1735,
-      "characterReductionPercent": 32.56
+      "charactersSaved": 603,
+      "characterReductionPercent": 11.32
     },
     "agentBody.trellis-implement": {
       "original": {
@@ -1095,13 +1095,13 @@
         "sha256": "c9a2c6fd5a8b2a1bd3572641230407b494ce4e6d1a97e92c326705a77aadb871"
       },
       "lean": {
-        "characters": 34308,
-        "utf8Bytes": 34368,
-        "proxyUnits": 8577,
-        "sha256": "812197305d92c91be87494b574bf330dc77a13a7455a440c737bf98c311b21ee"
+        "characters": 34956,
+        "utf8Bytes": 35018,
+        "proxyUnits": 8739,
+        "sha256": "cdc0cc3e5237c205f778e389a731ced7f1333e179b4f51a7a10432ea0bc4665a"
       },
-      "charactersSaved": 23227,
-      "characterReductionPercent": 40.37
+      "charactersSaved": 22579,
+      "characterReductionPercent": 39.24
     },
     "total.skillFile": {
       "original": {
@@ -1111,13 +1111,13 @@
         "sha256": "1032c4a94b5bb870c5c4c9fb8708b9abad5571d327905b987431c49271c08feb"
       },
       "lean": {
-        "characters": 36047,
-        "utf8Bytes": 36107,
-        "proxyUnits": 9012,
-        "sha256": "b500c547290e091be1b422f3c058e8f3b931e477cc03ee160ec599b907333909"
+        "characters": 36695,
+        "utf8Bytes": 36757,
+        "proxyUnits": 9174,
+        "sha256": "59cd741d0dd06ddb4f13fa0eb474d29110e7bd659dee550ff582e49c0ff22b8b"
       },
-      "charactersSaved": 24879,
-      "characterReductionPercent": 40.83
+      "charactersSaved": 24231,
+      "characterReductionPercent": 39.77
     },
     "total.promptBody": {
       "original": {
@@ -1143,13 +1143,13 @@
         "sha256": "c68aaccb7dade82fec0f6f204a9a500ae77136065abacbd6d76ef96c53e8b9a7"
       },
       "lean": {
-        "characters": 6540,
-        "utf8Bytes": 6544,
-        "proxyUnits": 1635,
-        "sha256": "1dff3a3bd48b483f8619b39fd9be71d3c60036a5f703dd676dcc930484de6832"
+        "characters": 7504,
+        "utf8Bytes": 7510,
+        "proxyUnits": 1876,
+        "sha256": "4da3629f146eb4e950e8dfca615d26f33561eb193f2dfd1603ecd8d0be551b37"
       },
-      "charactersSaved": 3643,
-      "characterReductionPercent": 35.78
+      "charactersSaved": 2679,
+      "characterReductionPercent": 26.31
     }
   }
 }

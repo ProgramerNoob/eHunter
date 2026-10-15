@@ -175,6 +175,30 @@ helper 是本轮唯一 `page.events()` 消费者。所有捕获的原始事件�
 
 失败抛出的 `BrowserPreflightError.result` 保留分项事实，外层保存调用日志并传播 `error.exitCode` 非零。`acceptance.py run` 会把普通非零命令记为 failed，不能自动映射浏览器准备 blocked；浏览器项由主会话读取真实结果回填，工具自测/静态断言可走 command。最后运行既有 summarize，由其计算结果，不手写整体 passed。
 
+## 4.5 预检断言覆盖清单
+
+`withBrowserPreflight` 的所有环境断言走 `requireCondition`，失败即抛 `PreflightBlocked`：结果记 blocked，不进入功能 checks（对照 `scripts/browser-preflight.mjs` 行号，2026-10-15 盘点）。
+
+已覆盖（交互前强制）：
+
+- **CSS 视口 / DPR / 移动能力**：DPR 精确匹配（L328）、touchPoints/coarse 匹配（L329）、严格模式 CSS 视口宽高匹配（L330）；`profile` 固定 desktop/mobile，不接受调用方传入宽高或 mobile 目标（L605）。
+- **CDP Emulation 回执**：每条仿真命令核对回执参数与下发一致（L326）；被 page 拒绝的命令（含 `Emulation.setDeviceMetricsOverride` / `setTouchEmulationEnabled` / `Debugger.enable` / `Profiler.startPreciseCoverage`）视为准备阻断。
+- **产物身份与旧包防呆**：源码输入指纹（`fingerprint`）与轮次内不变性（L354）；EH 场景要求恰好一个当前生产 bundle 候选且有精确源码或全长执行证据（L449-452），同长度不同内容、不同长度陈旧 bundle、loader 元数据歧义均 blocked；Vite 场景核对必需模块清单完整（L454）。
+- **grant/connect 等价**：userscript 元数据缺 `==UserScript==` 块或 grant/connect 为空直接 blocked（L71-74），本地地址覆盖并入等价判断（`permissions()`）。
+- **运行时健康**：当前文档内 eHunter 归因 severe 日志 blocked（L345）、未归因 severe 需排查 blocked（L346）；历史文档的日志保留但不污染当前轮。
+- **Vite 编译失效**：vite-error-overlay 存在即 blocked（L500/L512）；预期源码请求失败 blocked（L411）。
+- **文档身份**：导航/取证期间 document loaderId 变化即 blocked（L369-372、L456），防止断言打到旧文档。
+- **原站 viewport meta 恢复**：关闭阅读器时核对 meta 与本轮基线一致（L583-591）。
+- **截图与动作防护**：受保护动作必须串行 await（L556）；截图前后复查环境且文件非空（L572-576）；阅读器未 mounted/open 或 overlay 存在时不进入功能（L516/L534）。
+
+未覆盖（各自归属场景，非预检职责）：
+
+- **真实下载冒烟**：小画廊下载后解 ZIP 校验图片条目与内容，防"仅 metadata 的 ZIP 伪绿"。涉及 GM 下载链路与真实 EH 登录环境，属 `eh-test` 场景；后续独立任务候选，不混入工具链改动。
+- **物理设备矩阵**：真机 DPR/触摸/UA 组合；预检只保证 CDP 仿真回执一致。
+- **Node/Python 版本矩阵**：CI 声明 Node 20 / Python 3.11，本机实际跑 Node 22 / Python 3.12；跨版本一致性由各自 CI 覆盖，预检不重复断言。
+
+测试对照：`tests/browser-preflight.test.mjs`（`npm run test:browser-preflight`）逐条覆盖上述已覆盖项的阻断行为（仿真拒绝、旧包变体、身份排除、日志归因、健康条件、meta 恢复等），新增断言须同步加测试与本清单。
+
 ## 5. 收尾或交还用户
 
 成功完成后，保存逐项结果、日志和已阅读的截图，在同一任务空间执行一次 `await task.finish({ keep: [] })` 并等待返回。仅在交付物需留在浏览器供用户继续操作时保留相应页面。helper 不创建/结束空间或管理服务；外层按服务归属核实并停止本次服务及 npm 父进程，确认退出和端口释放，清理本次创建且无需保留的临时产物，保留用户已有资源、存储和交付证据，执行完成长通知。

@@ -51,6 +51,8 @@ grep -r "pattern" src/
 
 Matching literals alone do not justify extraction.
 
-## 5. Report and fix
+## 5. Report by mode
 
-Report every violation. Fix mechanical, local issues (lint, types, imports, dead branches, failing assertions) in place and rerun project checks. For design/judgment changes (shared naming, module boundaries, public interfaces, behavior ownership), record evidence and a recommendation, then stop. If a fix needs files outside task scope, report that and stop rather than silently widening the work.
+**Self-check (default; development wrap-up and pre-commit verification).** Report every violation. Fix mechanical, local issues (lint, types, imports, dead branches, failing assertions) in place and rerun project checks. For design/judgment changes (shared naming, module boundaries, public interfaces, behavior ownership), record evidence and a recommendation, then stop. If a fix needs files outside task scope, report that and stop rather than silently widening the work.
+
+**Review-only (formal review; the dispatcher states `review-only` in the prompt).** Read-only: do not modify, create, or delete any reviewed file. The reviewed code and test versions stay frozen for the round; every violation is returned as a finding with path/line, severity, evidence, and a recommended follow-up — fixes land in a later round. Use this mode when the user asks for an independent review of a branch, PR, commit range, or work-in-progress; for that scenario also consider the `code-review` skill, which runs read-only Standards/Spec sub-agents by design.

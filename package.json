@@ -9,12 +9,13 @@
     "build-dev": "vite build",
     "build-prod": "vite build --config vite.config.prod.ts",
     "type-check": "vue-tsc --noEmit",
-    "test:acceptance": "python3 -m unittest discover -s scripts -p 'test_acceptance.py'",
+    "test:acceptance": "python3 -m unittest discover -s scripts -p 'test_acceptance.py' && python3 -m unittest discover -s scripts -p 'test_archive_autocommit.py'",
     "test:storage": "node --test tests/storage-lifecycle.test.cjs",
     "test:browser-preflight": "node --test tests/browser-preflight.test.mjs",
     "test:reader-lifecycle": "node --test tests/update-notice.test.cjs tests/entry-viewport.test.cjs",
     "test": "npm run test:acceptance && npm run test:storage && npm run test:browser-preflight && npm run test:reader-lifecycle",
-    "check": "npm run type-check && npm test && npm run build-prod",
+    "check": "npm run type-check && npm test && npm run build-prod && npm run check:docs",
+    "check:docs": "node scripts/check-docs.mjs",
     "serve:bundle": "node scripts/serve-bundle.mjs"
   },
   "dependencies": {

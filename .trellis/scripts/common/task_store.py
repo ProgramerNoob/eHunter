@@ -1460,6 +1460,23 @@ def cmd_archive(args: argparse.Namespace) -> int:
     return 1
 
 
+def _archive_commit_paths(
+    paths: list[str], source_rel: str, source_was_tracked: bool
+) -> list[str]:
+    """Build the pathspec list for the archive commit.
+
+    ``source_rel`` is appended only when the source task directory was
+    tracked in git: the source-side deletions staged via
+    ``git rm --cached`` then need the path in the commit pathspec to land
+    in this commit. For a never-tracked task there is nothing to delete,
+    and including the path would make ``git commit -- <pathspec>`` fail
+    outright ("did not match any file(s) known to git"), which used to
+    surface as a spurious ``[WARN] Auto-commit failed`` after the task
+    directory had already moved.
+    """
+    return [*paths, source_rel] if source_was_tracked else list(paths)
+
+
 def _auto_commit_archive(
     task_name: str,
     repo_root: Path,
@@ -1494,13 +1511,14 @@ def _auto_commit_archive(
         cwd=repo_root,
     )
     source_was_tracked = rc == 0 and bool(tracked_out.strip())
-
     paths = safe_archive_paths_to_add(
         repo_root, task_name=task_name, modified_children=modified_children
     )
     if not paths:
         print("[OK] No task changes to commit.", file=sys.stderr)
         return True
+
+    commit_paths = _archive_commit_paths(paths, source_rel, source_was_tracked)
 
     success, _, err = safe_git_add(paths, repo_root, retry_on_index_lock=True)
     if not success:
@@ -1539,7 +1557,7 @@ def _auto_commit_archive(
         return not source_was_tracked
 
     rc, _, _ = run_git(
-        ["diff", "--cached", "--quiet", "--", *paths, source_rel],
+        ["diff", "--cached", "--quiet", "--", *commit_paths],
         cwd=repo_root,
     )
     if rc == 0:
@@ -1549,17 +1567,19 @@ def _auto_commit_archive(
     commit_msg = f"chore(task): archive {task_name}"
     # Commit with an explicit pathspec: a bare `git commit` would sweep any
     # unrelated entries the developer had staged before archiving into the
-    # chore commit (#579). `source_rel` is included so the source-side
-    # deletions staged above land in the same commit.
+    # chore commit (#579). When the source task was tracked, `source_rel` is
+    # included so the source-side deletions staged above land in the same
+    # commit; for a never-tracked task the pathspec would not match any known
+    # path and the whole commit would fail, so it is omitted.
     rc, _, err = run_git_retry_index_lock(
-        ["commit", "-m", commit_msg, "--", *paths, source_rel], cwd=repo_root
+        ["commit", "-m", commit_msg, "--", *commit_paths], cwd=repo_root
     )
     if rc == 0:
         print(f"[OK] Auto-committed: {commit_msg}", file=sys.stderr)
         return True
     elif stderr_indicates_index_lock(err):
         _print_index_lock_warning(
-            "git commit", task_name, repo_root, [*paths, source_rel]
+            "git commit", task_name, repo_root, commit_paths
         )
         return not source_was_tracked
     else:
