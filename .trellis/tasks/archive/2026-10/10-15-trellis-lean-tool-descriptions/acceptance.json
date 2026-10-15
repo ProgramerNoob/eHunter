@@ -24,9 +24,9 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/injection-inventory.md",
-        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/prd.md",
-        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/implement.md"
+        ".trellis/tasks/archive/2026-10/10-15-trellis-lean-tool-descriptions/research/injection-inventory.md",
+        ".trellis/tasks/archive/2026-10/10-15-trellis-lean-tool-descriptions/prd.md",
+        ".trellis/tasks/archive/2026-10/10-15-trellis-lean-tool-descriptions/implement.md"
       ],
       "note": "原版清单和候选计数已在实施前展示；用户确认扩展方案后启动任务。候选值与最终值分别保留。",
       "waiver": null
@@ -71,8 +71,8 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/review.md",
-        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/review-followup.md"
+        ".trellis/tasks/archive/2026-10/10-15-trellis-lean-tool-descriptions/research/review.md",
+        ".trellis/tasks/archive/2026-10/10-15-trellis-lean-tool-descriptions/research/review-followup.md"
       ],
       "note": "完整 Standards/Spec 审查加定向复核。原 R1 失败发现保留，修复两句后确认四类触发均承担七段结构。此为文本契约核对，不宣称所有模型行为已证明等价。",
       "waiver": null
@@ -101,7 +101,7 @@
       },
       "evidence": [
         ".tmp/trellis-lean-final/extension.log",
-        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/live-dispatch.md"
+        ".trellis/tasks/archive/2026-10/10-15-trellis-lean-tool-descriptions/research/live-dispatch.md"
       ],
       "note": "single/parallel/chain、默认值、trim、model/thinking 及错误边界由真实 SDK+受控子进程覆盖；single 另有真实派发。未执行真实 parallel/chain。",
       "waiver": null
@@ -157,8 +157,8 @@
       },
       "evidence": [
         ".tmp/trellis-lean-review-followup/audit.log",
-        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/token-report.md",
-        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/token-comparison.json",
+        ".trellis/tasks/archive/2026-10/10-15-trellis-lean-tool-descriptions/research/token-report.md",
+        ".trellis/tasks/archive/2026-10/10-15-trellis-lean-tool-descriptions/research/token-comparison.json",
         ".tmp/trellis-lean-final/measurement-final.log"
       ],
       "note": "当前最终源码的计数报告重算通过；独立审计45组散列/106份快照一致。仅 Unicode 字符与 ceil(chars/4) 代理，不是 tokenizer/provider token。",
@@ -176,11 +176,11 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/review.md",
-        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/review-followup.md",
+        ".trellis/tasks/archive/2026-10/10-15-trellis-lean-tool-descriptions/research/review.md",
+        ".trellis/tasks/archive/2026-10/10-15-trellis-lean-tool-descriptions/research/review-followup.md",
         ".tmp/trellis-lean-final/extension.log",
         ".tmp/trellis-lean-final/context.log",
-        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/token-comparison.json"
+        ".trellis/tasks/archive/2026-10/10-15-trellis-lean-tool-descriptions/research/token-comparison.json"
       ],
       "note": "9 skills 可发现、触发和权限保留；三角色 whitelist 不变；固定任务正文、curated specs、预算和更新机制通过基线对比。R1 已修复复核。",
       "waiver": null
@@ -213,7 +213,7 @@
         ".tmp/trellis-lean-live/attempt-2/summary.json",
         ".tmp/trellis-lean-final/extension.log",
         ".tmp/trellis-lean-final/context.log",
-        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/live-dispatch.md"
+        ".trellis/tasks/archive/2026-10/10-15-trellis-lean-tool-descriptions/research/live-dispatch.md"
       ],
       "note": "状态/重复/更新/恢复/跨项目由回归覆盖；真实 research single 两次provider请求，读取随机事实并正确返回，宿主与子进程exit0。首次harness断言失败和child exit0均保留；复测独立通过。未将child工具表当作主模型请求证据。",
       "waiver": null
@@ -243,7 +243,7 @@
         ".tmp/trellis-lean-final/delivery-validation.log",
         ".tmp/trellis-lean-final/acceptance.log",
         ".tmp/trellis-lean-final/executions.json",
-        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/delivery.md",
+        ".trellis/tasks/archive/2026-10/10-15-trellis-lean-tool-descriptions/delivery.md",
         ".trellis/spec/tooling/pi-context.md"
       ],
       "note": "37/37 验收协议测试、manifest、diff、38个文档链接和JSON检查通过。已记录更新/回滚与未验证范围；不声称全量严格tsc/lint、其他OS或浏览器通过。",
