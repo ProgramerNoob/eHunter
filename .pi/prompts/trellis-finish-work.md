@@ -1,76 +1,38 @@
 # Finish Work
 
-Wrap up the current session: archive the active task (and any other completed-but-unarchived tasks the user wants to clean up) and record the session journal. Code commits are NOT done here — those happen in workflow Phase 3.4 before you invoke this command.
+Wrap up the current session by archiving completed tasks and recording a journal. Code commits happen in Phase 3.4 before this prompt; this prompt does not commit code.
 
-## Step 1: Survey current state
+## 1. Survey
 
 ```bash
 python3 ./.trellis/scripts/get_context.py --mode record
 ```
 
-This prints:
+Review active tasks, git status, and recent commits. For other completed-but-unarchived tasks (code merged, acceptance criteria met), ask once whether to archive them too; default is no.
 
-- **My active tasks** — review whether any besides the current one are actually done (code merged, AC met) and should be archived this round.
-- **Git status** — quick visual on what's dirty.
-- **Recent commits** — you'll need their hashes in Step 4 for `--commit`.
-
-If `--mode record` surfaces other completed tasks not tied to the current session, surface them to the user with a one-shot confirmation: "These N tasks look done — archive them too in this round? [y/N]". Default is no. The current task and each confirmed extra task must independently satisfy Step 3's acceptance gate.
-
-## Step 2: Sanity check — classify dirty paths
-
-Run:
+## 2. Classify dirty paths
 
 ```bash
 git status --porcelain
 ```
 
-Filter out paths under `.trellis/workspace/` and `.trellis/tasks/` — those are managed by `add_session.py` and `task.py archive` auto-commits and will appear dirty as part of this skill's own work.
+Ignore `.trellis/workspace/` and `.trellis/tasks/`, managed by journal/archive auto-commits. Classify every other path using the task PRD/manifests, scope, and this session's edits. Current-task work → list it and return to Phase 3.4, where the AI drives the batched commit; do not commit or ask the user to commit here. Unrelated parallel work → report once and continue. Uncertain ownership → ask once “this task (commit) or another window (ignore)?” and route accordingly.
 
-For each remaining dirty path, decide whether it belongs to **the current task** or to **other parallel work** (e.g., another terminal window editing the same repo). Heuristics:
+## 3. Archive
 
-- Paths referenced in the current task's `prd.md` / `implement.jsonl` / `check.jsonl` → current task
-- Paths in code areas matching the task's stated scope, or that you remember editing this session → current task
-- Paths in unrelated areas you have no recollection of touching this session → other parallel work
-
-Then route:
-
-- **Any remaining path looks like current-task work** — bail out with:
-  > "Working tree has uncommitted code changes from this task: `<list>`. Return to workflow Phase 3.4 to commit them before running `/trellis-finish-work`."
-
-  Do NOT run `git commit` here. Do NOT prompt the user to commit. The user goes back to Phase 3.4 and the AI drives the batched commit there.
-- **All remaining paths look unrelated** (other parallel-window work) — report them once and continue to Step 3:
-  > "FYI, dirty files outside this task's scope — leaving them for the other window: `<list>`."
-- **Genuinely unsure** — ask the user once: "Are `<list>` this task's work I forgot to commit, or another window's? (commit / ignore)" — then route per their answer.
-
-## Step 3: Archive task(s)
-
-For the current task (if any) and each extra task confirmed in Step 1, read the
-[acceptance protocol](../../.trellis/spec/frontend/quality-guidelines.md#execute-summarize-and-close)
-and invoke the wrapper with its explicit directory:
+For the current task, if any, and each confirmed extra task, independently read the [acceptance protocol](../../.trellis/spec/frontend/quality-guidelines.md#execute-summarize-and-close) and run:
 
 ```bash
 python3 scripts/acceptance.py archive <task-dir>
 ```
 
-- Exit `0`: the native archive succeeded. Preserve the JSON and report
-  `acceptanceStatus` (`passed` or `waived`); disclose waiver reasons, authority and
-  original observations. Each successful native archive creates its usual
-  `chore(task): archive ...` commit.
-- Exit `1` or `2`: acceptance is unmet or invalid. Stop completion/archival for that
-  task; report the check/errors and backfill older tasks from their original ACs and
-  real results when needed. The wrapper has not delegated or changed task/pointer
-  state. Resolve the record before retrying; do not substitute a native archive call.
-- Exit `4`: delegation failed. Preserve `archiveExitCode` and original output, inspect
-  directory/pointer/Git state, and report the failure. Native archival may already have
-  moved the task; never automatically retry.
+- Exit `0`: native archive succeeded; preserve JSON and report `acceptanceStatus` (`passed` or `waived`). Disclose waiver reasons, authority, and original observations. Each archive creates `chore(task): archive ...`.
+- Exit `1` or `2`: acceptance is unmet or invalid; report checks/errors and stop completion/archive for that task. The wrapper has not delegated or changed task/pointer state. Backfill old records from original criteria and real observations before retrying.
+- Exit `4`: delegation failed; preserve `archiveExitCode` and original output, inspect directory/pointer/Git state, and report. The native archive may already have moved the task; do not automatically retry.
 
-The wrapper recomputes acceptance at archival time. Only passed/waived can delegate;
-waived archival succeeds with exit `0`, whereas summarize uses exit `3` for waived.
-Keep incomplete tasks active and describe their actual state in the journal.
+The wrapper recomputes acceptance and delegates only passed/waived tasks. Waived archive exits `0`; waived summarize exits `3`. Do not substitute native archive calls. Keep incomplete tasks active and record their actual state in the journal. Skip archival if there is no current task or confirmed extra task.
 
-If there is no active task and the user did not confirm any cleanup archives, skip this step.
-
-## Step 4: Record session journal
+## 4. Journal
 
 ```bash
 python3 ./.trellis/scripts/add_session.py \
@@ -79,6 +41,4 @@ python3 ./.trellis/scripts/add_session.py \
   --summary "Brief summary"
 ```
 
-Use the work-commit hashes produced in Phase 3.4 (visible in Step 1's `Recent commits` list, or via `git log --oneline`) for `--commit`. Do not include the archive commit hashes from Step 3. This produces a `chore: record journal` commit.
-
-Final git log order: `<work commits from 3.4>` → `chore(task): archive ...` (one or more) → `chore: record journal`.
+Use work commit hashes from Phase 3.4 (survey output or `git log --oneline`), not archive commits. This creates `chore: record journal`. Final log order is work commits → archive commits → journal commit.

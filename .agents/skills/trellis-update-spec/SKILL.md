@@ -1,356 +1,81 @@
 ---
 name: trellis-update-spec
-description: "Captures executable contracts and coding conventions into .trellis/spec/ documents. Use when learning something valuable from debugging, implementing, or discussion that should be preserved for future sessions."
+description: "Preserve executable contracts and coding conventions learned during debugging, implementation, or discussion in .trellis/spec/."
 ---
 
-# Update Code-Spec - Capture Executable Contracts
+# Update Code-Spec
 
-When you learn something valuable (from debugging, implementing, or discussion), use this to update the relevant code-spec documents.
+Use this skill after implementing a feature, fixing a bug, making a design decision, discovering a pattern or gotcha, establishing a convention, or finding a thinking checklist trigger that future work needs.
 
-**Timing**: After completing a task, fixing a bug, or discovering a new pattern
+## Code-spec boundary
 
----
+For implementation work, a spec records executable contracts: signatures, payload fields, environment keys, boundary behavior, and testable validation. This depth is required for a changed command/API signature, cross-layer request/response contract, database schema or migration, or infrastructure integration (storage, queue, cache, secrets, environment wiring).
 
-## Code-Spec First Rule (CRITICAL)
+Use `<layer>/*.md` for how to write code and `guides/*.md` for what to consider. Guides are short pointers; they do not duplicate detailed rules.
 
-In this project, "spec" for implementation work means **code-spec**:
-- Executable contracts (not principle-only text)
-- Concrete signatures, payload fields, env keys, and boundary behavior
-- Testable validation/error behavior
+For any of the triggers above, include:
 
-If the change touches infra or cross-layer contracts, code-spec depth is mandatory.
-
-### Mandatory Triggers
-
-Apply code-spec depth when the change includes any of:
-- New/changed command or API signature
-- Cross-layer request/response contract change
-- Database schema/migration change
-- Infra integration (storage, queue, cache, secrets, env wiring)
-
-### Mandatory Output (7 Sections)
-
-For triggered tasks, include all sections below:
-1. Scope / Trigger
+1. Scope / trigger
 2. Signatures (command/API/DB)
-3. Contracts (request/response/env)
-4. Validation & Error Matrix
-5. Good/Base/Bad Cases
-6. Tests Required (with assertion points)
-7. Wrong vs Correct (at least one pair)
+3. Contracts (request, response, environment)
+4. Validation and error matrix
+5. Good/base/bad cases
+6. Required tests with assertion points
+7. Wrong vs correct example
 
----
+## Update process
 
-## When to Update Code-Specs
+1. Record what was learned, why it prevents a problem, and the target spec file.
+2. Classify it as a design decision, convention, pattern, forbidden pattern, common mistake, or gotcha.
+3. Read the target spec before editing to avoid duplication and fit its structure: `cat .trellis/spec/<category>/<file>.md`.
+4. Write concrete contracts, code examples, and reasons; keep one concept per section.
+5. Update the category `index.md` when adding a section/file or changing spec status.
+6. Check that the result is specific, actionable, in the right spec layer, and free of duplicate content.
 
-| Trigger | Example | Target Spec |
-|---------|---------|-------------|
-| **Implemented a feature** | Added a new integration or module | Relevant spec file |
-| **Made a design decision** | Chose extensibility pattern over simplicity | Relevant spec + "Design Decisions" section |
-| **Fixed a bug** | Found a subtle issue with error handling | Relevant spec (e.g., error-handling docs) |
-| **Discovered a pattern** | Found a better way to structure code | Relevant spec file |
-| **Hit a gotcha** | Learned that X must be done before Y | Relevant spec + "Common Mistakes" section |
-| **Established a convention** | Team agreed on naming pattern | Quality guidelines |
-| **New thinking trigger** | "Don't forget to check X before doing Y" | `guides/*.md` (as a checklist item) |
+Use the relevant target under:
 
-**Key Insight**: Code-spec updates are NOT just for problems. Every feature implementation contains design decisions and contracts that future AI/developers need to execute safely.
-
----
-
-## Spec Structure Overview
-
-```
+```text
 .trellis/spec/
-├── <layer>/           # Per-layer coding standards (e.g., backend/, frontend/, api/)
-│   ├── index.md       # Overview and links
-│   └── *.md           # Topic-specific guidelines
-└── guides/            # Thinking checklists (NOT coding specs!)
-    ├── index.md       # Guide index
-    └── *.md           # Topic-specific guides
+├── <layer>/       # coding specs and index.md
+└── guides/        # thinking checklists and index.md
 ```
 
-### CRITICAL: Code-Spec vs Guide - Know the Difference
+## Templates
 
-| Type | Location | Purpose | Content Style |
-|------|----------|---------|---------------|
-| **Code-Spec** | `<layer>/*.md` | Tell AI "how to implement safely" | Signatures, contracts, matrices, cases, test points |
-| **Guide** | `guides/*.md` | Help AI "what to think about" | Checklists, questions, pointers to specs |
+Place design decisions in “Design Decisions”, patterns in “Patterns”, forbidden patterns in “Anti-patterns”/“Don't”, mistakes in “Common Mistakes”, conventions in the relevant section (agreed standards in quality guidelines), and gotchas in warning callouts. Add thinking triggers as checklist items in `guides/*.md`.
 
-**Decision Rule**: Ask yourself:
+A design decision records context, options, decision rationale, example, and future extension. A convention records what, why, a code example, and related specs. A pattern records problem, solution, good/bad code examples, and why. A forbidden pattern records bad code, why it fails, and the replacement. A common mistake records symptom, cause, fix, and prevention. A gotcha records the non-obvious behavior, when it occurs, and how to handle it.
 
-- "This is **how to write** the code" → Put in a spec layer directory
-- "This is **what to consider** before writing" → Put in `guides/`
-
-**Example**:
-
-| Learning | Wrong Location | Correct Location |
-|----------|----------------|------------------|
-| "Use API X not API Y for this task" | ❌ `guides/` (too specific for a thinking guide) | ✅ Relevant spec file (concrete convention) |
-| "Remember to check X when doing Y" | ❌ Spec file (too abstract for a spec) | ✅ `guides/` (thinking checklist) |
-
-**Guides should be short checklists that point to specs**, not duplicate the detailed rules.
-
----
-
-## Update Process
-
-### Step 1: Identify What You Learned
-
-Answer these questions:
-
-1. **What did you learn?** (Be specific)
-2. **Why is it important?** (What problem does it prevent?)
-3. **Where does it belong?** (Which spec file?)
-
-### Step 2: Classify the Update Type
-
-| Type | Description | Action |
-|------|-------------|--------|
-| **Design Decision** | Why we chose approach X over Y | Add to "Design Decisions" section |
-| **Project Convention** | How we do X in this project | Add to relevant section with examples |
-| **New Pattern** | A reusable approach discovered | Add to "Patterns" section |
-| **Forbidden Pattern** | Something that causes problems | Add to "Anti-patterns" or "Don't" section |
-| **Common Mistake** | Easy-to-make error | Add to "Common Mistakes" section |
-| **Convention** | Agreed-upon standard | Add to relevant section |
-| **Gotcha** | Non-obvious behavior | Add warning callout |
-
-### Step 3: Read the Target Code-Spec
-
-Before editing, read the current code-spec to:
-- Understand existing structure
-- Avoid duplicating content
-- Find the right section for your update
-
-```bash
-cat .trellis/spec/<category>/<file>.md
-```
-
-### Step 4: Make the Update
-
-Follow these principles:
-
-1. **Be Specific**: Include concrete examples, not just abstract rules
-2. **Explain Why**: State the problem this prevents
-3. **Show Contracts**: Add signatures, payload fields, and error behavior
-4. **Show Code**: Add code snippets for key patterns
-5. **Keep it Short**: One concept per section
-
-### Step 5: Update the Index (if needed)
-
-If you added a new section or the code-spec status changed, update the category's `index.md`.
-
----
-
-## Update Templates
-
-### Mandatory Template for Infra/Cross-Layer Work
+Keep the mandatory structure for any of the triggers above:
 
 ```markdown
 ## Scenario: <name>
-
 ### 1. Scope / Trigger
-- Trigger: <why this requires code-spec depth>
-
+- Trigger: <why code-spec depth applies>
 ### 2. Signatures
-- Backend command/API/DB signature(s)
-
+- <command/API/DB signatures>
 ### 3. Contracts
-- Request fields (name, type, constraints)
-- Response fields (name, type, constraints)
-- Environment keys (required/optional)
-
+- <request/response fields: name, type, constraints>
+- <environment keys: required/optional>
 ### 4. Validation & Error Matrix
-- <condition> -> <error>
-
+- <condition> → <error>
 ### 5. Good/Base/Bad Cases
 - Good: ...
 - Base: ...
 - Bad: ...
-
 ### 6. Tests Required
-- Unit/Integration/E2E with assertion points
-
+- <unit/integration/E2E tests and assertion points>
 ### 7. Wrong vs Correct
-#### Wrong
-...
-#### Correct
-...
+- Wrong: <code>
+- Correct: <code; at least one pair>
 ```
 
-### Adding a Design Decision
+## If unsure what to update
 
-```markdown
-### Design Decision: [Decision Name]
+Identify the completed work (bug fix, feature, refactor, or design discussion), the lesson/decision, and its area (backend, frontend, cross-layer flow, organization/reuse, or quality/testing). Record knowledge needed to understand, maintain, extend, or avoid repeating mistakes; a one-off implementation detail may be skipped.
 
-**Context**: What problem were we solving?
+## Quality checklist
 
-**Options Considered**:
-1. Option A - brief description
-2. Option B - brief description
+Before finishing, verify that a new team member can understand the update; it is specific and actionable, contains code examples and executable signatures/contracts, explains why, includes validation/errors and Good/Base/Bad cases where applicable, names test assertion points, lives in the correct spec, and does not duplicate existing content.
 
-**Decision**: We chose Option X because...
-
-**Example**:
-\`\`\`typescript
-// How it's implemented
-code example
-\`\`\`
-
-**Extensibility**: How to extend this in the future...
-```
-
-### Adding a Project Convention
-
-```markdown
-### Convention: [Convention Name]
-
-**What**: Brief description of the convention.
-
-**Why**: Why we do it this way in this project.
-
-**Example**:
-\`\`\`typescript
-// How to follow this convention
-code example
-\`\`\`
-
-**Related**: Links to related conventions or specs.
-```
-
-### Adding a New Pattern
-
-```markdown
-### Pattern Name
-
-**Problem**: What problem does this solve?
-
-**Solution**: Brief description of the approach.
-
-**Example**:
-\`\`\`
-// Good
-code example
-
-// Bad
-code example
-\`\`\`
-
-**Why**: Explanation of why this works better.
-```
-
-### Adding a Forbidden Pattern
-
-```markdown
-### Don't: Pattern Name
-
-**Problem**:
-\`\`\`
-// Don't do this
-bad code example
-\`\`\`
-
-**Why it's bad**: Explanation of the issue.
-
-**Instead**:
-\`\`\`
-// Do this instead
-good code example
-\`\`\`
-```
-
-### Adding a Common Mistake
-
-```markdown
-### Common Mistake: Description
-
-**Symptom**: What goes wrong
-
-**Cause**: Why this happens
-
-**Fix**: How to correct it
-
-**Prevention**: How to avoid it in the future
-```
-
-### Adding a Gotcha
-
-```markdown
-> **Warning**: Brief description of the non-obvious behavior.
->
-> Details about when this happens and how to handle it.
-```
-
----
-
-## Interactive Mode
-
-If you're unsure what to update, answer these prompts:
-
-1. **What did you just finish?**
-   - [ ] Fixed a bug
-   - [ ] Implemented a feature
-   - [ ] Refactored code
-   - [ ] Had a discussion about approach
-
-2. **What did you learn or decide?**
-   - Design decision (why X over Y)
-   - Project convention (how we do X)
-   - Non-obvious behavior (gotcha)
-   - Better approach (pattern)
-
-3. **Would future AI/developers need to know this?**
-   - To understand how the code works → Yes, update spec
-   - To maintain or extend the feature → Yes, update spec
-   - To avoid repeating mistakes → Yes, update spec
-   - Purely one-off implementation detail → Maybe skip
-
-4. **Which area does it relate to?**
-   - [ ] Backend code
-   - [ ] Frontend code
-   - [ ] Cross-layer data flow
-   - [ ] Code organization/reuse
-   - [ ] Quality/testing
-
----
-
-## Quality Checklist
-
-Before finishing your code-spec update:
-
-- [ ] Is the content specific and actionable?
-- [ ] Did you include a code example?
-- [ ] Did you explain WHY, not just WHAT?
-- [ ] Did you include executable signatures/contracts?
-- [ ] Did you include validation and error matrix?
-- [ ] Did you include Good/Base/Bad cases?
-- [ ] Did you include required tests with assertion points?
-- [ ] Is it in the right code-spec file?
-- [ ] Does it duplicate existing content?
-- [ ] Would a new team member understand it?
-
----
-
-## Relationship to Other Commands
-
-```
-Development Flow:
-  Learn something → `update-spec` (Trellis command) → Knowledge captured
-       ↑                                  ↓
-  `break-loop` (Trellis command) ←──────────────────── Future sessions benefit
-  (deep bug analysis)
-```
-
-- ``break-loop` (Trellis command)` - Analyzes bugs deeply, often reveals spec updates needed
-- ``update-spec` (Trellis command)` - Actually makes the updates
-- ``finish-work` (Trellis command)` - Reminds you to check if specs need updates
-
----
-
-## Core Philosophy
-
-> **Code-specs are living documents. Every debugging session, every "aha moment" is an opportunity to make the implementation contract clearer.**
-
-The goal is **institutional memory**:
-- What one person learns, everyone benefits from
-- What AI learns in one session, persists to future sessions
-- Mistakes become documented guardrails
+The Trellis `break-loop` command (`trellis-break-loop` skill) performs deeper bug analysis; `update-spec` makes the updates, and `finish-work` prompts a spec review. Implementation contracts and non-obvious lessons should remain useful in later sessions.

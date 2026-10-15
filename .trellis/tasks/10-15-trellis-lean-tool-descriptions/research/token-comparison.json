@@ -1,0 +1,1155 @@
+{
+  "schemaVersion": 1,
+  "environment": {
+    "repository": "/Users/warwick/claude/eHunter",
+    "baseline": "e7e5f280c95ee22b5cc8406cb7253d5a5f2ede8b",
+    "lean": "frozen working-tree sources",
+    "node": "v24.18.0",
+    "python": "Python 3.13.14",
+    "pi": "1.2.0",
+    "piPackage": "/Users/warwick/.nvm/versions/node/v24.18.0/lib/node_modules/@earendil-works/pi-coding-agent"
+  },
+  "counter": {
+    "characters": "Unicode code points ([...text].length), not UTF-16 code units",
+    "utf8Bytes": "Buffer.byteLength(text, utf8)",
+    "proxyUnits": "ceil(characters / 4); size proxy, not model/provider tokens",
+    "tokenizer": null,
+    "tokenizerProbe": {
+      "node": [
+        {
+          "package": "js-tiktoken",
+          "available": false
+        },
+        {
+          "package": "tiktoken",
+          "available": false
+        },
+        {
+          "package": "gpt-tokenizer",
+          "available": false
+        }
+      ],
+      "python": {
+        "tiktoken": false,
+        "transformers": false,
+        "tokenizers": false,
+        "sentencepiece": false
+      }
+    },
+    "pythonVocabularyNote": "transformers/tokenizers/sentencepiece alone provide no fixed model vocabulary; no downloads attempted"
+  },
+  "boundaries": {
+    "toolDefinition": "Compact JSON.stringify({name, description, parameters}); registration captured from real extension; label/render/prepareArguments implementation excluded",
+    "toolGuidance": "Host-rendered trellis_subagent snippet line plus additional guideline lines; joined with LF; common host rules/section wrappers excluded",
+    "skillIndex": "Pi loadSkillsFromDir + formatSkillsForPrompt(...).trim(); nine Trellis skills only, shared skill loading instructions included, outer <skills> tag excluded",
+    "onDemand": "skillBody/promptBody use Pi parseFrontmatter.body; agentBody uses extension stripFM; *File retains complete source including frontmatter; total.* concatenates members without separators before counting",
+    "injection": "Actual before_agent_start with empty upstream systemPrompt; real Python renderers with fixed filesystem/git inputs substituted at subprocess boundary; phase/overview trimmed as extension does",
+    "pathNormalization": "Sandbox task root replaced by current repository root; skill locations use current repository root for both sides; changing checkout path can change absolute counts",
+    "containment": "completeSystem contains fixedSystem and taskBodies; fixedSystem contains startupFixed, workflowIndex, overview, taskWrapper; taskContext contains taskWrapper and taskBodies; firstRuntimeUpdate repeats overview plus workflow state; do not sum totals with their children",
+    "excluded": "Host base prompt, AGENTS.md, non-Trellis skills/tools, loaded skill references, conversation history, provider request envelope, real model usage and live dispatch validation"
+  },
+  "fixture": {
+    "taskPath": ".trellis/tasks/context-measure-fixture",
+    "files": {
+      ".trellis/.developer": "name=fixture-dev\n",
+      ".trellis/config.yaml": "# Fixture: default injection budgets, single repository.\n",
+      ".trellis/.runtime/sessions/pi_measure.json": "{\"current_task\":\".trellis/tasks/context-measure-fixture\"}",
+      ".trellis/tasks/context-measure-fixture/task.json": "{\"id\":\"context-measure-fixture\",\"name\":\"context-measure-fixture\",\"title\":\"Fixed context fixture\",\"status\":\"in_progress\",\"assignee\":\"fixture-dev\",\"priority\":\"P1\",\"createdAt\":\"2026-10-15\",\"description\":\"固定比较输入，包含 Unicode 🧭。\"}",
+      ".trellis/tasks/context-measure-fixture/prd.md": "# Requirements\nPreserve dispatch, context and skill contracts.\n固定任务正文 🧭。\n",
+      ".trellis/tasks/context-measure-fixture/design.md": "# Design\nMeasure original and lean with identical task inputs.\n",
+      ".trellis/tasks/context-measure-fixture/implement.md": "# Implementation\nCompare text, retain evidence, report measurement limits.\n",
+      ".trellis/spec/tooling/fixture.md": "# Curated spec\nKeep task bodies, budgets and refresh behavior unchanged.\n",
+      ".trellis/workspace/fixture-dev/journal-1.md": "# Journal\nFixed entry.\n",
+      ".trellis/tasks/context-measure-fixture/implement.jsonl": "{\"file\":\".trellis/spec/tooling/fixture.md\",\"reason\":\"Fixed curated spec\"}\n",
+      ".trellis/tasks/context-measure-fixture/check.jsonl": "{\"file\":\".trellis/spec/tooling/fixture.md\",\"reason\":\"Fixed curated spec\"}\n"
+    },
+    "git": {
+      "rev-parse --is-inside-work-tree": "true\n",
+      "branch --show-current": "fixture-branch\n",
+      "status --porcelain": " M example.ts\n",
+      "status --short": " M example.ts\n",
+      "log --oneline -5": "abc1234 fixture commit\ndef5678 previous fixture\n"
+    },
+    "overviewFacts": {
+      "developer": "fixture-dev",
+      "git": {
+        "isRepo": true,
+        "branch": "fixture-branch",
+        "isClean": false,
+        "uncommittedChanges": 1,
+        "recentCommits": [
+          {
+            "hash": "abc1234",
+            "message": "fixture commit"
+          },
+          {
+            "hash": "def5678",
+            "message": "previous fixture"
+          }
+        ]
+      },
+      "tasks": {
+        "active": [
+          {
+            "dir": "context-measure-fixture",
+            "name": "context-measure-fixture",
+            "status": "in_progress",
+            "children": [],
+            "parent": null
+          }
+        ],
+        "directory": ".trellis/tasks"
+      },
+      "journal": {
+        "file": ".trellis/workspace/fixture-dev/journal-1.md",
+        "lines": 2,
+        "nearLimit": false
+      }
+    }
+  },
+  "verification": {
+    "toolNames": [
+      "trellis_subagent"
+    ],
+    "skills": 9,
+    "prompts": 3,
+    "agents": 3,
+    "freshHookCapturesPerSide": 2,
+    "hookOutputIdentical": true,
+    "overviewFactsIdentical": true,
+    "taskBodyBytesIdentical": true,
+    "leanInputsStableDuringRun": true
+  },
+  "inputs": {
+    ".agents/skills/trellis-before-dev/SKILL.md": {
+      "originalSha256": "00c9d1c83bc318e91b27a019bc954c2957cfad907ff20d854b596f16cad2c0f3",
+      "leanSha256": "c86ec7769f38ee2dfd5fae38810418b59fedf3237feccb57f91580d738661864"
+    },
+    ".agents/skills/trellis-brainstorm/SKILL.md": {
+      "originalSha256": "17d9bf209730c14f584eb97f38198d0683ad3f8da982d9a6e6d4e84c853f9a94",
+      "leanSha256": "30bcc5faf8c42404596903540eb547fe45762cb55ccf2613dfaa727f977199fb"
+    },
+    ".agents/skills/trellis-break-loop/SKILL.md": {
+      "originalSha256": "f5a93699832f29dee443b53c135a7459519b371f689af191d15c29e8ee5c7bde",
+      "leanSha256": "36ec345c10af86c459a59736d6a90cc604afb8529ed279072a2deaac1de0c0c9"
+    },
+    ".agents/skills/trellis-channel/SKILL.md": {
+      "originalSha256": "ff84801c511a736da018b4b1149348ebc9a16b7fc18d905ec10cfa7acbf269a3",
+      "leanSha256": "25bdb6a33dddb658d479551eb49bbf381c81d0050d4e9dc80af087352fad92a9"
+    },
+    ".agents/skills/trellis-check/SKILL.md": {
+      "originalSha256": "dfb0600e95c19c7a83200465b6a92a5514ec9778ba4083efa881bed541cc74a8",
+      "leanSha256": "54e99c36ceee23aa1f7d7040da68a166b54778bf304d3a862ed3207744d6143b"
+    },
+    ".agents/skills/trellis-meta/SKILL.md": {
+      "originalSha256": "ee7bcfd0023def62688339c4b63c50f2fbeea12a34eb89e8bb63a992b58cb168",
+      "leanSha256": "936b7f8790ac0f5855ed2a73588f57c46bd02da9ec6ed3adbde832dccc6471c7"
+    },
+    ".agents/skills/trellis-session-insight/SKILL.md": {
+      "originalSha256": "c9e58477f71987750f025ee967ca6663ccbbede8a352506bc2f4232a356deb12",
+      "leanSha256": "2ad72ea3d6014fa8af27b3b21aeb3186a4610e5525924b43ad61534edb9ece46"
+    },
+    ".agents/skills/trellis-spec-bootstrap/SKILL.md": {
+      "originalSha256": "97bfa68c06cebb558eb4464bc1b81f7d2d56040d75baa8de1ee5ad90cca0196a",
+      "leanSha256": "6777949a88e647717809876f07b0e1e700aa5ba3738082fcedc55ac5eec022cf"
+    },
+    ".agents/skills/trellis-update-spec/SKILL.md": {
+      "originalSha256": "003ce08a3404aeb50998029392c4d4e57b626edf526d3ebd585032bb92dcbb96",
+      "leanSha256": "f0fac29b201bd714240974fc20c2ec3a7d70062b082c240d66de2b94efdab715"
+    },
+    ".pi/agents/trellis-check.md": {
+      "originalSha256": "483d1b5e877ac2f2105761df8e46a1cfc569c77ed11ffbf120c7df6421c3c1ed",
+      "leanSha256": "df1724f004bf59f8eb58f18c4782a7df9484b60774202556600f196fa43f2c9c"
+    },
+    ".pi/agents/trellis-implement.md": {
+      "originalSha256": "d4342d74325c763344be7ce20801f92adbfb22454c45448770c390c87e47b1f0",
+      "leanSha256": "49f330b24073cae8e92df73e90cbdae0775246c17c25c7e74b31d6eba91227bb"
+    },
+    ".pi/agents/trellis-research.md": {
+      "originalSha256": "629f1ecd01ded518ef69408f33505bc76ea1194b5235fe24b1d3d3062137efc5",
+      "leanSha256": "d452355609af3a89fac6a312b0a37d8aa86888c5381755024059d4a38ecef067"
+    },
+    ".pi/extensions/trellis/index.ts": {
+      "originalSha256": "b53f1b5ac66f4ed15a46e1f5b013e0074e23695e86a55a724d4c273032d9fb41",
+      "leanSha256": "81ed64d6f950dbffedf444ba132874b1a93ff80f7ee387cb618ea0e430a5e583"
+    },
+    ".pi/prompts/trellis-continue.md": {
+      "originalSha256": "7ed99d0192e1ebe7ad917001e6037b87bb4296ddcd3caffbfa17b7511fd71ce1",
+      "leanSha256": "7b73150ea1d710eb125aed17da5adc31f84adfe85f6697afd88205c7d3ea56cd"
+    },
+    ".pi/prompts/trellis-finish-work.md": {
+      "originalSha256": "5fc5059fdf881db942f8b3f3dae8932d88e847cc15f7669bc5891238fb7c2990",
+      "leanSha256": "2e096d7dbbbd34fffe348b5ad529c13f37f9e84cb000125e04463e709e9d062d"
+    },
+    ".pi/prompts/trellis-start.md": {
+      "originalSha256": "28af1eb6645d8b517cf705277d8405370b712926e6b01667d6698564002c6a9d",
+      "leanSha256": "c52a60d52651b378942bbf7278a4f7a8d290001fcbfb90004b2c7411cc3f9870"
+    },
+    ".trellis/scripts/__init__.py": {
+      "originalSha256": "1242be5b972094c2e141aecbe81a4efd478f6534e3d5e28306374e6a18fcf46c",
+      "leanSha256": "1242be5b972094c2e141aecbe81a4efd478f6534e3d5e28306374e6a18fcf46c"
+    },
+    ".trellis/scripts/add_session.py": {
+      "originalSha256": "f61a452ec5f7eece8d7e0f0dd56ce5851166cbc83ca4822e30acbb36eeb5896f",
+      "leanSha256": "f61a452ec5f7eece8d7e0f0dd56ce5851166cbc83ca4822e30acbb36eeb5896f"
+    },
+    ".trellis/scripts/common/__init__.py": {
+      "originalSha256": "f258cd873681dc5a4d71db0dd71d10fd78656de55bec96418d6702503c16e87d",
+      "leanSha256": "f258cd873681dc5a4d71db0dd71d10fd78656de55bec96418d6702503c16e87d"
+    },
+    ".trellis/scripts/common/active_task.py": {
+      "originalSha256": "63d5bc308ac4939fde8923775ced2a76125a4dbbd868b23b6c2857bfbace3bbf",
+      "leanSha256": "63d5bc308ac4939fde8923775ced2a76125a4dbbd868b23b6c2857bfbace3bbf"
+    },
+    ".trellis/scripts/common/cli_adapter.py": {
+      "originalSha256": "5d6bd9d6f5c631e7e792db7dd343351317f9643bc87b73a9a98abd51cefb4307",
+      "leanSha256": "5d6bd9d6f5c631e7e792db7dd343351317f9643bc87b73a9a98abd51cefb4307"
+    },
+    ".trellis/scripts/common/config.py": {
+      "originalSha256": "9a042d6f0e25a33a567510760e87c1e389af14a41faf1daeb1190a00f3df7f5e",
+      "leanSha256": "9a042d6f0e25a33a567510760e87c1e389af14a41faf1daeb1190a00f3df7f5e"
+    },
+    ".trellis/scripts/common/developer.py": {
+      "originalSha256": "a0f61bb58063e2f4cb357bcb2c22fd5a6f1241286398beaa7130b2a8994a4afa",
+      "leanSha256": "a0f61bb58063e2f4cb357bcb2c22fd5a6f1241286398beaa7130b2a8994a4afa"
+    },
+    ".trellis/scripts/common/git.py": {
+      "originalSha256": "5605b71662e524b47632030d9db9245121a5cba85b5521eeb524ed464d840ff5",
+      "leanSha256": "5605b71662e524b47632030d9db9245121a5cba85b5521eeb524ed464d840ff5"
+    },
+    ".trellis/scripts/common/git_context.py": {
+      "originalSha256": "fa30ced454f1a91ffc9f8b2abeb32225e3447cbdc90bad783797374eba07265d",
+      "leanSha256": "fa30ced454f1a91ffc9f8b2abeb32225e3447cbdc90bad783797374eba07265d"
+    },
+    ".trellis/scripts/common/io.py": {
+      "originalSha256": "5dd8b9e297125ff58543a9bd4790c03ae1aca1d37b9e2ca60c4ffb47601c1cbb",
+      "leanSha256": "5dd8b9e297125ff58543a9bd4790c03ae1aca1d37b9e2ca60c4ffb47601c1cbb"
+    },
+    ".trellis/scripts/common/log.py": {
+      "originalSha256": "471df6895cfac80f995edebbf9974f6b7440634b7a688f28b8331c868bc0f3cf",
+      "leanSha256": "471df6895cfac80f995edebbf9974f6b7440634b7a688f28b8331c868bc0f3cf"
+    },
+    ".trellis/scripts/common/packages_context.py": {
+      "originalSha256": "efe158d7c99c2268851d0216fbb08de22836e418a8dbeb73575b8cc249eed7b7",
+      "leanSha256": "efe158d7c99c2268851d0216fbb08de22836e418a8dbeb73575b8cc249eed7b7"
+    },
+    ".trellis/scripts/common/paths.py": {
+      "originalSha256": "d8586d4d3f9bb2dd46b7f11b0f038b5340d283f41b6fa2c76bb8235c13bbb0b7",
+      "leanSha256": "d8586d4d3f9bb2dd46b7f11b0f038b5340d283f41b6fa2c76bb8235c13bbb0b7"
+    },
+    ".trellis/scripts/common/safe_commit.py": {
+      "originalSha256": "262ad740552279fe6ec6a2a9865b2965ce2448577cf973a4d702dfe2f5f91f04",
+      "leanSha256": "262ad740552279fe6ec6a2a9865b2965ce2448577cf973a4d702dfe2f5f91f04"
+    },
+    ".trellis/scripts/common/session_context.py": {
+      "originalSha256": "3379ef1766e4e5ca77cbb7c040dbba3883fcca2548580299e3b38dbf22f4f7d5",
+      "leanSha256": "935db2419cb1f981bcf87808bc47f96eca3078054724f4508800d4b45a81754f"
+    },
+    ".trellis/scripts/common/task_context.py": {
+      "originalSha256": "245e654713e6030f9e7b5cee474efc06343ecc0d7f66f6455098874239355ce3",
+      "leanSha256": "245e654713e6030f9e7b5cee474efc06343ecc0d7f66f6455098874239355ce3"
+    },
+    ".trellis/scripts/common/task_queue.py": {
+      "originalSha256": "0be61f713462b1fe4574927c82fc4704e678afe72dcb9813543aedf2f9e9e0c5",
+      "leanSha256": "0be61f713462b1fe4574927c82fc4704e678afe72dcb9813543aedf2f9e9e0c5"
+    },
+    ".trellis/scripts/common/task_store.py": {
+      "originalSha256": "e0c08cb52789233d2774275c4632f68b1811ade25c2a211b56ef5fc6095e1605",
+      "leanSha256": "e0c08cb52789233d2774275c4632f68b1811ade25c2a211b56ef5fc6095e1605"
+    },
+    ".trellis/scripts/common/task_utils.py": {
+      "originalSha256": "35f544317a95e98d05fe089794071482175739e8c1f3b3b0228dae48602ffe90",
+      "leanSha256": "35f544317a95e98d05fe089794071482175739e8c1f3b3b0228dae48602ffe90"
+    },
+    ".trellis/scripts/common/tasks.py": {
+      "originalSha256": "87aca6b73ec4524450cfff8e2ae561b1f2e53bd62a185f036a7a2d484d90c8a2",
+      "leanSha256": "87aca6b73ec4524450cfff8e2ae561b1f2e53bd62a185f036a7a2d484d90c8a2"
+    },
+    ".trellis/scripts/common/trellis_config.py": {
+      "originalSha256": "f1fc705ec463b0b9c163672dc9e50f10d29da967775a1900429205f7c4fcb51c",
+      "leanSha256": "f1fc705ec463b0b9c163672dc9e50f10d29da967775a1900429205f7c4fcb51c"
+    },
+    ".trellis/scripts/common/types.py": {
+      "originalSha256": "9962081cc2608fb9d1deb32c6880e336f62cdca6b338e7ae813304701e155ee9",
+      "leanSha256": "9962081cc2608fb9d1deb32c6880e336f62cdca6b338e7ae813304701e155ee9"
+    },
+    ".trellis/scripts/common/workflow_phase.py": {
+      "originalSha256": "146b69c1ec0e628aeb720d3e34d8333f16050225037fe4233da9bbc4d4ac99c1",
+      "leanSha256": "16043c7cd026dbc06336422635ae6a6ca29aa5cdcf73570d160d80ed9f2e30c6"
+    },
+    ".trellis/scripts/get_context.py": {
+      "originalSha256": "ca5bf9e90bdb1d75d3de182b95f820f9d108ab28793d29097b24fd71315adcf5",
+      "leanSha256": "ca5bf9e90bdb1d75d3de182b95f820f9d108ab28793d29097b24fd71315adcf5"
+    },
+    ".trellis/scripts/get_developer.py": {
+      "originalSha256": "84c27076323c3e0f2c9c8ed16e8aa865e225d902a187c37e20ee1a46e7142d8f",
+      "leanSha256": "84c27076323c3e0f2c9c8ed16e8aa865e225d902a187c37e20ee1a46e7142d8f"
+    },
+    ".trellis/scripts/hooks/linear_sync.py": {
+      "originalSha256": "e09cc4ce4699aada908808718698f33f705a3edf55c4dcf8f777ad892f80ca79",
+      "leanSha256": "e09cc4ce4699aada908808718698f33f705a3edf55c4dcf8f777ad892f80ca79"
+    },
+    ".trellis/scripts/init_developer.py": {
+      "originalSha256": "f9e6c0d882406e81c8cd6b1c5abb204b0befc0069ff89cf650cd536a80f8c60e",
+      "leanSha256": "f9e6c0d882406e81c8cd6b1c5abb204b0befc0069ff89cf650cd536a80f8c60e"
+    },
+    ".trellis/scripts/task.py": {
+      "originalSha256": "b415e0a2dbc9e8cba1ada0c7997999aaaaea0eec96d3419db640830e88e84cfe",
+      "leanSha256": "b415e0a2dbc9e8cba1ada0c7997999aaaaea0eec96d3419db640830e88e84cfe"
+    },
+    ".trellis/workflow.md": {
+      "originalSha256": "e81d7d3dcbc242d12336ea8b9b0c165b0c0c5c046d2ab03b50e3420cb1c8e379",
+      "leanSha256": "5fd773d402a3c8ac2bc020849cbea7648ebc799968432306cf9d05f696f0ef82"
+    }
+  },
+  "rows": {
+    "tool.definition": {
+      "original": {
+        "characters": 724,
+        "utf8Bytes": 724,
+        "proxyUnits": 181,
+        "sha256": "6af8a24a7fc3df0d00b088aaffd4a0eac69af6194312d14b12879be0543c8aca"
+      },
+      "lean": {
+        "characters": 483,
+        "utf8Bytes": 483,
+        "proxyUnits": 121,
+        "sha256": "d343977342fd4a3c8497174c7cfaf2273690ae754ffeaf27f83fe7a85207efaf"
+      },
+      "charactersSaved": 241,
+      "characterReductionPercent": 33.29
+    },
+    "tool.guidance": {
+      "original": {
+        "characters": 309,
+        "utf8Bytes": 309,
+        "proxyUnits": 78,
+        "sha256": "4fb752dfb14bb01084856ff157d1664ddbc57564deef8b661d354556edce3af8"
+      },
+      "lean": {
+        "characters": 117,
+        "utf8Bytes": 117,
+        "proxyUnits": 30,
+        "sha256": "147755d9e7e0e75f686a32bbf512c96b043099960b48f8e063a9818a842a1059"
+      },
+      "charactersSaved": 192,
+      "characterReductionPercent": 62.14
+    },
+    "system.skillIndex": {
+      "original": {
+        "characters": 5049,
+        "utf8Bytes": 5085,
+        "proxyUnits": 1263,
+        "sha256": "f9381d9fc1f5488ab2aa12dcc2c68981e4c29f6835bfaf980ea72781bca87f21"
+      },
+      "lean": {
+        "characters": 3327,
+        "utf8Bytes": 3327,
+        "proxyUnits": 832,
+        "sha256": "a7b6ed5b8a5067af702cfa2ef7ebf715d8df51029cce29e8012605bde3dea807"
+      },
+      "charactersSaved": 1722,
+      "characterReductionPercent": 34.11
+    },
+    "injection.workflowIndex": {
+      "original": {
+        "characters": 7393,
+        "utf8Bytes": 7426,
+        "proxyUnits": 1849,
+        "sha256": "f9f86a36ac24e0ea5c5795fab0a8ec961865b2da61ddfdcfec27920cdf6f5b07"
+      },
+      "lean": {
+        "characters": 3831,
+        "utf8Bytes": 3860,
+        "proxyUnits": 958,
+        "sha256": "bda5699ec152c74ad2a6b7a7ce338c91c34a03e66d1a727258ba00f2f8ca7bf4"
+      },
+      "charactersSaved": 3562,
+      "characterReductionPercent": 48.18
+    },
+    "injection.overview": {
+      "original": {
+        "characters": 1002,
+        "utf8Bytes": 1025,
+        "proxyUnits": 251,
+        "sha256": "4b797df628f79ba10896d55577384316be090f4c95e3b55df58f307c591cca4e"
+      },
+      "lean": {
+        "characters": 820,
+        "utf8Bytes": 843,
+        "proxyUnits": 205,
+        "sha256": "f327a8c0c296c130fa75eeff42aee6be33315e6bf891e1a27501a6abda5e4d83"
+      },
+      "charactersSaved": 182,
+      "characterReductionPercent": 18.16
+    },
+    "injection.startupFixed": {
+      "original": {
+        "characters": 1103,
+        "utf8Bytes": 1105,
+        "proxyUnits": 276,
+        "sha256": "d5b07014d7196290bc72f88604b21986729e35962c70fd398f326efd3556f1c0"
+      },
+      "lean": {
+        "characters": 686,
+        "utf8Bytes": 688,
+        "proxyUnits": 172,
+        "sha256": "d56107799ce680d4e3101047652c7298c2b0a299c54e20b5a76de47e41b08c98"
+      },
+      "charactersSaved": 417,
+      "characterReductionPercent": 37.81
+    },
+    "injection.taskBodies": {
+      "original": {
+        "characters": 284,
+        "utf8Bytes": 301,
+        "proxyUnits": 71,
+        "sha256": "4aeba50b39dcf280b146491dec70c06a74ad77e86db94d4ebee0b835d7781709"
+      },
+      "lean": {
+        "characters": 284,
+        "utf8Bytes": 301,
+        "proxyUnits": 71,
+        "sha256": "4aeba50b39dcf280b146491dec70c06a74ad77e86db94d4ebee0b835d7781709"
+      },
+      "charactersSaved": 0,
+      "characterReductionPercent": 0
+    },
+    "injection.taskWrapper": {
+      "original": {
+        "characters": 415,
+        "utf8Bytes": 415,
+        "proxyUnits": 104,
+        "sha256": "f81af5dc006a361fd5070a39e363f84bb5fbbe1cf87db11c8a774cacf08524da"
+      },
+      "lean": {
+        "characters": 396,
+        "utf8Bytes": 396,
+        "proxyUnits": 99,
+        "sha256": "6864497420248325c814f59ffc29378ad7ffec98477f264fd9c736d4e07d69f8"
+      },
+      "charactersSaved": 19,
+      "characterReductionPercent": 4.58
+    },
+    "injection.taskContext": {
+      "original": {
+        "characters": 699,
+        "utf8Bytes": 716,
+        "proxyUnits": 175,
+        "sha256": "3ba159d93a9c73f4bc664982cb44a555b22d32c2b09ec6dc8bf337aad46ee238"
+      },
+      "lean": {
+        "characters": 680,
+        "utf8Bytes": 697,
+        "proxyUnits": 170,
+        "sha256": "4822f01a932471ccc81cefe89e1c0b528322fdd60b0b6d9fa69bc0794d30c14c"
+      },
+      "charactersSaved": 19,
+      "characterReductionPercent": 2.72
+    },
+    "injection.fixedSystem": {
+      "original": {
+        "characters": 9913,
+        "utf8Bytes": 9971,
+        "proxyUnits": 2479,
+        "sha256": "b361f2d4719ca4374e491d19f732a0f32b11a260d8563fb9cab4ebd3106eeaef"
+      },
+      "lean": {
+        "characters": 5733,
+        "utf8Bytes": 5787,
+        "proxyUnits": 1434,
+        "sha256": "8963528c1fbb6ce41c79e94dabdde205cf823b92cbca905430993f9459e11563"
+      },
+      "charactersSaved": 4180,
+      "characterReductionPercent": 42.17
+    },
+    "injection.completeSystem": {
+      "original": {
+        "characters": 10197,
+        "utf8Bytes": 10272,
+        "proxyUnits": 2550,
+        "sha256": "6b14f7401e271ff8db5b615e79953e4f128ca2802184cca0b222b4400224ffca"
+      },
+      "lean": {
+        "characters": 6017,
+        "utf8Bytes": 6088,
+        "proxyUnits": 1505,
+        "sha256": "b157de494409a80e635397a1d1fb554af06b0c2b4052662f82efb0262dfb7c59"
+      },
+      "charactersSaved": 4180,
+      "characterReductionPercent": 40.99
+    },
+    "injection.firstRuntimeUpdate": {
+      "original": {
+        "characters": 2609,
+        "utf8Bytes": 2632,
+        "proxyUnits": 653,
+        "sha256": "2de303e569282ef37c431ecd04c20b61de0ba97eeb2ddd58c774c47d098f61c5"
+      },
+      "lean": {
+        "characters": 1949,
+        "utf8Bytes": 1972,
+        "proxyUnits": 488,
+        "sha256": "9e1433963b73052ea9c7ff6ecec75fa59f5a168e98931f31effb91dc65dac327"
+      },
+      "charactersSaved": 660,
+      "characterReductionPercent": 25.3
+    },
+    "skillBody.trellis-before-dev": {
+      "original": {
+        "characters": 2229,
+        "utf8Bytes": 2233,
+        "proxyUnits": 558,
+        "sha256": "de6d7ee13367a75a7b265b3e49ebc89f652fec6888e2b48ba67c63bbe423fad6"
+      },
+      "lean": {
+        "characters": 1340,
+        "utf8Bytes": 1340,
+        "proxyUnits": 335,
+        "sha256": "2ad4364aaa56892f64c656a15d5194fcdd211ff54eb8bf61f599541dee9f6c91"
+      },
+      "charactersSaved": 889,
+      "characterReductionPercent": 39.88
+    },
+    "skillFile.trellis-before-dev": {
+      "original": {
+        "characters": 2638,
+        "utf8Bytes": 2642,
+        "proxyUnits": 660,
+        "sha256": "00c9d1c83bc318e91b27a019bc954c2957cfad907ff20d854b596f16cad2c0f3"
+      },
+      "lean": {
+        "characters": 1481,
+        "utf8Bytes": 1481,
+        "proxyUnits": 371,
+        "sha256": "c86ec7769f38ee2dfd5fae38810418b59fedf3237feccb57f91580d738661864"
+      },
+      "charactersSaved": 1157,
+      "characterReductionPercent": 43.86
+    },
+    "skillBody.trellis-brainstorm": {
+      "original": {
+        "characters": 10237,
+        "utf8Bytes": 10245,
+        "proxyUnits": 2560,
+        "sha256": "9f5429e4438276b7125e64edffe419e0ed23428be26170971ee27999f87f6dc5"
+      },
+      "lean": {
+        "characters": 6107,
+        "utf8Bytes": 6107,
+        "proxyUnits": 1527,
+        "sha256": "a60857ae64e61af9837a6f683d46a94292189be6a0ea99f63bf61212cba06cd9"
+      },
+      "charactersSaved": 4130,
+      "characterReductionPercent": 40.34
+    },
+    "skillFile.trellis-brainstorm": {
+      "original": {
+        "characters": 10613,
+        "utf8Bytes": 10621,
+        "proxyUnits": 2654,
+        "sha256": "17d9bf209730c14f584eb97f38198d0683ad3f8da982d9a6e6d4e84c853f9a94"
+      },
+      "lean": {
+        "characters": 6299,
+        "utf8Bytes": 6299,
+        "proxyUnits": 1575,
+        "sha256": "30bcc5faf8c42404596903540eb547fe45762cb55ccf2613dfaa727f977199fb"
+      },
+      "charactersSaved": 4314,
+      "characterReductionPercent": 40.65
+    },
+    "skillBody.trellis-break-loop": {
+      "original": {
+        "characters": 6675,
+        "utf8Bytes": 6693,
+        "proxyUnits": 1669,
+        "sha256": "f5c8c7c227b7784b0cec62a088f7511439d1d58edf0e9cb60855f62cce7700a7"
+      },
+      "lean": {
+        "characters": 3751,
+        "utf8Bytes": 3765,
+        "proxyUnits": 938,
+        "sha256": "3a5bd9af223ab301e3124c23696d78d449cde6c7858b2287773f518775df91ac"
+      },
+      "charactersSaved": 2924,
+      "characterReductionPercent": 43.81
+    },
+    "skillFile.trellis-break-loop": {
+      "original": {
+        "characters": 6945,
+        "utf8Bytes": 6963,
+        "proxyUnits": 1737,
+        "sha256": "f5a93699832f29dee443b53c135a7459519b371f689af191d15c29e8ee5c7bde"
+      },
+      "lean": {
+        "characters": 3892,
+        "utf8Bytes": 3906,
+        "proxyUnits": 973,
+        "sha256": "36ec345c10af86c459a59736d6a90cc604afb8529ed279072a2deaac1de0c0c9"
+      },
+      "charactersSaved": 3053,
+      "characterReductionPercent": 43.96
+    },
+    "skillBody.trellis-channel": {
+      "original": {
+        "characters": 4582,
+        "utf8Bytes": 4670,
+        "proxyUnits": 1146,
+        "sha256": "dea28a76f653f13b7b36a84dec2596881d03f98728c6d28f307449679c4522fc"
+      },
+      "lean": {
+        "characters": 3886,
+        "utf8Bytes": 3892,
+        "proxyUnits": 972,
+        "sha256": "b38c4a2d6657fe387f14cdef3eca7a8977ba603470a8ea01824e9797722de867"
+      },
+      "charactersSaved": 696,
+      "characterReductionPercent": 15.19
+    },
+    "skillFile.trellis-channel": {
+      "original": {
+        "characters": 4784,
+        "utf8Bytes": 4872,
+        "proxyUnits": 1196,
+        "sha256": "ff84801c511a736da018b4b1149348ebc9a16b7fc18d905ec10cfa7acbf269a3"
+      },
+      "lean": {
+        "characters": 4049,
+        "utf8Bytes": 4055,
+        "proxyUnits": 1013,
+        "sha256": "25bdb6a33dddb658d479551eb49bbf381c81d0050d4e9dc80af087352fad92a9"
+      },
+      "charactersSaved": 735,
+      "characterReductionPercent": 15.36
+    },
+    "skillBody.trellis-check": {
+      "original": {
+        "characters": 3418,
+        "utf8Bytes": 3446,
+        "proxyUnits": 855,
+        "sha256": "7329eae04ada83838501093b5b6021c57b8c10673a312691e9e006d4193f0edf"
+      },
+      "lean": {
+        "characters": 2297,
+        "utf8Bytes": 2303,
+        "proxyUnits": 575,
+        "sha256": "ba07ea76cd46c751089d26818a488025fa979b3cceb27e70bc10877e54e915ad"
+      },
+      "charactersSaved": 1121,
+      "characterReductionPercent": 32.8
+    },
+    "skillFile.trellis-check": {
+      "original": {
+        "characters": 3732,
+        "utf8Bytes": 3760,
+        "proxyUnits": 933,
+        "sha256": "dfb0600e95c19c7a83200465b6a92a5514ec9778ba4083efa881bed541cc74a8"
+      },
+      "lean": {
+        "characters": 2485,
+        "utf8Bytes": 2491,
+        "proxyUnits": 622,
+        "sha256": "54e99c36ceee23aa1f7d7040da68a166b54778bf304d3a862ed3207744d6143b"
+      },
+      "charactersSaved": 1247,
+      "characterReductionPercent": 33.41
+    },
+    "skillBody.trellis-meta": {
+      "original": {
+        "characters": 12268,
+        "utf8Bytes": 12278,
+        "proxyUnits": 3067,
+        "sha256": "bf068514734c0edf9dcc73c16212985e02f38d2719f6dda9da7cebcd71b20ea8"
+      },
+      "lean": {
+        "characters": 7958,
+        "utf8Bytes": 7958,
+        "proxyUnits": 1990,
+        "sha256": "c9823347f0071f35b04d2a8a56c799d3b87921aac7e7d09fb97fff17b67f9609"
+      },
+      "charactersSaved": 4310,
+      "characterReductionPercent": 35.13
+    },
+    "skillFile.trellis-meta": {
+      "original": {
+        "characters": 12838,
+        "utf8Bytes": 12848,
+        "proxyUnits": 3210,
+        "sha256": "ee7bcfd0023def62688339c4b63c50f2fbeea12a34eb89e8bb63a992b58cb168"
+      },
+      "lean": {
+        "characters": 8237,
+        "utf8Bytes": 8237,
+        "proxyUnits": 2060,
+        "sha256": "936b7f8790ac0f5855ed2a73588f57c46bd02da9ec6ed3adbde832dccc6471c7"
+      },
+      "charactersSaved": 4601,
+      "characterReductionPercent": 35.84
+    },
+    "skillBody.trellis-session-insight": {
+      "original": {
+        "characters": 6090,
+        "utf8Bytes": 6138,
+        "proxyUnits": 1523,
+        "sha256": "6146166506a20662eb85a45c32cfe5ffbd437a9a889b7418f687a1dc35472c05"
+      },
+      "lean": {
+        "characters": 3000,
+        "utf8Bytes": 3000,
+        "proxyUnits": 750,
+        "sha256": "f68ec00d3eff31271a6df22052b704304fed524fb88659300b2fe24a7b5fcec4"
+      },
+      "charactersSaved": 3090,
+      "characterReductionPercent": 50.74
+    },
+    "skillFile.trellis-session-insight": {
+      "original": {
+        "characters": 6698,
+        "utf8Bytes": 6782,
+        "proxyUnits": 1675,
+        "sha256": "c9e58477f71987750f025ee967ca6663ccbbede8a352506bc2f4232a356deb12"
+      },
+      "lean": {
+        "characters": 3234,
+        "utf8Bytes": 3234,
+        "proxyUnits": 809,
+        "sha256": "2ad72ea3d6014fa8af27b3b21aeb3186a4610e5525924b43ad61534edb9ece46"
+      },
+      "charactersSaved": 3464,
+      "characterReductionPercent": 51.72
+    },
+    "skillBody.trellis-spec-bootstrap": {
+      "original": {
+        "characters": 2299,
+        "utf8Bytes": 2299,
+        "proxyUnits": 575,
+        "sha256": "f0c18293650bbd4bde5168f5b0dbe514eb23b185b98149c5c0b2dfdf81f063d7"
+      },
+      "lean": {
+        "characters": 1821,
+        "utf8Bytes": 1821,
+        "proxyUnits": 456,
+        "sha256": "e829023fb7fcdd57de67d710fb224142f1cc12dee231b77520d25451df876237"
+      },
+      "charactersSaved": 478,
+      "characterReductionPercent": 20.79
+    },
+    "skillFile.trellis-spec-bootstrap": {
+      "original": {
+        "characters": 2679,
+        "utf8Bytes": 2679,
+        "proxyUnits": 670,
+        "sha256": "97bfa68c06cebb558eb4464bc1b81f7d2d56040d75baa8de1ee5ad90cca0196a"
+      },
+      "lean": {
+        "characters": 2043,
+        "utf8Bytes": 2043,
+        "proxyUnits": 511,
+        "sha256": "6777949a88e647717809876f07b0e1e700aa5ba3738082fcedc55ac5eec022cf"
+      },
+      "charactersSaved": 636,
+      "characterReductionPercent": 23.74
+    },
+    "skillBody.trellis-update-spec": {
+      "original": {
+        "characters": 9737,
+        "utf8Bytes": 9847,
+        "proxyUnits": 2435,
+        "sha256": "197898bec9b90706cb540bdb1ac628051e7df86d2c02bee574e42531fba482ad"
+      },
+      "lean": {
+        "characters": 4148,
+        "utf8Bytes": 4182,
+        "proxyUnits": 1037,
+        "sha256": "81e02c61fa6291c29075ceb928691b1ab833290063abaf2d96fad77f07978c8e"
+      },
+      "charactersSaved": 5589,
+      "characterReductionPercent": 57.4
+    },
+    "skillFile.trellis-update-spec": {
+      "original": {
+        "characters": 9999,
+        "utf8Bytes": 10109,
+        "proxyUnits": 2500,
+        "sha256": "003ce08a3404aeb50998029392c4d4e57b626edf526d3ebd585032bb92dcbb96"
+      },
+      "lean": {
+        "characters": 4327,
+        "utf8Bytes": 4361,
+        "proxyUnits": 1082,
+        "sha256": "f0fac29b201bd714240974fc20c2ec3a7d70062b082c240d66de2b94efdab715"
+      },
+      "charactersSaved": 5672,
+      "characterReductionPercent": 56.73
+    },
+    "promptBody.trellis-continue": {
+      "original": {
+        "characters": 2354,
+        "utf8Bytes": 2378,
+        "proxyUnits": 589,
+        "sha256": "7ed99d0192e1ebe7ad917001e6037b87bb4296ddcd3caffbfa17b7511fd71ce1"
+      },
+      "lean": {
+        "characters": 1567,
+        "utf8Bytes": 1583,
+        "proxyUnits": 392,
+        "sha256": "7b73150ea1d710eb125aed17da5adc31f84adfe85f6697afd88205c7d3ea56cd"
+      },
+      "charactersSaved": 787,
+      "characterReductionPercent": 33.43
+    },
+    "promptFile.trellis-continue": {
+      "original": {
+        "characters": 2354,
+        "utf8Bytes": 2378,
+        "proxyUnits": 589,
+        "sha256": "7ed99d0192e1ebe7ad917001e6037b87bb4296ddcd3caffbfa17b7511fd71ce1"
+      },
+      "lean": {
+        "characters": 1567,
+        "utf8Bytes": 1583,
+        "proxyUnits": 392,
+        "sha256": "7b73150ea1d710eb125aed17da5adc31f84adfe85f6697afd88205c7d3ea56cd"
+      },
+      "charactersSaved": 787,
+      "characterReductionPercent": 33.43
+    },
+    "promptBody.trellis-finish-work": {
+      "original": {
+        "characters": 4544,
+        "utf8Bytes": 4578,
+        "proxyUnits": 1136,
+        "sha256": "5fc5059fdf881db942f8b3f3dae8932d88e847cc15f7669bc5891238fb7c2990"
+      },
+      "lean": {
+        "characters": 2627,
+        "utf8Bytes": 2641,
+        "proxyUnits": 657,
+        "sha256": "2e096d7dbbbd34fffe348b5ad529c13f37f9e84cb000125e04463e709e9d062d"
+      },
+      "charactersSaved": 1917,
+      "characterReductionPercent": 42.19
+    },
+    "promptFile.trellis-finish-work": {
+      "original": {
+        "characters": 4544,
+        "utf8Bytes": 4578,
+        "proxyUnits": 1136,
+        "sha256": "5fc5059fdf881db942f8b3f3dae8932d88e847cc15f7669bc5891238fb7c2990"
+      },
+      "lean": {
+        "characters": 2627,
+        "utf8Bytes": 2641,
+        "proxyUnits": 657,
+        "sha256": "2e096d7dbbbd34fffe348b5ad529c13f37f9e84cb000125e04463e709e9d062d"
+      },
+      "charactersSaved": 1917,
+      "characterReductionPercent": 42.19
+    },
+    "promptBody.trellis-start": {
+      "original": {
+        "characters": 2430,
+        "utf8Bytes": 2438,
+        "proxyUnits": 608,
+        "sha256": "28af1eb6645d8b517cf705277d8405370b712926e6b01667d6698564002c6a9d"
+      },
+      "lean": {
+        "characters": 2030,
+        "utf8Bytes": 2030,
+        "proxyUnits": 508,
+        "sha256": "c52a60d52651b378942bbf7278a4f7a8d290001fcbfb90004b2c7411cc3f9870"
+      },
+      "charactersSaved": 400,
+      "characterReductionPercent": 16.46
+    },
+    "promptFile.trellis-start": {
+      "original": {
+        "characters": 2430,
+        "utf8Bytes": 2438,
+        "proxyUnits": 608,
+        "sha256": "28af1eb6645d8b517cf705277d8405370b712926e6b01667d6698564002c6a9d"
+      },
+      "lean": {
+        "characters": 2030,
+        "utf8Bytes": 2030,
+        "proxyUnits": 508,
+        "sha256": "c52a60d52651b378942bbf7278a4f7a8d290001fcbfb90004b2c7411cc3f9870"
+      },
+      "charactersSaved": 400,
+      "characterReductionPercent": 16.46
+    },
+    "agentBody.trellis-check": {
+      "original": {
+        "characters": 5073,
+        "utf8Bytes": 5077,
+        "proxyUnits": 1269,
+        "sha256": "18a27dd5e72159b7d187306fe89fea6a13b1360d8e0ee7c50d1065d9e9b6653f"
+      },
+      "lean": {
+        "characters": 3338,
+        "utf8Bytes": 3340,
+        "proxyUnits": 835,
+        "sha256": "e534d1319189f148a4a5686d93d206577436ddbd9b7d63e24ffbd26e8c14e63e"
+      },
+      "charactersSaved": 1735,
+      "characterReductionPercent": 34.2
+    },
+    "agentFile.trellis-check": {
+      "original": {
+        "characters": 5329,
+        "utf8Bytes": 5333,
+        "proxyUnits": 1333,
+        "sha256": "483d1b5e877ac2f2105761df8e46a1cfc569c77ed11ffbf120c7df6421c3c1ed"
+      },
+      "lean": {
+        "characters": 3594,
+        "utf8Bytes": 3596,
+        "proxyUnits": 899,
+        "sha256": "df1724f004bf59f8eb58f18c4782a7df9484b60774202556600f196fa43f2c9c"
+      },
+      "charactersSaved": 1735,
+      "characterReductionPercent": 32.56
+    },
+    "agentBody.trellis-implement": {
+      "original": {
+        "characters": 3943,
+        "utf8Bytes": 3947,
+        "proxyUnits": 986,
+        "sha256": "9f550b590bf1316c99c7f529081b48ba85d3ee5324e63b0460230a5b553fdf40"
+      },
+      "lean": {
+        "characters": 2325,
+        "utf8Bytes": 2327,
+        "proxyUnits": 582,
+        "sha256": "d720733a815d334e237e5223923288c95908686e389827aa0f4b1e0b4df9bc68"
+      },
+      "charactersSaved": 1618,
+      "characterReductionPercent": 41.03
+    },
+    "agentFile.trellis-implement": {
+      "original": {
+        "characters": 4207,
+        "utf8Bytes": 4211,
+        "proxyUnits": 1052,
+        "sha256": "d4342d74325c763344be7ce20801f92adbfb22454c45448770c390c87e47b1f0"
+      },
+      "lean": {
+        "characters": 2589,
+        "utf8Bytes": 2591,
+        "proxyUnits": 648,
+        "sha256": "49f330b24073cae8e92df73e90cbdae0775246c17c25c7e74b31d6eba91227bb"
+      },
+      "charactersSaved": 1618,
+      "characterReductionPercent": 38.46
+    },
+    "agentBody.trellis-research": {
+      "original": {
+        "characters": 1167,
+        "utf8Bytes": 1167,
+        "proxyUnits": 292,
+        "sha256": "18be78908cadcde0ef8b2c08437206e4d7b2aab183d9a0cbebe19524c7ccc269"
+      },
+      "lean": {
+        "characters": 877,
+        "utf8Bytes": 877,
+        "proxyUnits": 220,
+        "sha256": "7e234a84b35f45975ded62071b958cadcc9f0fce00dc35efeafb78fd4e8a4690"
+      },
+      "charactersSaved": 290,
+      "characterReductionPercent": 24.85
+    },
+    "agentFile.trellis-research": {
+      "original": {
+        "characters": 1441,
+        "utf8Bytes": 1441,
+        "proxyUnits": 361,
+        "sha256": "629f1ecd01ded518ef69408f33505bc76ea1194b5235fe24b1d3d3062137efc5"
+      },
+      "lean": {
+        "characters": 1152,
+        "utf8Bytes": 1152,
+        "proxyUnits": 288,
+        "sha256": "d452355609af3a89fac6a312b0a37d8aa86888c5381755024059d4a38ecef067"
+      },
+      "charactersSaved": 289,
+      "characterReductionPercent": 20.06
+    },
+    "workflowState.no_task": {
+      "original": {
+        "characters": 421,
+        "utf8Bytes": 421,
+        "proxyUnits": 106,
+        "sha256": "853bb8a1401a0f5686bd39bf2640e19aacdfde6dbd3c46abf08ef54139dbd121"
+      },
+      "lean": {
+        "characters": 352,
+        "utf8Bytes": 352,
+        "proxyUnits": 88,
+        "sha256": "5138bea31a6c996d0ba381407e1ed2167b34f834ef32e3cb19449d7fd9927a04"
+      },
+      "charactersSaved": 69,
+      "characterReductionPercent": 16.39
+    },
+    "workflowState.task_error": {
+      "original": {
+        "characters": 345,
+        "utf8Bytes": 345,
+        "proxyUnits": 87,
+        "sha256": "e2eb6ceeb574845e0960195c13e39f26d9eb3c3d37a814ea4f101a87da48e69f"
+      },
+      "lean": {
+        "characters": 251,
+        "utf8Bytes": 251,
+        "proxyUnits": 63,
+        "sha256": "18cc7f088c6a085ec0308c2f53505dd91e337a1aff3cc76ddafcec84d41b94fc"
+      },
+      "charactersSaved": 94,
+      "characterReductionPercent": 27.25
+    },
+    "workflowState.planning": {
+      "original": {
+        "characters": 449,
+        "utf8Bytes": 449,
+        "proxyUnits": 113,
+        "sha256": "f3f344cac2aeae352edae87983544bf4d16eb3a54ff139b4f7c75ba4b44c13c0"
+      },
+      "lean": {
+        "characters": 363,
+        "utf8Bytes": 363,
+        "proxyUnits": 91,
+        "sha256": "00b2b5c62c298aa57890faacaf594d00ddee61230d402aa6f713b1cec0b78560"
+      },
+      "charactersSaved": 86,
+      "characterReductionPercent": 19.15
+    },
+    "workflowState.planning-inline": {
+      "original": {
+        "characters": 439,
+        "utf8Bytes": 439,
+        "proxyUnits": 110,
+        "sha256": "e4193149ecd0d93759420ddae3eba0c9387d4aa5b7d9346f2a2bd13359ee0404"
+      },
+      "lean": {
+        "characters": 348,
+        "utf8Bytes": 348,
+        "proxyUnits": 87,
+        "sha256": "be4de512ca447a46127120992d6df540e51b8023085ca51c7195b40f481f6fbb"
+      },
+      "charactersSaved": 91,
+      "characterReductionPercent": 20.73
+    },
+    "workflowState.in_progress": {
+      "original": {
+        "characters": 1487,
+        "utf8Bytes": 1487,
+        "proxyUnits": 372,
+        "sha256": "e2aec8945cd34d99a9811b8188df8e57bbeb38f93dacf8752c49c0db3f543ae2"
+      },
+      "lean": {
+        "characters": 1009,
+        "utf8Bytes": 1009,
+        "proxyUnits": 253,
+        "sha256": "f98055db6764f0f5a8dbeeee6b95ae6d87453fc64865e22b7de662fad879e291"
+      },
+      "charactersSaved": 478,
+      "characterReductionPercent": 32.15
+    },
+    "workflowState.in_progress-inline": {
+      "original": {
+        "characters": 941,
+        "utf8Bytes": 941,
+        "proxyUnits": 236,
+        "sha256": "a19f6587222ae0ad90e52b11f50b4daa0d899ca70a451bb8adcd139e6cadfc4f"
+      },
+      "lean": {
+        "characters": 736,
+        "utf8Bytes": 736,
+        "proxyUnits": 184,
+        "sha256": "6843bfe5cf920dec2225e5a4c3535225485ee7120af492c596d6cde73a2b7fe1"
+      },
+      "charactersSaved": 205,
+      "characterReductionPercent": 21.79
+    },
+    "workflowState.completed": {
+      "original": {
+        "characters": 80,
+        "utf8Bytes": 80,
+        "proxyUnits": 20,
+        "sha256": "cd27b35ae9d239609c9730ef34206f6cc77a34c75b4f2962c91cac41bdc3d57d"
+      },
+      "lean": {
+        "characters": 80,
+        "utf8Bytes": 80,
+        "proxyUnits": 20,
+        "sha256": "cd27b35ae9d239609c9730ef34206f6cc77a34c75b4f2962c91cac41bdc3d57d"
+      },
+      "charactersSaved": 0,
+      "characterReductionPercent": 0
+    },
+    "total.skillBody": {
+      "original": {
+        "characters": 57535,
+        "utf8Bytes": 57849,
+        "proxyUnits": 14384,
+        "sha256": "c9a2c6fd5a8b2a1bd3572641230407b494ce4e6d1a97e92c326705a77aadb871"
+      },
+      "lean": {
+        "characters": 34308,
+        "utf8Bytes": 34368,
+        "proxyUnits": 8577,
+        "sha256": "812197305d92c91be87494b574bf330dc77a13a7455a440c737bf98c311b21ee"
+      },
+      "charactersSaved": 23227,
+      "characterReductionPercent": 40.37
+    },
+    "total.skillFile": {
+      "original": {
+        "characters": 60926,
+        "utf8Bytes": 61276,
+        "proxyUnits": 15232,
+        "sha256": "1032c4a94b5bb870c5c4c9fb8708b9abad5571d327905b987431c49271c08feb"
+      },
+      "lean": {
+        "characters": 36047,
+        "utf8Bytes": 36107,
+        "proxyUnits": 9012,
+        "sha256": "b500c547290e091be1b422f3c058e8f3b931e477cc03ee160ec599b907333909"
+      },
+      "charactersSaved": 24879,
+      "characterReductionPercent": 40.83
+    },
+    "total.promptBody": {
+      "original": {
+        "characters": 9328,
+        "utf8Bytes": 9394,
+        "proxyUnits": 2332,
+        "sha256": "da841b7563626626e3d24cdb6e36b31812b665abbc1e838558b105433b472461"
+      },
+      "lean": {
+        "characters": 6224,
+        "utf8Bytes": 6254,
+        "proxyUnits": 1556,
+        "sha256": "4c2b500c3e15e80ed8ccfc911f7d2c39732db803096543fce560caf774b58355"
+      },
+      "charactersSaved": 3104,
+      "characterReductionPercent": 33.28
+    },
+    "total.agentBody": {
+      "original": {
+        "characters": 10183,
+        "utf8Bytes": 10191,
+        "proxyUnits": 2546,
+        "sha256": "c68aaccb7dade82fec0f6f204a9a500ae77136065abacbd6d76ef96c53e8b9a7"
+      },
+      "lean": {
+        "characters": 6540,
+        "utf8Bytes": 6544,
+        "proxyUnits": 1635,
+        "sha256": "1dff3a3bd48b483f8619b39fd9be71d3c60036a5f703dd676dcc930484de6832"
+      },
+      "charactersSaved": 3643,
+      "characterReductionPercent": 35.78
+    }
+  }
+}

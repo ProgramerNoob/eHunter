@@ -1,0 +1,253 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "实施前提供 Trellis 原版工具、自动注入和 skills 清单，以及具体精简方案和可复现的基线/候选计数。",
+    "AC2": "仍只注册 trellis_subagent；字段名、类型、枚举、prompts.maxItems = 6、缺省行为、执行和渲染契约保持兼容。",
+    "AC3": "精简文本遵循去重、去 schema 重复说明、去面向人的界面说明和强调语气；保留所有影响调用和流程的规则。",
+    "AC4": "合法 single、parallel、chain 和 model/thinking 覆盖可正常派发；缺省值、trim、非法 agent、缺 prompt、类型错误和数量边界有回归证据。",
+    "AC5": "确定性参数补全在宿主 schema 校验前执行；不猜测代理、模式或内容，不绕过原约束；歧义输入返回清楚错误。",
+    "AC6": "分别报告工具定义、固定注入、skill 索引和按需正文的原版/lean 计数；同输入、同序列化、同计数器，明确代理值与真实 token 的区别。",
+    "AC7": "Trellis skills 保持可发现且触发条件、命令、权限及验收契约不丢失；任务正文、curated specs、注入预算和更新机制不变。",
+    "AC8": "工作流各状态、重复请求、任务文件更新及项目切换的注入行为保持兼容，至少一次真实 Trellis 子代理派发完成且正常退出。",
+    "AC9": "静态检查、相关回归和任务资料校验通过；记录未验证范围、回滚方法及本地定制与 trellis update 的关系。"
+  },
+  "checks": [
+    {
+      "id": "inventory-and-proposal",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "原版清单、精简提案与基线资料齐全。",
+      "scope": "任务研究、注册快照和加载入口。",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/injection-inventory.md",
+        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/prd.md",
+        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/implement.md"
+      ],
+      "note": "原版清单和候选计数已在实施前展示；用户确认扩展方案后启动任务。候选值与最终值分别保留。",
+      "waiver": null
+    },
+    {
+      "id": "schema-and-registration",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "工具注册、schema 和运行契约保持兼容。",
+      "scope": "trellis_subagent 注册及渲染回调。",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "node",
+          "--test",
+          "scripts/test-trellis-extension.mjs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T21:46:28.112045+00:00",
+        "endedAt": "2026-10-14T21:46:28.513115+00:00",
+        "log": ".tmp/trellis-lean-final/extension.log"
+      },
+      "evidence": [
+        ".tmp/trellis-lean-final/extension.log"
+      ],
+      "note": "11/11；实际注册对象与 e7e5f28 的字段/类型/枚举/可选性比较，只移除描述/snippet。renderer 回调受控验证，未做 TUI 视觉操作。",
+      "waiver": null
+    },
+    {
+      "id": "rule-preservation",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "去重后调用及工作流规则保留完整。",
+      "scope": "原规则/新位置对照、工具提示与工作流文本。",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/review.md",
+        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/review-followup.md"
+      ],
+      "note": "完整 Standards/Spec 审查加定向复核。原 R1 失败发现保留，修复两句后确认四类触发均承担七段结构。此为文本契约核对，不宣称所有模型行为已证明等价。",
+      "waiver": null
+    },
+    {
+      "id": "execution-regression",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "正常、异常和边界参数经过回归。",
+      "scope": "模式、默认值、覆盖字段、非法 agent 和数量边界。",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "node",
+          "--test",
+          "scripts/test-trellis-extension.mjs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T21:46:28.112045+00:00",
+        "endedAt": "2026-10-14T21:46:28.513115+00:00",
+        "log": ".tmp/trellis-lean-final/extension.log"
+      },
+      "evidence": [
+        ".tmp/trellis-lean-final/extension.log",
+        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/live-dispatch.md"
+      ],
+      "note": "single/parallel/chain、默认值、trim、model/thinking 及错误边界由真实 SDK+受控子进程覆盖；single 另有真实派发。未执行真实 parallel/chain。",
+      "waiver": null
+    },
+    {
+      "id": "prevalidation-normalization",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "确定性补全在校验前执行且不绕过约束。",
+      "scope": "宿主 prepareArguments 路径及失败输入。",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "node",
+          "--test",
+          "scripts/test-trellis-extension.mjs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T21:46:28.112045+00:00",
+        "endedAt": "2026-10-14T21:46:28.513115+00:00",
+        "log": ".tmp/trellis-lean-final/extension.log"
+      },
+      "evidence": [
+        ".tmp/trellis-lean-final/extension.log"
+      ],
+      "note": "真实 SDK 验证 prepare 位于 schema 校验前；拒绝错误原始类型，保留默认值，不猜意图，原始数组超限不能经空项过滤绕过。",
+      "waiver": null
+    },
+    {
+      "id": "token-report",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "同输入计数可复现且统计分层正确。",
+      "scope": "注册 JSON、固定注入、skills 和按需正文快照。",
+      "method": "command",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/trellis-lean-review-followup/audit.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T22:14:35.667090+00:00",
+        "endedAt": "2026-10-14T22:14:35.946622+00:00",
+        "log": ".tmp/trellis-lean-review-followup/audit.log"
+      },
+      "evidence": [
+        ".tmp/trellis-lean-review-followup/audit.log",
+        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/token-report.md",
+        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/token-comparison.json",
+        ".tmp/trellis-lean-final/measurement-final.log"
+      ],
+      "note": "当前最终源码的计数报告重算通过；独立审计45组散列/106份快照一致。仅 Unicode 字符与 ceil(chars/4) 代理，不是 tokenizer/provider token。",
+      "waiver": null
+    },
+    {
+      "id": "skills-and-context-contract",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "技能触发与上下文内容、预算和更新契约保留。",
+      "scope": "9 个 skills、模板、角色和任务上下文。",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/review.md",
+        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/review-followup.md",
+        ".tmp/trellis-lean-final/extension.log",
+        ".tmp/trellis-lean-final/context.log",
+        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/token-comparison.json"
+      ],
+      "note": "9 skills 可发现、触发和权限保留；三角色 whitelist 不变；固定任务正文、curated specs、预算和更新机制通过基线对比。R1 已修复复核。",
+      "waiver": null
+    },
+    {
+      "id": "injection-and-native-dispatch",
+      "ac": [
+        "AC8"
+      ],
+      "claim": "注入状态变化及真实子代理派发兼容。",
+      "scope": "状态矩阵、更新、切换、工具请求与退出证据。",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "node",
+          "/Users/warwick/claude/eHunter/.tmp/trellis-lean-live/run-live.mjs",
+          "attempt-2"
+        ],
+        "exitCode": 0,
+        "startedAt": "2026-10-14T21:38:58.780826+00:00",
+        "endedAt": "2026-10-14T21:39:07.401372+00:00",
+        "cwd": ".",
+        "log": ".tmp/trellis-lean-live/attempt-2.stdout.txt"
+      },
+      "evidence": [
+        ".tmp/trellis-lean-live/attempt-2.stdout.txt",
+        ".tmp/trellis-lean-live/attempt-2.process.json",
+        ".tmp/trellis-lean-live/attempt-2/summary.json",
+        ".tmp/trellis-lean-final/extension.log",
+        ".tmp/trellis-lean-final/context.log",
+        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/research/live-dispatch.md"
+      ],
+      "note": "状态/重复/更新/恢复/跨项目由回归覆盖；真实 research single 两次provider请求，读取随机事实并正确返回，宿主与子进程exit0。首次harness断言失败和child exit0均保留；复测独立通过。未将child工具表当作主模型请求证据。",
+      "waiver": null
+    },
+    {
+      "id": "static-and-task-validation",
+      "ac": [
+        "AC9"
+      ],
+      "claim": "静态、回归、资料、回滚及更新说明齐全。",
+      "scope": "本次改动与 acceptance 记录。",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/trellis-lean-final/validate-delivery.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-14T22:17:40.501585+00:00",
+        "endedAt": "2026-10-14T22:17:40.604956+00:00",
+        "log": ".tmp/trellis-lean-final/delivery-validation.log"
+      },
+      "evidence": [
+        ".tmp/trellis-lean-final/delivery-validation.log",
+        ".tmp/trellis-lean-final/acceptance.log",
+        ".tmp/trellis-lean-final/executions.json",
+        ".trellis/tasks/10-15-trellis-lean-tool-descriptions/delivery.md",
+        ".trellis/spec/tooling/pi-context.md"
+      ],
+      "note": "37/37 验收协议测试、manifest、diff、38个文档链接和JSON检查通过。已记录更新/回滚与未验证范围；不声称全量严格tsc/lint、其他OS或浏览器通过。",
+      "waiver": null
+    }
+  ]
+}

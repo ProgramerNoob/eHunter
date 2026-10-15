@@ -587,23 +587,15 @@ def get_context_text(repo_root: Path | None = None) -> str:
     if repo_root is None:
         repo_root = get_repo_root()
 
-    lines = []
-    lines.append("========================================")
-    lines.append("SESSION CONTEXT")
-    lines.append("========================================")
-    lines.append("")
-
+    lines = ["# Session context", ""]
     developer = get_developer(repo_root)
-
-    # Developer section
-    lines.append("## DEVELOPER")
     if not developer:
         lines.append(
             f"ERROR: Not initialized. Run: python3 ./{DIR_WORKFLOW}/{DIR_SCRIPTS}/init_developer.py <name>"
         )
         return "\n".join(lines)
 
-    lines.append(f"Name: {developer}")
+    lines.append(f"Developer: {developer}")
     lines.append("")
 
     root_git_info = _collect_root_git_info(repo_root)
@@ -619,7 +611,7 @@ def get_context_text(repo_root: Path | None = None) -> str:
     )
 
     # Current task
-    lines.append("## CURRENT TASK")
+    lines.append("## Current task")
     current_task = get_current_task(repo_root)
     if current_task:
         current_task_dir = repo_root / current_task
@@ -631,23 +623,20 @@ def get_context_text(repo_root: Path | None = None) -> str:
 
         ct = load_task(current_task_dir)
         if ct:
-            lines.append(f"Name: {ct.name}")
-            lines.append(f"Status: {ct.status}")
-            lines.append(f"Created: {ct.raw.get('createdAt', 'unknown')}")
+            lines.append(f"Name: {ct.name} | Status: {ct.status} | Created: {ct.raw.get('createdAt', 'unknown')}")
             if ct.description:
                 lines.append(f"Description: {ct.description}")
 
         # Check for prd.md
         prd_file = current_task_dir / "prd.md"
         if prd_file.is_file():
-            lines.append("")
-            lines.append("[!] This task has prd.md - read it for task details")
+            lines.append("Read prd.md for task details.")
     else:
         lines.append("(none)")
     lines.append("")
 
     # Active tasks
-    lines.append("## ACTIVE TASKS")
+    lines.append("## Active tasks")
     tasks_dir = get_tasks_dir(repo_root)
     task_count = 0
 
@@ -676,7 +665,7 @@ def get_context_text(repo_root: Path | None = None) -> str:
     lines.append("")
 
     # My tasks
-    lines.append("## MY TASKS (Assigned to me)")
+    lines.append("## Assigned to me")
     my_task_count = 0
 
     for t in all_tasks.values():
@@ -690,13 +679,12 @@ def get_context_text(repo_root: Path | None = None) -> str:
     lines.append("")
 
     # Journal file
-    lines.append("## JOURNAL FILE")
+    lines.append("## Journal")
     journal_file = get_active_journal_file(repo_root)
     if journal_file:
         journal_lines = count_lines(journal_file)
         relative = f"{DIR_WORKFLOW}/{DIR_WORKSPACE}/{developer}/{journal_file.name}"
-        lines.append(f"Active file: {relative}")
-        lines.append(f"Line count: {journal_lines} / 2000")
+        lines.append(f"{relative} ({journal_lines} / 2000 lines)")
         if journal_lines > 1800:
             lines.append("[!] WARNING: Approaching 2000 line limit!")
     else:
@@ -710,13 +698,10 @@ def get_context_text(repo_root: Path | None = None) -> str:
         lines.append("")
 
     # Paths
-    lines.append("## PATHS")
+    lines.append("## Paths")
     lines.append(f"Workspace: {DIR_WORKFLOW}/{DIR_WORKSPACE}/{developer}/")
     lines.append(f"Tasks: {DIR_WORKFLOW}/{DIR_TASKS}/")
     lines.append(f"Spec: {DIR_WORKFLOW}/{DIR_SPEC}/")
-    lines.append("")
-
-    lines.append("========================================")
 
     return "\n".join(lines)
 

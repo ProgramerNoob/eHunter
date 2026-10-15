@@ -67,7 +67,8 @@ def get_phase_index() -> str:
     ``get_step`` on demand. ``[workflow-state:STATUS]`` tag blocks are
     consumed by the per-turn hook, so they're stripped from this output.
     """
-    text = _read_workflow()
+    # Comments document the source format; they are not model-facing guidance.
+    text = re.sub(r"<!--[\s\S]*?-->", "", _read_workflow())
     lines = text.splitlines()
 
     start: int | None = None
@@ -89,12 +90,12 @@ def get_phase_index() -> str:
     section = "\n".join(lines[start:end]).rstrip()
     # Strip [workflow-state:STATUS]...[/workflow-state:STATUS] blocks since
     # they're injected separately by inject-workflow-state.py per-turn.
-    import re as _re
-    tag_re = _re.compile(
+    tag_re = re.compile(
         r"\[workflow-state:([A-Za-z0-9_-]+)\]\s*\n.*?\n\s*\[/workflow-state:\1\]\n?",
-        _re.DOTALL,
+        re.DOTALL,
     )
-    return tag_re.sub("", section).rstrip() + "\n"
+    section = tag_re.sub("", section)
+    return re.sub(r"\n{3,}", "\n\n", section).rstrip() + "\n"
 
 
 def get_step(step_id: str) -> str:

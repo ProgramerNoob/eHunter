@@ -1,111 +1,56 @@
 ---
 name: trellis-check
-description: "Comprehensive quality verification: spec compliance, lint, type-check, tests, cross-layer data flow, code reuse, and consistency checks. Use when code is written and needs quality verification, before committing changes, or to catch context drift during long sessions."
+description: "Verify code against specs, lint, types, tests, cross-layer flow, reuse, and consistency after changes, before commits, or when context drifts."
 ---
 
 # Code Quality Check
 
-Comprehensive quality verification for recently written code. Combines spec compliance, cross-layer safety, and pre-commit checks.
-
----
-
-## Step 1: Identify What Changed
+## 1. Identify changes
 
 ```bash
 git diff --name-only HEAD
 git status
 ```
 
-## Step 2: Read Task Artifacts and Applicable Specs
+## 2. Load requirements and specs
 
-Read the current task artifacts in order:
-
-- `prd.md`
-- `design.md` if present
-- `implement.md` if present
+Read the task's `prd.md`, then `design.md` and `implement.md` if present.
 
 ```bash
 python3 ./.trellis/scripts/get_context.py --mode packages
-```
-
-For each changed package/layer, read the spec index and follow its **Quality Check** section:
-
-```bash
 cat .trellis/spec/<package>/<layer>/index.md
 ```
 
-Read the specific guideline files referenced — the index is a pointer, not the goal.
+For each changed package/layer, follow the index's **Quality Check** section and read its applicable guideline files; the index alone is insufficient.
 
-## Step 3: Run Project Checks
+## 3. Run checks and review
 
-Run the project's lint, type-check, and test commands. Fix any failures before proceeding.
+Run the project's lint, type-check, and tests; fix failures before proceeding. Verify:
 
-## Step 4: Review Against Checklist
+- Code quality: checks pass, with no leftover debug logging, suppressed warnings, or type-safety bypasses.
+- Coverage: new functions have unit tests, bug fixes have regressions, and changed behavior has updated tests.
+- Spec sync: document new patterns, conventions, bug lessons, and non-obvious findings in the relevant `.trellis/spec/` docs.
+- Scope: no unrelated tidying, speculative abstractions/config/extension points, impossible-state fallbacks, files outside acceptance criteria, or caller workarounds for behavior owned elsewhere.
 
-### Code Quality
+## 4. Cross-layer dimensions
 
-- [ ] Linter passes?
-- [ ] Type checker passes (if applicable)?
-- [ ] Tests pass?
-- [ ] No debug logging left in?
-- [ ] No suppressed warnings or type-safety bypasses?
+Skip this section for changes confined to one layer. Otherwise check applicable dimensions:
 
-### Test Coverage
+| Trigger | Check |
+| --- | --- |
+| Data flow across 3+ layers | Trace Storage → Service → API → UI reads and reverse writes; verify types/schemas and error propagation |
+| Constants or utilities | Search existing code before adding; extract repeated values only when they represent one stable concept whose callers change together; verify all occurrences after batch edits |
+| New files | Correct relative/absolute imports; no circular dependencies |
+| Shared concepts | Consistent use elsewhere in the same layer |
 
-- [ ] New function → unit test added?
-- [ ] Bug fix → regression test added?
-- [ ] Changed behavior → existing tests updated?
+Reuse search:
 
-### Spec Sync
+```bash
+grep -r "pattern" src/
+```
 
-- [ ] Does `.trellis/spec/` need updates? (new patterns, conventions, lessons learned)
+Matching literals alone do not justify extraction.
 
-> "If I fixed a bug or discovered something non-obvious, should I document it so future me won't hit the same issue?" → If YES, update the relevant spec doc.
+## 5. Report and fix
 
-### Scope Discipline
-
-- [ ] Any tidying of code the task did not require?
-- [ ] Any abstraction, config or extension point added for a case that does not exist yet?
-- [ ] Any speculative fallback for a state that cannot occur?
-- [ ] Any file changed that the acceptance criteria do not mention?
-- [ ] Any workaround added at the caller instead of a fix where the behavior actually lives?
-
-## Step 5: Cross-Layer Dimensions (if applicable)
-
-Skip this step if your change is confined to a single layer.
-
-### A. Data Flow (changes touch 3+ layers)
-
-- [ ] Read flow traces correctly: Storage → Service → API → UI
-- [ ] Write flow traces correctly: UI → API → Service → Storage
-- [ ] Types/schemas correctly passed between layers?
-- [ ] Errors properly propagated to caller?
-
-### B. Code Reuse (modifying constants, creating utilities)
-
-- [ ] Searched for existing similar code before creating new?
-  ```bash
-  grep -r "pattern" src/
-  ```
-- [ ] If the same value repeats, does it represent one stable concept whose callers must change together? Extract only then — two literals that merely happen to match today should stay separate.
-- [ ] After batch modification, all occurrences updated?
-
-### C. Import/Dependency (creating new files)
-
-- [ ] Correct import paths (relative vs absolute)?
-- [ ] No circular dependencies?
-
-### D. Same-Layer Consistency
-
-- [ ] Other places using the same concept are consistent?
-
----
-
-## Step 6: Report and Fix
-
-Report every violation you find. Then:
-
-- Mechanical and local (lint nit, missing type, wrong import, dead branch, failing assertion) → fix in place, then re-run project checks.
-- Design or judgment (naming a shared concept, moving a module boundary, changing a public interface, reassigning where behavior lives) → record the evidence and your recommendation, and stop. Do not rewrite it silently.
-
-If a fix would touch files outside the current task's scope, say so and stop instead of widening the change.
+Report every violation. Fix mechanical, local issues (lint, types, imports, dead branches, failing assertions) in place and rerun project checks. For design/judgment changes (shared naming, module boundaries, public interfaces, behavior ownership), record evidence and a recommendation, then stop. If a fix needs files outside task scope, report that and stop rather than silently widening the work.
