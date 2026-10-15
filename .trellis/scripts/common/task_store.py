@@ -42,7 +42,7 @@ from .git import (
     run_git_retry_index_lock,
     stderr_indicates_index_lock,
 )
-from .io import describe_json_read_failure, read_json_checked, write_json
+from .io import JSON_READ_MISSING, describe_json_read_failure, read_json_checked, write_json
 from .log import Colors, colored
 from .paths import (
     DEVELOPER_HINT,
@@ -160,6 +160,84 @@ def _report_read_failure(path: Path, reason: str | None) -> None:
     problem, hint = describe_json_read_failure(path, reason)
     print(colored(f"Error: {problem}", Colors.RED), file=sys.stderr)
     print(hint, file=sys.stderr)
+
+
+def _rewrite_archived_acceptance_evidence(
+    archive_dest: Path,
+    active_task_dir: Path,
+    repo_root: Path,
+) -> bool:
+    """Rewrite task-owned acceptance evidence paths after an archive move."""
+    acceptance_path = archive_dest / "acceptance.json"
+    data, reason = read_json_checked(acceptance_path)
+    if data is None:
+        if reason == JSON_READ_MISSING:
+            return True
+        _report_read_failure(acceptance_path, reason)
+        return False
+
+    checks = data.get("checks")
+    if not isinstance(checks, list):
+        print(
+            colored(
+                f"Error: {acceptance_path}: checks must be a JSON array; "
+                "acceptance evidence was not updated.",
+                Colors.RED,
+            ),
+            file=sys.stderr,
+        )
+        return False
+
+    active_prefix = f"{_repo_relative_path(active_task_dir, repo_root)}/"
+    archive_prefix = f"{_repo_relative_path(archive_dest, repo_root)}/"
+    changed = False
+    for index, check in enumerate(checks):
+        if not isinstance(check, dict):
+            print(
+                colored(
+                    f"Error: {acceptance_path}: checks[{index}] must be a JSON object; "
+                    "acceptance evidence was not updated.",
+                    Colors.RED,
+                ),
+                file=sys.stderr,
+            )
+            return False
+        if "evidence" not in check:
+            print(
+                colored(
+                    f"Error: {acceptance_path}: checks[{index}].evidence must be a JSON array; "
+                    "acceptance evidence was not updated.",
+                    Colors.RED,
+                ),
+                file=sys.stderr,
+            )
+            return False
+        evidence = check["evidence"]
+        if not isinstance(evidence, list):
+            print(
+                colored(
+                    f"Error: {acceptance_path}: checks[{index}].evidence must be a JSON array; "
+                    "acceptance evidence was not updated.",
+                    Colors.RED,
+                ),
+                file=sys.stderr,
+            )
+            return False
+        for evidence_index, value in enumerate(evidence):
+            if isinstance(value, str) and value.startswith(active_prefix):
+                evidence[evidence_index] = archive_prefix + value[len(active_prefix):]
+                changed = True
+
+    if not changed:
+        return True
+    if not write_json(acceptance_path, data):
+        _report_write_failure(acceptance_path)
+        return False
+    print(
+        f"Updated acceptance evidence paths: {_repo_relative_path(acceptance_path, repo_root)}",
+        file=sys.stderr,
+    )
+    return True
 
 
 def _ensure_children_list(data: dict) -> list:
@@ -1435,6 +1513,16 @@ def cmd_archive(args: argparse.Namespace) -> int:
         archive_dest = Path(result["archived_to"])
         year_month = archive_dest.parent.name
         print(colored(f"Archived: {dir_name} -> archive/{year_month}/", Colors.GREEN), file=sys.stderr)
+        if not _rewrite_archived_acceptance_evidence(archive_dest, task_dir, repo_root):
+            print(
+                colored(
+                    "Archive moved on disk, but acceptance evidence was not updated. "
+                    "Resolve the archived acceptance.json before committing it.",
+                    Colors.RED,
+                ),
+                file=sys.stderr,
+            )
+            return 1
 
         # Auto-commit unless --no-commit
         if not getattr(args, "no_commit", False):
