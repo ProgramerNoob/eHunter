@@ -51,3 +51,34 @@ pi --mode json -p --no-session --tools <comma-separated-tools>
 正确：在原白名单追加所需 ACP 名称，用实际请求/调用确认；复用完整注入上下文，压缩后执行保留的下一步，只查缺失字段。
 
 退出诊断示例（历史，pi-graft 已于 2026-10 从项目移除）：2026-10-13 的本地 pi-graft 在 `agent_settled` 后创建 120000 ms 的引用计时器，导致无模型请求时仍等待。此为特定版本观察，不是固定验收宽限值。按实际日志区分执行/清理预算，不以修改退出上限代替证明交付，也不改写此前超时结果。
+
+
+## 8. Lean 文本与校验前规范化
+
+本项目直接定制 `.pi/extensions/trellis/index.ts`、`.trellis/workflow.md`、`common/workflow_phase.py` / `common/session_context.py`、Trellis skills、Pi prompts 与 agents；没有额外 lean 开关，也不启用社区 `subagent`。`trellis update` 可能更新这些托管文件，更新前保存差异，更新后复查下列契约和测试；不要修改全局 Pi 安装。
+
+工具名和参数类型/枚举/数量边界由注册 schema 保持。当前 Pi SDK 1.2.0 支持 `prepareArguments(args: unknown)`，顺序为 prepare → schema validation → beforeToolCall → execute。只在 execute 中修正类型不能补救宿主预校验失败。
+
+| 输入 | 处理与边界 |
+| --- | --- |
+| agent/mode 缺省 | `trellis-implement` / `single` |
+| agent 短名 | 加 `trellis-` 前缀；仍由现有 agent 校验拒绝未知角色 |
+| prompt/prompts | trim，过滤空项；先检查原数组长度，再过滤，`maxItems = 6` 不被绕过 |
+| 非对象或错误字段类型 | 清楚报错，不转换类型 |
+| 未知枚举或缺所需正文 | schema/业务错误；不从 prompts 推断 mode，不猜代理或内容 |
+
+基础例：`{prompt: " work "}` 得到默认 agent/mode 和 `prompt: "work"`。正常例：显式 parallel/chain 沿用原派发、顺序、失败及 model/thinking 覆盖。错误例：7 项含空字符串的 prompts 仍拒绝；不能先过滤为空项较少的数组再通过数量校验。
+
+工具的 `promptSnippet` 与 `promptGuidelines` 属于系统提示，不是 provider schema。当前只在 guideline 保留派发首行协议；`label`、render、快捷键属于 UI，不计模型工具体积。skills 默认仅注入 name/description/path，正文按需读入；保留发现能力和各触发分支。
+
+工作流源状态标记用于解析，输出索引去维护注释。任务正文、curated specs、预算、顺序及更新/恢复机制保留；不能靠降低预算、隐藏 skills 或改成仅传路径宣称等价精简。
+
+验证命令：
+
+```bash
+node --test scripts/test-trellis-extension.mjs
+python3 -m unittest discover -s scripts -p 'test_trellis_lean_context.py'
+node scripts/measure-trellis-context.mjs --check
+```
+
+扩展测试使用真实 SDK 校验入口与受控子进程，覆盖三种 mode、失败和注入状态切换；另按第 6 节保留一次真实子进程派发。计量脚本从固定基线提交与工作区提取两版工具和文本，冻结任务/overview 输入；改变源文本后重新生成报告。Unicode 字符数及 `ceil(chars / 4)` 仅为体积代理，不是模型 tokenizer 或 provider 计费；整体与包含的子项不叠加，不能将任务文档变化算作 lean 收益。

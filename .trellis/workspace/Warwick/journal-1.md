@@ -388,3 +388,42 @@ T024 遗留的两处可选硬化落地：通知标题超长无空格串不换行
 ### Next Steps
 
 - 人工快速查看归档research/post-fix-runtime.md及两张移动截图。NH真站、物理设备、远端成功通知和Node22/Python3.12未验证；当前运行Node24.18.0/Python3.13.14。
+
+---
+
+## Session: Trellis lean 上下文精简（2026-10-15）
+
+**任务**：`10-15-trellis-lean-tool-descriptions`（已归档 `archive/2026-10/`）  
+**分支**：`feat/trellis-lean-context`，基线 `e7e5f28`  
+**提交**：`7d04102` refactor(tooling): 精简 Trellis 上下文并保留调用契约
+
+### 完成内容
+
+- 精简 `trellis_subagent` 工具定义、调用指导、workflow 索引、9 个 Trellis skills、3 个命令模板和 3 个角色文件。
+- 在 Pi `prepareArguments`（校验前）接入确定性参数补全：缺省 agent/mode、短名前缀、trim 和空项过滤；先检查原始数组长度，maxItems=6 不被绕过；歧义输入给明确错误。
+- 工作流源文件保留状态标记；输出时去 HTML 注释、合并多余空行。session overview 采用紧凑格式。
+- 新增回归脚本：`scripts/test-trellis-extension.mjs`（11 用例）、`scripts/test_trellis_lean_context.py`（10 用例）、`scripts/measure-trellis-context.mjs`。
+
+### 计数结果（Unicode 字符 / ceil(chars/4) 代理值，非 provider token）
+
+| 范围 | 原代理值 | lean 代理值 | 减少 |
+| --- | ---: | ---: | ---: |
+| 工具定义 | 181 | 121 | 33.3% |
+| 工具调用指导 | 78 | 30 | 62.1% |
+| 9 个 skill 索引 | 1,263 | 832 | 34.1% |
+| workflow 索引 | 1,849 | 958 | 48.2% |
+| Trellis 固定 system | 2,479 | 1,434 | 42.2% |
+
+### 验证
+
+- 扩展测试 11/11；上下文测试 10/10；验收协议回归 37/37；真实 research 子代理派发 exit 0。
+- Standards/Spec 审查（trellis-check）：R1 发现 update-spec 触发范围缩窄，修复后定向复核关闭；最终 9 项验收全部通过，0 豁免。
+- 详细计数：`research/token-report.md`；派发证据：`research/live-dispatch.md`；审查记录：`research/review.md`、`research/review-followup.md`。
+
+### 未验证
+
+真实 parallel/chain 模式、精确 tokenizer 计数（字符代理有中文误差）、全量 tsc strict、Windows/Linux、ACP 主动压缩。
+
+### 维护说明
+
+本项目为本地直接定制，无额外 lean 开关。`trellis update` 可能覆盖托管文件，更新前保存差异，更新后运行上述三条回归命令并检查触发规则。规范沉淀于 `.trellis/spec/tooling/pi-context.md`（第 8 节）。

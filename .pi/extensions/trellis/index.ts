@@ -104,14 +104,9 @@ const ABORT_KILL_GRACE_MS = 1500;
 const SESSION_OVERVIEW_TIMEOUT_MS = 1500;
 const THROTTLE_MS = 500;
 const FIRST_REPLY_NOTICE = `<first-reply-notice>
-On the first visible assistant reply in this session, briefly acknowledge that Trellis SessionStart context loaded.
-Choose the acknowledgment language in this order:
-1. Use the language of the user's current request (the user message that triggered this reply).
-2. If that request has no clear natural language, use an explicitly established project communication language.
-3. If neither provides a language, output the language-neutral fallback exactly: \`Trellis SessionStart ✓\`.
-Continue directly with the user's request after the acknowledgment.
-The acknowledgment must not alter the language used for the remainder of the response.
-This notice is one-shot: do not repeat it after the first visible assistant reply in this session.
+On this session's first visible assistant reply only, briefly acknowledge that Trellis SessionStart context loaded.
+Use the current user request's language; if unclear, use the established project communication language; if neither is available, output exactly \`Trellis SessionStart ✓\`.
+Continue directly with the request, without changing the remainder's language.
 </first-reply-notice>`;
 
 // ── State types ───────────────────────────────────────────────────────
@@ -1194,11 +1189,11 @@ function buildStartupContext(
 ): string {
   const workflow = workflowOverview(root, key);
   return [
-    "<session-context>\nTrellis compact SessionStart context. Use it to orient the session; load details on demand.\n</session-context>",
+    "<session-context>\nTrellis SessionStart: orient here; load details on demand.\n</session-context>",
     FIRST_REPLY_NOTICE,
     overview,
     workflow,
-    "<ready>\nUse the current workflow state to decide whether to create, continue, or skip a Trellis task.\n</ready>",
+    "<ready>\nFollow the current workflow state to create, continue, or skip a Trellis task.\n</ready>",
   ]
     .filter(Boolean)
     .join("\n\n");
@@ -1256,18 +1251,55 @@ function buildContext(root: string, agent: string, key: string | null): string {
   // would just double the header.
   return [
     `## Trellis Task Context`,
-    `Task directory: ${dir}`,
+    `Task: ${dir}`,
     "",
     prd ?? `(missing) ${relTaskDir}/prd.md`,
     design ? "\n" + design : "",
     impl ? "\n" + impl : "",
-    spec ? "\n### Curated Spec / Research Context\n" + spec : "",
+    spec ? "\n### Curated specs/research\n" + spec : "",
   ].join("\n");
 }
 
 function normalizeAgent(agent: string | undefined): string {
   const name = agent ?? "trellis-implement";
   return name.startsWith("trellis-") ? name : `trellis-${name}`;
+}
+
+function prepareSubagentArguments(args: unknown): SubagentInput {
+  if (!isObj(args)) throw new Error("subagent arguments must be an object");
+  // Check raw types before Pi's validator can coerce values into task text.
+  for (const field of ["agent", "prompt", "mode", "model", "thinking"]) {
+    if (args[field] !== undefined && typeof args[field] !== "string")
+      throw new Error(`subagent ${field} must be a string`);
+  }
+  if (args.prompts !== undefined) {
+    if (!Array.isArray(args.prompts))
+      throw new Error("subagent prompts must be an array of strings");
+    // Filtering empty entries cannot let an oversized array evade maxItems.
+    if (args.prompts.length > MAX_PARALLEL_PROMPTS)
+      throw new Error(
+        `subagent prompts accepts at most ${MAX_PARALLEL_PROMPTS} items`,
+      );
+    if (args.prompts.some((p) => typeof p !== "string"))
+      throw new Error("subagent prompts must be an array of strings");
+  }
+  const input = args as SubagentInput;
+  const mode = input.mode ?? "single";
+  const prompt = input.prompt?.trim();
+  const prompts = input.prompts?.map((p) => p.trim()).filter(Boolean);
+  if (mode === "single" && !prompt)
+    throw new Error("subagent prompt is required for single mode");
+  if ((mode === "parallel" || mode === "chain") && !prompt && !prompts?.length)
+    throw new Error(
+      "subagent prompt or prompts are required for parallel/chain mode",
+    );
+  return {
+    ...input,
+    agent: normalizeAgent(input.agent),
+    mode,
+    prompt,
+    prompts: prompts?.length ? prompts : undefined,
+  };
 }
 
 function isTrellisAgent(root: string, agent: string): boolean {
@@ -1869,42 +1901,31 @@ export default function trellisExtension(pi: {
     name: "trellis_subagent",
     label: "Trellis Subagent",
     description: "Run a Trellis project sub-agent with active task context.",
-    promptSnippet:
-      'Sub-agent dispatch protocol (Trellis): your dispatch prompt MUST start with one line "Active task: <task path from `task.py current`>" before any other instructions.',
     promptGuidelines: [
-      'Use subagent for task delegation. Your dispatch prompt MUST start with "Active task: <task path from `task.py current`>".',
+      'Use trellis_subagent for task delegation. Start each prompt with "Active task: <task path from `task.py current`>".',
     ],
     parameters: {
       type: "object",
       properties: {
         agent: {
           type: "string",
-          description:
-            "Agent name, such as trellis-implement or trellis-check.",
+          description: "Name from .pi/agents/.",
         },
-        prompt: {
-          type: "string",
-          description: "Task prompt for the sub-agent.",
-        },
+        prompt: { type: "string" },
         mode: { type: "string", enum: ["single", "parallel", "chain"] },
         prompts: {
           type: "array",
           items: { type: "string" },
           maxItems: MAX_PARALLEL_PROMPTS,
         },
-        model: {
-          type: "string",
-          description:
-            "Optional Pi model override for the child sub-agent process.",
-        },
+        model: { type: "string" },
         thinking: {
           type: "string",
-          description:
-            "Optional Pi thinking level override for the child sub-agent process.",
           enum: ["off", "minimal", "low", "medium", "high", "xhigh", "max"],
         },
       },
     },
+    prepareArguments: prepareSubagentArguments,
     execute: async (
       id: string,
       input: SubagentInput,
@@ -1934,38 +1955,12 @@ export default function trellisExtension(pi: {
           details: { agent: agentName, error: "not a trellis workflow agent" },
         };
       }
-      const mode = input.mode ?? "single";
-      const prompt = input.prompt?.trim();
-      const prompts = input.prompts?.map((p) => p.trim()).filter(Boolean);
-      if (mode === "single" && !prompt)
-        throw new Error("subagent prompt is required for single mode");
-      if (
-        (mode === "parallel" || mode === "chain") &&
-        !prompt &&
-        !prompts?.length
-      )
-        throw new Error(
-          "subagent prompt or prompts are required for parallel/chain mode",
-        );
-      if (
-        mode === "parallel" &&
-        prompts &&
-        prompts.length > MAX_PARALLEL_PROMPTS
-      )
-        throw new Error(
-          `subagent parallel mode supports at most ${MAX_PARALLEL_PROMPTS} prompts`,
-        );
-      const cleanInput: SubagentInput = {
-        ...input,
-        prompt,
-        prompts: prompts?.length ? prompts : undefined,
-      };
-      const key = getKey(cleanInput, ctx);
+      const key = getKey(input, ctx);
       const inheritedThinking = pi.getThinkingLevel?.();
       const inheritedModel = contextModelRef(ctx);
       const result = await runSubagent(
         root,
-        cleanInput,
+        input,
         key,
         signal,
         onUpdate,
@@ -2100,7 +2095,7 @@ export default function trellisExtension(pi: {
     ) {
       lastSentTaskCtx.set(key, freshTaskCtx);
       updates.push(
-        "<trellis-task-context-update>\nTask context changed on disk. This supersedes the Trellis Task Context in the system prompt.\n\n" +
+        "<trellis-task-context-update>\nCurrent task context; supersedes the system prompt's Trellis Task Context.\n\n" +
           freshTaskCtx +
           "\n</trellis-task-context-update>",
       );
