@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "对包含旧任务路径 evidence 的有效 `acceptance.json` 执行 `task.py archive` 后，归档副本中的所有任务内 evidence 都指向真实存在的归档文件；`python3 scripts/acceptance.py summarize <archive-dir>` 返回 `valid: true`，且原验收结论未改变。",
+    "AC2": "任务外 evidence、`.tmp/` 路径、无 acceptance.json 和无匹配 evidence 的任务归档行为保持兼容，相关内容不被改写。",
+    "AC3": "非法 JSON、不可读文件或原子写入失败不会被静默覆盖或截断；命令输出能说明问题，已有归档/自动提交失败语义不被掩盖。",
+    "AC4": "新增回归测试覆盖成功改写、路径边界、无匹配/缺失文件和失败分支；现有 `test_acceptance.py`、`test_archive_autocommit.py` 及 `npm run check` 全部通过。",
+    "AC5": "代码和测试保持 Trellis 工具层边界，不修改 acceptance.json schema，不改变自动提交的窄路径约束；文档检查通过。"
+  },
+  "checks": [
+    {
+      "id": "archive-evidence-runtime",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "归档流程将任务自身的 acceptance evidence 路径同步到真实归档目录",
+      "scope": "临时任务的真实 cmd_archive --no-commit 流程及 acceptance.py summarize 校验",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_archive_evidence.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-15T15:38:51.078605+00:00",
+        "endedAt": "2026-10-15T15:38:51.133648+00:00",
+        "log": ".tmp/acceptance/10-15-archive-evidence-paths/tmp463zgoj_.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-15-archive-evidence-paths/tmp463zgoj_.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "archive-evidence-boundaries",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "任务外、.tmp、相似前缀和缺失/无匹配 evidence 保持不变",
+      "scope": "archive evidence 路径重写单元回归",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_archive_evidence.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-15T15:38:51.159984+00:00",
+        "endedAt": "2026-10-15T15:38:51.215919+00:00",
+        "log": ".tmp/acceptance/10-15-archive-evidence-paths/tmp5afk584p.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-15-archive-evidence-paths/tmp5afk584p.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "archive-evidence-failures",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "非法或不可读 JSON 以及原子写入失败均可诊断且不会截断原文件",
+      "scope": "archive evidence 失败分支回归",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_archive_evidence.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-15T15:38:51.240191+00:00",
+        "endedAt": "2026-10-15T15:38:51.298213+00:00",
+        "log": ".tmp/acceptance/10-15-archive-evidence-paths/tmpyyjjwsgw.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-15-archive-evidence-paths/tmpyyjjwsgw.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "archive-evidence-regression",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "归档 evidence 回归与既有验收/自动提交测试通过",
+      "scope": "scripts 下三套 Python 回归及 npm run check",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "sh",
+          "-c",
+          "python3 -m unittest discover -s scripts -p 'test_acceptance.py' && python3 -m unittest discover -s scripts -p 'test_archive_autocommit.py' && python3 -m unittest discover -s scripts -p 'test_archive_evidence.py'"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-15T15:38:51.322869+00:00",
+        "endedAt": "2026-10-15T15:38:52.659800+00:00",
+        "log": ".tmp/acceptance/10-15-archive-evidence-paths/tmpvv1iei4b.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-15-archive-evidence-paths/tmpvv1iei4b.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "archive-evidence-scope",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "工具层修改保持 acceptance schema 与自动提交窄路径边界，文档检查通过",
+      "scope": "源码 diff、package script、npm run check 和文档检查",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-15T15:38:52.689847+00:00",
+        "endedAt": "2026-10-15T15:39:06.155729+00:00",
+        "log": ".tmp/acceptance/10-15-archive-evidence-paths/tmpok2yurqx.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-15-archive-evidence-paths/tmpok2yurqx.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    }
+  ]
+}
