@@ -55,7 +55,7 @@
         ".tmp/retrospective-followup/measure-check.log",
         ".tmp/retrospective-followup/test-acceptance.log"
       ],
-      "note": "四条命令分别留存日志，均退出 0。审查曾发现 F1（task_store.py 改动后报告过期），已由提交 6f5499b 重生成修复并复跑通过（原 494c3bd，收拢于 6f5499b）。",
+      "note": "四条命令分别留存日志，均退出 0。审查曾发现 F1（task_store.py 改动后报告过期），已由提交 6f5499b 重生成修复并复跑通过（原 494c3bd，收拢于 6f5499b）。收拢前后提交映射与无损失验证见同目录 history.md。",
       "waiver": null
     },
     {
@@ -106,7 +106,7 @@
       "evidence": [
         ".trellis/tasks/archive/2026-10/10-15-tmp-archive-verify/task.json"
       ],
-      "note": "输出 'Auto-committed: chore(task): archive 10-15-tmp-archive-verify' 无 WARN；git status 仅剩本任务相关改动；归档提交 6f5499b 内的对应改动仅含临时任务目录（原 4ef6d5f，收拢于 6f5499b），验证无关暂存文件不被夹带（工作区当时另有本任务未提交改动未被夹带）。",
+      "note": "输出 'Auto-committed: chore(task): archive 10-15-tmp-archive-verify' 无 WARN；git status 仅剩本任务相关改动；归档提交 6f5499b 内的对应改动仅含临时任务目录（原 4ef6d5f，收拢于 6f5499b），验证无关暂存文件不被夹带（工作区当时另有本任务未提交改动未被夹带）。收拢前后提交映射与无损失验证见同目录 history.md。",
       "waiver": null
     },
     {
@@ -219,11 +219,11 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-15-retrospective-followup/prd.md",
-        ".trellis/tasks/10-15-retrospective-followup/design.md",
-        ".trellis/tasks/10-15-retrospective-followup/implement.md"
+        ".trellis/tasks/archive/2026-10/10-15-retrospective-followup/prd.md",
+        ".trellis/tasks/archive/2026-10/10-15-retrospective-followup/design.md",
+        ".trellis/tasks/archive/2026-10/10-15-retrospective-followup/implement.md"
       ],
-      "note": "审查未写任何受审文件（04 双模式契约的真实派发验证）。F1（measure 报告过期）已由提交 6f5499b 修复并复跑通过（原 494c3bd，收拢于 6f5499b）；F2（.trellis/scripts/** 改动后重跑 measure 的流程提示）记录为后续流程改进；F3（基线数字与当前计数差异）注释已声明口径，无需动作。PRD 验收标准已按验收门禁要求改为 ## 接受标准 + AC 编号。",
+      "note": "审查未写任何受审文件（04 双模式契约的真实派发验证）。F1（measure 报告过期）已由提交 6f5499b 修复并复跑通过（原 494c3bd，收拢于 6f5499b）；F2（.trellis/scripts/** 改动后重跑 measure 的流程提示）记录为后续流程改进；F3（基线数字与当前计数差异）注释已声明口径，无需动作。PRD 验收标准已按验收门禁要求改为 ## 接受标准 + AC 编号。收拢前后提交映射与无损失验证见同目录 history.md。",
       "waiver": null
     }
   ]
