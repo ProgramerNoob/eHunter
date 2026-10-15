@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "04：trellis-check 的 agent 定义和 skill 文档不再包含\"fix directly\"指令；正式审查模式明确只读并返回问题列表，自检模式保留修复能力；两种模式的使用场景区分写入相关文档。",
+    "AC2": "05：未跟踪任务归档不再产生 `Auto-commit failed` 警告；已跟踪任务搬迁归档正常提交；无关已暂存文件不被夹带。",
+    "AC3": "06：`pending-work.md` 不再推荐已完成的通知硬化；文档检查脚本可运行且断链/坏锚点/坏引用返回非零；历史基线计数保留不被覆盖。",
+    "AC4": "03：明确当前预检已覆盖/未覆盖的断言清单；缺失断言有实现或有明确不做的理由；准备失败时阻断后续验收并记录 blocked。"
+  },
+  "checks": [
+    {
+      "id": "ac1-mode-text",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "agent 定义与 SKILL.md 不含 fix directly 指令，双模式（self-check 默认 / review-only 只读）表述写入三处文档且口径一致",
+      "scope": ".pi/agents/trellis-check.md、.agents/skills/trellis-check/SKILL.md、AGENTS.md、.trellis/spec/tooling/pi-context.md",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".pi/agents/trellis-check.md",
+        ".agents/skills/trellis-check/SKILL.md",
+        "AGENTS.md",
+        ".trellis/spec/tooling/pi-context.md"
+      ],
+      "note": "全仓 grep 无 'Review and fix directly' 残留；review-only 约束（禁改受审文件/禁更新 acceptance.json/受审版本冻结）在 agent 定义 ## Modes 与 SKILL.md ## 5 一致；review-only 独立审查（本子代理报告）核对三处口径一致。工具白名单强制为已知限制并记录在 pi-context.md。",
+      "waiver": null
+    },
+    {
+      "id": "ac1-lean-regression",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "04 改动后 lean 上下文契约四条回归命令退出码均 0（含审查 F1 修复后的 measure --check）",
+      "scope": "scripts/test-trellis-extension.mjs、test_trellis_lean_context.py、measure-trellis-context.mjs --check、test_acceptance.py",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          "-lc",
+          "node --test scripts/test-trellis-extension.mjs && python3 -m unittest discover -s scripts -p 'test_trellis_lean_context.py' && node scripts/measure-trellis-context.mjs --check && python3 -m unittest discover -s scripts -p 'test_acceptance.py'"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-15T07:05:00+00:00",
+        "endedAt": "2026-10-15T07:07:00+00:00",
+        "log": ".tmp/retrospective-followup/test-trellis-extension.log"
+      },
+      "evidence": [
+        ".tmp/retrospective-followup/test-trellis-extension.log",
+        ".tmp/retrospective-followup/test-lean-context.log",
+        ".tmp/retrospective-followup/measure-check.log",
+        ".tmp/retrospective-followup/test-acceptance.log"
+      ],
+      "note": "四条命令分别留存日志，均退出 0。审查曾发现 F1（task_store.py 改动后报告过期），已由提交 494c3bd 重生成修复并复跑通过。",
+      "waiver": null
+    },
+    {
+      "id": "ac2-unittest-pathspec",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "10 例单元测试覆盖未跟踪（pathspec 排除 source_rel）/已跟踪（包含）/modified_children（保留）/无关暂存夹带（pathspec 精确等于预期）四场景及失败返回语义",
+      "scope": "scripts/test_archive_autocommit.py 对 .trellis/scripts/common/task_store.py 的 _archive_commit_paths 与 _auto_commit_archive",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_archive_autocommit.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-15T07:05:00+00:00",
+        "endedAt": "2026-10-15T07:05:05+00:00",
+        "log": ".tmp/retrospective-followup/test-archive-autocommit.log"
+      },
+      "evidence": [
+        ".tmp/retrospective-followup/test-archive-autocommit.log",
+        "scripts/test_archive_autocommit.py"
+      ],
+      "note": "10/10 通过；已接入 package.json test:acceptance 链。",
+      "waiver": null
+    },
+    {
+      "id": "ac2-e2e-archive",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "真实仓库端到端：临时未跟踪任务归档无 Auto-commit failed 警告、自动提交成功、工作区干净",
+      "scope": "本仓库 task.py archive 对未跟踪任务 10-15-tmp-archive-verify",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/archive/2026-10/10-15-tmp-archive-verify/task.json"
+      ],
+      "note": "输出 'Auto-committed: chore(task): archive 10-15-tmp-archive-verify' 无 WARN；git status 仅剩本任务相关改动；归档提交 4ef6d5f 仅含临时任务目录，验证无关暂存文件不被夹带（工作区当时另有本任务未提交改动未被夹带）。",
+      "waiver": null
+    },
+    {
+      "id": "ac3-pending-sync",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "pending-work.md 遗留句改为注明两处硬化已实现并附实现行号，历史基线计数口径未动",
+      "scope": ".trellis/spec/frontend/features/pending-work.md:24",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/spec/frontend/features/pending-work.md",
+        "core/components/status/StatusNotificationItem.vue",
+        "core/components/status/StatusNotificationStack.vue"
+      ],
+      "note": "实现核实：StatusNotificationItem.vue:69 有 overflow-wrap: anywhere；StatusNotificationStack.vue:44-45 有 max-height/overflow-y；'本页计数仍按迁移基线口径保留'句未动。",
+      "waiver": null
+    },
+    {
+      "id": "ac3-check-docs-gate",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "check-docs.mjs 当前树退出 0（66 md/550 链接/70 $ref），注入断链与坏锚点返回 1，接入 npm run check 链尾后全链退出 0；历史基线计数保留在脚本头注释",
+      "scope": "scripts/check-docs.mjs、package.json check 链",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-15T07:08:00+00:00",
+        "endedAt": "2026-10-15T07:10:00+00:00",
+        "log": ".tmp/retrospective-followup/npm-check.log"
+      },
+      "evidence": [
+        ".tmp/retrospective-followup/check-docs.log",
+        ".tmp/retrospective-followup/npm-check.log",
+        "scripts/check-docs.mjs"
+      ],
+      "note": "注入验证（随后还原）：向 state-management.md 追加断链与坏锚点各一条，check-docs 输出 2 个问题并退出 1；还原后恢复 0。基线 36/90/53 在头注释标明'仅记录口径不用于断言'。",
+      "waiver": null
+    },
+    {
+      "id": "ac4-preflight-coverage-doc",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "browser-acceptance.md 4.5 节列出已覆盖断言清单（对照源码行号）、未覆盖项及归属（下载冒烟归 eh-test 后续任务、物理设备与版本矩阵归 CI），行号抽查一致；阻断语义由既有 requireCondition→PreflightBlocked 机制保障并有测试",
+      "scope": ".trellis/spec/frontend/browser-acceptance.md 4.5 节 与 scripts/browser-preflight.mjs",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/spec/frontend/browser-acceptance.md",
+        "scripts/browser-preflight.mjs"
+      ],
+      "note": "行号抽查（L326/328-330/354/449-452/454/500/512/516/534/556/572/576/583/589/605、L71-74、L345-346/369-372/456）全部命中；review-only 审查复核一致。下载冒烟列为后续独立任务候选（需真实 EH 登录环境）。",
+      "waiver": null
+    },
+    {
+      "id": "ac4-preflight-tests",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "browser-preflight 测试套件覆盖各断言阻断行为，全部通过",
+      "scope": "tests/browser-preflight.test.mjs",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "node",
+          "--test",
+          "tests/browser-preflight.test.mjs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-15T07:05:00+00:00",
+        "endedAt": "2026-10-15T07:05:12+00:00",
+        "log": ".tmp/retrospective-followup/test-browser-preflight.log"
+      },
+      "evidence": [
+        ".tmp/retrospective-followup/test-browser-preflight.log"
+      ],
+      "note": "0 失败；覆盖仿真拒绝、旧包变体、身份排除、日志归因、健康条件、meta 恢复等阻断场景。",
+      "waiver": null
+    },
+    {
+      "id": "cross-review-only",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC3",
+        "AC4"
+      ],
+      "claim": "review-only 模式的 trellis-check 子代理对本分支 5 提交完成独立审查，四条验收标准逐项核对，findings（F1 high/F2 low/F3 info）已处理或记录",
+      "scope": "feat/retrospective-followup 相对 master 全部改动",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-15-retrospective-followup/prd.md",
+        ".trellis/tasks/10-15-retrospective-followup/design.md",
+        ".trellis/tasks/10-15-retrospective-followup/implement.md"
+      ],
+      "note": "审查未写任何受审文件（04 双模式契约的真实派发验证）。F1（measure 报告过期）已由提交 494c3bd 修复并复跑通过；F2（.trellis/scripts/** 改动后重跑 measure 的流程提示）记录为后续流程改进；F3（基线数字与当前计数差异）注释已声明口径，无需动作。PRD 验收标准已按验收门禁要求改为 ## 接受标准 + AC 编号。",
+      "waiver": null
+    }
+  ]
+}

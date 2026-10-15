@@ -427,3 +427,13 @@ T024 遗留的两处可选硬化落地：通知标题超长无空格串不换行
 ### 维护说明
 
 本项目为本地直接定制，无额外 lean 开关。`trellis update` 可能覆盖托管文件，更新前保存差异，更新后运行上述三条回归命令并检查触发规则。规范沉淀于 `.trellis/spec/tooling/pi-context.md`（第 8 节）。
+
+## 2026-10-15 · 10-15-retrospective-followup（复盘遗留改进收口）
+
+分支 feat/retrospective-followup，8 个提交，验收 9/9 passed，已归档。
+
+- 04 trellis-check 双模式：agent 定义 + SKILL + AGENTS + pi-context 四处文案；review-only 由派发方 prompt 声明，工具白名单强制为已知限制。真实派发一次 review-only 审查验证契约（子代理未写文件，返回 F1/F2/F3）。
+- 05 归档未跟踪提交失败：抽 `_archive_commit_paths` 纯函数 + 10 例 unittest（mock git 记录 pathspec）+ 真实临时任务端到端归档验证（无 WARN）。
+- 06 check-docs.mjs：spec 树链接/锚点/$ref 检查接入 npm run check；注入断链/坏锚点验证返回 1；pending-work.md 通知硬化遗留句同步为已实现。
+- 03 预检断言清单：browser-acceptance.md 4.5 节盘点已覆盖/未覆盖；下载冒烟列为后续独立任务候选（eh-test 场景）。
+- 教训：改 `.trellis/scripts/**` 后必须重跑 `measure-trellis-context.mjs`（--check 会因输入文件 sha 变化失效）——审查 F1 即此因；F2 建议在 implement.md 模板加显式检查项。
