@@ -8,6 +8,7 @@ import { withBrowserPreflight, BrowserPreflightError } from '../scripts/browser-
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const BASE = path.join(ROOT, '.tmp/browser-preflight/repair-final/cases');
 const EH_URL = 'https://exhentai.org/s/fixture/1-1';
+const NH_URL = 'https://nhentai.net/g/631366/1/';
 const ORIGIN = 'http://127.0.0.1:5173';
 const ENTRY = `${ORIGIN}/src/main.ts`;
 const DEEP = `${ORIGIN}/core/components/widget/CircleIconButton.vue`;
@@ -110,15 +111,18 @@ async function fixture(t, { kind = 'eh', mobile = false } = {}) {
   await fs.writeFile(evidence, JSON.stringify({ note: 'Controlled fixture; no runtime browser claim.' }));
   const page = new PageFixture();
   if (mobile) Object.assign(page.state, { width: 980, height: 2121, dpr: 3, touchPoints: 5, coarse: true });
-  const source = kind === 'eh' ? {
+  const source = kind === 'eh' || kind === 'nh' ? {
     kind, bundlePath: path.join(dir, 'bundle.js'), loaderPath: path.join(dir, 'loader.js'), bundleUrl: 'http://127.0.0.1:8787/ehunter.iife.js',
-    build: { exitCode: 0, evidence }, installation: { loggedIn: true, dynamicLoaderEnabled: true, staticScriptDisabled: true, evidence },
+    build: { exitCode: 0, evidence }, installation: kind === 'nh'
+      ? { dynamicLoaderEnabled: true, staticScriptDisabled: true, evidence }
+      : { loggedIn: true, dynamicLoaderEnabled: true, staticScriptDisabled: true, evidence },
   } : {
     kind, origin: ORIGIN, service: { origin: ORIGIN, cwd: ROOT, pid: process.pid, evidence }, requiredModules: [ENTRY, DEEP, STYLE],
   };
   const expectedModules = new Map([[ENTRY, 'import "./reader";'], [DEEP, 'export default {render(){}};'], [STYLE, 'updateStyle("id", ".button {color:red}");'], [LAZY, 'export const lazy = true;']]);
-  if (kind === 'eh') {
+  if (kind === 'eh' || kind === 'nh') {
     await fs.writeFile(source.bundlePath, BUNDLE); await fs.writeFile(source.loaderPath, LOADER);
+    if (kind === 'nh') page.frame.url = page.state.url = NH_URL;
     page.onNavigate = () => page.addScript('bundle', '', BUNDLE);
   } else {
     page.state.url = ORIGIN + '/';
@@ -843,4 +847,51 @@ test('final events still block a green result after the last functional checkpoi
   };
   await blocked(f, /eHunter runtime/, async () => {});
   assert.equal((await f.read('result.json')).observed, 'blocked');
+});
+
+for (const mobile of [false, true]) test(`NH ${mobile ? 'mobile' : 'desktop'} userscript flow without login prerequisite`, async t => {
+  const f = await fixture(t, { kind: 'nh', mobile });
+  const result = await f.run(async api => {
+    await api.phase('book-page', () => f.page.queue.push(log('turn page')));
+    await api.screenshot('nh-reader.png');
+  });
+  assert.equal(result.observed, 'passed');
+  assert.equal(result.checks, 'executed');
+  assert.equal(result.identity.length, 1);
+  assert.equal(result.identity[0].fullBundleCandidate, true);
+  assert.equal(result.identity[0].verified, true);
+  assert.equal(result.installation.loggedIn, undefined);
+  assert.equal(result.installation.dynamicLoaderEnabled, true);
+  assert.equal(f.options.source.installation.loggedIn, undefined);
+});
+
+test('NH wrong page URL blocks at the reader-page prerequisite', async t => {
+  const f = await fixture(t, { kind: 'nh' });
+  f.page.frame.url = f.page.state.url = 'https://nhentai.net/';
+  await blocked(f, /NH \/g\/<id>\/<page>\/ page prerequisite missing/);
+});
+
+test('NH source kind passes entry validation while invalid kinds block', async t => {
+  const f = await fixture(t, { kind: 'nh' });
+  f.options.source = { kind: 'other' };
+  await blocked(f, /source\.kind must be eh, nh or vite/);
+});
+
+for (const [label, error] of [['timeout', 'request timed out'], ['429', 'https://nhentai.net/g/631366/1/: 429']]) test(`retryable TextReq ${label} error does not block current document`, async t => {
+  const f = await fixture(t, { kind: 'nh' });
+  const retryable = log(`TextReq: request error in ${NH_URL}, retry:(1/3), error: ${error}`, 2, 'error');
+  retryable.params.stackTrace = { callFrames: [{ url: '', scriptId: 'bundle' }] };
+  f.page.onOpen = () => f.page.queue.push(retryable);
+  const result = await f.run(async () => {});
+  assert.equal(result.observed, 'passed');
+  assert.equal(result.logs.find(entry => entry.retryableTextReqError)?.impact, 'retained-for-caller-review');
+  assert.equal(result.logs.find(entry => entry.retryableTextReqError)?.retryableTextReqError, true);
+});
+
+test('non-retryable TextReq errors still block the current document', async t => {
+  const f = await fixture(t, { kind: 'nh' });
+  const fatal = log(`TextReq: request error in ${NH_URL}, retry:(3/3), error: TypeError: failed`, 2, 'error');
+  fatal.params.stackTrace = { callFrames: [{ url: '', scriptId: 'bundle' }] };
+  f.page.onOpen = () => f.page.queue.push(fatal);
+  await blocked(f, /eHunter runtime/);
 });

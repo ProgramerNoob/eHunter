@@ -213,21 +213,29 @@
 - [ ] T105 [US2] Verify EH thumbnail navigation works (click thumbnail, page changes)
 - [ ] T106 [US2] Verify EH page flipping works (keyboard arrows, click navigation)
 - [ ] T107 [US2] Test EH error handling: navigate to invalid gallery URL, verify error displays with technical details
-- [ ] T108 [US2] Use ego-browser to navigate to nhentai.net/g/[real-gallery-id]/1/ (use actual NH gallery URL)
-- [ ] T109 [US2] Verify NH platform initializes with loading animation
-- [ ] T110 [US2] Verify NH reader UI renders with correct album title, page count
-- [ ] T111 [US2] Verify NH book mode displays pages correctly
-- [ ] T112 [US2] Verify NH scroll mode displays pages correctly
+- [x] T108 [US2] Use ego-browser to navigate to nhentai.net/g/[real-gallery-id]/1/ (use actual NH gallery URL)
+  - 当前 loader 实测有效 URL：`https://nhentai.net/g/631366/1/`（45 页）；桌面与移动轮次均记录当前 bundle identity `verified: true`。
+- [x] T109 [US2] Verify NH platform initializes with loading animation
+  - 当前 loader、mobile 390×844 轮次在正常打开动作后立即观察到 `.loading-layer` 可见；artifact：`.tmp/nh-regression/run-mobile-loading-review2/result.json`，截图与事件在同目录。
+- [x] T110 [US2] Verify NH reader UI renders with correct album title, page count
+  - 当前 loader 桌面与移动有效 gallery 轮次均通过标题、45 页和当前页 1 / 45 断言；artifacts：`.tmp/nh-regression/run-desktop-review12/`、`run-mobile-scroll-review2/`、`run-mobile-book-review3/`。
+- [x] T111 [US2] Verify NH book mode displays pages correctly
+  - 当前 loader 桌面和移动书页轮均通过书页 DOM、图片加载、缩略图与截图断言；artifacts：`.tmp/nh-regression/run-desktop-review12/`、`.tmp/nh-regression/run-mobile-book-review3/`。
+- [x] T112 [US2] Verify NH scroll mode displays pages correctly
+  - 当前 loader 桌面与移动卷轴轮均通过真实滚动容器、滚动位置、图片和截图断言；artifacts：`.tmp/nh-regression/run-desktop-review12/`、`.tmp/nh-regression/run-mobile-scroll-review2/`。
 - [x] T113 [US2] Verify NH thumbnail loading and navigation after T149: 在真实 NH 图集中确认缩略图列表数量与页数一致、各项地址非空；等待侧栏及展开面板中当前可见缩略图加载，逐张确认 `img.complete && img.naturalWidth > 0` 且图片实际可见，不能仅凭占位、页码或 DOM 数量判定通过；覆盖书页/卷轴切换及缩略图点击跳页、当前页定位，按仓库要求完成桌面与移动视口验收并记录控制台、未捕获异常和截图。
   - 2026-09-20 完成：`https://nhentai.net/g/631366/1/`（45 页），桌面 1200×900 与移动 390×844。
   - 缩略图逐张校验 `img.complete && img.naturalWidth > 0`：侧栏 45/45、展开面板 45/45、页面预览 45/45（`naturalWidth=400`，空 `src` 0）；书页↔卷轴双向切换正常，切回后仍 45/45。
   - 跳页与定位：书页模式桌面点第 12 张定位 `12 / 45`、移动点第 15 张定位 `15 / 45`；滚动模式桌面点第 25 张定位 `25 / 45`（指示器 `24×170px`）。
   - 控制台：eHunter 无 error 与未捕获异常；原站 `Uncaught Event`（`_app/immutable/chunks/C2ITVdkK.js`）、更新检查失败、广告拦截、6 条 preload 警告，以及快速跳页触发的 NH HTTP 429 均非本次改动引入。
   - 非阻塞观察（本轮未修改，归 T148/导航范围）：窄视口滚动模式点击缩略图后进度比点击标签大 1（`AlbumScrollView.vue` 取“视口底部最后可见页”）；连续切换视口后滚动容器 `scrollTop` 停在 17891/18735、进度漂到 45/45。
-  - 未验证：EH 侧回归、真实旧格式 NH 页面、其他 NH URL 形态、移动顶栏切换阅读模式（390px 下快捷项被既有重叠逻辑隐藏）、429 长期行为。
-- [ ] T114 [US2] Verify NH page flipping works (keyboard arrows, click navigation)
-- [ ] T115 [US2] Test NH error handling: navigate to invalid gallery URL, verify error displays with technical details
-- [ ] T116 [US2] Compare EH and NH reader behavior: verify book mode, scroll mode, thumbnails work identically per FR-022
+  - 未验证：真实旧格式 NH 页面、其他 NH URL 形态、移动顶栏切换阅读模式（390px 下快捷项被既有重叠逻辑隐藏）、429 长期行为。
+- [x] T114 [US2] Verify NH page flipping works (keyboard arrows, click navigation)
+  - 当前 loader 桌面轮通过键盘/滚轮前进与键盘回退，移动书页轮通过点击/键盘翻页；artifacts：`.tmp/nh-regression/run-desktop-review12/`、`run-mobile-book-review3/`。
+- [x] T115 [US2] Test NH error handling: navigate to invalid gallery URL, verify error displays with technical details
+  - 当前 loader 直接导航 `https://nhentai.net/g/999999999/1/` 后，站点先返回 404，但 eHunter 自动初始化并显示 `Initialization Error`；错误包含 `Platform: NH`、完整 URL、timestamp、`InitializationError` stack 和 `Technical Details`。日志：`.tmp/nh-regression/invalid-gallery-current.log`；截图：`.tmp/nh-regression/invalid-gallery-error-current.png`。
+- [x] T116 [US2] Compare EH and NH reader behavior: verify book mode, scroll mode, thumbnails work identically per FR-022
+  - 当前 loader EH 真实图页 `https://exhentai.org/s/f9cb170d76/4257612-1`（69 页）通过书页、卷轴滚动和缩略图跳页；artifact：`.tmp/nh-regression/run-eh-t116-desktop4/`，结果 `observed: passed`、`checks: executed`、`errors: []`。NH 对应 artifacts：`.tmp/nh-regression/run-desktop-review12/`、`run-mobile-scroll-review2/`、`run-mobile-book-review3/`；两端均具备书页/卷轴/缩略图主流程，差异仅为图集页数和平台页面内容。
 - [ ] T117 [US2] Search codebase for legacy patterns: grep for "core.launcher", "core.createAppView", verify none found per FR-010, SC-007
 - [ ] T118 [US2] Document test results in .trellis/spec/frontend/features/001-platform-injection/validation-us2.md
 

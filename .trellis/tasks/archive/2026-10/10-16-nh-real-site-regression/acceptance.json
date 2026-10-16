@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "构建、server、loader 安装与 NH 域注入证据齐全（日志与核实输出存 `.tmp/`）。",
+    "AC2": "准备门通过并有指纹/coverage 证据；无 Vite 编译错误、控制台无未捕获异常。",
+    "AC3": "R3–R8 各项在真实 NH 页面实测通过，桌面+移动截图逐张查看。",
+    "AC4": "R9 对比结论明确（一致项与差异项分列，附依据）。",
+    "AC5": "测试报告写入 `.tmp/test-reports/`，逐项 passed/failed/blocked/unrun 分类正确。",
+    "AC6": "T108–T116 按实测结果更新勾选；未通过项记录原因与后续任务建议。",
+    "AC7": "收尾：本轮 server 进程退出、端口释放、PID 文件已清理；验收完成后按指南 finish。"
+  },
+  "checks": [
+    {
+      "id": "nh-build-loader-evidence",
+      "ac": ["AC1"],
+      "claim": "当前生产包、bundle server、Tampermonkey loader 与 NH 域注入链路已核实",
+      "scope": "有效 gallery https://nhentai.net/g/631366/1/；当前生产 bundle 443809 bytes，sha256 e6e18cc2137d33aed3cfd6bdb84cac7ed2c67c60d091f4c0e8badb6fbd153bee；Tampermonkey dev loader enabled、静态生产脚本 disabled",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [".tmp/nh-regression/prep-facts.md", ".tmp/nh-regression/build-prod-review-fix.log", ".tmp/nh-regression/build-prod-review.sha256", ".tmp/nh-regression/bundle-server-eh-t116.facts", ".tmp/test-reports/nh-real-site-regression-20261016.md"],
+      "note": "NH 与 EH 对比轮构建、bundle hash、安装状态和 loader 身份均已核实；server 后续已按 AC7 收尾。",
+      "waiver": null
+    },
+    {
+      "id": "nh-preflight-and-runtime-health",
+      "ac": ["AC2"],
+      "claim": "当前 loader 下 NH desktop/mobile 准备门与运行时健康检查通过",
+      "scope": "有效 gallery 的 desktop 1200x900、mobile 390x844；加载、书页、卷轴和移动书页轮次",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [".tmp/nh-regression/run-desktop-review12/result.json", ".tmp/nh-regression/run-mobile-scroll-review2/result.json", ".tmp/nh-regression/run-mobile-book-review3/result.json", ".tmp/nh-regression/run-mobile-loading-review2/result.json"],
+      "note": "四个 NH result.json 均为 observed=passed、checks=executed、errors=[]、无 unresolved/unsaved；身份包含 fullBundleCandidate=true、verified=true。",
+      "waiver": null
+    },
+    {
+      "id": "nh-functional-scope",
+      "ac": ["AC3"],
+      "claim": "NH R3–R8 在真实页面完成桌面与移动验收",
+      "scope": "有效 gallery 的初始化、标题/页数、书页、卷轴、缩略图、翻页，以及无效 gallery 错误处理",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [".tmp/nh-regression/run-desktop-review12/result.json", ".tmp/nh-regression/run-mobile-scroll-review2/result.json", ".tmp/nh-regression/run-mobile-book-review3/result.json", ".tmp/nh-regression/run-mobile-loading-review2/result.json", ".tmp/nh-regression/invalid-gallery-current.log", ".tmp/nh-regression/invalid-gallery-error-current.png", ".tmp/test-reports/nh-real-site-regression-20261016.md"],
+      "note": "有效 gallery 的 R3–R7 已取得当前 loader 的 desktop/mobile 证据；R8/T115 在当前 loader 下直接取得含技术详情的初始化错误 UI，并完成截图视觉检查。",
+      "waiver": null
+    },
+    {
+      "id": "eh-nh-comparison",
+      "ac": ["AC4"],
+      "claim": "EH 与 NH 的书页、卷轴、缩略图行为完成当前轮对比",
+      "scope": "确认可访问的 EH gallery 与有效 NH gallery，使用相同当前 bundle/loader；EH desktop 1200x900、NH desktop/mobile 固定 profile",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [".tmp/nh-regression/run-eh-t116-desktop4/result.json", ".tmp/nh-regression/eh-t116-findings.json", ".tmp/nh-regression/run-desktop-review12/result.json", ".tmp/nh-regression/run-mobile-scroll-review2/result.json", ".tmp/nh-regression/run-mobile-book-review3/result.json", ".tmp/test-reports/nh-real-site-regression-20261016.md"],
+      "note": "EH 图页 https://exhentai.org/s/f9cb170d76/4257612-1（69页）与 NH 图页均通过书页、卷轴、缩略图主流程；EH/NH 平台专属原图/换源差异不在本项三项对比范围内。",
+      "waiver": null
+    },
+    {
+      "id": "acceptance-report-classification",
+      "ac": ["AC5"],
+      "claim": "验收报告已写入 .tmp/test-reports 并按实际证据分类",
+      "scope": "NH T108–T116、EH/NH 对比 artifact、无效 URL结果和未完成范围",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [".tmp/test-reports/nh-real-site-regression-20261016.md", ".tmp/nh-regression/run-desktop-review12/result.json", ".tmp/nh-regression/run-mobile-scroll-review2/result.json", ".tmp/nh-regression/run-mobile-book-review3/result.json", ".tmp/nh-regression/run-mobile-loading-review2/result.json", ".tmp/nh-regression/run-eh-t116-desktop4/result.json", ".tmp/nh-regression/invalid-gallery-current.log"],
+      "note": "报告已按有效/无效 URL边界、真实产品断言、视觉检查和 EH/NH 对比证据回填；未验证范围仍明确列出。",
+      "waiver": null
+    },
+    {
+      "id": "platform-task-status",
+      "ac": ["AC6"],
+      "claim": "001-platform-injection 的 T108–T116 勾选与当前实测一致",
+      "scope": "`.trellis/spec/frontend/features/001-platform-injection/tasks.md` 对 T108–T116 的状态和理由",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [".trellis/spec/frontend/features/001-platform-injection/tasks.md", ".tmp/test-reports/nh-real-site-regression-20261016.md"],
+      "note": "T108–T116 与 T113 均已按当前真实证据勾选，并附有效/无效 URL、EH/NH artifact 和未覆盖边界。",
+      "waiver": null
+    },
+    {
+      "id": "server-cleanup",
+      "ac": ["AC7"],
+      "claim": "本轮 bundle server 已退出且资源已清理",
+      "scope": "本任务启动的 npm serve:bundle 父进程、node listener、127.0.0.1:8787 和 PID 文件",
+      "method": "inspection",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [".tmp/nh-regression/server-cleanup-final.txt", ".tmp/test-reports/nh-real-site-regression-20261016.md"],
+      "note": "EH T116 server 的 npm 父进程 PID 21167 与 node listener PID 21185 均已退出；8787 无监听；`.tmp/nh-regression/bundle-server.pid` 已删除。",
+      "waiver": null
+    }
+  ]
+}
