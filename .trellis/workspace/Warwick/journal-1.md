@@ -437,3 +437,48 @@ T024 遗留的两处可选硬化落地：通知标题超长无空格串不换行
 - 06 check-docs.mjs：spec 树链接/锚点/$ref 检查接入 npm run check；注入断链/坏锚点验证返回 1；pending-work.md 通知硬化遗留句同步为已实现。
 - 03 预检断言清单：browser-acceptance.md 4.5 节盘点已覆盖/未覆盖；下载冒烟列为后续独立任务候选（eh-test 场景）。
 - 教训：改 `.trellis/scripts/**` 后必须重跑 `measure-trellis-context.mjs`（--check 会因输入文件 sha 变化失效）——审查 F1 即此因；F2 建议在 implement.md 模板加显式检查项。
+
+
+## Session 11: 文档与注释只描述当前状态
+<!-- trellis-session: v=2 fp=76f79f92f9b093ac -->
+
+**Date**: 2026-10-17
+**Task**: 文档与注释只描述当前状态
+**Branch**: `master`
+
+### Summary
+
+在 AGENTS.md 增加两条硬要求，并清理 .trellis/spec 的 spec-kit 遗留计划文档与 core/、src/platform/ 的叙述性注释。
+
+### Main Changes
+
+- AGENTS.md 新增两条要求：文档与代码注释只描述当前状态；代码是唯一证据，不写注释
+- core_old/、old/ 从「历史实现」改写为当前用途描述
+- state-management.md 承接被删注释的机制约束（reset 身份、布局偏好、平台请求与手势契约）
+- features/ 下删除 28 个计划型文件，保留下来的 spec/data-model/quickstart/contracts 去掉 migration-note 与 T0xx 编号
+- pending-work.md 重写为「未收口项」，features/index.md 去掉「历史资料」列
+- 删除 core/ 与 src/platform/ 共 33 个文件的叙述性注释，保留三斜线指令、SCSS 段注释与执行期时序守卫
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `9915f78` | docs(agents): 要求文档与注释只描述当前状态 |
+| `418389f` | docs(spec): 功能资料只描述当前状态 |
+| `68cafca` | refactor(core): 删除叙述性注释 |
+
+### Testing
+
+- [OK] acceptance.py summarize/archive：8/8 check passed，无 waiver
+- [OK] npm run check（type-check + 4 套回归 + build-prod）退出码 0
+- [OK] npm run check:docs 退出码 0：38 md, 220 本地链接
+- [OK] 文本扫描无 Phase N / T0xx / migration-note / 迁移基线 残留
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 按 pending-work.md 的未收口项逐个建任务：下载时间戳时区、抓取并发、各组 quickstart 验收
+- 手动验证 10-16-acceptance-guardrails 任务是否继续
