@@ -1,0 +1,7 @@
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "被删注释承载的偏好存储、共享通道降级、reset 身份与 schema 规范化约束的补写目标"}
+{"file": ".trellis/spec/frontend/features/index.md", "reason": "功能导航入口，需从历史资料索引改写为当前实现与契约导航"}
+{"file": ".trellis/spec/frontend/features/pending-work.md", "reason": "未收口工作项的去向；删除 tasks.md 前必须先改写"}
+{"file": ".trellis/spec/frontend/features/001-platform-injection/spec.md", "reason": "平台契约正文；保留契约、删掉 T149 编号与修复过程"}
+{"file": ".trellis/spec/frontend/directory-structure.md", "reason": "core_old/old 与迁移边界的表述改写依据"}
+{"file": ".trellis/spec/frontend/decisions/2026-09-18-reader-behavior.md", "reason": "已确认行为契约；注释中被引用的决策条款按此改写为当前契约指针"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "上层导航；pending-work 的 historical 表述需同步"}

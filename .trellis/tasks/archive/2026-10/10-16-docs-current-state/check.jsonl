@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "收口检查的验证路由：纯文档修改的检查项、/// 命令归属与完成报告要求"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "前端指南入口；核对 layers 与路由表未因本轮改写产生失效引用"}
+{"file": "AGENTS.md", "reason": "被改动文件；核对两条新要求与非托管区边界，且托管块未被改动"}
+{"file": ".trellis/spec/frontend/features/index.md", "reason": "本轮重写对象；核对导航与「已知状态差异」是否只描述当前状态"}

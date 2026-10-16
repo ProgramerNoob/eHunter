@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "`AGENTS.md` 非托管区包含 R1 两条要求，且表述不引入\"记录演变过程\"的例外口子；Trellis 托管块未被改动。",
+    "AC2": "`.trellis/spec/frontend/features/` 下不再存在 `plan.md`、`research.md`、`tasks.md`、`checklists/requirements.md`。",
+    "AC3": "`npm run check:docs` 退出码 0（无断链、无坏锚点）。",
+    "AC4": "全仓库（不含 `.trellis/tasks/archive/**`、`.trellis/workspace/**`、`core_old/`、`old/`）不再出现 `Phase 1`–`Phase 6` 阶段规划、`T0xx` 任务编号、\"迁移基线\"、\"migration-note\"、\"历史实现状态\"等字样。",
+    "AC5": "`core/`、`src/platform/` 中不再有叙述性/历史性注释；`vue-tsc --noEmit` 退出码 0，`npm run build-prod` 退出码 0，`npm test` 通过。",
+    "AC6": "被删注释承载的关键约束已出现在 `.trellis/spec/frontend/state-management.md`，覆盖：共享通道读取与本地降级的边界、reset 身份的构成与不能比较墙钟的原因、旧副本按缺失处理的规则、schema 规范化的先后顺序。",
+    "AC7": "代码行为零改动：`src/`、`core/` 的改动仅限于注释删除，无语句、类型、导出或运行时行为变化。"
+  },
+  "checks": [
+    {
+      "id": "agents-requirements",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "AGENTS.md 非托管区含两条要求且托管块与 HEAD 一致",
+      "scope": "AGENTS.md 全文；Trellis 托管块以 `git show HEAD:AGENTS.md` 的同段 sha256 比对",
+      "method": "inspection",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        "AGENTS.md"
+      ],
+      "note": "`AGENTS.md:48`「所有文档与代码注释只描述当前状态，不记录任何 AI 历史修改记录、已废止的决策或阶段规划；更新当前状态描述时，不得把尚未确认的实现偏差写成新的业务规则。」；`AGENTS.md:49`「代码是唯一证据；不写注释，文字说明放在文档里。」。两条均为无例外从句的祈使句，未留「记录演变过程」的口子。`git show HEAD:AGENTS.md`（自 `<!-- TRELLIS:START -->` 起）与工作区同段 sha256 均为 9823683c92592adc52fc2b2076b3e969a14ca3f3，托管块未变；改动集中在第 3、6、13、20 行改写与第 48–49 行新增，全部位于托管块之前。",
+      "waiver": null
+    },
+    {
+      "id": "no-plan-files",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "计划型遗留文档已从功能资料目录移除",
+      "scope": ".trellis/spec/frontend/features/ 下 7 个功能组的 plan/research/tasks/checklists 文件",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          "-c",
+          "test -z \"$(find .trellis/spec/frontend/features -type f \\( -name plan.md -o -name research.md -o -name tasks.md -o -name requirements.md \\))\" && echo \"no plan/research/tasks/checklists files remain\""
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-16T16:30:28.923181+00:00",
+        "endedAt": "2026-10-16T16:30:28.930261+00:00",
+        "log": ".tmp/acceptance/10-16-docs-current-state/tmplpil8z6r.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-16-docs-current-state/tmplpil8z6r.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "check-docs",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "文档链接与 $ref 校验通过",
+      "scope": "仓库内全部 md、yaml 的本地链接与 $ref 解析",
+      "method": "command",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check:docs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-16T16:35:23.802525+00:00",
+        "endedAt": "2026-10-16T16:35:23.909601+00:00",
+        "log": ".tmp/acceptance/10-16-docs-current-state/tmp84dohiog.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-16-docs-current-state/tmp84dohiog.log"
+      ],
+      "note": "`check-docs: 38 md, 6 yaml, 220 本地链接, 0 外链(仅记录), 70 $ref` / `check-docs: OK`，退出码 0，无断链与坏锚点。md 文件数由基线 66 降至 38（删除 28 个计划型文档）。",
+      "waiver": null
+    },
+    {
+      "id": "stale-text-scan",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "阶段编号、任务编号与迁移叙述字样已清零",
+      "scope": ".trellis/spec/、AGENTS.md、README.md、README_CN.md（排除 .trellis/workflow.md 自身的 Trellis 阶段、.agents/skills/** 托管内容、任务目录与 archive/workspace）",
+      "method": "command",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          "-c",
+          "if grep -rniE \"phase ?[0-9]|migration-note|迁移基线|历史实现|历史待办|647ff26|spec-kit|speckit|T[0-9]{3}\" .trellis/spec/frontend .trellis/spec/tooling .trellis/spec/pi-context.md AGENTS.md README.md README_CN.md; then echo \"stale text found\"; exit 1; else echo \"no stale phase/task/migration text in scoped paths\"; fi"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-16T18:31:34.163204+00:00",
+        "endedAt": "2026-10-16T18:31:34.185328+00:00",
+        "log": ".tmp/acceptance/10-16-docs-current-state/tmp08v_waku.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-16-docs-current-state/tmp08v_waku.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "comment-cleanup-static",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "src/ 与 core/ 只剩允许保留的注释",
+      "scope": "core/、src/ 全部 ts/vue 文件的行注释与块注释",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/acceptance/comment-audit.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-16T16:31:34.160783+00:00",
+        "endedAt": "2026-10-16T16:31:34.184070+00:00",
+        "log": ".tmp/acceptance/10-16-docs-current-state/tmp21agkf0j.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-16-docs-current-state/tmp21agkf0j.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "product-gates",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "类型检查、生产构建与回归测试通过",
+      "scope": "vue-tsc --noEmit；vite build --config vite.config.prod.ts；npm test 四个回归套件",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-16T18:31:20.141894+00:00",
+        "endedAt": "2026-10-16T18:31:34.135891+00:00",
+        "log": ".tmp/acceptance/10-16-docs-current-state/tmpud3_7679.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-16-docs-current-state/tmpud3_7679.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "spec-constraints",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "被删注释承载的机制约束已写入 state-management.md",
+      "scope": ".trellis/spec/frontend/state-management.md 中 Reset identity、Layout preferences、Platform request/gesture/viewport contracts 三节",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/spec/frontend/state-management.md"
+      ],
+      "note": "`state-management.md` 新增三节承接被删注释的机制约束：`### Reset identity`（共享标记必须写真实共享通道、四个存储键与 schema —— page-turn-animation schema 1 / unified-settings schema 3 / legacy-migration schema 1 的 done·blocked / 仅本站 reset-observation schema 1、reset 身份构造顺序 resetId → migratedAt → 字面量 blocked-without-timestamp、marker 与 observation 不一致时以共享标记为准且从不比较墙钟、旧副本无当前身份故按缺失处理但不删除不覆盖、各来源先按自身 schema 规范化再合并）；`### Layout preferences`（槽位与尺寸独立判定、拒收 `Number(raw)` 强转、越界等同缺失不钳制、`importLegacyLocal`/`allowLocalFallback`/`acceptLocalLayout`/`resetId` 各参数语义）；`## Platform request, gesture and viewport contracts`（`TIMEOUT_MS = 120000`、基础请求层并发与递增重试影响 EH 与 NH、放大镜镜头取 `PageView ∩ viewport` 交集、NH `src`→`x-src` 与 `data-src`→`data-x-src` 双拼写、EH intro 页去重、长按手势合成 click 守卫需自行失效）。`quality-guidelines.md` 的 `## Documentation boundaries` 节记入本轮两条要求及注释允许项。",
+      "waiver": null
+    },
+    {
+      "id": "no-behavior-change",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "src/ 与 core/ 的改动不改变运行时行为",
+      "scope": "git diff -U0 -- src core 的全部增删行",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          "-c",
+          "test -z \"$(git diff -U0 f7b926c..HEAD -- src core | grep -E \"^[+-]\" | grep -vE \"^[+-]{3}\" | grep -vE \"^[+-][[:space:]]*(//|/\\*|\\*)\" | grep -vE \"^[+-][[:space:]]*$\" | grep -v \"^[-]import Util from .\\.\\./\\.\\./\\.\\./core/utils/Utils.$\")\" && echo \"three commits: no non-comment change beyond the dead import removal\""
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-16T18:31:20.080311+00:00",
+        "endedAt": "2026-10-16T18:31:20.111695+00:00",
+        "log": ".tmp/acceptance/10-16-docs-current-state/tmppepyvk4b.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-16-docs-current-state/tmppepyvk4b.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    }
+  ]
+}
