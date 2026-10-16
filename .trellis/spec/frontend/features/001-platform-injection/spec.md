@@ -1,17 +1,5 @@
-<!-- migration-note:start -->
-> 迁移来源：`specs/001-platform-injection/spec.md`（基线 `647ff26`）。正文保全，路径已重定位；命令与源码路径均从仓库根目录解释。
-> 阅读顺序与状态：先读[功能索引](../index.md)及[已确认决策](../../decisions/2026-09-18-reader-behavior.md)；决策覆盖到的旧约定以决策为准。Draft、任务勾选、独立验收清单各自保留，不证明当前版本通过验收。
-> 文中的 plan/research/tasks、原始 Input、日期及“本次/当前”描述均保留原记录时态；历史实现路径、代码示例、依赖版本和 `.tmp/` 证据不代表本轮已核实或可获取。迁移未执行产品验收，也未补造缺失产物。
-> 平台差异：原 60 秒契约/性能目标保留；`src/platform/initializer.ts` 当前为 `TIMEOUT_MS = 120000`，不能按旧值改写实现。T043–T082/T098 实现已存在，旧计划未按此清单验收；T149 的 NH `src`→`x-src` 与 parser 只读 `data-x-src` 导致 45 页缩略图为空，已于 2026-09-20 修复（`parseData()` 增加 `x-src` 回退）并完成 T113 的真实 NH 验收（Trellis 任务 `09-20-nh-thumb-src-parser`，记录见本组 `tasks.md` T149/T113）；`ImgHtmlParser.ts:38` 依真实图片页证据判定无需改动。
-> `validation-us1.md`、`validation-us2.md`、`validation-us3.md`、`final-validation.md` 为历史计划中未产出的文件名，不是有效依赖；后续实际开展时在 Trellis 任务记录验收。
-<!-- migration-note:end -->
-
 # Feature Specification: Platform-Based Injection System
 
-**Feature Branch**: `001-platform-injection`\
-**Created**: 2026-02-21\
-**Status**: Draft\
-**状态注**：Draft 表示规格生命周期；`tasks.md` 的勾选记录历史进度，均不代表当前 HEAD 已验收。涉及本功能的行为改动，须按 [quickstart.md](quickstart.md) 重新验收。
 **Input**: User description: "修改main.ts,只是EH和NH两个平台的实现注入。根据window.location.host的不同,来实现不同平台的注入（如果是localhost或者ip地址,则使用test实现）。EH和NH两个平台实现的需要完成重构,尽量适配新的实现,如有不能满足的再直接迁移。整体的平台实现支持的重构,需要简洁清晰易懂,有抽象,易维护。"
 
 ## User Scenarios & Testing *(mandatory)*

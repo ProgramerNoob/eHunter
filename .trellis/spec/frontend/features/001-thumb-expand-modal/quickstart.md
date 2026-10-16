@@ -1,9 +1,3 @@
-<!-- migration-note:start -->
-> 迁移来源：`specs/001-thumb-expand-modal/quickstart.md`（基线 `647ff26`）。正文保全，路径已重定位；命令与源码路径均从仓库根目录解释。
-> 阅读顺序与状态：先读[功能索引](../index.md)及[已确认决策](../../decisions/2026-09-18-reader-behavior.md)；决策覆盖到的旧约定以决策为准。Draft、任务勾选、独立验收清单各自保留，不证明当前版本通过验收。
-> 文中的 plan/research/tasks、原始 Input、日期及“本次/当前”描述均保留原记录时态；历史实现路径、代码示例、依赖版本和 `.tmp/` 证据不代表本轮已核实或可获取。迁移未执行产品验收，也未补造缺失产物。
-<!-- migration-note:end -->
-
 # Quickstart: Thumb Expand Modal
 
 ## Prerequisites
@@ -58,14 +52,4 @@ npm run dev
 npm run type-check
 ```
 
-## Verification Record (2026-02-21)
-
-> 历史验证记录：以下结果保留自 2026-02-21，不代表当前 HEAD 的验收结果；涉及本功能的行为改动，须重新执行本 quickstart。
-
-- `npm run type-check`: PASS
-- `npm run dev` + browser verification: PASS
-- Runtime checks passed:
-  - Expand button is visible in thumb viewport and opens modal.
-  - Modal has no title and uses settings-dialog style language.
-  - Thumbnail grid shows page numbers and supports click-to-jump with auto-close.
-  - Bottom pagination is visible and functional (single-segment state confirmed at <=100 pages).
+验收结果记录在当轮任务产物中，不写入本文。

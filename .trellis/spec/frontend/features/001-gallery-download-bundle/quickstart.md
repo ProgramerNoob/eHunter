@@ -1,9 +1,3 @@
-<!-- migration-note:start -->
-> 迁移来源：`specs/001-gallery-download-bundle/quickstart.md`（基线 `647ff26`）。正文保全，路径已重定位；命令与源码路径均从仓库根目录解释。
-> 阅读顺序与状态：先读[功能索引](../index.md)及[已确认决策](../../decisions/2026-09-18-reader-behavior.md)；决策覆盖到的旧约定以决策为准。Draft、任务勾选、独立验收清单各自保留，不证明当前版本通过验收。
-> 文中的 plan/research/tasks、原始 Input、日期及“本次/当前”描述均保留原记录时态；历史实现路径、代码示例、依赖版本和 `.tmp/` 证据不代表本轮已核实或可获取。迁移未执行产品验收，也未补造缺失产物。
-<!-- migration-note:end -->
-
 # Quickstart: Gallery Download Bundle
 
 ## Prerequisites
@@ -22,7 +16,7 @@ npm run dev
 
 2. Open reader page and verify runtime behavior using [ego-browser](../../browser-acceptance.md); follow the linked guide for common operations.
 
-**Acceptance status (2026-09-18)**: These steps reflect the confirmed JSON format. This documentation sync did not run them; record fresh results and artifact evidence in `plan.md` via `tasks.md` T036–T037. Historical YAML/task checks do not establish acceptance of `metadata.json`.
+**Acceptance status**: These steps reflect the confirmed JSON format. They are not a record of a completed run; record fresh results and artifact evidence before treating `metadata.json` as accepted.
 
 ## Validation Checklist
 
@@ -35,8 +29,8 @@ npm run dev
 - Extract each ZIP independently, including the later chunk by itself. Verify the root contains one UTF-8 `metadata.json`, parseable as JSON, with exactly these seven fields: `introUrl`, `galleryTitle`, `totalPages`, `downloadTime`, `eHunterVersion`, `totalChunks`, `chunkIndex`. JSON is the only metadata format.
 - Check string types for intro URL, original title, timestamp, and version; page and chunk counts/indices must be JSON integers. Include a non-ASCII gallery title to verify UTF-8 round-tripping.
 - Verify `totalChunks=1` and `chunkIndex=1` for the single ZIP; for the 300-page export verify `totalPages=300`, `totalChunks=2`, and `chunkIndex` values 1 and 2 matching the ZIPs. All task-level fields, including the captured timestamp, must agree between chunks.
-- Check title/intro URL/version against the source task, and verify the timestamp is readable and parseable. The existing user-local-time requirement remains in force; the current UTC producer discrepancy is recorded in `plan.md`.
-- Confirm the archive path in `core/service/GalleryDownloadService.ts` continues to use existing `fflate` with native JSON serialization, as required by the [2026-09-18 decision, section 1](../../decisions/2026-09-18-reader-behavior.md#1-下载格式). The historical YAML and `jszip`/`yaml` plan is superseded.
+- Check title/intro URL/version against the source task, and verify the timestamp is readable and parseable. The user-local-time requirement remains in force; the current UTC producer discrepancy is listed in `../index.md#已知状态差异`.
+- Confirm the archive path in `core/service/GalleryDownloadService.ts` continues to use existing `fflate` with native JSON serialization, as required by the [2026-09-18 decision, section 1](../../decisions/2026-09-18-reader-behavior.md#1-下载格式). JSON is the sole metadata format.
 
 ### Story P2: Reusable floating status notifications
 

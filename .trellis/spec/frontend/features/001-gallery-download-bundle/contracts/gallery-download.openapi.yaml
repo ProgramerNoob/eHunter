@@ -9,7 +9,7 @@ info:
     Archive output follows the confirmed 2026-09-18 download decision, section 1:
     existing fflate produces standard ZIPs, each containing a UTF-8 metadata.json at its root
     with exactly the seven fields defined by GalleryMetadataJson, for both single and multiple chunks.
-    JSON is the sole metadata format; the historical YAML and jszip/yaml plan is superseded.
+    JSON is the sole metadata format for `metadata.json`.
     This OpenAPI document's YAML syntax is independent of the JSON archive payload.
 servers:
   - url: https://ehunter.local
@@ -233,9 +233,9 @@ components:
           type: string
           format: date-time
           description: >-
-            Timestamp captured once for the task. The existing user-local-time requirement
-            in spec.md remains applicable; the current producer's UTC toISOString() value
-            is a known unresolved difference documented in plan.md.
+            Timestamp captured once for the task. spec.md requires user-local time;
+            the current producer's UTC toISOString() value is a known difference
+            listed in features/index.md under 已知状态差异.
         eHunterVersion:
           type: string
           description: eHunter version recorded for the task

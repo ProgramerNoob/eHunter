@@ -1,9 +1,3 @@
-<!-- migration-note:start -->
-> 迁移来源：`specs/001-gallery-download-bundle/data-model.md`（基线 `647ff26`）。正文保全，路径已重定位；命令与源码路径均从仓库根目录解释。
-> 阅读顺序与状态：先读[功能索引](../index.md)及[已确认决策](../../decisions/2026-09-18-reader-behavior.md)；决策覆盖到的旧约定以决策为准。Draft、任务勾选、独立验收清单各自保留，不证明当前版本通过验收。
-> 文中的 plan/research/tasks、原始 Input、日期及“本次/当前”描述均保留原记录时态；历史实现路径、代码示例、依赖版本和 `.tmp/` 证据不代表本轮已核实或可获取。迁移未执行产品验收，也未补造缺失产物。
-<!-- migration-note:end -->
-
 # Data Model: Gallery Download Bundle
 
 ## 1) DownloadTask
@@ -63,7 +57,7 @@
 
 ## 4) GalleryMetadataJson
 
-- Description: UTF-8 JSON document named `metadata.json` in every ZIP archive, including single-chunk exports. This replaces the historical YAML model under the [2026-09-18 decision, section 1](../../decisions/2026-09-18-reader-behavior.md#1-下载格式).
+- Description: UTF-8 JSON document named `metadata.json` in every ZIP archive, including single-chunk exports. Format fixed under the [2026-09-18 decision, section 1](../../decisions/2026-09-18-reader-behavior.md#1-下载格式).
 - Fields (exactly these seven; all required):
   - `introUrl` (string): Gallery intro HTML URL.
   - `galleryTitle` (string): Original gallery title, before ZIP filename sanitization.
@@ -77,7 +71,7 @@
   - `totalChunks = ceil(totalPages / effectiveChunkSize)` and `1 <= chunkIndex <= totalChunks`; the index MUST align with the actual chunk file.
   - A single-chunk export MUST carry `totalChunks=1` and `chunkIndex=1`.
   - Task-level fields, including `downloadTime`, MUST remain consistent across chunks; only `chunkIndex` changes.
-  - The existing user-local-time assumption in `spec.md` remains applicable. The current producer uses UTC ISO 8601 (`toISOString()`); the unresolved difference is recorded in `plan.md`.
+  - `downloadTime` requires user-local time. The current producer uses UTC ISO 8601 (`toISOString()`); the difference is listed in `../index.md#已知状态差异`.
 
 ## 5) StatusNotification
 

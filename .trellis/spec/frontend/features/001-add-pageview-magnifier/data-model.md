@@ -1,12 +1,6 @@
-<!-- migration-note:start -->
-> 迁移来源：`specs/001-add-pageview-magnifier/data-model.md`（基线 `647ff26`）。正文保全，路径已重定位；命令与源码路径均从仓库根目录解释。
-> 阅读顺序与状态：先读[功能索引](../index.md)及[已确认决策](../../decisions/2026-09-18-reader-behavior.md)；决策覆盖到的旧约定以决策为准。Draft、任务勾选、独立验收清单各自保留，不证明当前版本通过验收。
-> 文中的 plan/research/tasks、原始 Input、日期及“本次/当前”描述均保留原记录时态；历史实现路径、代码示例、依赖版本和 `.tmp/` 证据不代表本轮已核实或可获取。迁移未执行产品验收，也未补造缺失产物。
-<!-- migration-note:end -->
-
 # Data Model - PageView Magnifier Menu
 
-本模型已同步 [2026-09-18 决策](../../decisions/2026-09-18-reader-behavior.md) 第 3、4 节，描述目标行为；实现和验收待办见 [tasks.md](tasks.md)。修改偏好迁移或几何规则时先读决策，不以历史研究中的会话存储或固定尺寸为约束。
+本模型与 [2026-09-18 决策](../../decisions/2026-09-18-reader-behavior.md) 第 3、4 节一致。修改偏好迁移或几何规则时先读决策；尺寸与倍率长期共享，开关只在页面会话内继承。
 
 ## 1. PageViewInteractionContext
 

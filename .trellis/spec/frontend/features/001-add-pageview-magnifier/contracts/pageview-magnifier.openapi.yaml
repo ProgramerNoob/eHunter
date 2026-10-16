@@ -7,7 +7,7 @@ info:
     book/scroll mode action visibility, and platform-gated load-original behavior.
     This is a logical contract for local reader UI behavior; example servers and paths do not represent deployed HTTP endpoints.
     Target behavior is synchronized with [the 2026-09-18 decision](../../../decisions/2026-09-18-reader-behavior.md),
-    sections 3 and 4. Implementation and acceptance remain pending; see ../tasks.md.
+    sections 3 and 4. Acceptance steps are in ../quickstart.md.
     Settings and menu shortcuts share persistent size/zoom preferences; enabled is page-session state.
 servers:
   - url: https://ehunter.local

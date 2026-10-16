@@ -1,15 +1,5 @@
-<!-- migration-note:start -->
-> 迁移来源：`specs/001-dockable-panel-layout/spec.md`（基线 `647ff26`）。正文保全，路径已重定位；命令与源码路径均从仓库根目录解释。
-> 阅读顺序与状态：先读[功能索引](../index.md)及[已确认决策](../../decisions/2026-09-18-reader-behavior.md)；决策覆盖到的旧约定以决策为准。Draft、任务勾选、独立验收清单各自保留，不证明当前版本通过验收。
-> 文中的 plan/research/tasks、原始 Input、日期及“本次/当前”描述均保留原记录时态；历史实现路径、代码示例、依赖版本和 `.tmp/` 证据不代表本轮已核实或可获取。迁移未执行产品验收，也未补造缺失产物。
-<!-- migration-note:end -->
-
 # Feature Specification: Dockable Block Layout
 
-**Feature Branch**: `001-dockable-panel-layout`\
-**Created**: 2026-02-20\
-**Status**: Draft\
-**状态注**：Draft 表示规格生命周期；`tasks.md` 的勾选记录历史进度，均不代表当前 HEAD 已验收。涉及本功能的行为改动，须按 [quickstart.md](quickstart.md) 重新验收。
 **Input**: User description: "需要支持不同Block之间的调整相对位置、宽度和高度，类似jetbrains的IDE那样。目前需要缩略图栏(ThumbScrollView)和其右侧的内容主体区域之间调整。比如缩略图栏可以点按住顶部的‘EHUNTER’，然后拖拽调整到页面右侧或底部。缩略图栏和主题展示区域之间悬浮鼠标，可以触发调整缩略图栏的宽度。要求：1. 需要考虑到以后的扩展性和复用性，避免hardcode或者仅针对缩略图栏做过于简单或不可复用的实现 2. 交互设计需要美观简洁易懂"
 
 ## Clarifications

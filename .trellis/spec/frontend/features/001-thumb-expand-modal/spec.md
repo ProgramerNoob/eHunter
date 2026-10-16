@@ -1,15 +1,5 @@
-<!-- migration-note:start -->
-> 迁移来源：`specs/001-thumb-expand-modal/spec.md`（基线 `647ff26`）。正文保全，路径已重定位；命令与源码路径均从仓库根目录解释。
-> 阅读顺序与状态：先读[功能索引](../index.md)及[已确认决策](../../decisions/2026-09-18-reader-behavior.md)；决策覆盖到的旧约定以决策为准。Draft、任务勾选、独立验收清单各自保留，不证明当前版本通过验收。
-> 文中的 plan/research/tasks、原始 Input、日期及“本次/当前”描述均保留原记录时态；历史实现路径、代码示例、依赖版本和 `.tmp/` 证据不代表本轮已核实或可获取。迁移未执行产品验收，也未补造缺失产物。
-<!-- migration-note:end -->
-
 # Feature Specification: Thumb Expand Modal
 
-**Feature Branch**: `[001-thumb-expand-modal]`\
-**Created**: 2026-02-21\
-**Status**: Draft\
-**状态注**：Draft 表示规格生命周期；`tasks.md` 的勾选记录历史进度，均不代表当前 HEAD 已验收。涉及本功能的行为改动，须按 [quickstart.md](quickstart.md) 重新验收。
 **Input**: User description: "在ThumbScrollView底部(相当于当前屏幕底部)悬浮一个半透明的“展开”按钮。如果ThumbScrollView是横向展示的，则是最右侧。这个底部或则右侧，并不是指列表的底部，而是用户可视区域的底部或右侧。这个点击这个展开按钮后，会出发一个展示“全部缩略图”的弹窗。"
 
 ## Clarifications

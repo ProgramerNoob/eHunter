@@ -1,18 +1,8 @@
-<!-- migration-note:start -->
-> 迁移来源：`specs/001-add-pageflip-toggle/spec.md`（基线 `647ff26`）。正文保全，路径已重定位；命令与源码路径均从仓库根目录解释。
-> 阅读顺序与状态：先读[功能索引](../index.md)及[已确认决策](../../decisions/2026-09-18-reader-behavior.md)；决策覆盖到的旧约定以决策为准。Draft、任务勾选、独立验收清单各自保留，不证明当前版本通过验收。
-> 文中的 plan/research/tasks、原始 Input、日期及“本次/当前”描述均保留原记录时态；历史实现路径、代码示例、依赖版本和 `.tmp/` 证据不代表本轮已核实或可获取。迁移未执行产品验收，也未补造缺失产物。
-<!-- migration-note:end -->
-
 # Feature Specification: 书页模式翻页动效开关
 
-**Feature Branch**: `001-add-pageflip-toggle`\
-**Created**: 2026-02-18\
-**Status**: Draft\
-**状态注**：Draft 表示规格生命周期；`tasks.md` 的勾选记录历史进度，均不代表当前 HEAD 已验收。涉及本功能的行为改动，须按 [quickstart.md](quickstart.md) 重新验收。
 **Input**: User description: "我需要给书页模式支持拟真翻页，且新增一个开关：翻页动效，默认为拟真翻页，其他选项：平移翻页、无动效"
 
-**决策依据（2026-09-18）**：正文已同步 [已确认决策](../../decisions/2026-09-18-reader-behavior.md) 第 2、3 节；默认值、共享范围和迁移以该记录为准。原始 Input 保留历史背景，实现与新规则验收见 [tasks.md](tasks.md) 的后续任务。
+**决策依据（2026-09-18）**：正文与 [已确认决策](../../decisions/2026-09-18-reader-behavior.md) 第 2、3 节一致；默认值、共享范围和迁移以该记录为准。验收步骤见 [quickstart.md](quickstart.md)。
 
 ## Clarifications
 

@@ -1,12 +1,6 @@
-<!-- migration-note:start -->
-> 迁移来源：`specs/002-more-settings-modal/data-model.md`（基线 `647ff26`）。正文保全，路径已重定位；命令与源码路径均从仓库根目录解释。
-> 阅读顺序与状态：先读[功能索引](../index.md)及[已确认决策](../../decisions/2026-09-18-reader-behavior.md)；决策覆盖到的旧约定以决策为准。Draft、任务勾选、独立验收清单各自保留，不证明当前版本通过验收。
-> 文中的 plan/research/tasks、原始 Input、日期及“本次/当前”描述均保留原记录时态；历史实现路径、代码示例、依赖版本和 `.tmp/` 证据不代表本轮已核实或可获取。迁移未执行产品验收，也未补造缺失产物。
-<!-- migration-note:end -->
-
 # Data Model: 统一更多设置弹窗
 
-**当前约束**：已同步 [2026-09-18 决策](../../decisions/2026-09-18-reader-behavior.md) 第 2–4 节。以下为逻辑模型；实现与新规则验收见 [tasks.md](tasks.md)。
+**当前约束**：与 [2026-09-18 决策](../../decisions/2026-09-18-reader-behavior.md) 第 2–4 节一致。以下为逻辑模型；验收步骤见 [quickstart.md](quickstart.md)。
 
 ## 1) SettingsCategory
 

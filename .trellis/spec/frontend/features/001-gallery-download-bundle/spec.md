@@ -1,18 +1,8 @@
-<!-- migration-note:start -->
-> 迁移来源：`specs/001-gallery-download-bundle/spec.md`（基线 `647ff26`）。正文保全，路径已重定位；命令与源码路径均从仓库根目录解释。
-> 阅读顺序与状态：先读[功能索引](../index.md)及[已确认决策](../../decisions/2026-09-18-reader-behavior.md)；决策覆盖到的旧约定以决策为准。Draft、任务勾选、独立验收清单各自保留，不证明当前版本通过验收。
-> 文中的 plan/research/tasks、原始 Input、日期及“本次/当前”描述均保留原记录时态；历史实现路径、代码示例、依赖版本和 `.tmp/` 证据不代表本轮已核实或可获取。迁移未执行产品验收，也未补造缺失产物。
-<!-- migration-note:end -->
-
 # Feature Specification: Gallery Download Bundle
 
-**Feature Branch**: `001-gallery-download-bundle`\
-**Created**: 2026-02-22\
-**Status**: Draft\
-**状态注**：Draft 表示规格生命周期；`tasks.md` 的勾选记录历史进度，均不代表当前 HEAD 已验收。涉及本功能的行为改动，须按 [quickstart.md](quickstart.md) 重新验收。
 **Input**: User description: "DownloadConfirmDialog中点击确定时，触发下载功能，要求如下：包含图片打包下载、YAML元信息、进度状态通知、分片压缩、失败重试与换源策略。"
 
-**决策更新（2026-09-18）**：本规格组的有效正文、模型、计划、契约及验收步骤已按 [已确认决策第 1 节](../../decisions/2026-09-18-reader-behavior.md#1-下载格式) 同步：每个 ZIP 使用 UTF-8 `metadata.json` 七字段，沿用 `fflate`。原始 Input 与历史研究/任务中的 YAML、`jszip`/`yaml` 约定已被替代，原文仅保留演进背景；其余要求继续有效。实现核对与产物验收在 [tasks.md](tasks.md#2026-09-18-d03-决策验收) 单独追踪，历史勾选不代表新决策已验收。
+**决策依据（2026-09-18）**：本规格组与 [已确认决策第 1 节](../../decisions/2026-09-18-reader-behavior.md#1-下载格式) 一致：每个 ZIP 使用 UTF-8 `metadata.json` 七字段，沿用 `fflate`，不使用 YAML 或 `jszip`。验收步骤见 [quickstart.md](quickstart.md)，未收口项见[功能索引](../index.md#已知状态差异)。
 
 ## Clarifications
 
