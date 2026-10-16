@@ -1,7 +1,3 @@
-<!-- migration-note:start -->
-> 迁移来源：`.pi/browser-testing.md`（基线 `647ff26`）。当前流程接入浏览器预检；命令与源码路径均从仓库根目录解释。
-<!-- migration-note:end -->
-
 # 使用 ego-browser 验收
 
 本项目的浏览器验收统一使用 `ego-browser`。开始浏览器操作前，读取当前会话提供的 `ego-browser` 技能；API、连接排障和用户接管规则以该技能及其 `references/api.md` 为准。若技能缺失，先定位安装位置；必需能力不可用时报告具体阻塞项。

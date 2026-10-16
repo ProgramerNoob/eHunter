@@ -31,7 +31,7 @@ Use this list as the pre-commit entrypoint of the last quality pass; routing and
 
 - Product direction: [product goals](./product-goals.md).
 - Feature requirements, models, contracts and acceptance: [feature index](./features/index.md).
-- Historical unfinished work and independent checklist states: [pending work](./features/pending-work.md).
+- Unfinished work: [pending work](./features/pending-work.md).
 - Startup/platform changes: [platform specification](./features/001-platform-injection/spec.md).
 - Settings, download metadata, page-turn defaults, and magnifier behavior:
   [reader behavior decisions](./decisions/2026-09-18-reader-behavior.md),
@@ -40,8 +40,8 @@ Use this list as the pre-commit entrypoint of the last quality pass; routing and
 - Platform/injection acceptance: [EH testing](../../../.pi/skills/eh-test/SKILL.md).
 
 These guides describe inspected implementation, not proof of functional acceptance.
-Historical plans can differ from current code; resolve user-visible conflicts before
-changing behavior. Keep versions and commands in configuration, detailed acceptance
-procedures in their linked guides, and feature requirements in `features/`.
-The feature index distinguishes historical plans, current implementation and actual
-acceptance; follow [Trellis workflow](../../workflow.md) when starting new work.
+Specs can differ from current code; resolve user-visible conflicts before changing
+behavior. Keep versions and commands in configuration, detailed acceptance procedures in
+their linked guides, and feature requirements in `features/`.
+The feature index separates specs, current implementation and actual acceptance; follow
+[Trellis workflow](../../workflow.md) when starting new work.

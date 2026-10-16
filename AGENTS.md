@@ -2,22 +2,22 @@
 
 ## 项目与实现边界
 
-- eHunter 是面向 e-hentai/exhentai、nhentai 的油猴阅读器，支持书页模式和卷轴模式；项目仍处于重构阶段。
-- `core/`、`src/` 是当前实现，新增和修复优先落在这两个目录；`core_old/`、`old/` 是历史实现，修改时须说明目的，参考时避免直接复制旧结构。
+- eHunter 是面向 e-hentai/exhentai、nhentai 的油猴阅读器，支持书页模式和卷轴模式；界面文案与文档使用简体中文为主。
+- `core/`、`src/` 是当前实现，新增和修复优先落在这两个目录；`core_old/`、`old/` 不被 `src/`、`core/` 引用，也不参与构建与脚本产物，仅作对照查阅，新增和修复不落在其中，也不复制其结构。
 - 入口 `src/main.ts` 根据平台识别结果初始化，并通过 `src/platform/factory.ts` 创建 EH、NH 或 TEST 服务；不支持的平台跳过初始化。根组件目前名为 `core/TestApp.vue`，组件名不表示始终使用测试服务。
 - 平台迁移优先保证 `src/platform/eh/` 链路，再处理 `src/platform/nh/`；修改 `src/platform/base/` 时同步评估两端影响并记录评审结论。
 - `src/` 与 `core/` 存在交叉依赖，import 调整采用最小改动，避免一次性大迁移。重构需可读、可迁移、可回退。
 
 ## 技术与 UI 约束
 
-- 使用 Vue 3、TypeScript、Vite；当前样式以 SCSS 为主，历史样式含 Less。
+- 使用 Vue 3、TypeScript、Vite；样式以 SCSS 为主，`old/` 下仍有 Less。
 - 依赖和版本以 [package.json](package.json) 与锁文件为准；开发构建见 [vite.config.ts](vite.config.ts)，脚本注入产物见 [vite.config.prod.ts](vite.config.prod.ts)（IIFE、CSS 注入）。
 - 所有 UI 组件自建，不使用第三方 UI 库；阅读设置和交互在书页/卷轴模式保持一致，明确限定模式的功能除外。
 - UI 默认使用 flex 布局，显式指定 `flex-direction`。
 
 ## 修改前按需读取
 
-- 改变阅读模式、设置或平台设计时，读取[产品目标](.trellis/spec/frontend/product-goals.md)，从[功能索引](.trellis/spec/frontend/features/index.md)找到对应 spec、契约与 quickstart。涉及下载元数据、偏好、翻页默认值或放大镜时先读[已确认决策](.trellis/spec/frontend/decisions/2026-09-18-reader-behavior.md)；目标、历史计划与当前实现有冲突时，先追溯决策，无法确定的用户可见行为须对齐后修改。
+- 改变阅读模式、设置或平台设计时，读取[产品目标](.trellis/spec/frontend/product-goals.md)，从[功能索引](.trellis/spec/frontend/features/index.md)找到对应 spec、契约与 quickstart。涉及下载元数据、偏好、翻页默认值或放大镜时先读[已确认决策](.trellis/spec/frontend/decisions/2026-09-18-reader-behavior.md)；目标与当前实现有冲突时，先追溯决策，无法确定的用户可见行为须对齐后修改。
 - 涉及 DOM 解析时，检查选择器稳定性、异步加载和页面结构变化的容错。
 - 涉及渲染时，检查书页/卷轴模式一致性、图片加载与缓存、渲染性能和滚动体验；解析、缓存、请求队列和阅读交互须显式处理异步加载、页码边界与快速连续输入。
 - 涉及 EH 的 `ImgUrlListParser`（intro 页抓取与图片页 URL 解析；现役于 `src/platform/eh/service/AlbumServiceImpl.ts`）时，额外检查 `ReqQueue` 并发队列、`TextReq` 超时重试与 intro 页数/页码边界。
@@ -45,6 +45,8 @@
 
 ## 文档维护与提交
 
+- 所有文档与代码注释只描述当前状态，不记录任何 AI 历史修改记录、已废止的决策或阶段规划；更新当前状态描述时，不得把尚未确认的实现偏差写成新的业务规则。
+- 代码是唯一证据；不写注释，文字说明放在文档里。
 - 本文件保留项目边界、稳定约束和按需读取入口；具体功能约定归 `.trellis/spec/frontend/features/`，版本/依赖归配置文件，操作步骤归上面的专项指南。
 - 本文件非 Trellis 托管区由人工审阅维护；只合入经当前实现核实的稳定约束，具体功能规则和验收记录留在功能资料或任务内。
 - 用户故事须可独立实现、独立验收，包含接受场景与验证标准；交付记录涉及的书页/卷轴与 EH/NH 边界、实际检查结果和未验证项。

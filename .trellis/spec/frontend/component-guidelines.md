@@ -67,8 +67,8 @@ library, and flex layouts with an explicit `flex-direction` by default.
 - Dialogs teleport into the reader: the thumbnail dialog targets `#ehunter-app`, while
   [MoreSettingsDialog.vue](../../../core/components/MoreSettingsDialog.vue) targets
   `.ehunter-app`. Check the target exists and inherited styles/z-index still work.
-- Reuse the local SCSS approach; Less exists in historical code and is still installed,
-  but is not the pattern to introduce into new reader components.
+- Reuse the local SCSS approach. Less is still installed and present under `old/`, but is
+  not the pattern to introduce into new reader components.
 - Fixed-width cards and columns that hold variable text need `min-width: 0` and
   `overflow-wrap: anywhere` on the text element: one long unbroken token otherwise keeps
   its intrinsic width and pushes sibling controls out of the card (the close button in

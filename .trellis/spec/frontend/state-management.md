@@ -127,7 +127,7 @@ field, check [settingFieldRuntime.ts](../../../core/store/settingFieldRuntime.ts
 `settingFieldDefinitions` ([core/store/app.ts](../../../core/store/app.ts:354)): a route that outlives its
 definition is a dead branch, while a field kept only for that route still participates in
 persistence and normalization. Delete both sides together, or keep the field and document why.
-As of 2026-10-03 the two tables are isomorphic — 21 field ids each, with an empty difference in
+The two tables are isomorphic — 21 field ids each, with an empty difference in
 both directions — so a new asymmetry on either side is a defect.
 
 ## Persistence, migration and reset
@@ -156,10 +156,103 @@ browser storage boundary:
   and reloads only after required clearing/marker writes succeed. Preserve `resetId`
   metadata during normalization and writes so stale local copies cannot return.
 
+### Reset identity
+
+- The shared marker must be written through the real shared channel; a successful
+  site-local degraded write does not satisfy the reset contract.
+- Stored records: `ehunter:reader:prefs:page-turn-animation` (schema 1),
+  `ehunter:reader:prefs:unified-settings` (schema 3, `settings` / `quickSelection` /
+  `quickOrder` / optional `shortcuts`), `ehunter:reader:prefs:legacy-migration`
+  (schema 1, `legacyImport` is `done` or `blocked`), and—site-local only—
+  `ehunter:reader:prefs:reset-observation` (schema 1, `resetId` + `observedAt`).
+  `resetId` is an optional field on the shared records; `migratedAt` and `observedAt`
+  are ISO 8601 strings.
+- The current reset identity comes from the shared marker: its `resetId` when present,
+  otherwise `migratedAt`, otherwise the literal `blocked-without-timestamp`. A marker
+  without a timestamp must not be treated as an arbitrary new reset. Each reset mints a
+  fresh identity (`crypto.randomUUID()`, falling back to timestamp + counter + random)
+  so two resets in the same millisecond stay distinct.
+- Observation is written to site-local storage so a later session can tell that this page
+  saw the reset even when the shared channel is unreadable. When the shared marker cannot
+  be read, the identity from an existing local observation is reused; wall-clock values are
+  never compared. If marker and observation disagree, the shared marker wins and the
+  observation is synced toward it. An observation write failure counts as no record rather
+  than a persistence claim.
+- The blocked-import state latches once a healthy shared channel yields `blocked`, so the
+  status survives a GM write failure that degrades the normal channel to site-local
+  storage, and cleared preferences cannot reappear.
+- After a confirmed reset, reads consult the real shared channel first, where an
+  unparseable record counts as fully missing. Where the shared value is missing or an
+  individual entry is invalid, only local copies whose `resetId` equals the current reset
+  identity may fill gaps. Pre-reset copies lack that identifier, so a clock rollback cannot
+  revive them; they stay in storage, are treated as missing, and are not deleted or
+  overwritten.
+- Every source is normalized against its own stored schema before records are merged,
+  otherwise old-schema literals re-parse as current-schema values. Merging upgrades only
+  old default-bound literals: an explicit empty string is a legal preference and must not
+  be restored to its default.
+- Invalid values for a mode or setting count as missing rather than being silently
+  clamped, so the fill chain (`shared → same-site unified legacy → site-local legacy →
+  default`) continues. This applies to the shortcut map and to quick-selection /
+  quick-order entries; unknown quick-setting IDs are filtered out, and a fully filtered
+  list returns null so the caller's fallback chain keeps going.
+
 Page-turn defaults are computed only without a legal migrated preference: reduced
 motion selects no animation, otherwise mobile uses slide and desktop realistic.
-Magnifier size/zoom persist; its enabled state is page-session state. Read the decision
-before changing either lifetime; saving another setting must not recompute animation.
+Magnifier size/zoom persist; its enabled state is page-session state. Saving another
+setting must not recompute animation. The governing rules stay with the
+[reader behavior decision](./decisions/2026-09-18-reader-behavior.md).
+
+### Layout preferences
+
+Scroll and book layouts are recorded separately under
+[layout.ts](../../../core/model/layout.ts), whose key and schema define the slots. The
+normalization and read path in
+[layoutPreference.ts](../../../core/store/layoutPreference.ts) keeps these rules:
+
+- Slots and sizes are validated independently: an illegal slot cannot displace a legal
+  local slot. Only a real finite integer inside the slot range is legal; `Number(raw)`
+  coercion is not used, because `{toString: 1}` throws and `[300]` would pass as legal.
+- Sizes out of range or non-integer count as missing, so the local legacy value or the
+  slot default applies (bottom 200, side 150). They are not clamped.
+- A legal shared size means the local candidate is not parsed, so a corrupt local value
+  cannot overwrite it.
+- `resetId` is reset-identity metadata on both the record and its entries: normalization,
+  reads and writes must preserve it, otherwise a fresh entry is mistaken for a stale copy.
+  After a confirmed reset, per-entry filtering accepts only layout entries matching the
+  current reset identity; the rest count as missing and are left in storage undeleted.
+- `importLegacyLocal=false` stops treating local values as a fill source after a confirmed
+  reset, while a degraded shared read may still return them. `allowLocalFallback` decides
+  whether a degraded shared channel may return the site mirror; the store passes `false`
+  after a reset. `acceptLocalLayout` decides per entry whether site-local layout counts as
+  trustworthy; when omitted, local data fills gaps as usual. Passing `resetId` stamps the
+  mode entries written during that pass so later reads can match them by identity.
+
+## Platform request, gesture and viewport contracts
+
+- `initializeWithTimeout` in [initializer.ts](../../../src/platform/initializer.ts) races
+  `albumService.init()` against `TIMEOUT_MS = 120000`. The older platform contract states
+  60 seconds; the implementation value governs. A resolved `Error` or any thrown value
+  becomes an `InitializationError` carrying platform, URL, timestamp and step progress.
+- The base request layer ([TextReq.ts](../../../src/platform/base/request/TextReq.ts),
+  [ReqQueue.ts](../../../src/platform/base/request/ReqQueue.ts),
+  [MultiAsyncReq.ts](../../../src/platform/base/request/MultiAsyncReq.ts)) bounds request
+  concurrency and retries with an increasing interval; changes here affect both EH and NH.
+- [useMagnifier.ts](../../../core/components/composables/useMagnifier.ts) computes the lens
+  side as `sample size × zoom` and clamps the lens position to the intersection of the
+  page view and the browser viewport, keeping the lens fully visible; window and sampling
+  box shrink together so the ratio holds.
+- [runtimeEnv.ts](../../../core/utils/runtimeEnv.ts) treats a coarse pointer or a common
+  mobile user agent as mobile; EH mobile viewport handling and page-turn defaults share
+  that predicate.
+- The NH intro parser accepts both attribute spellings: the site rewrites native `src` to
+  `x-src` and `data-src` to `data-x-src`, while pages that keep the native attributes are
+  still parsed.
+- The EH intro parser drops repeated intro-page requests by validating the parsed index,
+  because the intro page count can overestimate the pages that carry thumbnails.
+- The page-menu long press opens the menu during the hold and consumes the synthetic click
+  emitted on release; the guard must then expire by itself, or the next click in another
+  region (for example the top bar) is swallowed.
 
 ## Album data is not preference storage
 
@@ -169,9 +262,7 @@ and resolved image URLs in memory. EH reuses an available source for `Default` a
 `Fast`; `Origin` and `ChangeSource` re-fetch. NH reuses an available source and does
 not implement EH's origin/change-source capabilities.
 
-The historical persistent album cache (`src/platform/eh/service/AlbumCacheService.ts`,
-with its cache versioning and Normal/Large thumbnail behavior) and its consumer
-`AlbumServiceImpl.old.ts` were deleted on 2026-10-03; the selected EH implementation
-never used them. Factory reset's removal of old album keys (`AlbumCache` /
+The current EH implementation keeps resolved image URLs in memory and has no persistent
+album cache layer. Factory reset's removal of old album keys (`AlbumCache` /
 `AlbumCacheVersion`) does not imply the current adapters write them. Follow
 [quality guidance](./quality-guidelines.md) for storage/cache acceptance.

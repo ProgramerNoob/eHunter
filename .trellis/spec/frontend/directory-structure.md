@@ -55,14 +55,15 @@ The current initializer uses **120000 ms**. The older
 mentions 60 seconds; do not copy that value into new implementation guidance or
 silently change the current timeout while doing unrelated work.
 
-## Current versus historical paths
+## Path conventions
 
-- `core_old/` and `old/` are historical implementations. Changes require an explicit
-  migration purpose; do not copy their architecture into new reader code.
-- Shared request infrastructure may still be relevant even when a legacy consumer is
-  present. Trace imports and callers before deciding a class is active or obsolete.
-- EH is the first migration target; changes to `src/platform/base/` require assessing
-  both EH and NH, per [AGENTS.md](../../../AGENTS.md).
+- `core/` and `src/` hold the active implementation. `core_old/` and `old/` are not
+  imported by them and are excluded from the build and bundles; they are reference only
+  and new reader code does not copy their architecture.
+- Shared request infrastructure may still be relevant when one consumer is inactive.
+  Trace imports and callers before deciding a class is active or obsolete.
+- EH is the priority platform; changes to `src/platform/base/` require assessing both EH
+  and NH, per [AGENTS.md](../../../AGENTS.md).
 
 ## Imports and build boundaries
 

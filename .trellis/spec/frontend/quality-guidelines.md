@@ -8,6 +8,17 @@ feature specification/contracts and quickstart before changing behavior. The
 older conflicting requirements for download metadata, preferences, page-turn defaults,
 and magnifier behavior; old task checkmarks are not evidence for a new change.
 
+## Documentation boundaries
+
+Documentation and code comments describe the current state only. Do not record AI
+history, superseded decisions or stage plans; when updating a current-state description,
+do not promote an unconfirmed implementation difference into a new rule. Code is the sole
+evidence: keep comments out of `src/` and `core/` and put the explanation in the spec,
+except for `/// <reference types="...">` directives, SCSS section comments inside a
+`.vue` `<style>` block, and runtime gesture/timing constraints that the code cannot
+express. Current-state facts belong in the specs, not in comments; unclosed differences
+between spec and implementation are listed in [pending work](./features/pending-work.md).
+
 ## Delivery boundaries
 
 Keep each user story independently implementable and testable, with its own acceptance
@@ -20,8 +31,8 @@ specific migration rules.
 
 At handoff, record the actual acceptance results and mode/platform scope, including
 unmet constraints with their rationale. Unjustified violations of the project boundaries
-must be resolved before reporting completion. Historical checkmarks do not satisfy a
-new change's acceptance criteria. Current workflow gates come from
+must be resolved before reporting completion. A recorded checkmark from an earlier pass
+does not satisfy a new change's acceptance criteria. Current workflow gates come from
 [Trellis workflow](../../workflow.md).
 
 ## Available commands
@@ -51,8 +62,8 @@ serves that file from `127.0.0.1:8787` by default, rereads it per request and se
 `cache-control: no-store`; `PORT` changes the port.
 
 There is no current root lint script, ESLint configuration/dependency, or automated
-browser E2E runner. A root `.eslintignore`, historical configs under `old/`, and
-test-config include globs do not provide those tools. Do not report lint results.
+browser E2E runner. A root `.eslintignore`, the configs under `old/`, and test-config
+include globs do not provide those tools. Do not report lint results.
 
 ### Repeatable local and CI checks
 
@@ -77,7 +88,7 @@ public initialization/actions/storage APIs. Its
 per-origin local strings in isolated Maps, copies GM values on reads/writes, gives
 GM operations independent fault switches, and creates a new VM/module cache/Vue
 scope for each page. Refreshes retain only the storage Maps; scopes are stopped.
-Unknown imports fail. Tests read current checkout files, not `.tmp`, historical Git
+Unknown imports fail. Tests read current checkout files, not `.tmp`, other Git
 versions or fixed result files, and may be run repeatedly with `npm test`.
 
 The suite covers GM read/write failures and recovery, origin fallback, reset success
@@ -125,8 +136,8 @@ compatibility.
   uncaught errors, separating host-site failures from reader failures.
 - For parsing/cache changes, verify title, total/current page, thumbnails and location,
   book/scroll switching, image loading, and supported original/change-source actions.
-  Check Normal/Large thumbnails, cache migration and queue/retry behavior if touching
-  the legacy EH cache/parser path called out in `AGENTS.md`. NH gallery markup is rewritten during page/repository construction (`src=`→`x-src=`, and `data-src=`→`data-x-src=` through the same substring match); attribute reads must accept the rewritten name and stay compatible with legacy `data-src` markup.
+  Check Normal/Large thumbnails, cache migration and queue/retry behavior when touching
+  the EH parser path. NH gallery markup is rewritten during page/repository construction (`src=`→`x-src=`, and `data-src=`→`data-x-src=` through the same substring match); attribute reads must accept the rewritten name and also the unrewritten `data-src` markup.
 - For UI changes, cover open/close, keyboard and pointer/touch behavior, disabled states,
   loading/error paths, and mode changes. Check accessible names, visible focus and
   keyboard operation; current widgets are not a complete accessibility baseline.
@@ -297,7 +308,7 @@ for pausing and does not imply completed acceptance.
 
 New tasks create the record during planning, initially unrun. Unarchived older tasks
 must backfill identifiers from their original PRD and record actual current results;
-missing evidence or historical checkmarks never imply passed. Missing protocol files
+missing evidence or an earlier checkmark never implies passed. Missing protocol files
 stop standard archival with a backfill diagnostic. Archived tasks are not rewritten
 or given invented results. Documentation/research tasks record relevant document
 checks without adding unrelated product checks.
