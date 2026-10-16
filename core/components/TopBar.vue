@@ -75,16 +75,12 @@ const floatContentRef = ref<HTMLElement | null>(null)
 const itemVisibility = ref<boolean[]>([])
 const isMeasuring = ref(false)
 
-// 防抖定时器
 let checkOverlapTimer: number | null = null
 
-// 获取元素的样式
 function getItemStyle(index: number): CSSProperties {
     if (isMeasuring.value) {
-        // 测量阶段：使用 visibility: hidden 保持布局但不可见
         return { visibility: 'hidden' }
     }
-    // 正常阶段：根据 itemVisibility 决定是否显示
     if (itemVisibility.value[index] === false) {
         return { display: 'none' }
     }
@@ -129,16 +125,13 @@ function checkOverlap() {
         return
     }
 
-    // 如果 TopBar 被隐藏，不进行检查（避免闪烁）
     if (!store.showTopBar) {
         return
     }
 
-    // 进入测量模式：显示所有元素但使用 visibility: hidden
     isMeasuring.value = true
     itemVisibility.value = new Array(topBarFields.value.length).fill(true)
 
-    // 使用 nextTick 确保 DOM 更新后再测量
     nextTick(() => {
         const items = innerContentRef.value?.querySelectorAll('.item')
         if (!items || items.length === 0) {
@@ -154,17 +147,14 @@ function checkOverlap() {
 
         const floatLeft = floatRect.left
 
-        // 检查每个元素是否与 float-content 重叠
         const visibility: boolean[] = []
         for (let i = 0; i < items.length; i++) {
             const itemRect = items[i].getBoundingClientRect()
             const itemRight = itemRect.right
             
-            // 如果元素右边界超过了 float-content 的左边界（留 10px 间距），则隐藏
             visibility[i] = itemRight + 10 <= floatLeft
         }
 
-        // 退出测量模式，应用真实的可见性
         isMeasuring.value = false
         itemVisibility.value = visibility
     })
@@ -172,7 +162,6 @@ function checkOverlap() {
 
 let resizeObserver: ResizeObserver | null = null
 
-// 防抖版本的 checkOverlap
 function debouncedCheckOverlap(immediate = false) {
     if (checkOverlapTimer) {
         clearTimeout(checkOverlapTimer)
@@ -188,7 +177,6 @@ function debouncedCheckOverlap(immediate = false) {
     }
 }
 
-// 保存事件处理器引用，用于正确移除监听器
 const handleResize = () => debouncedCheckOverlap()
 
 onMounted(() => {
@@ -196,10 +184,8 @@ onMounted(() => {
         checkOverlap()
     })
 
-    // 监听窗口大小变化
     window.addEventListener('resize', handleResize)
 
-    // 使用 ResizeObserver 监听内容变化
     if (innerContentRef.value) {
         resizeObserver = new ResizeObserver(() => {
             debouncedCheckOverlap()
@@ -218,26 +204,21 @@ onUnmounted(() => {
     }
 })
 
-// 监听 topBarFields 变化，重新检查重叠
 watch(topBarFields, () => {
     nextTick(() => {
         checkOverlap()
     })
 }, { deep: true })
 
-// 监听 showTopBar 变化，当显示时重新检查
 watch(() => store.showTopBar, (newVal) => {
     if (newVal) {
-        // 使用 setTimeout 确保动画完成后再检查
         setTimeout(() => {
             checkOverlap()
         }, 350) // 动画时间是 0.3s，加上一点缓冲
     }
 })
 
-// 监听 readingMode 变化，重新检查重叠（切换阅读模式时触发）
 watch(() => store.readingMode, () => {
-    // 使用 setTimeout 确保 DOM 完全更新后再检查
     setTimeout(() => {
         checkOverlap()
     }, 500)

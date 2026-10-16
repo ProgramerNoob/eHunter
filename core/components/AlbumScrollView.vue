@@ -40,17 +40,14 @@ function onScrollStopped(position: number) {
     scrollPosition.value = position
 }
 
-// watch scrollPosition to calculate curIndex
 watch(scrollPosition, () => {
     if (!pageContainers.value) {
         return
     }
-    // sort again, because if changing volume size, it may be out-of-order
     let cons = pageContainers.value.sort((a, b) => a.offsetTop - b.offsetTop)
     let index
     if (cons) {
         if (scrollPosition.value !== 0) {
-            // avoiding that in the top, page 1 and page 2 show at the same time, the index is 1
             const _cons = cons.concat().reverse()
             let result = cons.indexOf(
                 _cons.find(item => item.offsetTop <= scrollPosition.value + window.innerHeight)
@@ -92,7 +89,6 @@ onMounted(() => {
     }, 200)
 })
 
-// return a indexes array. the index is index of page, determining the show of pages.
 const nearbyIndexList = computed(() => {
     let start = store.curViewIndex - store.loadNum
     if (start < 0) {
@@ -110,7 +106,6 @@ const nearbyIndexList = computed(() => {
 })
 
 watch(() => store.curViewIndex, (newVal, oldVal) => {
-    // sync pagination
     if (store.curViewIndexUpdater !== updater) {
         scrollToCurIndex()
     }

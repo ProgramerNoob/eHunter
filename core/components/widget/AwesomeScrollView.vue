@@ -5,7 +5,6 @@
 </template>
 
 <script setup lang="ts">
-// awesome scroll view for chrome(-webkit)
 import BezierEasing from '../../utils/bezier-easing.js'
 import { ref, onMounted, onUnmounted } from 'vue'
 

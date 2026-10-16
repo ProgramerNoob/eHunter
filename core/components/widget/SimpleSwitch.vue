@@ -22,7 +22,6 @@ const emit = defineEmits(['change'])
 }
 .switch {
     width: 28px;
-    // align-items: center;
     margin: auto 15px;
     position: relative;
     cursor: pointer;

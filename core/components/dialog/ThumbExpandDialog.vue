@@ -56,8 +56,6 @@ const gridWrapRef = ref<HTMLElement | null>(null)
 const gridColumns = ref(1)
 
 const shouldDistributeItems = computed(() => {
-    // Item count exceeds current row capacity: spread items to both sides.
-    // Otherwise keep left-aligned to avoid sparse layout for small page totals.
     return segmentItems.value.length > Math.max(1, gridColumns.value)
 })
 
@@ -214,7 +212,6 @@ function onSelectPage(pageNumber: number) {
             overflow: auto;
             padding: 48px 16px 12px;
             display: grid;
-            // 使用 auto-fit 自动适应容器宽度，固定每个 item 的最小和最大宽度
             grid-template-columns: repeat(auto-fit, minmax(120px, 120px));
             gap: 12px;
             justify-content: start;

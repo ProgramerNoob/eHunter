@@ -1,8 +1,3 @@
-/**
- * Platform Initializer
- * 
- * Handles platform initialization with timeout and error handling.
- */
 
 import type { AlbumService } from '../../core/service/AlbumService'
 import { InitializationError, Platform, type InitializationStepUpdate } from './types'
@@ -12,14 +7,6 @@ type AlbumServiceWithStepReporter = AlbumService & {
   setInitializationStepReporter?: (reporter: (step: InitializationStepUpdate) => void) => void
 }
 
-/**
- * Initialize AlbumService with 120-second timeout
- * 
- * @param albumService - AlbumService instance to initialize
- * @param platform - Platform being initialized
- * @returns Promise that resolves on success or rejects with InitializationError
- * @throws InitializationError if initialization fails or times out
- */
 export async function initializeWithTimeout(
   albumService: AlbumService,
   platform: Platform
@@ -74,7 +61,6 @@ export async function initializeWithTimeout(
   const albumServiceWithStepReporter = albumService as AlbumServiceWithStepReporter
   albumServiceWithStepReporter.setInitializationStepReporter?.(upsertStep)
 
-  // Create timeout promise
   const timeoutPromise = new Promise<never>((_, reject) => {
     setTimeout(() => {
       if (!steps.some(step => step.status === 'failed')) {
@@ -89,14 +75,12 @@ export async function initializeWithTimeout(
     }, TIMEOUT_MS)
   })
 
-  // Race initialization against timeout
   try {
     const result = await Promise.race([
       albumService.init(),
       timeoutPromise
     ])
 
-    // Check if init() returned an Error
     if (result instanceof Error) {
       if (!steps.some(step => step.status === 'failed')) {
         failCurrentStep(result.message)
@@ -109,12 +93,10 @@ export async function initializeWithTimeout(
       )
     }
   } catch (error) {
-    // If error is already InitializationError, rethrow it
     if (error instanceof InitializationError) {
       throw error
     }
 
-    // Otherwise, wrap it in InitializationError
     throw new InitializationError(
       error instanceof Error ? error.message : 'Unknown initialization error',
       platform,

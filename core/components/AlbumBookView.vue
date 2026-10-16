@@ -88,7 +88,6 @@ function calcScreenPageSize(screen: number[]): BookPageDisplayParam[] {
     if (screen.length === 0) {
         return result
     }
-    // calculate page size per screen
     let maxPageRatio = screen.reduce((max, index) => {
         let val = index >= 0 && index < store.pageCount
             ? storeAction.getImgPageHeightOfWidth(index)
@@ -217,7 +216,6 @@ function onClickBg(e: any) {
     overflow: hidden;
     height: 100%;
     width: 100%;
-    // transition: all 0.5s ease;
     
     > .book-spread {
         position: absolute;
@@ -242,7 +240,6 @@ function onClickBg(e: any) {
     > .book-page-container {
         user-select: none;
         position: absolute;
-        // transition: all 0.5s ease-in-out;
         box-sizing: border-box;
         box-shadow: 0px 19px 10px -8px rgba(0,0,0,0.35);
     }

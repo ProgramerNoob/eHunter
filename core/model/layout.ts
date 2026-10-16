@@ -17,7 +17,6 @@ export interface ReaderModeLayoutState {
     thumbSlot: DockSlotId
     thumbSizePx: number
     updatedAt: string
-    // 写入该条目时的 reset 身份：明确重置后用于区分本次 reset 之后的新值与旧副本
     resetId?: string
 }
 
@@ -48,7 +47,6 @@ export const thumbVerticalItemPaddingX = 10
 export const thumbBottomItemPaddingY = 10
 export const thumbBottomItemPaddingX = 2
 
-// Thumb expand modal layout constants
 export const thumbExpandWideBreakpoint = 1600
 export const thumbExpandItemWidthWide = 150
 export const thumbExpandItemWidthNormal = 120

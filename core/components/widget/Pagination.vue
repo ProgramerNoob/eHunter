@@ -102,7 +102,6 @@ section {
     >span {
         font-size: $font_size;
         line-height: $item_size;
-        // background: $pagination_item_background_actived__color;
         text-align: center;
         color: $pagination_item_text_normal_color;
         transition: $transition;
@@ -142,7 +141,6 @@ section {
             }
         }
 
-        // icon disabled style
         &.disable {
             cursor: not-allowed;
 

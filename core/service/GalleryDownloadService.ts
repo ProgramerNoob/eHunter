@@ -145,8 +145,6 @@ declare const GM_download: GmApi
 
 let gmApiSourceLogged = ''
 
-// 油猴沙箱里 GM_* 只挂在脚本作用域上：Tampermonkey 沙箱（@grant）下 globalThis/window 上没有副本，
-// 因此先按脚本作用域取值，再退回 window / globalThis（Chrome 扩展、Test 平台等）。
 function resolveGmApi(name: 'GM_xmlhttpRequest' | 'GM_download'): GmApi {
     let api: GmApi = undefined
     let source = 'missing'

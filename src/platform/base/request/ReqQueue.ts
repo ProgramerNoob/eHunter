@@ -1,4 +1,3 @@
-// a service for limiting num of async requests, avoiding too many concurrent requests
 import { MultiAsyncReq } from './MultiAsyncReq'
 
 export class ReqQueue {

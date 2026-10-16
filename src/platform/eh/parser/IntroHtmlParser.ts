@@ -1,7 +1,6 @@
 import type { ImgPageInfo, ThumbInfo } from '../../../../core/model/model'
 import { ThumbMode } from '../../../../core/model/model'
 
-// a parser for album's intro page
 export class IntroHtmlParser {
     private html: HTMLElement;
     private reqUrl: string;
@@ -10,7 +9,6 @@ export class IntroHtmlParser {
         this.html = document.createElement('html');
         this.reqUrl = reqUrl; // the request url. It's maybe different with introUrl in more thumbs mode
         this.html.innerHTML = html.replace(/src=/g, 'x-src='); // avoid load assets
-        // this.document = this.html.ownerDocument!;
     }
 
     getImgUrls(): Array<ImgPageInfo> {
@@ -68,12 +66,10 @@ export class IntroHtmlParser {
     _getThumbKeyId() {
         let url = this.html.querySelector('#gdt')!.children[0].innerHTML.match(/url\(https.*?\)/g)![0].replace('url(', '').replace(')', '')
         let key = url.replace(url.match(/[0-9-]{3,20}\./)![0], '__PLACE_HOLDER__')
-        // console.log('key', key)
         return key
     }
 
     _getThumbPageCount(sumOfPage) {
-        // 20 is the img sum per spirit in small thumb model
         if (sumOfPage < 20) {
             return 1;
         }
@@ -104,9 +100,6 @@ export class IntroHtmlParser {
     }
 
     _isValidIntroPage() {
-        // In more thumbs mode, it will have many repeated intro page requests because the error of count of intro pages.
-        // For the speed first, I don't fix the bug of the error, but discard the repeated intro page requests by validating
-        // index.
         if (this.reqUrl && this.reqUrl.includes('?p=')) {
             let reqIndex = Number(this.reqUrl!.match(/\?p=[0-9]+/g)![0].replace('?p=', ''));
             if (this._getTruePageIndex() !== reqIndex) {

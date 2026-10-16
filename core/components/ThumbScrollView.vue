@@ -250,22 +250,7 @@ watch(() => store.curViewIndex, (newVal) => {
                 }
 
             &:hover {
-                // > .hover-mask {
-                //     position: absolute;
-                //     top: 0;
-                //     right: 0;
-                //     left: 0;
-                //     bottom: 0;
-                //     // background: rgba($indicator_color, 0.2);
-                //     background: rgba(black, 0.3);
-                //     z-index: 0;
-                // }
                 background: rgba(black, 0.4);
-            //     border-left: 3px solid rgba(white, 0.7);
-            // border-right: 3px solid rgba(white, 0.7);
-                // .thumb {
-                //     background: rgba(black, 0.4);
-                // }
                 > .thumb-stage > .index {
                     font-size: v-bind('hoverIndexFontSize+"px"');
                     color: $body_bg;
@@ -295,12 +280,10 @@ watch(() => store.curViewIndex, (newVal) => {
             height: v-bind('thumbContainerHeight+"px"');
             left: 0;
             right: 0;
-            // background: rgba($indicator_color, 0.3);
             border-left: 3px solid rgba(white, 0.4);
             border-right: 3px solid rgba(white, 0.4);
             background: rgba(black, 0.4);
             transition: all 0.5s ease;
-            // z-index: 10;
             pointer-events: none;
             top: v-bind('indicatorOffset+"px"');
         }

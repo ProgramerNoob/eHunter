@@ -13,7 +13,6 @@ import { isMobileLikeDevice } from '../core/utils/runtimeEnv'
 
 /// <reference types="vite-svg-loader" />
 
-// Detect platform based on current URL
 const detectionResult = detectPlatform()
 
 type EHunterUiBridge = {
@@ -97,12 +96,9 @@ function createEhunterSwitch(onOpen: () => void): void {
   document.body.appendChild(container)
 }
 
-// Early return if no platform detected (non-album page)
 if (!detectionResult.platform) {
   console.log('eHunter: No platform detected (non-album page), skipping initialization')
-  // Exit silently - no errors thrown per FR-006
 } else {
-  // Platform detected - initialize reader
   console.log(`eHunter: Platform detected: ${detectionResult.platform}`)
 
   let isMounted = false
@@ -135,7 +131,6 @@ if (!detectionResult.platform) {
       viewportAdjusted = true
     }
 
-    // EH's wide host content can enlarge the mobile layout viewport behind the reader.
     for (const { property } of originalRootOverflow) {
       document.documentElement.style.setProperty(property, 'hidden', 'important')
     }

@@ -1,4 +1,3 @@
-// a good resolution for poor network
 import PlatformService from '../service/PlatformService'
 
 export class TextReq {

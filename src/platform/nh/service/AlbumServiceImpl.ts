@@ -1,10 +1,3 @@
-/**
- * NH Album Service Implementation
- *
- * Ported from legacy NH service behavior and adapted to the current
- * AlbumService interface.
- */
-
 import type { AlbumService } from '../../../../core/service/AlbumService'
 import type { ImgPageInfo, ThumbInfo, PreviewThumbnailStyle, ImgSrcMode } from '../../../../core/model/model'
 import { ImgHtmlParser } from '../parser/ImgHtmlParser'

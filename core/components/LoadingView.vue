@@ -317,7 +317,6 @@ $clouds: #ecf0f1;
             animation: Dots 1.4s cubic-bezier(0, 0.39, 1, 0.68) infinite;
         }
 
-        /* Dots */
 
         @-webkit-keyframes Dots {
             0% {

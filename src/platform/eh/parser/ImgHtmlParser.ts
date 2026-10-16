@@ -1,4 +1,3 @@
-// a parser for album's img page
 export class ImgHtmlParser {
     private htmlText: string;
     private html: HTMLElement;

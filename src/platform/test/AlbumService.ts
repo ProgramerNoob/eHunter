@@ -1,6 +1,5 @@
 import type { ImgPageInfo, ThumbInfo, PreviewThumbnailStyle, ImgSrcMode } from "core/model/model";
 import type { AlbumService } from "core/service/AlbumService"
-import Util from '../../../core/utils/Utils'
 import { isTestEnvironment } from '../../../core/utils/runtimeEnv'
 
 let mockThumbInfos: Array<ThumbInfo> = []
@@ -21,7 +20,6 @@ for (let i = 0; i < 64; i++) {
         index: i,
         pageUrl: '/' + (i+1 + "").padStart(2, "0") + ".jpg",
         src: '',
-        // src: '/' + (i+1 + "").padStart(2, "0") + ".jpg",
         heightOfWidth: 1.4,
     })
 }
@@ -84,7 +82,6 @@ export class TestAlbumService implements AlbumService {
     }
 
     async getImgSrc(index: number, mode: ImgSrcMode): Promise<ImgPageInfo | Error> {
-        // await Util.timeout(30000)
         this.imgPageInfos[index].src = this.imgPageInfos[index].pageUrl
         return this.imgPageInfos[index]
     }

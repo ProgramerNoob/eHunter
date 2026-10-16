@@ -1,4 +1,3 @@
-// get img page urls from album intro page
 import { ReqQueue } from '../../base/request/ReqQueue'
 import { IntroHtmlParser } from './IntroHtmlParser'
 import type { ImgPageInfo } from '../../../../core/model/model'

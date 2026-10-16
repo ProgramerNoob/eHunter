@@ -1,7 +1,6 @@
 import type { ImgPageInfo, ThumbInfo } from '../../../../core/model/model'
 import { ThumbMode } from '../../../../core/model/model'
 
-// a parser for album's intro page
 export class IntroHtmlParser {
     private html: HTMLElement;
     private imgPageInfos: Array<ImgPageInfo> = [];
@@ -20,8 +19,6 @@ export class IntroHtmlParser {
 
     private parseData() {
         Array.prototype.slice.call(this.html.querySelectorAll('.gallerythumb'), 0).forEach(i => {
-            // 旧格式页面：src= 被改写成 x-src=，data-src= 被改写成 data-x-src=
-            // 当前页面：仅原生 src，改写后由 x-src 兜底
             const img = i.children[0]
             const thumbSrc = img.getAttribute('data-x-src') || img.getAttribute('x-src')
             const thumbHeight = img.getAttribute('height') * 1;

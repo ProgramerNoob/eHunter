@@ -188,7 +188,6 @@ export function handleWheelFlipEvent(e: any) {
     if (Math.abs(wheelDelta) < store.wheelSensitivity) {
         return
     }
-    // action
     let isToNext = false
     if ((wheelDelta > 0 && !store.IsReverseBookWheeFliplDirection) || wheelDelta < 0 && store.IsReverseBookWheeFliplDirection) {
         isToNext = true
@@ -208,7 +207,6 @@ export function checkInstructions() {
         return
     }
     if (!store.hasShownWelcomeInstruction) {
-        // 已有合法存储语言时不按浏览器语言覆盖（决策 2026-09-18 第 3 节）
         if (!hasStoredLangPreference()) {
             let uaLang = navigator.language.toLowerCase()
             if (uaLang.startsWith('zh')) {
@@ -268,7 +266,6 @@ async function fetchRemoteUpdateMessage(): Promise<UpdateMessage | null> {
             const timeout = new Promise<never>((_, reject) => {
                 timeoutId = window.setTimeout(() => reject(new Error('Update request timed out after 15000ms')), 15000)
             })
-            // The deadline includes body reading. A late GM response cannot show a notice.
             const request = (async () => {
                 const response = await PlatformService.fetch(requestUrl.href, { method: 'GET', credentials: 'omit' })
                 if (response.status !== 200) {
@@ -289,7 +286,6 @@ async function fetchRemoteUpdateMessage(): Promise<UpdateMessage | null> {
             window.clearTimeout(timeoutId)
         }
     })
-    // Preserve first-settled behavior, including an unavailable source winning the race.
     return requestList.length ? Promise.race(requestList) : null
 }
 

@@ -1,9 +1,3 @@
-/**
- * EH Album Service Implementation
- * 
- * Full implementation for E-Hentai/ExHentai platform
- * No caching - real-time parsing on each request
- */
 
 import type { AlbumService } from '../../../../core/service/AlbumService'
 import type { ImgPageInfo, ThumbInfo, PreviewThumbnailStyle } from '../../../../core/model/model'
@@ -47,7 +41,6 @@ export class EHAlbumServiceImpl implements AlbumService {
   private readonly initializationStepMap = createStepMap(EH_INITIALIZATION_STEPS)
 
   constructor() {
-    // Parse current image page HTML
     const htmlText = document.documentElement.outerHTML
     this.imgHtmlParser = new ImgHtmlParser(htmlText)
   }
@@ -106,7 +99,6 @@ export class EHAlbumServiceImpl implements AlbumService {
     })
 
     try {
-      // Parse basic info from current image page
       this.title = this.imgHtmlParser.getTitle()
       this.pageCount = this.imgHtmlParser.getPageCount()
       this.albumId = this.imgHtmlParser.getAlbumId()
@@ -120,7 +112,6 @@ export class EHAlbumServiceImpl implements AlbumService {
         )
       )
 
-      // Parse thumbnail and image page info from intro pages
       const imgUrlListParser = new ImgUrlListParser(this.introUrl, this.pageCount)
 
       if (shouldMockThumbParseError()) {
@@ -136,12 +127,8 @@ export class EHAlbumServiceImpl implements AlbumService {
         )
       )
 
-      // Generate thumbnail info from imgPageInfos
       this.thumbInfos = this.imgPageInfos.map((imgPageInfo, index) => {
-        // If thumbStyle exists, use it (new layout with sprite backgrounds)
         if (imgPageInfo.thumbStyle) {
-          // Extract src URL and offset from thumbStyle
-          // Format: "background:transparent url(https://...) -0px 0 no-repeat"
           const urlMatch = imgPageInfo.thumbStyle.match(/url\(([^)]+)\)/)
           const offsetMatch = imgPageInfo.thumbStyle.match(/-(\d+)px/)
           
@@ -158,7 +145,6 @@ export class EHAlbumServiceImpl implements AlbumService {
             offset: offset
           }
         } else {
-          // Old layout or fallback
           return {
             id: imgPageInfo.id,
             src: '',
@@ -208,18 +194,14 @@ export class EHAlbumServiceImpl implements AlbumService {
         return new Error(`Image page info not found for index ${index}`)
       }
 
-      // Keep cache hit for default loading, but force re-fetch for
-      // change-source/origin requests.
       if (imgPageInfo.src && mode !== ImgSrcMode.ChangeSource && mode !== ImgSrcMode.Origin) {
         return imgPageInfo
       }
 
-      // Fetch and parse the image page
       const req = new TextReq(imgPageInfo.pageUrl)
       const htmlText = await req.request()
       const parser = new ImgHtmlParser(htmlText)
 
-      // Get image URL based on mode
       switch (mode) {
         case ImgSrcMode.Origin:
           try {
@@ -249,7 +231,6 @@ export class EHAlbumServiceImpl implements AlbumService {
           imgPageInfo.src = parser.getImgUrl()
       }
 
-      // Update precise aspect ratio
       imgPageInfo.preciseHeightOfWidth = parser.getPreciseHeightOfWidth()
 
       return imgPageInfo
@@ -268,15 +249,12 @@ export class EHAlbumServiceImpl implements AlbumService {
       }
     }
 
-    // Parse the style string from IntroHtmlParser
-    // Format: "background:transparent url(...) -0px 0 no-repeat"
     const styleObj: PreviewThumbnailStyle = {
       'background-image': '',
       'background-position': '',
       'background-size': ''
     }
 
-    // Extract background URL and position
     const bgMatch = thumbInfo.style.match(/url\(([^)]+)\)\s*([-0-9px\s]+)/)
     if (bgMatch) {
       styleObj['background-image'] = `url(${bgMatch[1]})`
@@ -286,7 +264,6 @@ export class EHAlbumServiceImpl implements AlbumService {
     return styleObj
   }
 
-  // Helper methods
   getIntroUrl(): string {
     return this.introUrl
   }

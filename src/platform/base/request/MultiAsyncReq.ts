@@ -1,4 +1,3 @@
-//  a service for sync multi asynchronous text requests
 import { TextReq } from './TextReq'
 
 export class MultiAsyncReq {
