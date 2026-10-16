@@ -59,6 +59,11 @@ helper 自己启用 Runtime、Log、Page、Network、Debugger、Profiler，启�
 CSS 主断言是 `innerWidth` / `innerHeight`；DPR 容差固定为 `1e-6`。client 尺寸、visualViewport / scale、viewport meta 和 layout metrics 留作诊断。mobile 的证据是本轮完整命令参数与成功 CDP 回执，没有直接回读接口；窄屏、UA、触摸或截图像素不能替代这项回执。取证期间由 helper 独占模拟配置和 `page.events()`；配置需要变化时结束本轮，重新准备。
 
 正常 UI 打开阅读器属于独立准备阶段。helper 先确认新主文档 frame / loaderId / context、代码身份与执行、日志、DPR 和触摸能力，保存关闭状态的原站环境，再调用 `prepareReader`。打开后等待挂载与可见 DOM，严格核对阅读器 CSS 尺寸，通过后才进入 `runChecks`。EH 缺 viewport meta 时打开前原站宽度可能大于390；保留该观察，按正常 UI 打开后检查。尺寸仍错误即 blocked，保持预期和 mobile 开关，不向页面补 meta。
+### EH/NH userscript source 与动态脚本
+
+EH 与 NH 都通过 userscript 生产包身份链路验收；NH 使用 `source.kind: 'nh'`，要求当前文档 URL 匹配 `https://nhentai.net/g/<id>/<page>/`，并复用 bundle、loader、权限、coverage 和单一生产候选检查，但不要求 EH 登录态。当前 `source.kind: 'nh'` 的准备证据仍须来自真实 NH 域注入，不得用 fixture 代替产品验收。
+
+userscript 场景不把持续到达的非项目站点脚本当成 Vite 项目模块 inventory；helper 会在每个保护检查点检查并记录晚到脚本，晚到的 production-shaped bundle 仍阻断，非生产-shaped host/third-party 脚本保留归因供审阅。生产包、loader 或输入变化后，原轮次证据失效，必须新建 artifact 并重新导航。
 
 ### Vite source 与代码身份
 
@@ -160,6 +165,7 @@ try {
 - **控制台报错按脚本来源归因**：NH 页面上的 `Uncaught (in promise)` 可能来自站点自身 bundle（实测 `https://nhentai.net/_app/immutable/chunks/C2ITVdkK.js`），另有广告拦截导致的 `net::ERR_BLOCKED_BY_CLIENT` 与 Cloudflare RUM 的 `net::ERR_CONNECTION_CLOSED`。结合 helper 的当前文档 scriptId/context、来源和原始事件判断；原站/第三方错误保留影响供审阅，无法归因的严重错误先 blocked，不归为产品断言失败。
 - **顶栏字段在窄视口会整体隐藏**：字段按与 `.float-content`（`float-content` 左边界）的重叠规则设 `display:none`，390 × 844 下全部字段被判重叠，属预期行为。另外 `store.showTopBar` 为 false 时 `.inner-content` 带 `.hide`，字段被 translateY 顶出视口（`getBoundingClientRect().top` 为负，点击会落空），核对顶栏前先点击 float-content 的「显示/隐藏顶栏」按钮。
 - **站点限流要计入验收节奏**：反复重载 nhentai 会触发 429（表现为 `TextReq … : 429` → `Platform initialization failed`），一轮验收尽量在单次加载会话内完成，重试前等待冷却。
+- **可重试 TextReq 日志**：当前文档内 eHunter 日志只有同时包含 `TextReq: request error`、`retry:`，以及 `timed out` 或 `: 429` 的记录才可标为 `retryableTextReqError` 并保留给调用方审阅、不阻断准备；其他 eHunter severe 日志仍阻断。豁免不是网络长期健康通过，报告须保留实际重试次数、URL 和后续未验证范围。
 
 ## 4. 证据、截图和失败回填
 

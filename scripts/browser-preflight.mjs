@@ -59,7 +59,7 @@ function userscriptName(block) {
   return block?.match(/^\/\/[ \t]*@name[ \t]+([^\r\n]+)$/m)?.[1]?.trim();
 }
 
-function isEhProductionBundle(text, expected, productionName) {
+function isProductionBundle(text, expected, productionName) {
   // Names come only from metadata blocks. Loader markers in production code
   // must never exempt a stale or duplicate production script from inspection.
   return text === expected || userscriptMetadata(text).some(block => userscriptName(block) === productionName);
@@ -113,6 +113,8 @@ function observePage() {
  *
  * source.kind='eh': bundlePath, loaderPath, bundleUrl, build {exitCode:0,evidence},
  * installation {loggedIn, dynamicLoaderEnabled, staticScriptDisabled, evidence}.
+ * source.kind='nh': same userscript flow as 'eh' without the EH login prerequisite;
+ * the document must be an nhentai.net /g/<id>/<page>/ reader page.
  * source.kind='vite': origin, service {cwd:ROOT,pid,origin,evidence},
  * requiredModules: exact URLs (entry + scene's Vue/style modules), inputs?: extra
  * repository-relative paths. Mandatory project inputs cannot be removed.
@@ -135,7 +137,7 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
   const controller = new AbortController();
   let phase = 'initial', readyToWrite = false, sequence = 0, eventIndex = 0, collecting = false;
   let navigationStarted = false, initialFrame, documentState, originalSite, readerReady = false, preparedLoaderId;
-  let initialFingerprint, bundle, loader, sourceRecord, inChecks = false, originalError;
+  let initialFingerprint, bundle, loader, sourceRecord, userscript = false, inChecks = false, originalError;
   let stickyError, coverageStarted = false, finalized = false, activeGuard;
   let activeDrain, nextDrainId = 0;
   let checkedScriptIds = new Set(), verifiedScriptIds = new Set();
@@ -329,6 +331,15 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
     requireCondition(actual.touchPoints === expected.touchPoints && actual.coarse === expected.coarse, 'Touch capability mismatch', { expected, actual });
     if (strict) requireCondition(actual.width === expected.width && actual.height === expected.height, 'Reader CSS viewport mismatch', { expected, actual });
   }
+  // TextReq timeout/429 errors are transient network failures; retain them without blocking preparation.
+  function isRetryableTextReqError(log) {
+    const text = log.event.params?.args?.[0]?.value || log.event.params?.entry?.text || '';
+    return typeof text === 'string'
+      && text.includes('TextReq: request error')
+      && text.includes('retry:')
+      && (text.includes('timed out') || text.includes(': 429'));
+  }
+
   function checkLogs() {
     result.logs = allLogs.map(row => {
       const { method, params: p } = row.event;
@@ -340,14 +351,20 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
       const productByUrl = sourceRecord?.kind === 'vite' && urls.some(url => result.identity.some(i => i.verified && i.url === url));
       const product = productByScript || productByUrl;
       const attribution = product ? 'ehunter' : urls.length ? 'host-or-third-party' : 'unattributed';
-      return { ...row, attribution, impact: severe ? (attribution === 'host-or-third-party' ? 'retained-for-caller-review' : 'blocks-preparation') : 'diagnostic', severe };
+      const retryableTextReqError = severe && isRetryableTextReqError(row);
+      const impact = retryableTextReqError
+        ? 'retained-for-caller-review'
+        : severe
+          ? (attribution === 'host-or-third-party' ? 'retained-for-caller-review' : 'blocks-preparation')
+          : 'diagnostic';
+      return { ...row, attribution, impact, severe, retryableTextReqError };
     });
-    requireCondition(!result.logs.some(l => l.document.loaderId === documentState?.loaderId && l.severe && l.attribution === 'ehunter'), 'eHunter runtime/initialization error', result.logs.filter(l => l.severe));
+    requireCondition(!result.logs.some(l => l.document.loaderId === documentState?.loaderId && l.severe && l.attribution === 'ehunter' && !isRetryableTextReqError(l)), 'eHunter runtime/initialization error', result.logs.filter(l => l.severe && !isRetryableTextReqError(l)));
     requireCondition(!result.logs.some(l => l.document.loaderId === documentState?.loaderId && l.severe && l.attribution === 'unattributed'), 'Unattributed runtime error requires investigation', result.logs.filter(l => l.severe));
     if (stickyError) throw stickyError;
   }
   async function unchanged() {
-    const current = sourceRecord.kind === 'eh'
+    const current = userscript
       ? { bundle: identity(await fs.readFile(sourceRecord.bundlePath)), loader: identity(await fs.readFile(sourceRecord.loaderPath)) }
       : await fingerprint(ROOT, [...INPUTS, ...(sourceRecord.inputs ?? [])]);
     await save('fingerprints.jsonl', { phase, recordedAt: new Date().toISOString(), current }, true);
@@ -369,13 +386,14 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
     requireCondition(documentState && documentState.id === frame.id && documentState.loaderId === frame.loaderId && frame.loaderId !== initialFrame.loaderId,
       'New current-document commit evidence missing', { initialFrame, documentState, frame });
     if (sourceRecord.kind === 'eh') requireCondition(/^https:\/\/(exhentai\.org|e-hentai\.org)\/s\//.test(frame.url), 'EH /s/ page prerequisite missing', frame);
+    else if (sourceRecord.kind === 'nh') requireCondition(/^https:\/\/nhentai\.net\/g\/\d+\/\d+\//.test(frame.url), 'NH /g/<id>/<page>/ page prerequisite missing', frame);
     else requireCondition(new URL(frame.url).origin === sourceRecord.origin, 'Vite document is outside the attributed origin', frame);
     const deadline = Date.now() + timeoutMs;
     // GM loader fetch/eval can finish after the document's load event. Wait for
     // this round's script events, never for loader text or a historical mount.
     while (true) {
       const current = [...scripts.values()].filter(s => contexts.has(s.executionContextId));
-      const present = sourceRecord.kind === 'eh'
+      const present = userscript
         ? current.some(s => s.length === bundle.length)
         : [...requiredModules, ...extraRequired.map(u => new URL(u, sourceRecord.origin).href)].every(u => current.some(s => s.url === u));
       if (present || Date.now() >= deadline) break;
@@ -398,7 +416,7 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
     const active = [...scripts.values()].filter(s => contexts.has(s.executionContextId) && s.loaderId === frame.loaderId);
     // EH sources must be inspected before classification: URL and length cannot
     // exclude an older bundle or a static userscript wrapper.
-    const candidates = sourceRecord.kind === 'eh' ? active : active.filter(s => projectUrl(s.url));
+    const candidates = userscript ? active : active.filter(s => projectUrl(s.url));
     const rows = [];
     for (const script of candidates) {
       controller.signal.throwIfAborted();
@@ -420,7 +438,7 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
       const row = { scriptId: script.scriptId, url: script.url, context: contexts.get(script.executionContextId),
         frameId: frame.id, loaderId: frame.loaderId, expected: identity(expectedSource), actual: identity(actual),
         exact: expectedSource === actual, topLevel, http,
-        fullBundleCandidate: sourceRecord.kind === 'eh' && isEhProductionBundle(actual, bundle, result.permissions.production.name),
+        fullBundleCandidate: userscript && isProductionBundle(actual, bundle, result.permissions.production.name),
         verified: expectedSource === actual && !!topLevel };
       rows.push(row);
       // Full responses are also in commands.jsonl; save stable content-addressed
@@ -444,7 +462,7 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
       };
     }
     await save('identity.jsonl', { phase, document: documentState, rows, inventory: result.inventory }, true);
-    if (sourceRecord.kind === 'eh') {
+    if (userscript) {
       const bundleRows = rows.filter(row => row.fullBundleCandidate);
       requireCondition(bundleRows.length === 1, 'Exactly one current production bundle candidate is required', bundleRows);
       requireCondition(bundleRows[0].verified, 'Exact source or full-length top-level execution evidence missing', bundleRows);
@@ -455,21 +473,50 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
     const finalFrame = (await command('Page.getFrameTree')).frameTree.frame;
     requireCondition(finalFrame.loaderId === frame.loaderId && documentState.loaderId === frame.loaderId, 'Document changed during identity collection');
     checkedScriptIds = new Set(rows.map(row => row.scriptId));
-    verifiedScriptIds = new Set(rows.filter(row => sourceRecord.kind === 'eh' ? row.fullBundleCandidate && row.verified : row.verified).map(row => row.scriptId));
+    verifiedScriptIds = new Set(rows.filter(row => userscript ? row.fullBundleCandidate && row.verified : row.verified).map(row => row.scriptId));
     checkLogs();
   }
-  function identityIsCurrent() {
+  async function identityIsCurrent() {
+    await drain(`${phase}:identity-current`);
     const current = [...scripts.values()].filter(s => contexts.has(s.executionContextId) && s.loaderId === documentState?.loaderId);
-    const relevant = sourceRecord.kind === 'eh' ? current : current.filter(s => projectUrl(s.url));
+    const relevant = userscript ? current : current.filter(s => projectUrl(s.url));
     const bundleRows = result.identity.filter(r => r.fullBundleCandidate);
-    const hasExecution = sourceRecord.kind === 'eh'
+    const hasExecution = userscript
       ? bundleRows.length === 1 && bundleRows[0].verified && verifiedScriptIds.has(bundleRows[0].scriptId)
         && relevant.some(s => s.scriptId === bundleRows[0].scriptId)
       : result.identity.some(r => r.verified && r.loaderId === documentState?.loaderId && relevant.some(s => s.scriptId === r.scriptId));
-    return hasExecution && preparedLoaderId === documentState?.loaderId
-      && relevant.every(s => checkedScriptIds.has(s.scriptId)
-        && result.identity.some(r => r.scriptId === s.scriptId && r.loaderId === s.loaderId && r.context.id === s.executionContextId))
-      && (sourceRecord.kind === 'eh' || relevant.every(s => verifiedScriptIds.has(s.scriptId)));
+    if (!hasExecution) return false;
+    if (userscript) {
+      // Host pages can keep injecting unrelated scripts after the userscript has
+      // executed. Inspect late scripts once, but do not make each checkpoint
+      // wait for an otherwise irrelevant host inventory to stop changing.
+      for (const script of relevant) {
+        if (checkedScriptIds.has(script.scriptId)) continue;
+        const actual = (await command('Debugger.getScriptSource', { scriptId: script.scriptId })).scriptSource;
+        const actualIdentity = identity(actual);
+        const fullBundleCandidate = isProductionBundle(actual, bundle, result.permissions.production.name);
+        result.identity.push({
+          scriptId: script.scriptId,
+          url: script.url,
+          context: contexts.get(script.executionContextId),
+          frameId: documentState.id,
+          loaderId: documentState.loaderId,
+          expected: identity(bundle),
+          actual: actualIdentity,
+          exact: actual === bundle,
+          fullBundleCandidate,
+          verified: false,
+        });
+        await fs.writeFile(path.join(artifactDir, `source-${actualIdentity.sha256}.js`), actual);
+        checkedScriptIds.add(script.scriptId);
+        if (fullBundleCandidate) return false;
+      }
+      await save('identity.jsonl', { phase, document: documentState, rows: result.identity, inventory: result.inventory }, true);
+      return true;
+    }
+    return relevant.every(s => checkedScriptIds.has(s.scriptId)
+      && result.identity.some(r => r.scriptId === s.scriptId && r.loaderId === s.loaderId && r.context.id === s.executionContextId))
+      && relevant.every(s => verifiedScriptIds.has(s.scriptId));
   }
   async function resources() {
     if (sourceRecord.kind !== 'vite') return;
@@ -538,14 +585,14 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
       checkLogs();
       // Inspect late scripts without another page.evaluate: the observation
       // itself may create an anonymous script in the EH document.
-      while (!identityIsCurrent()) {
+      while (!(await identityIsCurrent())) {
         requireCondition(Date.now() < deadline, 'Module/document inventory did not stabilize at checkpoint');
         await verifyIdentity(extraRequired);
         if (preparedLoaderId !== documentState.loaderId) break;
         await drain(`${label}:reidentified`);
         checkLogs();
       }
-      if (identityIsCurrent()) return actual;
+      if (await identityIsCurrent()) return actual;
     } while (Date.now() < deadline);
     throw new Blocked('Module/document inventory did not stabilize at checkpoint');
   }
@@ -620,13 +667,14 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
     await fs.writeFile(path.join(artifactDir, 'manifest.json'), JSON.stringify({ ...result, expected, source, state: 'incomplete', eventBufferCompleteness: 'CDP buffer capacity unknown; hard termination cannot guarantee finally.' }, null, 2) + '\n', { flag: 'wx' });
     readyToWrite = true;
     sourceRecord = structuredClone(source);
-    requireCondition(['eh', 'vite'].includes(sourceRecord?.kind), 'source.kind must be eh or vite');
+    requireCondition(['eh', 'nh', 'vite'].includes(sourceRecord?.kind), 'source.kind must be eh, nh or vite');
+    userscript = sourceRecord.kind === 'eh' || sourceRecord.kind === 'nh';
     async function evidence(file) {
       requireCondition(typeof file === 'string' && inside(ROOT, path.resolve(ROOT, file)), 'Evidence must be a repository file', { file });
       requireCondition((await fs.stat(path.resolve(ROOT, file))).isFile(), 'Evidence must be a readable file', { file });
       await fs.access(path.resolve(ROOT, file));
     }
-    if (sourceRecord.kind === 'eh') {
+    if (userscript) {
       bundle = await fs.readFile(sourceRecord.bundlePath, 'utf8');
       loader = await fs.readFile(sourceRecord.loaderPath, 'utf8');
       initialFingerprint = { bundle: identity(await fs.readFile(sourceRecord.bundlePath)), loader: identity(await fs.readFile(sourceRecord.loaderPath)) };
@@ -640,7 +688,10 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
       requireCondition(sourceRecord.build?.exitCode === 0, 'Successful production build record required');
       await evidence(sourceRecord.build.evidence);
       result.installation = sourceRecord.installation;
-      requireCondition(['loggedIn', 'dynamicLoaderEnabled', 'staticScriptDisabled'].every(k => result.installation?.[k] === true), 'Browser installation/login prerequisites unconfirmed', result.installation);
+      const requiredInstallation = sourceRecord.kind === 'nh'
+        ? ['dynamicLoaderEnabled', 'staticScriptDisabled']
+        : ['loggedIn', 'dynamicLoaderEnabled', 'staticScriptDisabled'];
+      requireCondition(requiredInstallation.every(k => result.installation?.[k] === true), 'Browser installation/login prerequisites unconfirmed', result.installation);
       await evidence(result.installation.evidence);
     } else {
       const service = sourceRecord.service;
@@ -706,8 +757,8 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
       for (const cleanup of [
         () => drain('finally', EVENT_DRAIN_GRACE_MS),
         ...(inChecks && !originalError ? [async () => {
-          if (!identityIsCurrent()) await verifyIdentity();
-          requireCondition(identityIsCurrent(), 'New script/document arrived after the last identity checkpoint');
+          if (!(await identityIsCurrent())) await verifyIdentity();
+          requireCondition(await identityIsCurrent(), 'New script/document arrived after the last identity checkpoint');
         }] : []),
         ...(initialFingerprint ? [() => unchanged()] : []),
         ...(coverageStarted ? [async () => {
@@ -718,8 +769,8 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
         ...(inChecks && !originalError ? [async () => {
           // Late sources remain inspectable while Debugger is enabled. New
           // production scripts need their own execution evidence even at shutdown.
-          if (!identityIsCurrent()) await verifyIdentity();
-          requireCondition(identityIsCurrent(), 'New script/document arrived during final collection');
+          if (!(await identityIsCurrent())) await verifyIdentity();
+          requireCondition(await identityIsCurrent(), 'New script/document arrived during final collection');
         }] : []),
         ...enabled.slice().reverse().map(domain => () => command(`${domain}.disable`)),
         () => drain('finally-after-disable'),
@@ -728,7 +779,7 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
       }
       try {
         checkLogs();
-        if (inChecks && !originalError) requireCondition(identityIsCurrent(), 'New script/document arrived during final collection');
+        if (inChecks && !originalError) requireCondition(await identityIsCurrent(), 'New script/document arrived during final collection');
       } catch (error) { recordError(error, 'finally:logs'); }
       result.eventCollection.unresolved = activeDrain && !activeDrain.settled ? [drainRecord(activeDrain)] : [];
       result.unsaved = pendingBatches;
