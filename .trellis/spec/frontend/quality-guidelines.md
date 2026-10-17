@@ -270,6 +270,23 @@ inspect and clean up that command before retrying. A record/file error returns `
 These run exit codes are distinct from summarize's codes. Fix invalid records before
 running again; run validates the entire inventory first.
 
+#### Name-pattern subsets must reject zero matches
+
+A check that selects tests with `--test-name-pattern` still exits `0` when nothing
+matches: Node counts the unmatched file itself as one passing test (`ℹ pass 1`), so
+`run` records passed. Put the guard in the command. Use TAP and require all three:
+exit `0`, at least one `^ok \d+ - ` line, and no `^1\.\.0$` line (the file's TAP plan
+when no name matched). Do not filter by test-file path or by `ok` indentation:
+file-level and subtest lines are both unindented in current Node, and path forms vary.
+
+```bash
+python3 -c "import re,subprocess,sys; p=r'''<pattern>'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'<test-file>'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); zero=re.search(r'(?m)^1\.\.0$',c.stdout); ok=re.search(r'(?m)^ok \d+ - ',c.stdout); sys.exit(0 if c.returncode==0 and ok and not zero else 1)"
+```
+
+Whole-file and whole-suite commands do not need the guard. A check may chain several
+guarded subsets, but each subset keeps its own guard so its log shows the matched TAP
+output and the guard decision.
+
 `summarize` outputs one JSON object on stdout; diagnostics go to stderr. It calculates
 both original `observedStatus` and effective `status` for each AC and the whole task,
 with all check details, evidence, six-state `counts`/`observedCounts`, and `waivedChecks`.

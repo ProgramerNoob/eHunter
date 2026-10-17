@@ -166,12 +166,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T08:19:14.779929+00:00",
-        "endedAt": "2026-10-17T08:19:28.955071+00:00",
-        "log": ".tmp/acceptance/10-17-page-bootstrap/tmpw0_ng6o4.log"
+        "startedAt": "2026-10-17T08:23:57.075575+00:00",
+        "endedAt": "2026-10-17T08:24:11.574267+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmpl6_0eqmh.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-page-bootstrap/tmpw0_ng6o4.log"
+        ".tmp/acceptance/10-17-page-bootstrap/tmpl6_0eqmh.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null

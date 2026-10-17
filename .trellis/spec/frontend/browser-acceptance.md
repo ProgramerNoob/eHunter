@@ -81,6 +81,30 @@ helper 比对当前文档**全部已加载项目模块**：Node 从已确认 ori
 
 `inventory` 分列已加载、必需但缺失、未加载输入、非项目脚本及锁文件关联。第三方预构建脚本不属于项目源码比对；独立 CSS/图片/字体记录响应、本地同源 body 和页面应用观察，视觉检查仍由验收者完成。范围仅覆盖清单中的当前文档 JS，未触发分支、整个工作树和独立资源的视觉新鲜度须另列未验证。
 
+### 当前页面 bootstrap
+
+需要以页面真实初始状态（persisted 阅读模式、非起始页、已自动打开的 reader）验收时，用 `bootstrapReader` 作为功能断言前的准备步骤，不通过清 storage、改设置或注入脚本制造状态。它在本轮 `withBrowserPreflight` 内、`prepareReader` 之后调用，复用同一 `page`、`taskSpace` 和本轮 `artifactDir`；`page.events()` 仍只由 `withBrowserPreflight` 消费。
+
+```js
+const { bootstrapReader, comparePageBaseline } = await import(
+  pathToFileURL(`${root}/scripts/browser-preflight.mjs`).href
+);
+const prep = await bootstrapReader({
+  page, taskSpace, profile, artifactDir,
+  closeReader: async () => page.click(closeSelector, { timeout: 15000 }),
+  openReader: async () => page.click(openSelector, { timeout: 15000 }),
+  // observe: 可选；缺省在页内执行内置 observeReaderState
+});
+```
+
+`closeReader` / `openReader` 是无参回调，只在页面已自动打开、或仍关闭时按需各调用一次，全部串行；没有提供回调时只观察，helper 不猜 selector。`observe` 返回与内置 `observeReaderState()` 相同的页内对象。
+
+调用不抛异常，返回 `{ status, prepFacts, evidence, errors, calls }`；`status` 取 `blocked` > `unknown` > `ready`。`prepFacts` 含 `taskSpace`、`page {label,spaceId}`、`url`、`profile {requested,expected,actual,matches}`、`readerOpen`、`readingMode`（`book`/`scroll`/`unknown`）、`scrollContainer`（真实 `.content.scroll-mode .awesome-scroll-view` 的 `scrollTop`/`scrollHeight`/`clientHeight`）、`pageBaseline`、`windowScroll`、`documentScripts {first,last}`、`readyState`、`calls`、`observedAt`（首次成功观察）。不能证明模式、容器或 baseline 时记 `unknown` 并附错误，不用 window/document 或默认页码补齐。
+
+`errors[].code`：输入不合法为 `invalid-*`；观察/准备失败为 `vite-error-overlay`、`document-not-ready`、`reader-not-mounted`、`reader-not-open`、`mode-ambiguous`、`mode-unknown`、`scroll-container-unknown`、`baseline-unknown`、`host-script-late`、`profile-mismatch`、`page-navigated`、`observation-failed`、`close-reader-failed`、`open-reader-failed`、`bootstrap-failed`、`evidence-write-failed`。每次调用把结果追加到 `<artifactDir>/reader-bootstrap.jsonl`，目录必须解析到仓库 `.tmp/` 内。
+
+`pageBaseline` 只是证据；断言用 `comparePageBaseline(before, after)` 的相对结果。`comparable` 为 false 时读取 `blockedReason`：`navigated`、`incomparable-spread`（spread 总数不同）、`no-baseline`。`status` 非 `ready` 时下游不得生成通过结论；`unknown` 表示观察不足，不是产品失败，也不是 prepared。fixture 只证明 helper 逻辑，真实初始状态仍须在本地 Vite 与 EH 场景实测。
+
 ### 一轮调用
 
 以下为放在恢复 `task`、`page` 之后的 JavaScript 模板。每轮重新声明 `root`（真实仓库绝对路径）、`origin` 和上述 `source`；`profile` 为固定 profile 名，`openSelector`、`modeSelector`、`closeSelector` 是本轮快照已观察的稳定选择器。EH 使用 [eh-test 的 source](../../../.pi/skills/eh-test/SKILL.md#2-准备-eh-source)。所有方法顺序 `await`：
