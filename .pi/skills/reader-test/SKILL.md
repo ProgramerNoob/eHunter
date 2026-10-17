@@ -46,7 +46,7 @@ pi 将命令后的文本作为用户指令附在技能正文之后。解析其�
 
 1. 读取相邻的 [notify-complete](../notify-complete/SKILL.md)，在测试开始前执行短通知，任务完成后执行长通知；用户明确静音时跳过。
 2. 读取当前会话的 `ego-browser` 技能和 [浏览器验收指南](../../../.trellis/spec/frontend/browser-acceptance.md)，通过 pi 的 `bash` 工具运行 `ego-browser nodejs`。按指南创建或复用同一任务空间；连接故障按技能排查，缺少必需能力时报告具体阻塞项。
-3. 按平台确认浏览器前置，将本轮登录与安装检查依据保存到 `.tmp/` 可读文件；仓库 loader 声明与浏览器安装副本分别核实。
+3. 按平台确认浏览器前置，将本轮登录与安装检查依据保存到 `.tmp/reader-test-<platform>/` 可读文件；仓库 loader 声明与浏览器安装副本分别核实。
    - `platform: eh`：确认 Ego 已登录 exhentai.org。
    - `platform: nh`：不要求登录态，`installation` 不写 `loggedIn`；Cloudflare 挑战、地区封锁与 429 属于准备阻塞。
    - 两种平台都需 Tampermonkey 已启用动态加载脚本、停用所有静态 eHunter 脚本。
@@ -56,14 +56,15 @@ pi 将命令后的文本作为用户指令附在技能正文之后。解析其�
 4. 本流程只使用生产 bundle server。先执行下文步骤1并保存成功构建记录，再按通用指南核对旧服务的具体 PID、命令和 cwd；保留用户已有或归属不明的服务。在仓库根目录后台启动并核实：
 
 ```bash
-mkdir -p .tmp
-npm run serve:bundle > .tmp/eh-bundle-server.log 2>&1 &
-echo "$!" > .tmp/eh-bundle-server.pid
+PLATFORM=${PLATFORM:-eh}  # eh | nh，与测试流程步骤1保持一致
+mkdir -p ".tmp/reader-test-$PLATFORM"
+npm run serve:bundle > ".tmp/reader-test-$PLATFORM/bundle-server.log" 2>&1 &
+echo "$!" > ".tmp/reader-test-$PLATFORM/bundle-server.pid"
 ```
 
 用 `lsof -nP -iTCP:8787 -sTCP:LISTEN`、`lsof -a -p PID -d cwd` 及 `curl --fail --silent --show-error http://127.0.0.1:8787/ehunter.iife.js` 核实监听者、目录和实际 URL，保存 npm 父进程、监听 PID 与核实输出。端口冲突时用 `PORT=<其他端口> npm run serve:bundle`，同步 loader 的 `EHUNTER_BUNDLE_URL` 与下文 `bundleUrl`，并核实浏览器安装副本；停止冲突进程按归属确认。
 
-5. 日志、截图、安装记录、构建与服务证据均保存到仓库 `.tmp/`。按通用指南创建/复用同一任务空间；每轮使用新的绝对产物目录，保存外层 `ego-browser nodejs` 调用的开始/结束时间、退出码及 stdout/stderr。
+5. 日志、截图、安装记录、构建与服务证据均保存到仓库 `.tmp/reader-test-<platform>/`。按通用指南创建/复用同一任务空间；每轮在此基础上使用新的绝对产物目录，保存外层 `ego-browser nodejs` 调用的开始/结束时间、退出码及 stdout/stderr。同一轮内的准备、运行与收尾产物留在该平台目录下，不混用其他平台的目录。
 
 ## 测试流程
 
@@ -72,8 +73,9 @@ echo "$!" > .tmp/eh-bundle-server.pid
 用 `bash` 在仓库根目录执行：
 
 ```bash
-mkdir -p .tmp
-npm run build-prod > .tmp/eh-build-prod.log 2>&1
+PLATFORM=${PLATFORM:-eh}  # eh | nh，与准备第4步一致
+mkdir -p ".tmp/reader-test-$PLATFORM"
+npm run build-prod > ".tmp/reader-test-$PLATFORM/build-prod.log" 2>&1
 ```
 
 保存本次命令、cwd、开始/结束时间及实际退出码。只有退出码0且 `dist/ehunter.iife.js` 存在、非空才继续启动/核实 server；失败停止后续浏览器验收。`source.build` 引用这份实际结果和可读日志，不能只填一个0。TypeScript 问题可用 `npm run type-check` 定位。
@@ -162,4 +164,4 @@ UI 改动分别用通用指南的 desktop / mobile 固定 profile 运行预检�
 
 主会话按通用指南回填逐项 `acceptance.json`，引用实际命令日志和 helper 证据；准备 blocked 与产品断言 failed 分开，不能经 `acceptance.py run` 的普通非零映射冒充浏览器分类，也不手写整体 passed。报告列出未验证范围，构建成功不能替代功能验收。
 
-按 [通用收尾/接管流程](../../../.trellis/spec/frontend/browser-acceptance.md#5-收尾或交还用户) 处理同一空间；清理前核实本轮 server 的具体监听 PID 和 npm 父进程，确认退出及端口释放，清理本轮 PID 文件，保留用户资源、存储和交付证据。保存产物后关闭 agent-owned 页面：成功时在同一空间执行 `await task.finish({ keep: [] })`；需保留的页面显式保留并记录为 `open`。随后用 `python3 scripts/acceptance.py cleanup-browser <task-space> --pages <pages.json> --servers <servers.json> --output .tmp/cleanup-browser.json` 生成资源报告，`<task-space>` 是 Trellis 任务名：页面声明 `label`、`spaceId`（Ego 数字 id）、`pageId`、`owner`、`createdByTask`（等于任务名）、`state`、带时区 `observedAt`、`evidence`；服务声明 `label`、`pid`、`pidFile`、`port`、`expectedCwd`、`expectedCommand`、`processStartToken`、`owner`、`createdByTask`、`evidence`。user-owned 资源标 `user` 并保留。退出 `0` 表示所有声明项为 clean/preserved；residual/unknown 人工核对归属后处理，报告不替代功能验收。阻塞/接管保留同一空间并按 Ego 规则处理。最终回复前执行完成通知。
+按 [通用收尾/接管流程](../../../.trellis/spec/frontend/browser-acceptance.md#5-收尾或交还用户) 处理同一空间；清理前核实本轮 server 的具体监听 PID 和 npm 父进程，确认退出及端口释放，清理本轮 PID 文件，保留用户资源、存储和交付证据。保存产物后关闭 agent-owned 页面：成功时在同一空间执行 `await task.finish({ keep: [] })`；需保留的页面显式保留并记录为 `open`。随后用 `python3 scripts/acceptance.py cleanup-browser <task-space> --pages <pages.json> --servers <servers.json> --output .tmp/reader-test-<platform>/cleanup-browser.json` 生成资源报告，`<task-space>` 是 Trellis 任务名：页面声明 `label`、`spaceId`（Ego 数字 id）、`pageId`、`owner`、`createdByTask`（等于任务名）、`state`、带时区 `observedAt`、`evidence`；服务声明 `label`、`pid`、`pidFile`、`port`、`expectedCwd`、`expectedCommand`、`processStartToken`、`owner`、`createdByTask`、`evidence`。user-owned 资源标 `user` 并保留。退出 `0` 表示所有声明项为 clean/preserved；residual/unknown 人工核对归属后处理，报告不替代功能验收。阻塞/接管保留同一空间并按 Ego 规则处理。最终回复前执行完成通知。
