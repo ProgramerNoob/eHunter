@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Read-only cleanup check for browser-acceptance resources.
 
-Protocol: .trellis/spec/frontend/browser-acceptance.md and .pi/skills/eh-test/SKILL.md.
+Protocol: .trellis/spec/frontend/browser-acceptance.md and .pi/skills/reader-test/SKILL.md.
 The command only reads caller declarations, live PIDs, listening ports and PID files.
 It never closes pages, signals processes, or deletes PID files.
 

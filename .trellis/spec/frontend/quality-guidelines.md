@@ -114,7 +114,7 @@ need the applicable real-platform acceptance below.
 | Browser-preflight helper / its entry procedures | Run `npm run test:browser-preflight` and `npm run check` for helper changes, then exercise local Vite and real EH, desktop and mobile, using the [shared preflight procedure](./browser-acceptance.md); controlled fixtures do not prove browser capabilities. Prose-only entry changes use the documentation route |
 | Storage test harness / check scripts / CI only | Run `npm run check`; for gate changes also verify clean locked installation, repeated tests and failure propagation in an isolated copy; no browser acceptance claim |
 | Non-platform behavior | [Local browser procedure](./browser-acceptance.md), using the available `ego-browser` skill |
-| Platform adapters, injection, parsing or requests | [EH production-bundle procedure](../../../.pi/skills/eh-test/SKILL.md) |
+| Platform adapters, injection, parsing or requests | [EH/NH production-bundle procedure](../../../.pi/skills/reader-test/SKILL.md) |
 | Shared `TextReq`, `ReqQueue`, `MultiAsyncReq` or storage behavior | Assess both EH and NH; preference sharing also covers EH/EX/NH |
 | UI/layout | Desktop and mobile critical interactions, screenshots and visual review; add affected breakpoint boundaries |
 

@@ -7,7 +7,7 @@
 1. 涉及下载元数据、偏好、翻页默认值或放大镜时，先读[已确认行为决策](../decisions/2026-09-18-reader-behavior.md)，其覆盖到的旧约定以决策为准。
 2. 按下表读取 spec、data-model、contracts 和 quickstart。OpenAPI 是逻辑 UI/状态契约，示例 URL 不是部署的 HTTP API。
 3. spec、data-model 与 contracts 描述当前系统；与代码冲突时以代码为准，不能据此从零重写已有实现。
-4. 从[未收口项](pending-work.md)发现后续工作，按 Trellis 另行规划。功能变更仍须按[浏览器验收](../browser-acceptance.md)或 [EH 生产包验收](../../../../.pi/skills/eh-test/SKILL.md)重测。
+4. 从[未收口项](pending-work.md)发现后续工作，按 Trellis 另行规划。功能变更仍须按[浏览器验收](../browser-acceptance.md)或 [EH/NH 生产包验收](../../../../.pi/skills/reader-test/SKILL.md)重测。
 
 ## 七组资料
 

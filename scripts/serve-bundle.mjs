@@ -1,5 +1,5 @@
 // 仅供本地开发/验收使用：把构建产物 dist/ehunter.iife.js 通过 HTTP 暴露给 Tampermonkey 的
-// 动态加载脚本（.pi/skills/eh-test/ehunter-dev-loader.user.js）。
+// 动态加载脚本（.pi/skills/reader-test/ehunter-dev-loader.user.js）。
 //
 // 用法：npm run serve:bundle        # 默认 http://127.0.0.1:8787/ehunter.iife.js
 //      PORT=8788 npm run serve:bundle

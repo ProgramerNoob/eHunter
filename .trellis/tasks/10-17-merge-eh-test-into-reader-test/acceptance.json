@@ -11,93 +11,139 @@
   "checks": [
     {
       "id": "ac1-skill-structure",
-      "ac": ["AC1"],
+      "ac": [
+        "AC1"
+      ],
       "claim": "reader-test 技能目录存在、eh-test 目录已移除，frontmatter 名称与 description 覆盖 EH/NH，入口示例含 platform: eh|nh，技能内相对链接指向真实文件。",
       "scope": "`.pi/skills/reader-test/` 目录结构、`SKILL.md` frontmatter 与调用示例段、正文相对链接；静态检查，不含浏览器执行",
       "method": "inspection",
       "dimension": "structure",
-      "observed": "unrun",
+      "observed": "passed",
       "execution": null,
-      "evidence": [],
-      "note": "计划中，未检查",
+      "evidence": [
+        ".tmp/reader-test-static-checks.txt"
+      ],
+      "note": "`.pi/skills/` 下仅有 `notify-complete` 与 `reader-test`，`eh-test` 目录不存在；frontmatter `name: reader-test`、description 同时覆盖 exhentai.org 与 nhentai.net；入口示例含 `/skill:reader-test platform: nh` 与 `platform: eh`；平台参数仅接受 eh 或 nh，其他值直接报错。",
       "waiver": null
     },
     {
       "id": "ac2-platform-table",
-      "ac": ["AC2"],
+      "ac": [
+        "AC2"
+      ],
       "claim": "技能中的平台差异表与 preflight 契约一致：NH 不要求 loggedIn、URL 为 /g/<id>/<page>/、原图/换源为 N/A。",
       "scope": "`SKILL.md` 平台差异表与 NH source 代码块，对照 `scripts/browser-preflight.mjs:719-720`、`:1045-1046` 与 `src/platform/nh/service/AlbumServiceImpl.ts` 的能力方法；静态检查",
       "method": "inspection",
       "dimension": "content",
-      "observed": "unrun",
+      "observed": "passed",
       "execution": null,
-      "evidence": [],
-      "note": "计划中，未检查",
+      "evidence": [
+        ".tmp/reader-test-static-checks.txt"
+      ],
+      "note": "平台差异表含 EH/NH 两列；NH 不要求登录态（`installation` 不写 `loggedIn`），URL 前置断言 `/^https:\\/\\/nhentai\\.net\\/g\\/\\d+\\/\\d+\\//` 对应 `scripts/browser-preflight.mjs:720`，EH 对应 `:719`；NH 原图/换源 N/A 对齐 `src/platform/nh/service/AlbumServiceImpl.ts:33` 与 `:37` 均 `return false`。",
       "waiver": null
     },
     {
       "id": "ac3-active-references",
-      "ac": ["AC3"],
+      "ac": [
+        "AC3"
+      ],
       "claim": "附件清单中的活跃文件已更新为新路径与新名称，archive 目录保持原样。",
       "scope": "AGENTS.md、`.trellis/spec/frontend/{index.md,browser-acceptance.md,quality-guidelines.md}`、`features/{index.md,001-add-pageflip-toggle/quickstart.md,001-add-pageview-magnifier/quickstart.md,002-more-settings-modal/quickstart.md}`、`scripts/serve-bundle.mjs`、`scripts/cleanup_browser.py`；逐文件阅读确认，`git status` 证明 archive 无改动",
       "method": "inspection",
       "dimension": "content",
-      "observed": "unrun",
+      "observed": "passed",
       "execution": null,
-      "evidence": [],
-      "note": "计划中，未检查",
+      "evidence": [
+        ".tmp/reader-test-static-checks.txt"
+      ],
+      "note": "AGENTS.md、`.trellis/spec/frontend/{index.md,browser-acceptance.md,quality-guidelines.md}`、`features/{index.md,001-add-pageflip-toggle/quickstart.md,001-add-pageview-magnifier/quickstart.md,002-more-settings-modal/quickstart.md}`、`scripts/serve-bundle.mjs`、`scripts/cleanup_browser.py` 均指向 `.pi/skills/reader-test/`；`git status --porcelain .trellis/tasks/archive` 无输出，archive 未改动。",
       "waiver": null
     },
     {
       "id": "ac4-doc-links-and-grep",
-      "ac": ["AC4"],
+      "ac": [
+        "AC4"
+      ],
       "claim": "文档链接检查零断链，且活跃文件不再包含 skills/eh-test 引用。",
       "scope": "`npm run check:docs` 与一条 grep 门禁命令（排除 node_modules、`^./.tmp`、`/tasks/archive/`）同时为 0；两者串成单条命令，任一失败即非零",
       "method": "command",
       "dimension": "structure",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "计划中，未执行",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "./.tmp/reader-test-gate.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T14:07:19Z",
+        "endedAt": "2026-10-17T14:07:20Z",
+        "log": ".tmp/reader-test-gate.log"
+      },
+      "evidence": [
+        ".tmp/reader-test-gate.log"
+      ],
+      "note": "`npm run check:docs` 输出 `check-docs: OK`（39 md / 222 本地链接 / 0 断链）；grep 门禁在活跃文件零命中。原始 grep 仅剩本迁移任务自身产物（prd/implement/design/task.json/acceptance.json）中的历史描述，门禁脚本显式断言这些命中只允许出现在该任务目录，日志保留两段 grep 输出。",
       "waiver": null
     },
     {
       "id": "ac5-nh-real-page",
-      "ac": ["AC5"],
+      "ac": [
+        "AC5"
+      ],
       "claim": "改后的技能在真实 NH gallery 页跑通生产包准备门（单一生产候选、指纹、coverage、严格环境）与首屏标题/页数/当前页断言，桌面 profile。",
       "scope": "真实 `https://nhentai.net/g/688467/1/`（不可访问时换其他 gallery 并记录实际地址），desktop profile，bundle server + dev loader；报告与截图写入 `.tmp/`；429/Cloudflare/登录类阻塞记为 blocked",
       "method": "runtime",
       "dimension": "behavior",
-      "observed": "unrun",
+      "observed": "passed",
       "execution": null,
-      "evidence": [],
-      "note": "计划中，未执行",
+      "evidence": [
+        ".tmp/reader-test-nh/run-nh-688467/result.json",
+        ".tmp/reader-test-nh/cleanup-browser-688467.json",
+        ".tmp/test-reports/reader-test-nh-20261017-140534.md"
+      ],
+      "note": "真实 `https://nhentai.net/g/688467/1/`（18 页）桌面轮：准备门单一 `fullBundleCandidate` 候选且 `verified: true`、`permissions.verified: true`、`installation` 仅含 `dynamicLoaderEnabled`/`staticScriptDisabled`；首屏 `1 / 18`、滚动、书页、翻页、缩略图跳转 `5 / 18`、关闭/重开全部 executed；`errors: []`，`verify-browser` status passed；另有一轮 `https://nhentai.net/g/631366/1/`（45 页）通过。",
       "waiver": null
     },
     {
       "id": "ac5-eh-regression",
-      "ac": ["AC5"],
+      "ac": [
+        "AC5"
+      ],
       "claim": "改名后 EH 路径未退化：既有 EH /s/ 页仍能进入准备门并完成打开/关闭。",
       "scope": "真实 exhentai.org `/s/` 页一次，desktop profile；复用同一 bundle 与 loader",
       "method": "runtime",
       "dimension": "behavior",
-      "observed": "unrun",
+      "observed": "passed",
       "execution": null,
-      "evidence": [],
-      "note": "计划中，未执行",
+      "evidence": [
+        ".tmp/reader-test-eh-prep/run-eh-desktop/result.json",
+        ".tmp/reader-test-nh/cleanup-browser.json",
+        ".tmp/test-reports/reader-test-eh-20261017-140214.md"
+      ],
+      "note": "真实 `https://exhentai.org/s/f9cb170d76/4257612-1` 桌面轮：`installation.loggedIn: true`，准备门通过，首屏 `1 / 69`，书页/卷轴切换、缩略图定位第 2 页、关闭/重开 executed，页码保持 `2 / 69`；`errors: []`，`verify-browser` status passed。",
       "waiver": null
     },
     {
       "id": "ac6-report-and-cleanup",
-      "ac": ["AC6"],
+      "ac": [
+        "AC6"
+      ],
       "claim": "报告文件按新命名生成且包含逐项结论，本轮 bundle server 已停止、PID 文件已清理、端口已释放。",
       "scope": "`.tmp/test-reports/reader-test-<platform>-<timestamp>.md` 内容、`lsof` 端口核实输出、PID 文件不存在；`acceptance.py cleanup-browser` 资源报告",
       "method": "inspection",
       "dimension": "content",
-      "observed": "unrun",
+      "observed": "passed",
       "execution": null,
-      "evidence": [],
-      "note": "计划中，未执行",
+      "evidence": [
+        ".tmp/test-reports/reader-test-nh-20261017-140534.md",
+        ".tmp/test-reports/reader-test-eh-20261017-140214.md",
+        ".tmp/reader-test-nh/cleanup-browser.json",
+        ".tmp/reader-test-nh/cleanup-browser-688467.json",
+        ".tmp/reader-test-nh/server-cleanup.txt",
+        ".tmp/reader-test-nh/server-cleanup-688467.txt"
+      ],
+      "note": "报告按 `reader-test-<platform>-<timestamp>.md` 命名并保留证据路径；两轮 server（5558/5581 与 7869/7887）均已退出、`127.0.0.1:8787` 释放、PID 文件删除；Ego 空间 3 与 4 均 `task.finish({ keep: [] })`，`cleanup-browser` 两次报告 aggregate 均为 clean（页面 closed、服务已退出）。",
       "waiver": null
     }
   ]

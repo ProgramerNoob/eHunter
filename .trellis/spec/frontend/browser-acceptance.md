@@ -2,11 +2,11 @@
 
 本项目的浏览器验收统一使用 `ego-browser`。开始浏览器操作前，读取当前会话提供的 `ego-browser` 技能；API、连接排障和用户接管规则以该技能及其 `references/api.md` 为准。若技能缺失，先定位安装位置；必需能力不可用时报告具体阻塞项。
 
-功能用例和完成标准见 [AGENTS.md](../../../AGENTS.md) 与对应 `.trellis/spec/frontend/features/**/quickstart.md`。EH 生产包验收使用 [eh-test](../../../.pi/skills/eh-test/SKILL.md)。本文只维护通用浏览器操作。
+功能用例和完成标准见 [AGENTS.md](../../../AGENTS.md) 与对应 `.trellis/spec/frontend/features/**/quickstart.md`。EH/NH 生产包验收使用 [reader-test](../../../.pi/skills/reader-test/SKILL.md)。本文只维护通用浏览器操作。
 
 ## 本地开发服务器
 
-从仓库根目录执行。开始本地页面调试前，先核对旧服务归属，再独立启动新服务；EH 生产包验收按 `eh-test` 管理服务。
+从仓库根目录执行。开始本地页面调试前，先核对旧服务归属，再独立启动新服务；EH/NH 生产包验收按 `reader-test` 管理服务。
 
 1. 创建日志目录：`mkdir -p .tmp`。检查 `.tmp/vite-dev.pid`（若存在）、目标端口的监听进程与命令，并通过 `lsof -a -p PID -d cwd` 核对工作目录。PID 文件只提供线索，需防止 PID 已被其他进程复用。
 2. 已确认属于本任务的旧服务可以停止；用户已有或归属不明的服务先确认。对确认可停止的具体 PID 发送 `kill -TERM PID`，检查进程退出和端口释放后继续。没有旧服务时直接进入启动步骤。
@@ -26,7 +26,7 @@ echo "$!" > .tmp/vite-dev.pid
 ## 1. 准备并创建任务空间
 
 - 按 [notify-complete](../../../.pi/skills/notify-complete/SKILL.md) 在测试开始前执行短通知。
-- 本地页面：按[本地开发服务器](#本地开发服务器)流程启动并确认实际端口可访问。EH：先按 `eh-test` 构建生产包并确认 Ego 中的油猴加载器配置。
+- 本地页面：按[本地开发服务器](#本地开发服务器)流程启动并确认实际端口可访问。EH/NH：先按 `reader-test` 的对应平台构建生产包并确认 Ego 中的油猴加载器配置。
 - 日志、截图、下载和报告保存到仓库 `.tmp/`；传给浏览器 API 的产物路径使用绝对路径。
 
 通过 pi 的 `bash` 工具执行以下命令，每个用户任务只创建一次任务空间：
@@ -107,7 +107,7 @@ const prep = await bootstrapReader({
 
 ### 一轮调用
 
-以下为放在恢复 `task`、`page` 之后的 JavaScript 模板。每轮重新声明 `root`（真实仓库绝对路径）、`origin` 和上述 `source`；`profile` 为固定 profile 名，`openSelector`、`modeSelector`、`closeSelector` 是本轮快照已观察的稳定选择器。EH 使用 [eh-test 的 source](../../../.pi/skills/eh-test/SKILL.md#2-准备-eh-source)。所有方法顺序 `await`：
+以下为放在恢复 `task`、`page` 之后的 JavaScript 模板。每轮重新声明 `root`（真实仓库绝对路径）、`origin` 和上述 `source`；`profile` 为固定 profile 名，`openSelector`、`modeSelector`、`closeSelector` 是本轮快照已观察的稳定选择器。EH/NH 使用 [reader-test 的 source](../../../.pi/skills/reader-test/SKILL.md#2-准备-source)。所有方法顺序 `await`：
 
 每次调用必须传入非空 `scenarioInputs`：本轮实际依赖的仓库相对路径数组（例如场景配置或输入快照），不能使用绝对路径或越出仓库的路径；helper 在导航前记录每项 SHA-256 与聚合值，并在轮次结束前复核，变化即 blocked。`taskSpace` 可选，用于把产物关联到用户任务空间。下面的模板先用 `fs` 写出一份输入快照再传入，照抄即可运行；实际场景替换成本轮真正依赖的仓库文件。
 
@@ -243,7 +243,7 @@ python3 scripts/acceptance.py cleanup-browser <task-space> --pages <pages.json> 
 
 未覆盖（各自归属场景，非预检职责）：
 
-- **真实下载冒烟**：小画廊下载后解 ZIP 校验图片条目与内容，防"仅 metadata 的 ZIP 伪绿"。涉及 GM 下载链路与真实 EH 登录环境，属 `eh-test` 场景；后续独立任务候选，不混入工具链改动。
+- **真实下载冒烟**：小画廊下载后解 ZIP 校验图片条目与内容，防"仅 metadata 的 ZIP 伪绿"。涉及 GM 下载链路与真实 EH 登录环境，属 `reader-test` 的 EH 场景；后续独立任务候选，不混入工具链改动。
 - **物理设备矩阵**：真机 DPR/触摸/UA 组合；预检只保证 CDP 仿真回执一致。
 - **Node/Python 版本矩阵**：CI 声明 Node 20 / Python 3.11，本机实际跑 Node 22 / Python 3.12；跨版本一致性由各自 CI 覆盖，预检不重复断言。
 

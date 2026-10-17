@@ -3,7 +3,7 @@
   "name": "merge-eh-test-into-reader-test",
   "title": "EH/NH 验收技能合并为 reader-test",
   "description": "把 EH 专用验收技能 eh-test 扩展为按平台参数化的 reader-test，覆盖 EH 与 NH 生产包验收，并同步更新仓库内引用。",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -12,7 +12,7 @@
   "assignee": "Warwick",
   "createdAt": "2026-10-17",
   "completedAt": null,
-  "branch": null,
+  "branch": "master",
   "base_branch": "master",
   "worktree_path": null,
   "commit": null,
@@ -48,6 +48,10 @@
         "task-evidence": [
           ".trellis/tasks/10-17-merge-eh-test-into-reader-test/**"
         ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "179b8480b92048744f2338b6849a8ca51664f101e0f1af32db237f9abeefe621"
       }
     }
   }

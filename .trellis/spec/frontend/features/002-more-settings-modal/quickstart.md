@@ -4,7 +4,7 @@
 
 ## 1. 准备与实施入口
 
-按 [项目验收要求](../../../../../AGENTS.md) 发测试前通知、准备依赖，并按 [浏览器指南](../../browser-acceptance.md) 后台启动 `npm run dev`。实施入口为 `core/store/app.ts`、`MoreSettingsDialog.vue`、`TopBar.vue` 和现有平台存储；先完成共享/补缺/重置规则，再验证交互。生产权限与注入按 [eh-test](../../../../../.pi/skills/eh-test/SKILL.md) 验证 EH/EX，并补验 NH。
+按 [项目验收要求](../../../../../AGENTS.md) 发测试前通知、准备依赖，并按 [浏览器指南](../../browser-acceptance.md) 后台启动 `npm run dev`。实施入口为 `core/store/app.ts`、`MoreSettingsDialog.vue`、`TopBar.vue` 和现有平台存储；先完成共享/补缺/重置规则，再验证交互。生产权限与注入按 [reader-test](../../../../../.pi/skills/reader-test/SKILL.md) 按平台验证 EH/EX 与 NH。
 
 共享、坏值及重置用例使用隔离的测试脚本安装与测试偏好，保留日常偏好。分别在 GM 可用和不可用的环境验证，不能把 localhost 或 localStorage 的结果当成 GM 跨站证据。
 

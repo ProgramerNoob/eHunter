@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-17-merge-eh-test-into-reader-test",
+  "branch": "master",
+  "head": "8687cb9c0f7cd7ed3ba38c59b2ba515706b89e71",
+  "indexTree": "47e849ed30bb5f7788b5c6c3222dc43dec7ebb09",
+  "capturedAt": "2026-10-17T21:56:11+08:00",
+  "scopeDigest": "c4e44ddd77759b6aa5f6741919ef666fe22733ff19bea5cc998eb32b38dcb5a6",
+  "dirty": {},
+  "untracked": {}
+}

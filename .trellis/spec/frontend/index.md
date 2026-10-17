@@ -19,7 +19,7 @@ Engineering guides are in English; migrated product and feature records retain t
 
 Use this list as the pre-commit entrypoint of the last quality pass; routing and detail live in
 [Quality](./quality-guidelines.md), [browser acceptance](./browser-acceptance.md) and the
-[EH testing skill](../../../.pi/skills/eh-test/SKILL.md).
+[EH/NH testing skill](../../../.pi/skills/reader-test/SKILL.md).
 
 1. **Code actually loaded**: the fresh build/bundle is what the browser ran — no Vite error overlay, initialized reader DOM, host-site failures separated from reader failures.
 2. **Route matches the change**: pure documentation, local browser, EH production bundle, or shared EH+NH request/storage assessment, per the acceptance routing table.
@@ -37,7 +37,7 @@ Use this list as the pre-commit entrypoint of the last quality pass; routing and
   [reader behavior decisions](./decisions/2026-09-18-reader-behavior.md),
   then the affected feature's specification, contracts, and quickstart from the feature index.
 - Local UI acceptance: [browser acceptance](./browser-acceptance.md).
-- Platform/injection acceptance: [EH testing](../../../.pi/skills/eh-test/SKILL.md).
+- Platform/injection acceptance: [EH/NH testing](../../../.pi/skills/reader-test/SKILL.md).
 
 These guides describe inspected implementation, not proof of functional acceptance.
 Specs can differ from current code; resolve user-visible conflicts before changing
