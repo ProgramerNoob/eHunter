@@ -20,7 +20,7 @@
 }
 ```
 
-`task.py create` 为每个新任务写顶层 `scopePolicyVersion: 1`，并预置 enforce scope 与自身 task-evidence 路径；`task-evidence` 类别及任务目录覆盖为必需项。既有 planning task 在新版本首次 `start` 时保留已有有效 scope或补默认 scope，再写 marker；已在 rollout 前 active 的旧任务不被伪造为新任务。调用方通过 `--meta scope=<JSON>` 或 `set-meta` 扩展，统一校验 JSON 并将 scope 保存为对象；其它 meta 键维持字符串兼容。路径为仓库相对 POSIX 精确路径或末尾 `/**` 的目录前缀（匹配目录本身与子路径）；拒绝绝对路径、`..`、空 category、未知 version/mode。`task-evidence` 规则必须覆盖任务目录下的文件（例如 `task_rel/**`），只匹配目录本身的精确规则不算覆盖，因为 start 会在快照之后写入 `task.json`。
+`task.py create` 为每个新任务写顶层 `scopePolicyVersion: 1`，并预置 enforce scope 与自身 task-evidence 路径；`task-evidence` 类别及任务目录覆盖为必需项。自动激活 session 的 create 在所有 task.json 写入完成后捕获初始快照；`--no-start` 或无 session identity 时由后续 `start` 捕获。既有 planning task 在新版本首次 `start` 时保留已有有效 scope 或补默认 scope，再写 marker；已在 rollout 前 active 的旧任务不被伪造为新任务。调用方通过 `--meta scope=<JSON>` 或 `set-meta` 扩展，统一校验 JSON 并将 scope 保存为对象；其它 meta 键维持字符串兼容。路径为仓库相对 POSIX 精确路径或末尾 `/**` 的目录前缀（匹配目录本身与子路径）；拒绝绝对路径、`..`、空 category、未知 version/mode。`task-evidence` 规则必须覆盖任务目录下的文件（例如 `task_rel/**`），只匹配目录本身的精确规则不算覆盖，因为 start 会在快照之后写入 `task.json`。
 
 `scopePolicyVersion` 仅表示 gate 适用版本，`meta.scope.snapshot` 仅指向起始状态证据；二者都不是 allowlist，不复制 categories。
 
@@ -45,6 +45,6 @@ Scope 政策只由 `meta.scope.categories` 声明；快照是运行证据，不�
 
 native archive 在修改 status、清 pointer、移动目录、修改 evidence、自动 commit 或运行 hook 前调用 gate。acceptance archive 保留现有汇总语义并委托 native archive。`task.py finish` 不调用 checker，仍只清 active pointer。
 
-没有 marker 且没有 scope 的 rollout 前历史 task 输出 legacy/需回填并继续原归档流程；marker=1 task 缺 scope、scope 存在但 start 时未生成快照、snapshot hash/digest 不符或 scope 被变更均不能静默通过。已 active 且没有 marker/snapshot 的旧任务只按显式 legacy 诊断处理，禁止把 marker=1 的新 task 伪装为旧 task。
+没有 marker 且没有 scope 的 rollout 前历史 task 输出 legacy/需回填并继续原归档流程；`task.json` 本身不可读时无法判定版本，沿用原归档恢复路径并显式报告 legacy；marker=1 task 缺 scope、scope 存在但 start 时未生成快照、snapshot hash/digest 不符或 scope 被变更均不能静默通过。已 active 且没有 marker/snapshot 的旧任务只按显式 legacy 诊断处理，禁止把 marker=1 的新 task 伪装为旧 task。
 
 fixture 覆盖默认 scope、旧 planning task migration、JSON meta 扩展、快照前既有脏状态、同一路径快照后修改、新增/删除/rename、staged/unstaged/commit/untracked、坏快照、scope digest 不符、legacy 和两条归档入口；gate 失败时验证 task 状态、目录、active pointer、evidence path、commit 均未改变。

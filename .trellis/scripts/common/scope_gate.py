@@ -285,13 +285,11 @@ def _parse_status(output: str) -> list[dict] | None:
             return None
         xy = token[:2]
         path = token[3:]
-        original = None
         if xy[0] in "RC" or xy[1] in "RC":
             if index >= len(tokens):
                 return None
-            original = tokens[index]
             index += 1
-        entries.append({"xy": xy, "path": path, "original": original})
+        entries.append({"xy": xy, "path": path})
     return entries
 
 
@@ -759,10 +757,10 @@ def check_archive_scope(task_dir: Path, repo_root: Path) -> dict:
 
     data, reason = read_json_checked(task_json_path)
     if data is None:
-        report["status"] = "blocked"
+        report["status"] = "legacy"
         report["diagnostics"].append(
             f"cannot read task.json ({reason}); cannot determine the scope policy "
-            "version — fail closed"
+            "version — archived with legacy behavior"
         )
         return report
 

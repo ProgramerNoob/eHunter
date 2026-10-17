@@ -62,6 +62,7 @@ from .safe_commit import (
 )
 from .scope_gate import (
     check_archive_scope,
+    prepare_scope_start,
     print_scope_report,
     SCOPE_POLICY_VERSION,
     scope_for_new_task,
@@ -719,6 +720,17 @@ def cmd_create(args: argparse.Namespace) -> int:
 
         print(colored(f"Linked as child of: {parent_dir.name}", Colors.GREEN), file=sys.stderr)
 
+    try:
+        rel_dir = task_dir.relative_to(repo_root).as_posix()
+    except ValueError:
+        rel_dir = str(task_dir)
+
+    # Auto-activation is the first point the task becomes live, so capture the
+    # baseline after every create-time write to task.json (including the parent
+    # link above). --no-start leaves it to task.py start.
+    scope_ready = True
+    if not getattr(args, "no_start", False):
+        scope_ready = prepare_scope_start(task_dir, repo_root, rel_dir)
     # Auto-activate the new task so the per-turn breadcrumb fires planning
     # state. Best-effort: gracefully degrade if no session identity (CLI run
     # outside an AI session) — the task is still created, the user can run
@@ -728,6 +740,15 @@ def cmd_create(args: argparse.Namespace) -> int:
         print(
             colored(
                 "Skipped session activation (--no-start); run task.py start when ready.",
+                Colors.YELLOW,
+            ),
+            file=sys.stderr,
+        )
+    elif not scope_ready:
+        print(
+            colored(
+                "Session activation skipped: the scope baseline could not be "
+                "recorded; run task.py start after fixing meta.scope.",
                 Colors.YELLOW,
             ),
             file=sys.stderr,
@@ -752,10 +773,6 @@ def cmd_create(args: argparse.Namespace) -> int:
                 # No session identity is the normal CLI-outside-an-AI-session
                 # case (see comment above) — stay silent, not a failure.
                 if context_key:
-                    try:
-                        rel_dir = task_dir.relative_to(repo_root).as_posix()
-                    except ValueError:
-                        rel_dir = str(task_dir)
                     try:
                         active = set_active_task(rel_dir, repo_root)
                     except Exception as exc:

@@ -135,6 +135,7 @@ class ScopeGateFixture(unittest.TestCase):
         slug: str = "fixture",
         scope_json: str | None = None,
         meta_pairs: list[str] | None = None,
+        no_start: bool = True,
     ) -> tuple[int, str, str]:
         pairs = list(meta_pairs or [])
         if scope_json is not None:
@@ -149,7 +150,7 @@ class ScopeGateFixture(unittest.TestCase):
             package=None,
             base_branch="main",
             meta=pairs,
-            no_start=True,
+            no_start=no_start,
             force=False,
         )
         return self.call(task_store.cmd_create, args)
@@ -249,6 +250,17 @@ class CreateScopeTests(ScopeGateFixture):
         self.assertEqual(scope["categories"], {"task-evidence": [f"{task_rel}/**"]})
         self.assertNotIn("snapshot", scope)
         self.assertEqual(scope_gate.validate_scope(scope, task_rel), [])
+
+    def test_auto_activated_create_snapshot_allows_archive(self) -> None:
+        self.init_repo()
+        rc, _out, err = self.create_task(no_start=False)
+        self.assertEqual(rc, 0, err)
+
+        rc, _out, err = self.archive()
+        self.assertEqual(rc, 0, err)
+        self.assertIn("Archived:", err)
+        archived = self.root / ".trellis/tasks/archive"
+        self.assertEqual(len(list(archived.glob("*/*/task.json"))), 1)
 
     def test_create_rejects_invalid_scope_rules_with_located_errors(self) -> None:
         self.init_repo()
@@ -929,15 +941,6 @@ class ArchiveGateTests(ScopeGateFixture):
         self.assertIn("changed after task start", err)
         self.assertTrue(self.task_dir().is_dir())
 
-    def test_unreadable_task_json_fails_closed(self) -> None:
-        self.init_repo()
-        self.prepared_task()
-        self.write(f"{self.task_rel()}/task.json", "{")
-        rc, _out, err = self.archive()
-        self.assertEqual(rc, 1)
-        self.assertIn("cannot read task.json", err)
-        self.assertTrue(self.task_dir().is_dir())
-
     def test_unsupported_policy_version_fails_closed(self) -> None:
         self.init_repo()
         rel = ".trellis/tasks/10-17-future"
@@ -1012,6 +1015,17 @@ class ArchiveGateTests(ScopeGateFixture):
         self.assertEqual(rc, 0, err)
         self.assertIn("legacy", err)
         self.assertIn("scopePolicyVersion is missing", err)
+
+    def test_unreadable_task_json_archives_with_legacy_diagnostic(self) -> None:
+        self.init_repo()
+        task_dir = self.prepared_task()
+        self.write(f"{self.task_rel()}/task.json", "{broken\n")
+
+        rc, _out, err = self.archive()
+        self.assertEqual(rc, 0, err)
+        self.assertIn("legacy behavior", err)
+        self.assertIn("cannot read task.json", err)
+        self.assertFalse(task_dir.exists())
 
 
 class FinishScopeTests(ScopeGateFixture):

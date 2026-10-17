@@ -234,7 +234,13 @@ def cmd_start(args: argparse.Namespace) -> int:
     task_json_path = full_path / FILE_TASK_JSON
 
     if not prepare_scope_start(full_path, repo_root, task_dir):
-        print(colored("Error: scope baseline could not be recorded; task was not started.", Colors.RED))
+        print(
+            colored(
+                "Error: scope baseline could not be recorded; task was not started.",
+                Colors.RED,
+            ),
+            file=sys.stderr,
+        )
         return 1
 
     if not resolve_context_key():
