@@ -54,6 +54,8 @@ class CleanupTests(unittest.TestCase):
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name).resolve()
         (self.root / ".tmp").mkdir()
+        (self.root / "pages.json").write_text("{}", encoding="utf-8")
+        (self.root / ".tmp/eh-bundle-server.log").write_text("", encoding="utf-8")
         self.probe = FakeProbe()
         self.checked = datetime(2026, 10, 17, 12, 0, 0, tzinfo=timezone.utc)
         self.outputs = 0
@@ -202,6 +204,7 @@ class CleanupTests(unittest.TestCase):
             ("evidence missing", {"evidence": None}, "evidence-missing"),
             ("evidence empty", {"evidence": []}, "evidence-missing"),
             ("evidence invalid", {"evidence": 5}, "evidence-invalid"),
+            ("evidence unreadable", {"evidence": ["missing.json"]}, "evidence-unreadable"),
         ]
         for label, overrides, fragment in cases:
             with self.subTest(label=label):
@@ -310,6 +313,7 @@ class CleanupTests(unittest.TestCase):
             ("evidence missing", {"evidence": None}, "evidence-missing"),
             ("evidence empty", {"evidence": []}, "evidence-missing"),
             ("evidence invalid", {"evidence": {"file": "x"}}, "evidence-invalid"),
+            ("evidence unreadable", {"evidence": ["missing.json"]}, "evidence-unreadable"),
         ]
         for label, overrides, fragment in cases:
             with self.subTest(label=label):
@@ -330,6 +334,8 @@ class CleanupTests(unittest.TestCase):
             ("expectedCommand", {"expectedCommand": []}, "expectedCommand-missing"),
             ("start token", {"processStartToken": None}, "processStartToken-missing"),
             ("start token contradiction", {"processStartToken": "999@Fri Oct 17 10:00:00 2026"},
+             "processStartToken-mismatch"),
+            ("empty start token suffix", {"processStartToken": "4242@"},
              "processStartToken-mismatch"),
         ]
         for label, overrides, fragment in cases:
@@ -373,9 +379,9 @@ class CleanupTests(unittest.TestCase):
         user_server = self.server(label="user-service", owner="user", pid=1, pidFile="/tmp/user.pid")
         code, report = self.run_cleanup(pages=[page], servers=[server, user_server])
         self.assertEqual(code, 1)
-        self.assertEqual(report["aggregate"]["status"], "residual")
+        self.assertEqual(report["aggregate"]["status"], "unknown")
         self.assertEqual(report["aggregate"]["counts"],
-                         {"clean": 1, "residual": 1, "preserved": 1, "unknown": 0})
+                         {"clean": 1, "residual": 0, "preserved": 1, "unknown": 1})
         self.assertEqual(report["aggregate"]["servers"]["preserved"], 1)
         self.assertEqual(len(report["unresolved"]), 1)
         unresolved = report["unresolved"][0]
@@ -413,6 +419,9 @@ class CleanupTests(unittest.TestCase):
             ("invalid page id",
              json.dumps({"schemaVersion": 1, "taskSpace": TASK_SPACE,
                          "pages": [self.page(pageId=["x"])]}), valid_servers, TASK_SPACE),
+            ("missing page id",
+             json.dumps({"schemaVersion": 1, "taskSpace": TASK_SPACE,
+                         "pages": [self.page(pageId=None)]}), valid_servers, TASK_SPACE),
             ("unknown page field",
              json.dumps({"schemaVersion": 1, "taskSpace": TASK_SPACE,
                          "pages": [self.page(extra=1)]}), valid_servers, TASK_SPACE),
@@ -503,7 +512,8 @@ class CleanupTests(unittest.TestCase):
 
     def test_cli_dispatch(self):
         script = cleanup.ROOT / "scripts/acceptance.py"
-        pages_path, servers_path = self.write_pair(servers=[self.server()])
+        pages_path, servers_path = self.write_pair(
+            servers=[self.server(evidence=[str(self.root / "pages.json")])])
 
         def invoke(output, task_space=TASK_SPACE):
             return subprocess.run(
@@ -544,8 +554,25 @@ class SystemProbeTests(unittest.TestCase):
 
     def test_absent_process_and_free_port(self):
         probe = cleanup.SystemProbe()
-        self.assertIsNone(probe.process(99999999))
+        self.assertIsNone(probe.process(54321))
         self.assertEqual(probe.listeners(1), [])
+
+    def test_missing_process_requires_an_empty_stderr(self):
+        probe = cleanup.SystemProbe()
+        absent = cleanup.subprocess.CompletedProcess([], 1, "", "")
+        with patch.object(cleanup.subprocess, "run", return_value=absent):
+            self.assertIsNone(probe.process(4242))
+        denied = cleanup.subprocess.CompletedProcess([], 1, "", "permission denied")
+        with patch.object(cleanup.subprocess, "run", return_value=denied):
+            with self.assertRaises(cleanup.ProbeError):
+                probe.process(4242)
+
+    def test_listener_probe_fails_closed_on_stderr(self):
+        probe = cleanup.SystemProbe()
+        denied = cleanup.subprocess.CompletedProcess([], 1, "", "lsof: permission denied")
+        with patch.object(cleanup.subprocess, "run", return_value=denied):
+            with self.assertRaises(cleanup.ProbeError):
+                probe.listeners(8787)
 
     def test_live_process_with_unreadable_cwd_is_not_reported_as_exited(self):
         probe = cleanup.SystemProbe()

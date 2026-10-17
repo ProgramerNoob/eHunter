@@ -129,6 +129,20 @@ def evidence_list(value, location):
     return [], f"evidence-invalid: {location} must be a string or an array of nonempty strings"
 
 
+def evidence_files_problem(root, evidence):
+    """A declared reference proves nothing unless the recorded file is readable."""
+    for value in evidence:
+        path = Path(value)
+        resolved = path if path.is_absolute() else root / path
+        try:
+            unreadable = not resolved.is_file() or not os.access(resolved, os.R_OK)
+        except OSError:
+            unreadable = True
+        if unreadable:
+            return f"evidence-unreadable: {value!r} is not a readable file"
+    return None
+
+
 def isoformat(moment):
     return moment.astimezone(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
@@ -174,14 +188,16 @@ def diagnostic(resource, label, code, message):
     return {"resource": resource, "label": label, "code": code, "message": message}
 
 
-def page_entry(index, item, task_space, checked_at, diagnostics):
+def page_entry(index, item, task_space, root, checked_at):
     location = f"pages[{index}]"
     extra = item.keys() - PAGE_FIELDS
     require(not extra, f"{location}: unknown fields {sorted(extra)}")
     label = item["label"]
     page_id = item.get("pageId")
-    require(page_id is None or (isinstance(page_id, (str, int)) and not isinstance(page_id, bool)),
-            f"{location}.pageId: expected a string or integer")
+    require(page_id is not None and isinstance(page_id, (str, int))
+            and not isinstance(page_id, bool)
+            and not (isinstance(page_id, str) and not page_id.strip()),
+            f"{location}.pageId: expected a nonempty string or integer")
     require(same_identity(item.get("spaceId"), task_space),
             f"{location}.spaceId: must equal the task space {task_space!r}")
 
@@ -222,6 +238,7 @@ def page_entry(index, item, task_space, checked_at, diagnostics):
     if not same_identity(created, task_space):
         entry["reasons"] = [f"createdByTask-mismatch: {created!r} does not match the task space {task_space!r}"]
         return entry
+    evidence_problem = evidence_problem or evidence_files_problem(root, evidence)
     if evidence_problem:
         entry["reasons"] = [evidence_problem]
         return entry
@@ -289,6 +306,11 @@ def declaration_problems(item):
     elif positive_int(item.get("pid")) and not token.strip().startswith(f"{item['pid']}@"):
         problems.append(
             "processStartToken-mismatch: the token does not start with the declared pid")
+    elif positive_int(item.get("pid")):
+        suffix = token.strip()[len(str(item["pid"])) + 1:].strip()
+        if not suffix:
+            problems.append(
+                "processStartToken-mismatch: the token must record the launch time after <pid>@")
     return problems
 
 
@@ -341,6 +363,7 @@ def server_entry(index, item, task_space, root, probe, diagnostics):
     if not same_identity(created, task_space):
         entry["reasons"] = [f"createdByTask-mismatch: {created!r} does not match the task space {task_space!r}"]
         return entry
+    evidence_problem = evidence_problem or evidence_files_problem(root, evidence)
     if evidence_problem:
         entry["reasons"] = [evidence_problem]
         return entry
@@ -421,6 +444,9 @@ def server_entry(index, item, task_space, root, probe, diagnostics):
                 f"pid-file-left: {pid_file_path} still exists after pid {pid} exited; the command never deletes it"]
             content = pid_file.get("content")
             if content is not None and content.strip() != str(pid):
+                entry["classification"] = "unknown"
+                entry["reasons"].append(
+                    f"pid-file-mismatch: {pid_file_path} records {content!r}, not pid {pid}")
                 diagnostics.append(diagnostic(
                     "servers", entry["label"], "pid-file-content-mismatch",
                     f"{pid_file_path} records {content!r}, not pid {pid}"))
@@ -448,7 +474,7 @@ def server_entry(index, item, task_space, root, probe, diagnostics):
 
 def build_report(root, task_space, pages, servers, checked_at, probe):
     diagnostics = []
-    page_entries = [page_entry(index, item, task_space, checked_at, diagnostics)
+    page_entries = [page_entry(index, item, task_space, root, checked_at)
                     for index, item in enumerate(pages)]
     server_entries = [server_entry(index, item, task_space, root, probe, diagnostics)
                       for index, item in enumerate(servers)]
@@ -522,22 +548,22 @@ class SystemProbe:
         self.timeout = timeout
 
     def _run(self, argv):
+        # Fixed locale keeps `ps -o lstart=` comparable between launch and check.
+        environment = dict(os.environ, LC_ALL="C", LANG="C")
         try:
-            return subprocess.run(argv, capture_output=True, text=True, check=False,
-                                  timeout=self.timeout)
+            return subprocess.run(argv, capture_output=True, text=True,
+                                  encoding="utf-8", errors="replace", check=False,
+                                  timeout=self.timeout, env=environment)
         except (OSError, subprocess.SubprocessError) as exc:
             raise ProbeError(f"{argv[0]} is unavailable: {exc}") from exc
 
     def process(self, pid):
         started = self._run(["ps", "-ww", "-p", str(pid), "-o", "lstart="])
+        message = started.stderr.strip()
+        if started.returncode == 1 and not started.stdout.strip() and not message:
+            return None
         if started.returncode != 0 or not started.stdout.strip():
-            message = started.stderr.strip()
-            if message and "permission" in message.lower():
-                raise ProbeError(f"ps could not inspect pid {pid}: {message}")
-            if started.returncode == 1 and not started.stdout.strip():
-                return None
-            raise ProbeError(
-                f"ps could not inspect pid {pid}: {message or started.returncode}")
+            raise ProbeError(f"ps could not inspect pid {pid}: {message or started.returncode}")
         command = self._run(["ps", "-ww", "-p", str(pid), "-o", "args="])
         if command.returncode != 0 or not command.stdout.strip():
             raise ProbeError(f"ps could not read the command line of pid {pid}")
@@ -562,9 +588,10 @@ class SystemProbe:
 
     def listeners(self, port):
         completed = self._run(["lsof", "-nP", f"-iTCP:{port}", "-sTCP:LISTEN", "-F", "p"])
-        if completed.returncode not in (0, 1):
+        message = completed.stderr.strip()
+        if completed.returncode not in (0, 1) or message:
             raise ProbeError(
-                f"lsof could not list port {port}: {completed.stderr.strip() or completed.returncode}")
+                f"lsof could not list port {port}: {message or completed.returncode}")
         pids = set()
         for line in completed.stdout.splitlines():
             if not line.startswith("p"):
