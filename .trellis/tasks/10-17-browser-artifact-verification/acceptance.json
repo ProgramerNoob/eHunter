@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "verifier 能将 `observed: blocked` 或 `observed: failed` 的 artifact 判为非通过；acceptance/report 中的 passed 不能升级该结果。",
+    "AC2": "`checks` 未执行、`errors` 非空、`eventCollection.unresolved` 非空、scenarioInputs 缺失/为空或 source-specific identity 缺失/不匹配时，verifier 给出可定位的非通过结果。",
+    "AC3": "build/loader/source 与非空 scenarioInputs 对照相符的 fixture 可通过；任一被跟踪输入变化后旧 artifact 明确判 stale。",
+    "AC4": "缺少 provenance 的历史 fixture 明确标为 legacy/需回填，现有 schemaVersion 1 acceptance 记录仍可解析。",
+    "AC5": "EH/NH/Vite 与动态 host script 相关 fixture 覆盖必要 source identity 情况，既有 `tests/browser-preflight.test.mjs` 不回归。"
+  },
+  "checks": [
+    {
+      "id": "ac1-blocked-not-passing",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "verifier 能将 `observed: blocked` 或 `observed: failed` 的 artifact 判为非通过；acceptance/report 中的 passed 不能升级该结果。",
+      "scope": "observed blocked/failed artifacts against the gate verdict",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-c",
+          "import sys, unittest; sys.path.insert(0, 'scripts'); suite = unittest.TestLoader().loadTestsFromNames(['test_browser_artifact_verification.BrowserArtifactTests.test_observed_failed_or_blocked_is_never_passing']); result = unittest.TextTestRunner(verbosity=1).run(suite); sys.exit(0 if result.wasSuccessful() else 1)"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T06:02:35.499692+00:00",
+        "endedAt": "2026-10-17T06:02:35.536034+00:00",
+        "log": ".tmp/acceptance/10-17-browser-artifact-verification/tmppf54mwxh.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-17-browser-artifact-verification/tmppf54mwxh.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac2-incomplete-and-identity",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "`checks` 未执行、`errors` 非空、`eventCollection.unresolved` 非空、scenarioInputs 缺失/为空或 source-specific identity 缺失/不匹配时，verifier 给出可定位的非通过结果。",
+      "scope": "incomplete checks, recorded errors, unresolved events, missing inputs and identity mismatch",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-c",
+          "import sys, unittest; sys.path.insert(0, 'scripts'); suite = unittest.TestLoader().loadTestsFromNames(['test_browser_artifact_verification.BrowserArtifactTests.test_unfinished_preparation_or_checks_are_not_passing', 'test_browser_artifact_verification.BrowserArtifactTests.test_recorded_errors_events_and_unsaved_batches_block', 'test_browser_artifact_verification.BrowserArtifactTests.test_userscript_identity_contract_is_rechecked', 'test_browser_artifact_verification.BrowserArtifactTests.test_identity_evidence_is_required']); result = unittest.TextTestRunner(verbosity=1).run(suite); sys.exit(0 if result.wasSuccessful() else 1)"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T06:02:35.567375+00:00",
+        "endedAt": "2026-10-17T06:02:35.616565+00:00",
+        "log": ".tmp/acceptance/10-17-browser-artifact-verification/tmpy13dxjtr.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-17-browser-artifact-verification/tmpy13dxjtr.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac3-fresh-and-stale",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "build/loader/source 与非空 scenarioInputs 对照相符的 fixture 可通过；任一被跟踪输入变化后旧 artifact 明确判 stale。",
+      "scope": "fresh artifact verdict and tracked input mutation",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-c",
+          "import sys, unittest; sys.path.insert(0, 'scripts'); suite = unittest.TestLoader().loadTestsFromNames(['test_browser_artifact_verification.BrowserArtifactTests.test_fresh_artifacts_pass_for_every_source_kind', 'test_browser_artifact_verification.BrowserArtifactTests.test_changed_scenario_input_is_stale', 'test_browser_artifact_verification.BrowserArtifactTests.test_changed_or_deleted_bundle_is_stale', 'test_browser_artifact_verification.BrowserArtifactTests.test_changed_vite_input_is_stale']); result = unittest.TextTestRunner(verbosity=1).run(suite); sys.exit(0 if result.wasSuccessful() else 1)"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T06:02:35.647718+00:00",
+        "endedAt": "2026-10-17T06:02:35.699389+00:00",
+        "log": ".tmp/acceptance/10-17-browser-artifact-verification/tmp_4v0zjj3.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-17-browser-artifact-verification/tmp_4v0zjj3.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac4-legacy-schema",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "缺少 provenance 的历史 fixture 明确标为 legacy/需回填，现有 schemaVersion 1 acceptance 记录仍可解析。",
+      "scope": "artifact without provenance and existing schemaVersion 1 acceptance records",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "sh",
+          "-c",
+          "python3 -c \"import sys, unittest; sys.path.insert(0, 'scripts'); suite = unittest.TestLoader().loadTestsFromNames(['test_browser_artifact_verification.BrowserArtifactTests.test_missing_provenance_is_legacy']); result = unittest.TextTestRunner(verbosity=1).run(suite); sys.exit(0 if result.wasSuccessful() else 1)\" && python3 -m unittest discover -s scripts -p 'test_acceptance.py'"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T06:02:35.730409+00:00",
+        "endedAt": "2026-10-17T06:02:37.019918+00:00",
+        "log": ".tmp/acceptance/10-17-browser-artifact-verification/tmpn8j0xhqv.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-17-browser-artifact-verification/tmpn8j0xhqv.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac5-source-kinds",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "EH/NH/Vite 与动态 host script 相关 fixture 覆盖必要 source identity 情况，既有 `tests/browser-preflight.test.mjs` 不回归。",
+      "scope": "EH/NH/Vite source identity fixtures and existing preflight suite",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T06:04:44.799069+00:00",
+        "endedAt": "2026-10-17T06:04:58.369914+00:00",
+        "log": ".tmp/acceptance/10-17-browser-artifact-verification/tmpt7ddn3uk.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-17-browser-artifact-verification/tmpt7ddn3uk.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    }
+  ]
+}

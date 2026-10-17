@@ -85,6 +85,8 @@ helper 比对当前文档**全部已加载项目模块**：Node 从已确认 ori
 
 以下为放在恢复 `task`、`page` 之后的 JavaScript 模板。每轮重新声明 `root`（真实仓库绝对路径）、`origin` 和上述 `source`；`profile` 为固定 profile 名，`openSelector`、`modeSelector`、`closeSelector` 是本轮快照已观察的稳定选择器。EH 使用 [eh-test 的 source](../../../.pi/skills/eh-test/SKILL.md#2-准备-eh-source)。所有方法顺序 `await`：
 
+每次调用必须传入非空 `scenarioInputs`：本轮实际依赖的仓库相对路径数组（例如场景配置或输入快照），不能使用绝对路径或越出仓库的路径；helper 在导航前记录每项 SHA-256 与聚合值，并在轮次结束前复核，变化即 blocked。`taskSpace` 可选，用于把产物关联到用户任务空间。
+
 ```js
 const { pathToFileURL } = await import('node:url');
 const { randomUUID } = await import('node:crypto');
@@ -94,7 +96,7 @@ const { withBrowserPreflight, BrowserPreflightError } = await import(
 const artifactDir = `${root}/.tmp/browser-preflight/${profile}-${randomUUID()}`;
 try {
   const result = await withBrowserPreflight({
-    page, artifactDir, profile, source,
+    page, artifactDir, profile, source, scenarioInputs,
     timeoutMs: 15000,
     checksTimeoutMs: 120000,
     navigate: ({ timeoutMs }) => page.goto(`${origin}/`, {
@@ -168,6 +170,8 @@ try {
 helper 是本轮唯一 `page.events()` 消费者。所有捕获的原始事件先追加到 `events.jsonl`，再共同分析身份与错误；每批含 runId、roundId、page、phase、sequence、recordedAt 和完整 events。导航前旧文档、导航/加载、准备、关键动作及截图前后分阶段保存；不要另行 drain 或用最后一批替代全程日志。
 
 每轮目录保存初始 `manifest.json`（incomplete）、`commands.jsonl`、`source.json`、指纹、身份、环境记录及源码副本；EH 另有权限记录，Vite 另有资源记录。`result.json` 在 finally 完成后原子保存。读取其中的 `logs`，检查 console 的 log/info/warning/error、未捕获异常和 Log 事件；身份和 coverage 仅证明该文本执行，不能替代异步平台初始化及功能结果。
+
+`python3 scripts/acceptance.py verify-browser <artifact-dir>` 只读校验该轮产物：重算 source bundle/loader 或 Vite 输入、`scenarioInputs` 与 Vite 聚合指纹，并复核 manifest/result 关联、`observed`、`checks`、`errors`、`eventCollection.unresolved` 与 source-specific identity。状态与退出码为 `passed` 0、`stale`/`blocked` 1、`invalid` 2、`legacy` 3（缺少 provenance 的历史产物）；输出 JSON 的 `errors` 给出可定位的不匹配事实，命令不修改产物或 `acceptance.json`。
 
 超时或异常仍保存 finally 事件、原始错误及采集/写盘错误。`page.events()` 超时不取消底层读取：helper 保留唯一在途读取及原阶段，finally 额外有界等待1000毫秒；迟到批次仍先追加落盘，超时状态保持 blocked。`result.eventCollection.unresolved` 非空表示返回结果时读取尚未结束，外层须处理该在途调用后才开始下一轮；进程退出后的批次无法保证保存。drain 后保存失败保留内存批次，在 `BrowserPreflightError.result.unsaved` 与 stderr 给出诊断；result 保存失败也禁止成功。硬终止不能保证 finally，只有初始 incomplete manifest 或 `result.pending.json` 不表示完成；CDP buffer 容量未知，不承诺绝对无事件丢失。coverage 持续启用以覆盖新增模块，可能影响时序，不作为严格手势时间或性能验收证据。
 

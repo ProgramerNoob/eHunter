@@ -1,0 +1,46 @@
+{
+  "id": "browser-artifact-verification",
+  "name": "browser-artifact-verification",
+  "title": "浏览器验收证据校验",
+  "description": "为浏览器预检产物增加新鲜度与结果语义一致性校验，并保留历史验收兼容。",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-17",
+  "completedAt": null,
+  "branch": "feat/browser-artifact-verification",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "10-16-acceptance-guardrails",
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "acceptance-tooling": [
+          "scripts/acceptance.py",
+          "scripts/browser-preflight.mjs",
+          "package.json"
+        ],
+        "tests": [
+          "tests/browser-preflight.test.mjs",
+          "scripts/test_acceptance.py",
+          "scripts/test_browser_artifact_verification.py"
+        ],
+        "task-evidence": [
+          ".trellis/tasks/10-17-browser-artifact-verification/**"
+        ]
+      }
+    }
+  }
+}

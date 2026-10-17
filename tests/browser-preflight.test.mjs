@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createHash } from 'node:crypto';
+import { spawnSync } from 'node:child_process';
 import { withBrowserPreflight, BrowserPreflightError } from '../scripts/browser-preflight.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -109,6 +111,8 @@ async function fixture(t, { kind = 'eh', mobile = false } = {}) {
   const dir = await fs.mkdtemp(path.join(BASE, 'case-'));
   const evidence = path.join(dir, 'prerequisites.json');
   await fs.writeFile(evidence, JSON.stringify({ note: 'Controlled fixture; no runtime browser claim.' }));
+  const scenario = path.join(dir, 'scenario.json');
+  await fs.writeFile(scenario, JSON.stringify({ scenario: 'fixture', kind, mobile }));
   const page = new PageFixture();
   if (mobile) Object.assign(page.state, { width: 980, height: 2121, dpr: 3, touchPoints: 5, coarse: true });
   const source = kind === 'eh' || kind === 'nh' ? {
@@ -135,6 +139,7 @@ async function fixture(t, { kind = 'eh', mobile = false } = {}) {
   const diagnostics = [];
   t.mock.method(console, 'error', text => diagnostics.push(JSON.parse(text)));
   const options = { page, artifactDir: path.join(dir, 'evidence'), profile: mobile ? 'mobile' : 'desktop', source,
+    scenarioInputs: [path.relative(ROOT, scenario)],
     navigate: () => page.goto(), prepareReader: () => page.open(), timeoutMs: 250 };
   const run = (checks = async () => {}) => withBrowserPreflight(options, checks);
   const read = async file => JSON.parse(await fs.readFile(path.join(options.artifactDir, file), 'utf8'));
@@ -894,4 +899,99 @@ test('non-retryable TextReq errors still block the current document', async t =>
   fatal.params.stackTrace = { callFrames: [{ url: '', scriptId: 'bundle' }] };
   f.page.onOpen = () => f.page.queue.push(fatal);
   await blocked(f, /eHunter runtime/);
+});
+
+const sha = value => createHash('sha256').update(value).digest('hex');
+
+for (const kind of ['eh', 'vite']) test(`${kind} provenance records artifact association, source identity and scenario inputs`, async t => {
+  const f = await fixture(t, { kind });
+  f.options.taskSpace = '10-17-browser-artifact-verification';
+  const result = await f.run();
+  const manifest = await f.read('manifest.json');
+  const source = await f.read('source.json');
+  const scenario = JSON.parse(await fs.readFile(path.resolve(ROOT, f.options.scenarioInputs[0]), 'utf8'));
+  assert.equal(manifest.artifactVersion, 1);
+  assert.equal(manifest.state, 'incomplete');
+  assert.equal(manifest.provenance.url, null);
+  assert.deepEqual(manifest.provenance.page, result.page);
+  assert.equal(manifest.provenance.scenarioInputsSha256, result.provenance.scenarioInputsSha256);
+  assert.equal(result.artifactVersion, 1);
+  assert.equal(result.provenance.runId, result.runId);
+  assert.equal(result.provenance.roundId, result.roundId);
+  assert.equal(manifest.provenance.runId, result.runId);
+  assert.equal(manifest.provenance.roundId, result.roundId);
+  assert.equal(manifest.provenance.artifactDir, f.options.artifactDir);
+  assert.equal(result.provenance.artifactDir, f.options.artifactDir);
+  assert.equal(result.provenance.result, 'result.json');
+  assert.equal(result.provenance.sourceKind, kind);
+  assert.equal(result.provenance.profile, f.options.profile);
+  assert.equal(result.provenance.taskSpace, '10-17-browser-artifact-verification');
+  assert.equal(result.provenance.scenarioInputs.length, 1);
+  assert.deepEqual(result.provenance.scenarioInputs[0].path, f.options.scenarioInputs[0]);
+  assert.equal(result.provenance.scenarioInputs[0].sha256, sha(JSON.stringify(scenario)));
+  assert.equal(result.provenance.scenarioInputsSha256, sha(JSON.stringify(result.provenance.scenarioInputs)));
+  assert.equal(source.artifactVersion, 1);
+  if (kind === 'eh') {
+    assert.equal(result.provenance.url, EH_URL);
+    assert.deepEqual(result.provenance.viewport, { width: 1200, height: 900, dpr: 1, mobile: false, touchPoints: 0, coarse: false });
+    assert.equal(result.provenance.source.bundle.sha256, sha(BUNDLE));
+    assert.equal(result.provenance.source.loader.sha256, sha(LOADER));
+    assert.equal(result.provenance.source.bundle.sha256, source.initialFingerprint.bundle.sha256);
+  } else {
+    assert.equal(result.provenance.url, `${ORIGIN}/`);
+    assert.equal(result.provenance.source.fingerprint, source.initialFingerprint.sha256);
+    assert.deepEqual(result.provenance.source.files, source.initialFingerprint.files);
+    assert.ok(result.provenance.source.files.some(file => file.path === 'src/main.ts'));
+  }
+});
+
+test('scenarioInputs is required, repository-relative and must exist', async t => {
+  const f = await fixture(t);
+  const scenario = path.resolve(ROOT, f.options.scenarioInputs[0]);
+  const link = path.join(path.dirname(scenario), 'scenario-link.json');
+  await fs.symlink(scenario, link);
+  for (const [label, value, pattern] of [
+    ['missing', undefined, /scenarioInputs must declare at least one repository-relative input/],
+    ['empty', [], /scenarioInputs must declare at least one repository-relative input/],
+    ['absolute', [path.resolve(ROOT, 'package.json')], /scenarioInputs entries must be repository-relative paths/],
+    ['escape', ['../outside.json'], /Scenario input escapes repository/],
+    ['absent', ['.tmp/browser-preflight/absent-scenario.json'], /ENOENT/],
+    ['directory', [path.relative(ROOT, path.dirname(scenario))], /Scenario input must be a regular repository file/],
+    ['symlink', [path.relative(ROOT, link)], /Scenario input must be a regular repository file/],
+    ['duplicate', [f.options.scenarioInputs[0], `./${f.options.scenarioInputs[0]}`], /scenarioInputs must not repeat a path/],
+  ]) await t.test(label, async () => {
+    f.options.scenarioInputs = value;
+    await blocked(f, pattern);
+  });
+});
+
+test('scenario input mutation invalidates the round', async t => {
+  const f = await fixture(t);
+  const input = path.resolve(ROOT, f.options.scenarioInputs[0]);
+  await blocked(f, /Scenario inputs changed during this round/, async () => {
+    await fs.writeFile(input, JSON.stringify({ scenario: 'mutated' }));
+  });
+});
+
+test('a real artifact passes verify-browser and turns stale after a rebuild', async t => {
+  const f = await fixture(t);
+  const verify = () => {
+    const run = spawnSync('python3', ['scripts/acceptance.py', 'verify-browser', f.options.artifactDir], { cwd: ROOT, encoding: 'utf8' });
+    return { code: run.status, report: JSON.parse(run.stdout), stderr: run.stderr };
+  };
+  await f.run();
+  const fresh = verify();
+  assert.equal(fresh.stderr, '');
+  assert.equal(fresh.code, 0);
+  assert.equal(fresh.report.valid, true);
+  assert.equal(fresh.report.status, 'passed');
+  assert.deepEqual(fresh.report.errors, []);
+  assert.equal(fresh.report.artifact.sourceKind, 'eh');
+  assert.equal(fresh.report.artifact.observed, 'passed');
+  assert.equal(fresh.report.artifact.artifactDir, path.relative(ROOT, f.options.artifactDir));
+  await fs.writeFile(f.source.bundlePath, `${BUNDLE}\n// rebuilt`);
+  const stale = verify();
+  assert.equal(stale.code, 1);
+  assert.equal(stale.report.status, 'stale');
+  assert.match(stale.report.errors.join(' '), /bundle source changed since this round/);
 });

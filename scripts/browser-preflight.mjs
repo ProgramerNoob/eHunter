@@ -119,6 +119,7 @@ function observePage() {
  * requiredModules: exact URLs (entry + scene's Vue/style modules), inputs?: extra
  * repository-relative paths. Mandatory project inputs cannot be removed.
  * Evidence paths must name readable files; caller is responsible for their truth.
+ * scenarioInputs: nonempty repository-relative scenario/test input paths, hashed at start and rechecked before the round closes. taskSpace labels the owning task space.
  *
  * navigate/prepareReader/actions receive {signal, timeoutMs}; use Ego timeouts and
  * stop on abort. JS cannot forcibly cancel an arbitrary caller's promise.
@@ -126,8 +127,8 @@ function observePage() {
  * Use only sequential awaited context methods. Never change emulation externally
  * during a round: CDP has no readback for the mobile switch.
  */
-export async function withBrowserPreflight({ page, artifactDir, profile, source, navigate, prepareReader,
-  timeoutMs = 15000, checksTimeoutMs = 120000, roundId = randomUUID() }, runChecks) {
+export async function withBrowserPreflight({ page, artifactDir, profile, source, navigate, prepareReader, scenarioInputs,
+  taskSpace, timeoutMs = 15000, checksTimeoutMs = 120000, roundId = randomUUID() }, runChecks) {
   const expected = PROFILES[profile] && { ...PROFILES[profile] };
   const runId = randomUUID();
   const result = { runId, roundId, page: { label: page?.label, spaceId: page?.spaceId }, artifactDir,
@@ -137,7 +138,7 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
   const controller = new AbortController();
   let phase = 'initial', readyToWrite = false, sequence = 0, eventIndex = 0, collecting = false;
   let navigationStarted = false, initialFrame, documentState, originalSite, readerReady = false, preparedLoaderId;
-  let initialFingerprint, bundle, loader, sourceRecord, userscript = false, inChecks = false, originalError;
+  let initialFingerprint, bundle, loader, sourceRecord, userscript = false, inChecks = false, originalError, scenarioSha256;
   let stickyError, coverageStarted = false, finalized = false, activeGuard;
   let activeDrain, nextDrainId = 0;
   let checkedScriptIds = new Set(), verifiedScriptIds = new Set();
@@ -363,12 +364,19 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
     requireCondition(!result.logs.some(l => l.document.loaderId === documentState?.loaderId && l.severe && l.attribution === 'unattributed'), 'Unattributed runtime error requires investigation', result.logs.filter(l => l.severe));
     if (stickyError) throw stickyError;
   }
+  async function scenarioIdentity() {
+    const files = [];
+    for (const input of scenarioInputs) files.push({ path: input, ...identity(await fs.readFile(path.resolve(ROOT, input))) });
+    return { files, sha256: sha(JSON.stringify(files)) };
+  }
   async function unchanged() {
     const current = userscript
       ? { bundle: identity(await fs.readFile(sourceRecord.bundlePath)), loader: identity(await fs.readFile(sourceRecord.loaderPath)) }
       : await fingerprint(ROOT, [...INPUTS, ...(sourceRecord.inputs ?? [])]);
-    await save('fingerprints.jsonl', { phase, recordedAt: new Date().toISOString(), current }, true);
+    const scenario = await scenarioIdentity();
+    await save('fingerprints.jsonl', { phase, recordedAt: new Date().toISOString(), current, scenarioInputs: scenario.files, scenarioInputsSha256: scenario.sha256 }, true);
     requireCondition(JSON.stringify(current) === JSON.stringify(initialFingerprint), 'Source inputs changed during this round', { initial: initialFingerprint, current });
+    requireCondition(scenario.sha256 === scenarioSha256, 'Scenario inputs changed during this round', { initial: scenarioSha256, current: scenario.sha256 });
   }
   function projectUrl(url) {
     if (!url) return false;
@@ -652,6 +660,21 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
     requireCondition(expected, 'profile must be desktop or mobile');
     requireCondition(Number.isFinite(timeoutMs) && timeoutMs > 0 && timeoutMs <= 60000, 'timeoutMs must be in (0, 60000]');
     requireCondition(Number.isFinite(checksTimeoutMs) && checksTimeoutMs > 0 && checksTimeoutMs <= 600000, 'checksTimeoutMs must be in (0, 600000]');
+    requireCondition(Array.isArray(scenarioInputs) && scenarioInputs.length > 0, 'scenarioInputs must declare at least one repository-relative input');
+    requireCondition(taskSpace === undefined || (typeof taskSpace === 'string' && taskSpace.trim() !== ''), 'taskSpace must be a nonempty string when provided');
+    const scenarioFiles = [];
+    const scenarioPaths = new Set();
+    for (const input of scenarioInputs) {
+      requireCondition(typeof input === 'string' && input.trim() !== '' && !path.isAbsolute(input), 'scenarioInputs entries must be repository-relative paths', { input });
+      const absolute = path.resolve(ROOT, input);
+      requireCondition(inside(ROOT, absolute), 'Scenario input escapes repository', { input });
+      requireCondition(!scenarioPaths.has(absolute), 'scenarioInputs must not repeat a path', { input });
+      const stat = await fs.lstat(absolute);
+      requireCondition(stat.isFile() && !stat.isSymbolicLink(), 'Scenario input must be a regular repository file', { input });
+      scenarioPaths.add(absolute);
+      scenarioFiles.push({ path: input, ...identity(await fs.readFile(absolute)) });
+    }
+    scenarioSha256 = sha(JSON.stringify(scenarioFiles));
     requireCondition(path.isAbsolute(artifactDir) && inside(path.join(ROOT, '.tmp'), artifactDir), 'artifactDir must be absolute and inside this repository .tmp');
     // Check the nearest existing ancestor before creating directories (including
     // symlink escapes). The final run directory must be fresh, never overwritten.
@@ -664,6 +687,14 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
     requireCondition(ancestor === realRoot || inside(path.join(realRoot, '.tmp'), ancestor) || ancestor === path.join(realRoot, '.tmp'), 'artifactDir ancestor escapes repository .tmp');
     await fs.mkdir(path.dirname(artifactDir), { recursive: true });
     await fs.mkdir(artifactDir);
+    result.artifactVersion = 1;
+    result.provenance = {
+      artifactVersion: 1, runId, roundId, artifactDir, result: 'result.json',
+      sourceKind: source?.kind ?? null, url: null, profile, viewport: expected,
+      page: result.page, taskSpace: taskSpace ?? null,
+      scenarioInputs: scenarioFiles, scenarioInputsSha256: scenarioSha256,
+      source: null, startedAt: result.startedAt,
+    };
     await fs.writeFile(path.join(artifactDir, 'manifest.json'), JSON.stringify({ ...result, expected, source, state: 'incomplete', eventBufferCompleteness: 'CDP buffer capacity unknown; hard termination cannot guarantee finally.' }, null, 2) + '\n', { flag: 'wx' });
     readyToWrite = true;
     sourceRecord = structuredClone(source);
@@ -703,7 +734,12 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
       requireCondition([...requiredModules].every(projectUrl), 'Required modules must be exact project URLs on the attributed origin');
       initialFingerprint = await fingerprint(ROOT, [...INPUTS, ...(sourceRecord.inputs ?? [])]);
     }
-    await save('source.json', { source: sourceRecord, initialFingerprint });
+    result.provenance.source = userscript
+      ? { kind: sourceRecord.kind,
+        bundle: { path: sourceRecord.bundlePath, sha256: initialFingerprint.bundle.sha256 },
+        loader: { path: sourceRecord.loaderPath, sha256: initialFingerprint.loader.sha256 } }
+      : { kind: 'vite', fingerprint: initialFingerprint.sha256, files: initialFingerprint.files };
+    await save('source.json', { artifactVersion: 1, source: sourceRecord, initialFingerprint });
     for (const domain of ['Runtime', 'Log', 'Page', 'Network', 'Debugger', 'Profiler']) {
       enabled.push(domain);
       await command(`${domain}.enable`);
@@ -784,6 +820,7 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
       result.eventCollection.unresolved = activeDrain && !activeDrain.settled ? [drainRecord(activeDrain)] : [];
       result.unsaved = pendingBatches;
       result.endedAt = new Date().toISOString();
+      result.provenance.url = documentState?.url ?? null;
       // A product failure remains visible even if saving also failed, but an
       // incomplete evidence set cannot be a successful helper run.
       result.observed = result.errors.some(e => e.name !== 'ProductAssertion') ? 'blocked'

@@ -1,0 +1,5 @@
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"核对 verifier 不把可读文件或报告文字升级为功能通过"}
+{"file":".trellis/spec/frontend/browser-acceptance.md","reason":"核对每轮 artifact、动态 source identity、unresolved 和历史证据要求"}
+{"file":".trellis/spec/tooling/index.md","reason":"核对命令退出状态和结构化输出边界"}
+{"file":".trellis/tasks/10-17-browser-artifact-verification/design.md","reason":"核对 provenance、当前源重算、状态分类和回滚契约"}
+{"file":".trellis/tasks/10-17-browser-artifact-verification/prd.md","reason":"逐条检查 fresh/stale/blocked/legacy 验收标准"}

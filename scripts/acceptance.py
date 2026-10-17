@@ -4,6 +4,7 @@
 import argparse
 from collections import Counter
 from datetime import datetime, timezone
+import hashlib
 import json
 import os
 from pathlib import Path
@@ -25,6 +26,10 @@ EXECUTION_FIELDS = {"argv", "cwd", "exitCode", "startedAt", "endedAt", "log"}
 
 class Invalid(ValueError):
     """An invalid acceptance record; never an acceptance failure or pass."""
+
+
+class Missing(Invalid):
+    """A required artifact file was never written; the round is incomplete, not invalid."""
 
 
 def require(condition, message):
@@ -367,6 +372,260 @@ def archive(root, task, result):
                   archiveStdout=completed.stdout, archiveStderr=completed.stderr)
     return output, 0 if completed.returncode == 0 else 4
 
+BROWSER_EXIT = {"passed": 0, "stale": 1, "blocked": 1, "invalid": 2, "legacy": 3}
+
+
+def browser_artifact(root, value):
+    text(value, "artifact")
+    path = Path(value)
+    resolved = (path if path.is_absolute() else root / path).resolve()
+    require(resolved != root and root in resolved.parents, "artifact: expected a directory inside the repository")
+    require(resolved.is_dir(), f"artifact: not a directory: {value}")
+    return resolved
+
+
+def browser_json(directory, name):
+    path = directory / name
+    if not path.is_file():
+        raise Missing(f"{name}: missing from the artifact")
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=unique_object)
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise Invalid(f"{name}: cannot read JSON: {exc}") from exc
+    require(isinstance(data, dict), f"{name}: expected a JSON object")
+    return data
+
+
+def browser_aggregate(entries):
+    payload = json.dumps(entries, ensure_ascii=False, separators=(",", ":"))
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def browser_report(report, status, errors):
+    report["status"] = status
+    report["errors"] = list(errors)
+    if status == "invalid":
+        report["valid"] = False
+    return report, BROWSER_EXIT[status]
+
+
+def browser_file(root, value, location):
+    text(value, location)
+    path = Path(value)
+    resolved = (path if path.is_absolute() else root / path).resolve()
+    require(root in resolved.parents, f"{location}: path escapes the repository")
+    return resolved
+
+
+def browser_digest(path):
+    try:
+        data = path.read_bytes()
+    except OSError:
+        return None
+    return hashlib.sha256(data).hexdigest(), len(data)
+
+
+def browser_identity_problems(result, provenance):
+    """Re-check the recorded source-specific identity contract, not just observed."""
+    problems = []
+    kind = provenance["sourceKind"]
+    rows = result.get("identity")
+    if not isinstance(rows, list) or not rows:
+        return ["identity: no script identity rows were recorded"]
+    if kind == "vite":
+        if not all(isinstance(row, dict) and row.get("verified") is True for row in rows):
+            problems.append("identity: a loaded Vite module lacks exact source and execution evidence")
+        inventory = result.get("inventory")
+        if not isinstance(inventory, dict):
+            problems.append("inventory: Vite module inventory missing")
+        elif inventory.get("missingRequired"):
+            problems.append(f"inventory: required modules missing {inventory['missingRequired']!r}")
+        return problems
+    permissions = result.get("permissions")
+    if not isinstance(permissions, dict) or permissions.get("verified") is not True:
+        problems.append("permissions: repository userscript grant/connect verification failed")
+    candidates = [row for row in rows if isinstance(row, dict) and row.get("fullBundleCandidate") is True]
+    bundle = provenance["source"]["bundle"]["sha256"]
+    if len(candidates) != 1:
+        problems.append(f"identity: expected exactly one production bundle candidate, found {len(candidates)}")
+    elif candidates[0].get("verified") is not True:
+        problems.append("identity: the production bundle lacks full-length top-level execution evidence")
+    elif not isinstance(candidates[0].get("actual"), dict):
+        problems.append("identity: the production bundle has no recorded execution hash")
+    elif candidates[0]["actual"].get("sha256") != bundle:
+        problems.append("identity: the executed bundle hash differs from the recorded source bundle")
+    installation = result.get("installation")
+    required = ("dynamicLoaderEnabled", "staticScriptDisabled") if kind == "nh" else (
+        "loggedIn", "dynamicLoaderEnabled", "staticScriptDisabled")
+    for key in required:
+        if not isinstance(installation, dict) or installation.get(key) is not True:
+            problems.append(f"installation: {key} is not confirmed")
+    return problems
+
+
+def browser_scenario_problems(root, location, provenance):
+    entries = provenance.get("scenarioInputs")
+    require(isinstance(entries, list) and bool(entries),
+            f"{location}: provenance scenarioInputs must declare at least one input")
+    for index, entry in enumerate(entries):
+        require(isinstance(entry, dict) and isinstance(entry.get("path"), str)
+                and isinstance(entry.get("sha256"), str)
+                and isinstance(entry.get("bytes"), int) and isinstance(entry.get("length"), int),
+                f"{location}: provenance scenarioInputs[{index}] must record path, sha256, bytes and length")
+    paths = [browser_file(root, entry["path"], f"{location}: provenance scenarioInputs[{index}].path")
+             for index, entry in enumerate(entries)]
+    require(len(set(paths)) == len(paths),
+            f"{location}: provenance scenarioInputs must not repeat a path")
+    require(browser_aggregate(entries) == provenance.get("scenarioInputsSha256"),
+            f"{location}: scenarioInputsSha256 does not match the recorded inputs")
+    return entries
+
+
+def browser_staleness(root, provenance):
+    problems = []
+    recorded = provenance["source"]
+    if provenance["sourceKind"] == "vite":
+        files = recorded.get("files")
+        require(isinstance(files, list) and bool(files), "result.json: provenance source.files must list the fingerprinted inputs")
+        for index, entry in enumerate(files):
+            require(isinstance(entry, dict), f"result.json: provenance source.files[{index}] must be an object")
+            path = browser_file(root, entry.get("path"), f"provenance.source.files[{index}].path")
+            actual = browser_digest(path)
+            if actual is None:
+                problems.append(f"source input is missing or unreadable: {entry.get('path')}")
+            elif actual != (entry.get("sha256"), entry.get("bytes")):
+                problems.append(f"source input changed since this round: {entry.get('path')}")
+    else:
+        for name in ("bundle", "loader"):
+            entry = recorded[name]
+            path = browser_file(root, entry.get("path"), f"provenance.source.{name}.path")
+            actual = browser_digest(path)
+            if actual is None:
+                problems.append(f"{name} source is missing or unreadable: {entry.get('path')}")
+            elif actual[0] != entry.get("sha256"):
+                problems.append(f"{name} source changed since this round: {entry.get('path')}")
+    for index, entry in enumerate(provenance["scenarioInputs"]):
+        require(isinstance(entry, dict), f"result.json: provenance scenarioInputs[{index}] must be an object")
+        path = browser_file(root, entry.get("path"), f"provenance.scenarioInputs[{index}].path")
+        actual = browser_digest(path)
+        if actual is None:
+            problems.append(f"scenario input is missing or unreadable: {entry.get('path')}")
+        elif actual != (entry.get("sha256"), entry.get("bytes")):
+            problems.append(f"scenario input changed since this round: {entry.get('path')}")
+    return problems
+
+
+def browser_verdict(root, directory, report):
+    artifact = report["artifact"]
+    artifact["artifactDir"] = directory.relative_to(root).as_posix()
+    manifest = browser_json(directory, "manifest.json")
+    provenance = manifest.get("provenance")
+    artifact.update(artifactVersion=manifest.get("artifactVersion"), runId=manifest.get("runId"),
+                    roundId=manifest.get("roundId"))
+    if manifest.get("artifactVersion") != 1 or not isinstance(provenance, dict):
+        return browser_report(report, "legacy", [
+            "manifest.json: no artifactVersion 1 provenance; re-run browser acceptance and backfill freshness facts"])
+    for key in ("runId", "roundId"):
+        require(isinstance(manifest.get(key), str) and manifest[key].strip() != "",
+                f"manifest.json: {key} must be a nonempty string")
+        require(manifest[key] == provenance.get(key),
+                f"manifest.json: provenance {key} differs from the artifact {key}")
+    require(provenance.get("artifactDir") == manifest.get("artifactDir"),
+            "manifest.json: provenance artifactDir differs from the artifact directory")
+    recorded_dir = provenance.get("artifactDir")
+    require(isinstance(recorded_dir, str) and Path(recorded_dir).is_absolute()
+            and Path(recorded_dir).resolve() == directory,
+            "manifest.json: provenance artifactDir does not name this artifact directory")
+    require(provenance.get("result") == "result.json",
+            "manifest.json: provenance result association must name result.json")
+    require(provenance.get("sourceKind") in ("eh", "nh", "vite"),
+            "manifest.json: provenance sourceKind must be eh, nh or vite")
+    browser_scenario_problems(root, "manifest.json", provenance)
+    try:
+        result = browser_json(directory, "result.json")
+    except Missing as exc:
+        return browser_report(report, "blocked", [
+            str(exc), "The round never wrote result.json; the artifact is incomplete, not passing evidence."])
+    final = result.get("provenance")
+    artifact["observed"] = result.get("observed")
+    require(isinstance(final, dict), "result.json: provenance missing")
+    require(result.get("artifactVersion") == 1, "result.json: artifactVersion must be 1")
+    for key in ("runId", "roundId", "artifactDir", "sourceKind", "scenarioInputsSha256"):
+        require(final.get(key) == provenance.get(key),
+                f"result.json: provenance {key} differs from manifest.json")
+    require(final.get("result") == "result.json", "result.json: provenance must name result.json")
+    for key in ("runId", "roundId"):
+        require(isinstance(result.get(key), str) and result[key].strip() != "",
+                f"result.json: {key} must be a nonempty string")
+        require(result[key] == final.get(key),
+                f"result.json: provenance {key} differs from the result record")
+    kind = provenance["sourceKind"]
+    artifact["sourceKind"] = kind
+    require(browser_scenario_problems(root, "result.json", final) == browser_scenario_problems(root, "manifest.json", provenance),
+            "result.json: provenance scenarioInputs differ from manifest.json")
+    source_record = browser_json(directory, "source.json")
+    source = source_record.get("source")
+    require(isinstance(source, dict) and source.get("kind") == kind,
+            "source.json: source kind differs from the manifest provenance")
+    fingerprint = source_record.get("initialFingerprint")
+    require(isinstance(fingerprint, dict), "source.json: initialFingerprint missing")
+    recorded = final.get("source")
+    require(isinstance(recorded, dict) and recorded.get("kind") == kind,
+            "result.json: provenance source identity missing")
+    if kind == "vite":
+        require(fingerprint.get("sha256") == recorded.get("fingerprint"),
+                "source.json: initial fingerprint differs from the recorded provenance")
+        require(browser_aggregate(recorded.get("files") or []) == recorded.get("fingerprint"),
+                "result.json: provenance source.fingerprint does not match its files")
+    else:
+        for name in ("bundle", "loader"):
+            entry = recorded.get(name)
+            require(isinstance(entry, dict) and isinstance(entry.get("path"), str)
+                    and isinstance(entry.get("sha256"), str),
+                    f"result.json: provenance source.{name} must record path and sha256")
+            require(isinstance(fingerprint.get(name), dict) and fingerprint[name].get("sha256") == entry["sha256"],
+                    f"source.json: {name} identity differs from the recorded provenance")
+
+    blockers = []
+    if result.get("observed") != "passed":
+        blockers.append(f"observed is {result.get('observed')!r}; only a passed round can satisfy this gate")
+    if result.get("preparation") != "verified":
+        blockers.append(f"preparation is {result.get('preparation')!r}; reader preparation was not verified")
+    if result.get("checks") != "executed":
+        blockers.append(f"checks is {result.get('checks')!r}; functional checks did not complete")
+    failures = result.get("errors")
+    require(isinstance(failures, list), "result.json: errors must be an array")
+    if failures:
+        first = failures[0].get("message") if isinstance(failures[0], dict) else failures[0]
+        blockers.append(f"errors records {len(failures)} failure(s); first: {first!r}")
+    events = result.get("eventCollection")
+    require(isinstance(events, dict), "result.json: eventCollection missing")
+    if events.get("unresolved"):
+        blockers.append("eventCollection.unresolved is not empty; the round did not settle its event consumer")
+    if events.get("timeouts"):
+        blockers.append("eventCollection.timeouts is not empty; event collection timed out")
+    if result.get("unsaved"):
+        blockers.append("unsaved event batches were not persisted")
+    blockers.extend(browser_identity_problems(result, final))
+    if blockers:
+        return browser_report(report, "blocked", blockers)
+    stale = browser_staleness(root, final)
+    if stale:
+        return browser_report(report, "stale", stale)
+    return browser_report(report, "passed", [])
+
+
+def verify_browser(root, artifact_arg):
+    """Read-only freshness verdict for one browser preflight artifact directory."""
+    report = {"valid": True, "status": "invalid", "errors": [], "artifact": {}}
+    try:
+        directory = browser_artifact(root, artifact_arg)
+        return browser_verdict(root, directory, report)
+    except Invalid as exc:
+        return browser_report(report, "invalid", [str(exc)])
+    except OSError as exc:
+        return browser_report(report, "invalid", [f"artifact: {exc}"])
+
 
 def main(argv=None, root=None):
     parser = argparse.ArgumentParser(description=__doc__)
@@ -377,23 +636,31 @@ def main(argv=None, root=None):
         if name == "run":
             command.add_argument("check_id")
             command.add_argument("argv", nargs=argparse.REMAINDER, help="-- argv to execute (shell=False)")
+    browser = commands.add_parser("verify-browser")
+    browser.add_argument("artifact", help="explicit repository-relative or absolute artifact directory")
     args = parser.parse_args(argv)
     root = (root or ROOT).resolve()
     try:
-        task, data = load(root, args.task)
-        if args.command == "run":
-            command_argv = args.argv[1:] if args.argv[:1] == ["--"] else args.argv
-            result, exit_code = run_check(root, task, data, args.check_id, command_argv)
+        if args.command == "verify-browser":
+            result, exit_code = verify_browser(root, args.artifact)
         else:
-            result = summarize(data)
-            if args.command == "archive":
-                result, exit_code = archive(root, task, result)
+            task, data = load(root, args.task)
+            if args.command == "run":
+                command_argv = args.argv[1:] if args.argv[:1] == ["--"] else args.argv
+                result, exit_code = run_check(root, task, data, args.check_id, command_argv)
             else:
-                exit_code = summary_exit(result)
+                result = summarize(data)
+                if args.command == "archive":
+                    result, exit_code = archive(root, task, result)
+                else:
+                    exit_code = summary_exit(result)
     except (Invalid, OSError, ValueError) as exc:
         result, exit_code = {"valid": False, "errors": [str(exc)]}, 2
         if args.command == "archive":
             result["archiveDelegated"] = False
+        elif args.command == "verify-browser":
+            result, exit_code = browser_report({"valid": True, "status": "invalid", "errors": [], "artifact": {}},
+                                               "invalid", [str(exc)])
         print(str(exc), file=sys.stderr)
     except (Interrupted, KeyboardInterrupt) as exc:
         signum = exc.signum if isinstance(exc, Interrupted) else signal.SIGINT
