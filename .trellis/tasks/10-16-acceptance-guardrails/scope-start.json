@@ -1,11 +1,57 @@
 {
   "schemaVersion": 1,
   "task": ".trellis/tasks/10-16-acceptance-guardrails",
-  "branch": "master",
-  "head": "e11d09311410baac26c2154423db55a8ee1af272",
-  "indexTree": "234ae8ef646f2b327a42ac04d6b530295a819092",
-  "capturedAt": "2026-10-17T20:34:52+08:00",
-  "scopeDigest": "9e45cfaa4809ab431901ef38d8bbb537a154467fc2fc553634b443a9fad0b5b1",
-  "dirty": {},
+  "branch": "feat/acceptance-guardrails",
+  "head": "657ed9f6876d77a21c711cb2c23d07b822ce904b",
+  "indexTree": "07bd52dbeb3fbab0f449e5eced23dba1f8db5645",
+  "capturedAt": "2026-10-17T20:57:20+08:00",
+  "scopeDigest": "5f6980cb2e735318c6e8ddeacaa08b4a6391b41f7e8bd755ad7cd7d56b9bf597",
+  "dirty": {
+    ".pi/skills/eh-test/SKILL.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "b143a76da1f1afb7c1f4b34134c054db6fe89d007cda757843a45ab86cf92548"
+    },
+    ".trellis/spec/frontend/browser-acceptance.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "ee7e6ac07bcb811052c9792d3f1b3d0322a512ce2b6ebf3a0c9ee46e25476426"
+    },
+    ".trellis/spec/frontend/quality-guidelines.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "8a4311f20b1b3670cee144fbf4d3493ed7f4979d78e56db3af159f7d7f366b56"
+    },
+    ".trellis/tasks/10-16-acceptance-guardrails/acceptance.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "2e7117276c4091b47af53ecf2464c504cb6752e0ebfe472d4721c45d2e9d047f"
+    },
+    ".trellis/tasks/10-16-acceptance-guardrails/design.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "402367567f8f9fd436bb14257a6c6b4d0398599b199f81c9b063585d7fa47c03"
+    },
+    ".trellis/tasks/10-16-acceptance-guardrails/scope-start.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "b3a2310af139f46ec8de884fd9931a3bfee9e7102a8e421f5be25d24bb4d1148"
+    },
+    ".trellis/tasks/10-16-acceptance-guardrails/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "72565159bca93f353c696f1eed6afbd7de9369726fbca6ba2dd3d7b8472e3e42"
+    },
+    ".trellis/workflow.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "68c2a9fbac36cc38c168228262a0854e5a50d960f1570a86c0ff1d198fbdb65e"
+    },
+    "tests/browser-preflight.test.mjs": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "4ab27c37ac37f1ff1336aef1c8510f30fd8fa6bda83dcd2c5ed4ea7987541345"
+    }
+  },
   "untracked": {}
 }

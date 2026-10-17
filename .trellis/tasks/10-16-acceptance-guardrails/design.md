@@ -46,4 +46,5 @@ checker 输出每个新变更路径命中的 category/rule 与越界原因。nat
 - acceptance schemaVersion 1、旧 EH/NH/Vite preflight 与 native archive 现有 mutation/commit 语义保持兼容；无 provenance/无 scope 的历史数据走明确 legacy 诊断，不伪造 fresh 或 scope 声明。
 - 各 child 只编辑自身路径；共享 acceptance dispatcher 串行接线，父任务最终统一更新 browser/quality/tooling spec、`eh-test` 和 task workflow。
 - 若 verifier/bootstrap/cleanup 误报，保留原始 `.tmp/` 证据，关闭新调用入口并修复；若 scope gate 误拦，保留任务目录/status/用户改动，先调整 checker，不绕过归档保护。
+- 父任务在真实回归中修复 `scripts/browser-preflight.mjs` 及其测试，超出初始 `meta.scope`。归档前显式新增 tooling category，并以当前 HEAD 重建 start 基线；交付说明记录该范围扩展，不把 helper 修复归入子任务。
 - 父任务 AC5/AC6 仅在 child 专项 fixture 与现有 `npm test`、type-check、production build、docs checks 和临时任务生命周期演练通过后验收；真实浏览器功能是否通过仍以实际浏览器证据为准。

@@ -1218,6 +1218,26 @@ test('bootstrap keeps the reader open state when closeReader fails', async () =>
     [['observe', true], ['closeReader', false], ['observe', true]]);
 });
 
+test('bootstrap reports close-reader-timeout when the reader stays open', async () => {
+  const artifactDir = await bootstrapDir();
+  const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'desktop', artifactDir, timeoutMs: 120,
+    observe: async () => readerState({ open: true }),
+    closeReader: async () => {} });
+  assert.equal(result.status, 'blocked');
+  assert.ok(result.errors.some(error => error.code === 'close-reader-timeout'));
+});
+
+test('bootstrap reports open-reader-timeout when the reader stays closed', async () => {
+  const artifactDir = await bootstrapDir();
+  let open = true;
+  const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'desktop', artifactDir, timeoutMs: 120,
+    observe: async () => readerState({ open }),
+    closeReader: async () => { open = false; },
+    openReader: async () => {} });
+  assert.equal(result.status, 'blocked');
+  assert.ok(result.errors.some(error => error.code === 'open-reader-timeout'));
+});
+
 test('bootstrap records a failed openReader as blocked', async () => {
   const artifactDir = await bootstrapDir();
   const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'desktop', artifactDir,

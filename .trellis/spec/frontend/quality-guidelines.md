@@ -43,7 +43,7 @@ Run from the repository root. [package.json](../../../package.json) is authorita
 | --- | --- |
 | `npm run dev` | Starts Vite for local TEST-platform UI work |
 | `npm run type-check` | Runs `vue-tsc --noEmit` |
-| `npm run test:acceptance` | Runs the Python `unittest` suites for acceptance, archive evidence/autocommit, browser-artifact verification and the task scope gate |
+| `npm run test:acceptance` | Runs the Python `unittest` suites for acceptance, archive evidence/autocommit, browser-artifact verification, resource cleanup and the task scope gate |
 | `npm run test:storage` | Runs Node's built-in test runner against the real storage modules in isolated VMs |
 | `npm run test:browser-preflight` | Runs Node's built-in test runner against controlled browser-preflight fixtures |
 | `npm run test:reader-lifecycle` | Runs Node regressions for optional update notices and entry viewport restoration |

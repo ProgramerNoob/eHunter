@@ -101,7 +101,7 @@ const prep = await bootstrapReader({
 
 调用不抛异常，返回 `{ status, prepFacts, evidence, errors, calls }`；`status` 取 `blocked` > `unknown` > `ready`。`prepFacts` 含 `taskSpace`、`page {label,spaceId}`、`url`、`profile {requested,expected,actual,matches}`、`readerOpen`、`readingMode`（`book`/`scroll`/`unknown`）、`scrollContainer`（真实 `.content.scroll-mode .awesome-scroll-view` 的 `scrollTop`/`scrollHeight`/`clientHeight`）、`pageBaseline`、`windowScroll`、`documentScripts {first,last}`、`readyState`、`calls`、`observedAt`（首次成功观察）。不能证明模式、容器或 baseline 时记 `unknown` 并附错误，不用 window/document 或默认页码补齐。
 
-`errors[].code`：入参阶段为具体值 `invalid-artifact-dir`、`invalid-page`、`invalid-profile`、`invalid-task-space`、`invalid-timeout`；页内观察对象不可解析为 `observation-invalid`；其余观察/准备失败为 `vite-error-overlay`、`document-not-ready`、`reader-not-mounted`、`reader-not-open`、`mode-ambiguous`、`mode-unknown`、`scroll-container-unknown`、`baseline-unknown`、`host-script-late`、`profile-mismatch`、`page-navigated`、`observation-failed`、`close-reader-failed`、`open-reader-failed`、`bootstrap-failed`、`evidence-write-failed`。不要用 `invalid-*` 前缀判定入参失败：`observation-invalid` 也是观察失败码，却不在该前缀下。通过入参校验的调用把结果追加到 `<artifactDir>/reader-bootstrap.jsonl`，目录必须解析到仓库 `.tmp/` 内；入参校验失败（任一 `invalid-*`）时不写证据并返回 `evidence: null`，此时 `artifactDir` 本身不可信。
+`errors[].code`：入参阶段为具体值 `invalid-artifact-dir`、`invalid-page`、`invalid-profile`、`invalid-task-space`、`invalid-timeout`；页内观察对象不可解析为 `observation-invalid`；其余观察/准备失败为 `vite-error-overlay`、`document-not-ready`、`reader-not-mounted`、`reader-not-open`、`mode-ambiguous`、`mode-unknown`、`scroll-container-unknown`、`baseline-unknown`、`host-script-late`、`profile-mismatch`、`page-navigated`、`observation-failed`、`close-reader-failed`、`open-reader-failed`、`bootstrap-failed`、`evidence-write-failed`、`close-reader-timeout`、`open-reader-timeout`。`closeReader`/`openReader` 成功后会在 `timeoutMs` 内轮询到目标开/关状态；超时记 blocked 并附对应 timeout 码，不重试。不要用 `invalid-*` 前缀判定入参失败：`observation-invalid` 也是观察失败码，却不在该前缀下。通过入参校验的调用把结果追加到 `<artifactDir>/reader-bootstrap.jsonl`（`artifactDir` 内子目录同样可用），目录必须解析到仓库 `.tmp/` 内；入参校验失败（任一 `invalid-*`）时不写证据并返回 `evidence: null`，此时 `artifactDir` 本身不可信。
 
 `pageBaseline` 只是证据；断言用 `comparePageBaseline(before, after)` 的相对结果。`comparable` 为 false 时读取 `blockedReason`，按优先级取第一个：`navigated` > `incomparable-spread`（spread 总数不同）> `no-baseline`；页面导航会盖掉后两者。`comparable` 为 true 时该字段为 `null`。`status` 非 `ready` 时下游不得生成通过结论；`unknown` 表示观察不足，不是产品失败，也不是 prepared。fixture 只证明 helper 逻辑，真实初始状态仍须在本地 Vite 与 EH 场景实测。
 
@@ -199,7 +199,11 @@ helper 是本轮唯一 `page.events()` 消费者。所有捕获的原始事件�
 
 每轮目录保存初始 `manifest.json`（incomplete）、`commands.jsonl`、`source.json`、指纹、身份、环境记录及源码副本；EH 另有权限记录，Vite 另有资源记录。`result.json` 在 finally 完成后原子保存。读取其中的 `logs`，检查 console 的 log/info/warning/error、未捕获异常和 Log 事件；身份和 coverage 仅证明该文本执行，不能替代异步平台初始化及功能结果。
 
-`python3 scripts/acceptance.py verify-browser <artifact-dir>` 只读校验该轮产物：重算 source bundle/loader 或 Vite 输入、`scenarioInputs` 与 Vite 聚合指纹，并复核 manifest/result 关联、`observed`、`checks`、`errors`、`eventCollection.unresolved` 与 source-specific identity。状态与退出码为 `passed` 0、`stale`/`blocked` 1、`invalid` 2、`legacy` 3（缺少 provenance 的历史产物）；输出 JSON 的 `errors` 给出可定位的不匹配事实，命令不修改产物或 `acceptance.json`。
+`python3 scripts/acceptance.py verify-browser <artifact-dir>` 只读校验该轮产物：重算 source bundle/loader 或 Vite 输入、`scenarioInputs` 与 Vite 聚合指纹，并复核 manifest/result 关联、`observed`、`checks`、`errors`、`eventCollection.unresolved` 与 source-specific identity。状态与退出码为 `passed` 0、`stale`/`blocked` 1、`invalid` 2、`legacy` 3（缺少 provenance 的历史产物）；输出 JSON 的 `errors` 给出可定位的不匹配事实，命令不修改产物或 `acceptance.json`。`verify-browser` 复核 source 与声明输入，不覆盖 `scripts/browser-preflight.mjs` 自身版本；helper 变更后必须重跑轮次，不能沿用旧产物。
+
+超时或异常仍保存 finally 事件、原始错误及采集/写盘错误。`page.events()` 超时不取消底层读取：helper 保留唯一在途读取及原阶段，finally 额外有界等待1000毫秒；迟到批次仍先追加落盘，超时状态保持 blocked。`result.eventCollection.unresolved` 非空表示返回结果时读取尚未结束，外层须处理该在途调用后才开始下一轮；进程退出后的批次无法保证保存。drain 后保存失败保留内存批次，在 `BrowserPreflightError.result.unsaved` 与 stderr 给出诊断；result 保存失败也禁止成功。硬终止不能保证 finally，只有初始 incomplete manifest 或 `result.pending.json` 不表示完成；CDP buffer 容量未知，不承诺绝对无事件丢失。coverage 持续启用以覆盖新增模块，可能影响时序，不作为严格手势时间或性能验收证据。
+
+截图用 `check.screenshot(...)` 保存，再用当前会话图片读取工具检查布局、颜色、间距、阴影、圆角、弹窗和可见状态；helper 的 `visualReview` 仍为 unrun，主会话记录实际视觉检查。PNG 使用 CSS scale，像素宽度不能推导 DPR。UI 改动完成桌面与移动两种固定 profile 的关键交互与截图；涉及断点时补测边界。helper 只支持两个固定 profile，其他断点须另记实际配置与证据，严格预检覆盖范围保持明确。
 
 ### 资源清理检查
 
@@ -216,9 +220,6 @@ python3 scripts/acceptance.py cleanup-browser <task-space> --pages <pages.json> 
 - 退出码：`0` 全为 clean/preserved（空列表也是 clean），`1` 含 residual/unknown，`2` 输入或输出错误。输出固定 `schemaVersion:1`，含 `checkedAt`、`aggregate`、逐项 `classification`/`reasons`/`evidence`；只写仓库 `.tmp/`，拒绝覆盖已有文件。
 - 报告只描述声明资源的收尾状态，不证明功能通过。residual/unknown 需人工核对归属并保留证据，不得把分类当作清理动作或功能结论。
 
-超时或异常仍保存 finally 事件、原始错误及采集/写盘错误。`page.events()` 超时不取消底层读取：helper 保留唯一在途读取及原阶段，finally 额外有界等待1000毫秒；迟到批次仍先追加落盘，超时状态保持 blocked。`result.eventCollection.unresolved` 非空表示返回结果时读取尚未结束，外层须处理该在途调用后才开始下一轮；进程退出后的批次无法保证保存。drain 后保存失败保留内存批次，在 `BrowserPreflightError.result.unsaved` 与 stderr 给出诊断；result 保存失败也禁止成功。硬终止不能保证 finally，只有初始 incomplete manifest 或 `result.pending.json` 不表示完成；CDP buffer 容量未知，不承诺绝对无事件丢失。coverage 持续启用以覆盖新增模块，可能影响时序，不作为严格手势时间或性能验收证据。
-
-截图用 `check.screenshot(...)` 保存，再用当前会话图片读取工具检查布局、颜色、间距、阴影、圆角、弹窗和可见状态；helper 的 `visualReview` 仍为 unrun，主会话记录实际视觉检查。PNG 使用 CSS scale，像素宽度不能推导 DPR。UI 改动完成桌面与移动两种固定 profile 的关键交互与截图；涉及断点时补测边界。helper 只支持两个固定 profile，其他断点须另记实际配置与证据，严格预检覆盖范围保持明确。
 
 主会话依 [逐项验收协议](./quality-guidelines.md#acceptance-record-schemaversion-1) 唯一回填 `acceptance.json`。准备或必要取证/保存失败记 runtime/blocked，下游未执行功能与截图记 unrun；进入功能后的明确 `check.assert` 失败记 failed。若产品失败与 finally 保存失败并存，保留产品 failed 项及证据 blocked 项，不能互相覆盖。`result.observed` 只代表本次 helper 调用；`checks: 'executed'` 表示回调执行完，具体产品结果和视觉项仍据实回填。
 
@@ -226,7 +227,7 @@ python3 scripts/acceptance.py cleanup-browser <task-space> --pages <pages.json> 
 
 ## 4.5 预检断言覆盖清单
 
-`withBrowserPreflight` 的所有环境断言走 `requireCondition`，失败即抛 `PreflightBlocked`：结果记 blocked，不进入功能 checks（对照 `scripts/browser-preflight.mjs` 行号，2026-10-15 盘点）。
+`withBrowserPreflight` 的所有环境断言走 `requireCondition`，失败即抛 `PreflightBlocked`：结果记 blocked，不进入功能 checks（按断言名对照 `scripts/browser-preflight.mjs`；行号会随改动漂移，不复用历史行号）。
 
 已覆盖（交互前强制）：
 

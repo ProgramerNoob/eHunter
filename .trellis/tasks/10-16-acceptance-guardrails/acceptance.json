@@ -215,9 +215,17 @@
         ".tmp/browser-preflight/eh-book-desktop-ab540690-6313-4632-ae19-a5696a1c02fb/result.json",
         ".tmp/browser-preflight/eh-scroll-desktop-eb318eaf-bd63-4d3e-bc4e-a6f8b32820d2/result.json",
         ".tmp/browser-preflight/eh-book-mobile-c2021aa9-4676-4212-8b02-bc1ea7a97173/result.json",
-        ".tmp/browser-preflight/eh-scroll-mobile-5162019c-964a-4164-aecc-c1fe1d224fb6/result.json"
+        ".tmp/browser-preflight/eh-scroll-mobile-5162019c-964a-4164-aecc-c1fe1d224fb6/result.json",
+        ".tmp/browser-preflight/local-book-desktop-1cff4755-98c1-48d7-9ab0-ae9e51ee5c48/bootstrap/reader-bootstrap.jsonl",
+        ".tmp/browser-preflight/local-scroll-desktop-9ed24ea5-c3d3-4100-9a08-bb5e2acdebd7/bootstrap/reader-bootstrap.jsonl",
+        ".tmp/browser-preflight/local-scroll-mobile-50e54e22-5b3e-4c8f-b4f5-e85f64fb9c64/bootstrap/reader-bootstrap.jsonl",
+        ".tmp/browser-preflight/local-book-mobile-cc995e4e-f846-4a82-aa82-95e0cf4a5959/bootstrap/reader-bootstrap.jsonl",
+        ".tmp/browser-preflight/eh-book-desktop-ab540690-6313-4632-ae19-a5696a1c02fb/bootstrap/reader-bootstrap.jsonl",
+        ".tmp/browser-preflight/eh-scroll-desktop-eb318eaf-bd63-4d3e-bc4e-a6f8b32820d2/bootstrap/reader-bootstrap.jsonl",
+        ".tmp/browser-preflight/eh-book-mobile-c2021aa9-4676-4212-8b02-bc1ea7a97173/bootstrap/reader-bootstrap.jsonl",
+        ".tmp/browser-preflight/eh-scroll-mobile-5162019c-964a-4164-aecc-c1fe1d224fb6/bootstrap/reader-bootstrap.jsonl"
       ],
-      "note": "8 轮均 status ready、errors 空；EH 轮次通过生产包身份与 grant/connect 检查；每轮 verify-browser 退出 0；桌面/移动截图已人工查看。",
+      "note": "8 轮均 status ready、errors 空；EH 轮次通过生产包身份与 grant/connect 检查；每轮 verify-browser 退出 0；桌面/移动截图已人工查看。8 轮都停在页 1，persisted 非首屏页码未实测，仅由合成 fixture 覆盖。",
       "waiver": null
     },
     {
@@ -237,7 +245,7 @@
         ".tmp/parent-closeout/service-post-stop.json",
         ".tmp/parent-closeout/verify-browser.log"
       ],
-      "note": "服务停止前记录 PID/cwd/command/启动 token，停止后端口释放且 PID 文件已删除；cleanup aggregate clean、exit 0，pages 1 clean、servers 2 exited-and-cleaned。",
+      "note": "服务停止前记录 PID/cwd/command/启动 token，停止后端口释放且 PID 文件已删除；cleanup aggregate clean、exit 0，pages 1 clean、servers 2 exited-and-cleaned。user-owned 保留仅由单元测试覆盖，本轮没有声明 user-owned 资源。",
       "waiver": null
     }
   ]

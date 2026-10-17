@@ -43,11 +43,15 @@
         ],
         "task-evidence": [
           ".trellis/tasks/10-16-acceptance-guardrails/**"
+        ],
+        "tooling": [
+          "scripts/browser-preflight.mjs",
+          "tests/browser-preflight.test.mjs"
         ]
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "805d334e57a3cb5951dbb68e8558b25e437e4aead34b93bcf476faa5e917cfee"
+        "sha256": "f7c01dfa9d2dcc3ba5326ba2ace6f27a26048dce160c5ed2adf3fcd1ccdadbd4"
       }
     }
   },
