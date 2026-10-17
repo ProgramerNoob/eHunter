@@ -995,3 +995,27 @@ test('a real artifact passes verify-browser and turns stale after a rebuild', as
   assert.equal(stale.report.status, 'stale');
   assert.match(stale.report.errors.join(' '), /bundle source changed since this round/);
 });
+
+test('a real Vite artifact passes verify-browser and turns stale after an input change', async t => {
+  const f = await fixture(t, { kind: 'vite' });
+  const input = path.join(f.dir, 'vite-input.json');
+  await fs.writeFile(input, JSON.stringify({ scene: 'reader' }));
+  f.source.inputs = [path.relative(ROOT, input)];
+  const verify = () => {
+    const run = spawnSync('python3', ['scripts/acceptance.py', 'verify-browser', f.options.artifactDir], { cwd: ROOT, encoding: 'utf8' });
+    return { code: run.status, report: JSON.parse(run.stdout), stderr: run.stderr };
+  };
+  await f.run();
+  const fresh = verify();
+  assert.equal(fresh.stderr, '');
+  assert.equal(fresh.code, 0);
+  assert.equal(fresh.report.valid, true);
+  assert.equal(fresh.report.status, 'passed');
+  assert.deepEqual(fresh.report.errors, []);
+  assert.equal(fresh.report.artifact.sourceKind, 'vite');
+  await fs.writeFile(input, JSON.stringify({ scene: 'reader', rebuilt: true }));
+  const stale = verify();
+  assert.equal(stale.code, 1);
+  assert.equal(stale.report.status, 'stale');
+  assert.match(stale.report.errors.join(' '), /source input changed since this round/);
+});

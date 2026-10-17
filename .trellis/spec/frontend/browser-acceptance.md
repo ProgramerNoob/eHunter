@@ -93,6 +93,7 @@ const { randomUUID } = await import('node:crypto');
 const { withBrowserPreflight, BrowserPreflightError } = await import(
   pathToFileURL(`${root}/scripts/browser-preflight.mjs`).href
 );
+const scenarioInputs = ['.tmp/scenario-inputs/reader.json']; // 本轮实际依赖的仓库相对输入
 const artifactDir = `${root}/.tmp/browser-preflight/${profile}-${randomUUID()}`;
 try {
   const result = await withBrowserPreflight({

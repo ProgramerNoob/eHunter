@@ -30,7 +30,7 @@ manifest 保持 `state: 'incomplete'`，只固定本轮身份：`runId`、`round
 python3 scripts/acceptance.py verify-browser <artifact-dir>
 ```
 
-只读：不写 artifact，不改 `acceptance.json`，可重复执行。`<artifact-dir>` 必须在仓库内且为目录。
+只读：不写 artifact，不改 `acceptance.json`，可重复执行。`<artifact-dir>` 必须在仓库内且为目录；不要求位于 `.tmp/` 下，但只有真实 preflight 产物能通过（缺少 provenance 判 `legacy`），手写目录不会因为结构相似而被当成新鲜证据。
 
 输出：
 
@@ -74,7 +74,3 @@ result.json: provenance source.fingerprint does not match its files
 identity: no recorded execution hash
 manifest.json: no artifactVersion 1 provenance; re-run browser acceptance and backfill freshness facts
 ```
-
-## 待父任务处理的规范缺口
-
-`.trellis/spec/frontend/browser-acceptance.md:91-96` 的 preflight 调用模板仍无必填 `scenarioInputs`，按现模板执行会在导航前 blocked；父任务更新规范时补上该参数与 provenance 说明。

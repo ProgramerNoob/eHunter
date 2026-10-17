@@ -138,12 +138,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T06:04:44.799069+00:00",
-        "endedAt": "2026-10-17T06:04:58.369914+00:00",
-        "log": ".tmp/acceptance/10-17-browser-artifact-verification/tmpt7ddn3uk.log"
+        "startedAt": "2026-10-17T06:16:41.578283+00:00",
+        "endedAt": "2026-10-17T06:16:55.561265+00:00",
+        "log": ".tmp/acceptance/10-17-browser-artifact-verification/tmpxcpadwpa.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-browser-artifact-verification/tmpt7ddn3uk.log"
+        ".tmp/acceptance/10-17-browser-artifact-verification/tmpxcpadwpa.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
