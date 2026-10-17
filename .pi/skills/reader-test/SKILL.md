@@ -2,7 +2,7 @@
 name: reader-test
 description: 验证 eHunter 在 EH（exhentai.org）与 NH（nhentai.net）平台的生产包端到端行为。用于平台代码变更后的回归、发布前验收，以及生产构建、脚本注入和初始化错误排查。
 license: MIT
-compatibility: pi；需要 bash、Node.js/npm、ego-browser CLI，以及在 Ego 中配置 Tampermonkey 的测试环境；platform: eh 还需 Ego 已登录 exhentai.org。
+compatibility: "pi；需要 bash、Node.js/npm、ego-browser CLI，以及在 Ego 中配置 Tampermonkey 的测试环境；platform: eh 还需 Ego 已登录 exhentai.org。"
 metadata:
   platform: exhentai, nhentai
   type: e2e-test
