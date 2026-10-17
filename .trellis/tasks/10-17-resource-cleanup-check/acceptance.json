@@ -9,78 +9,199 @@
   },
   "checks": [
     {
-      "id": "ac1-planning",
+      "id": "ac1-page-ownership-and-freshness",
       "ac": [
         "AC1"
       ],
-      "claim": "验证 owner enum、页面观察的 RFC3339 时区时间和 300 秒有效期、缺失/无效/过期 unknown、user-owned preserved，以及无关闭动作。",
-      "scope": "page owner enum, explicit-timezone timestamps, 0/300/301 second freshness, missing/invalid/future timestamps, and user-owned preservation without close",
+      "claim": "页面 owner 枚举、显式时区 RFC3339、0/300/301 秒边界、缺失/非法/未来观察、身份不符与 user-owned 保留均由单元测试固定。",
+      "scope": "page owner enum, RFC3339 timezone strictness, 0/300/301 second window, missing/invalid/future observations, identity mismatch and user-owned preservation",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-c",
+          "import re,subprocess,sys; c=subprocess.run(['python3','-m','unittest',*sys.argv[1:]],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); m=re.search(r'(?m)^Ran (\\d+) tests?', c.stderr+c.stdout); print('guard: tests', m.group(1) if m else 0); sys.exit(0 if c.returncode==0 and m and int(m.group(1))>0 else 1)",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_cleanup_browser.py",
+          "-v",
+          "-k",
+          "page",
+          "-k",
+          "user_owned"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T11:49:29.139617+00:00",
+        "endedAt": "2026-10-17T11:49:29.218148+00:00",
+        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmpqgtm8q12.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-17-resource-cleanup-check/tmpqgtm8q12.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     },
     {
-      "id": "ac2-planning",
+      "id": "ac2-server-clean-residual-preserved",
       "ac": [
         "AC2"
       ],
-      "claim": "验证 agent-owned server 的 PID/cwd/command/processStartToken、监听端口和 PID 文件状态与启动 evidence 一致时的 clean/residual 分类，且 user-owned 保留。",
-      "scope": "agent/user/unknown ownership, process identity, task startup evidence, PID/cwd/command/listener/PID-file status",
+      "claim": "agent-owned server 在身份一致且已退出/端口释放/PID 文件不存在时 clean，仍存活或残留时 residual，user-owned 保留。",
+      "scope": "agent server clean and residual classifications, live identity, listener and PID-file state, user-owned preservation",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-c",
+          "import re,subprocess,sys; c=subprocess.run(['python3','-m','unittest',*sys.argv[1:]],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); m=re.search(r'(?m)^Ran (\\d+) tests?', c.stderr+c.stdout); print('guard: tests', m.group(1) if m else 0); sys.exit(0 if c.returncode==0 and m and int(m.group(1))>0 else 1)",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_cleanup_browser.py",
+          "-v",
+          "-k",
+          "server",
+          "-k",
+          "live_and_leftover",
+          "-k",
+          "user_owned"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T11:49:29.248834+00:00",
+        "endedAt": "2026-10-17T11:49:29.339970+00:00",
+        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmplp9pty8s.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-17-resource-cleanup-check/tmplp9pty8s.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     },
     {
-      "id": "ac3-planning",
+      "id": "ac3-unknown-and-pid-reuse",
       "ac": [
         "AC3"
       ],
-      "claim": "验证 PID 被复用、processStartToken/cwd/command/port 不匹配、owner 或 createdByTask 缺失/非法时逐项输出 unknown，不杀进程、不删除文件、不把未知资源当 clean。",
-      "scope": "unknown ownership and process identity handling, missing/invalid owner or task attribution, no destructive actions",
+      "claim": "PID 复用、startToken/cwd/command/port 不匹配、归属或证据缺失时逐项 unknown，且没有破坏性调用。",
+      "scope": "PID reuse and identity mismatches, missing ownership/evidence, probe failures and absence of destructive calls",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-c",
+          "import re,subprocess,sys; c=subprocess.run(['python3','-m','unittest',*sys.argv[1:]],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); m=re.search(r'(?m)^Ran (\\d+) tests?', c.stderr+c.stdout); print('guard: tests', m.group(1) if m else 0); sys.exit(0 if c.returncode==0 and m and int(m.group(1))>0 else 1)",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_cleanup_browser.py",
+          "-v",
+          "-k",
+          "pid_reuse",
+          "-k",
+          "port_mismatch",
+          "-k",
+          "probe_failure",
+          "-k",
+          "server_ownership",
+          "-k",
+          "incomplete_server",
+          "-k",
+          "no_destructive_calls"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T11:49:29.372105+00:00",
+        "endedAt": "2026-10-17T11:49:29.468182+00:00",
+        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmphlc56qzt.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-17-resource-cleanup-check/tmphlc56qzt.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     },
     {
-      "id": "ac4-planning",
+      "id": "ac4-report-exit-and-output",
       "ac": [
         "AC4"
       ],
-      "claim": "验证 schemaVersion 1/匹配 taskSpace 的 JSON 输出、aggregate 分类、空资源列表、.tmp 路径、拒绝覆盖及 0/1/2 退出状态。",
-      "scope": "report schema, taskSpace validation, empty inputs, evidence and exit status",
+      "claim": "报告 schema、aggregate、空列表、taskSpace 校验、0/1/2 退出码、.tmp 路径、拒绝覆盖和输出失败均有覆盖。",
+      "scope": "report schema and aggregate, empty declarations, taskSpace validation, exit codes, .tmp output, overwrite refusal and write failures",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-c",
+          "import re,subprocess,sys; c=subprocess.run(['python3','-m','unittest',*sys.argv[1:]],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); m=re.search(r'(?m)^Ran (\\d+) tests?', c.stderr+c.stdout); print('guard: tests', m.group(1) if m else 0); sys.exit(0 if c.returncode==0 and m and int(m.group(1))>0 else 1)",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_cleanup_browser.py",
+          "-v",
+          "-k",
+          "output",
+          "-k",
+          "report",
+          "-k",
+          "empty",
+          "-k",
+          "invalid_declarations",
+          "-k",
+          "cli_dispatch"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T11:49:29.500012+00:00",
+        "endedAt": "2026-10-17T11:49:29.724553+00:00",
+        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmpp_iaqd2h.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-17-resource-cleanup-check/tmpp_iaqd2h.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     },
     {
-      "id": "ac5-planning",
+      "id": "ac5-full-suite-regressions",
       "ac": [
         "AC5"
       ],
-      "claim": "验证既有 `task.py finish`、`withBrowserPreflight` 和 EH/NH/Vite 验收行为无回归；cleanup fixture 覆盖 clean、residual、preserved、unknown 四种结果。",
-      "scope": "cleanup classifications and existing lifecycle/preflight regression",
+      "claim": "既有 acceptance、scope gate、archive、preflight 与构建/文档检查全链路通过，且 cleanup 四类分类已由前四项覆盖。",
+      "scope": "full npm run check regression (acceptance suites, storage, browser-preflight, reader lifecycle, build-prod, docs)",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T11:49:29.755952+00:00",
+        "endedAt": "2026-10-17T11:49:51.507675+00:00",
+        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmpqonro7rd.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-17-resource-cleanup-check/tmpqonro7rd.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     }
   ]

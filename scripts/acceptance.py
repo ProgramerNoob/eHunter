@@ -638,10 +638,19 @@ def main(argv=None, root=None):
             command.add_argument("argv", nargs=argparse.REMAINDER, help="-- argv to execute (shell=False)")
     browser = commands.add_parser("verify-browser")
     browser.add_argument("artifact", help="explicit repository-relative or absolute artifact directory")
+    cleanup = commands.add_parser("cleanup-browser")
+    cleanup.add_argument("task_space", help="task space that owns the declared pages and servers")
+    cleanup.add_argument("--pages", required=True, help="page declaration JSON under the repository")
+    cleanup.add_argument("--servers", required=True, help="server declaration JSON under the repository")
+    cleanup.add_argument("--output", required=True, help="new report path below .tmp/")
     args = parser.parse_args(argv)
     root = (root or ROOT).resolve()
     try:
-        if args.command == "verify-browser":
+        if args.command == "cleanup-browser":
+            from cleanup_browser import run_cleanup
+            result, exit_code = run_cleanup(
+                root, args.task_space, args.pages, args.servers, args.output)
+        elif args.command == "verify-browser":
             result, exit_code = verify_browser(root, args.artifact)
         else:
             task, data = load(root, args.task)

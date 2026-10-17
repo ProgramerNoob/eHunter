@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-17-resource-cleanup-check",
+  "branch": "feat/resource-cleanup-check",
+  "head": "13256dd1ccea0b40e5ff52b654b138b5dc5fa103",
+  "indexTree": "a207ef24263680b17aef4b180e8c662d8d5b19a0",
+  "capturedAt": "2026-10-17T19:41:55+08:00",
+  "scopeDigest": "38f76a465868beef8b4079a4fb62c2707d97a31c435085c95abaad60fdd56756",
+  "dirty": {
+    ".trellis/tasks/10-17-resource-cleanup-check/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "83a07a01da1178fcf705abbd24c89f89e2ad0a906ecee5db92195e8ea43cf93e"
+    }
+  },
+  "untracked": {}
+}

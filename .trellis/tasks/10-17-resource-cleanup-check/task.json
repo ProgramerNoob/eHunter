@@ -3,7 +3,7 @@
   "name": "resource-cleanup-check",
   "title": "验收资源清理检查",
   "description": "核实本任务创建的浏览器页、服务进程、端口和 PID 文件收尾状态并保留证据。",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -12,7 +12,7 @@
   "assignee": "Warwick",
   "createdAt": "2026-10-17",
   "completedAt": null,
-  "branch": null,
+  "branch": "feat/resource-cleanup-check",
   "base_branch": "master",
   "worktree_path": null,
   "commit": null,
@@ -27,10 +27,26 @@
       "version": 1,
       "mode": "enforce",
       "categories": {
-        "acceptance-tooling": ["scripts/acceptance.py"],
-        "tests": ["scripts/test_cleanup_browser.py", "scripts/test_acceptance.py"],
-        "task-evidence": [".trellis/tasks/10-17-resource-cleanup-check/**"]
+        "acceptance-tooling": [
+          "scripts/acceptance.py",
+          "scripts/cleanup_browser.py"
+        ],
+        "npm-scripts": [
+          "package.json"
+        ],
+        "task-evidence": [
+          ".trellis/tasks/10-17-resource-cleanup-check/**"
+        ],
+        "tests": [
+          "scripts/test_cleanup_browser.py",
+          "scripts/test_acceptance.py"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "6d123d126237d8b616f5e5f6ac9015f0ba094896f1b0c272e9d425d68bc20e51"
       }
     }
-  }
+  },
+  "scopePolicyVersion": 1
 }
