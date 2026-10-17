@@ -203,7 +203,7 @@
       "evidence": [
         ".tmp/acceptance/10-17-resource-cleanup-check/tmpo0n8am5e.log"
       ],
-      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "note": "Tooling-only change: this check passes only what `npm run check` actually ran. Live EH/NH/Vite browser rounds and task.py finish are not claimed and stay with the parent task.",
       "waiver": null
     }
   ]
