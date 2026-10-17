@@ -3,7 +3,7 @@
   "name": "task-scope-gate",
   "title": "任务改动范围门禁",
   "description": "为任务声明允许的改动范围，并在归档前检查越界变更；`task.py finish` 保持为清除当前任务指针的轻量操作。",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -12,7 +12,7 @@
   "assignee": "Warwick",
   "createdAt": "2026-10-17",
   "completedAt": null,
-  "branch": null,
+  "branch": "feat/task-scope-gate",
   "base_branch": "master",
   "worktree_path": null,
   "commit": null,
@@ -27,10 +27,25 @@
       "version": 1,
       "mode": "enforce",
       "categories": {
-        "task-runtime": [".trellis/scripts/task.py", ".trellis/scripts/common/task_store.py"],
-        "acceptance-tooling": ["scripts/acceptance.py"],
-        "tests": ["scripts/test_archive_autocommit.py", "scripts/test_archive_evidence.py", "scripts/test_scope_gate.py"],
-        "task-evidence": [".trellis/tasks/10-17-task-scope-gate/**"]
+        "task-runtime": [
+          ".trellis/scripts/task.py",
+          ".trellis/scripts/common/task_store.py",
+          ".trellis/scripts/common/scope_gate.py"
+        ],
+        "acceptance-tooling": [
+          "scripts/acceptance.py"
+        ],
+        "tests": [
+          "scripts/test_archive_autocommit.py",
+          "scripts/test_archive_evidence.py",
+          "scripts/test_scope_gate.py"
+        ],
+        "npm-scripts": [
+          "package.json"
+        ],
+        "task-evidence": [
+          ".trellis/tasks/10-17-task-scope-gate/**"
+        ]
       }
     }
   }

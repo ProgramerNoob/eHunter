@@ -9,7 +9,7 @@
     "build-dev": "vite build",
     "build-prod": "vite build --config vite.config.prod.ts",
     "type-check": "vue-tsc --noEmit",
-    "test:acceptance": "python3 -m unittest discover -s scripts -p 'test_acceptance.py' && python3 -m unittest discover -s scripts -p 'test_archive_autocommit.py' && python3 -m unittest discover -s scripts -p 'test_archive_evidence.py' && python3 -m unittest discover -s scripts -p 'test_browser_artifact_verification.py'",
+    "test:acceptance": "python3 -m unittest discover -s scripts -p 'test_acceptance.py' && python3 -m unittest discover -s scripts -p 'test_archive_autocommit.py' && python3 -m unittest discover -s scripts -p 'test_archive_evidence.py' && python3 -m unittest discover -s scripts -p 'test_scope_gate.py' && python3 -m unittest discover -s scripts -p 'test_browser_artifact_verification.py'",
     "test:storage": "node --test tests/storage-lifecycle.test.cjs",
     "test:browser-preflight": "node --test tests/browser-preflight.test.mjs",
     "test:reader-lifecycle": "node --test tests/update-notice.test.cjs tests/entry-viewport.test.cjs",

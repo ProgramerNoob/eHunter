@@ -60,6 +60,13 @@ from .safe_commit import (
     safe_archive_paths_to_add,
     safe_git_add,
 )
+from .scope_gate import (
+    check_archive_scope,
+    print_scope_report,
+    SCOPE_POLICY_VERSION,
+    scope_for_new_task,
+    scope_from_cli_json,
+)
 from .task_utils import (
     archive_destination_for,
     archive_task_complete,
@@ -549,6 +556,16 @@ def cmd_create(args: argparse.Namespace) -> int:
         print("Use a new slug if you intend to create a new task.", file=sys.stderr)
         return 1
 
+    task_rel = _repo_relative_path(task_dir, repo_root)
+    scope, scope_problems = scope_for_new_task(task_rel, meta.pop("scope", None))
+    if scope is None:
+        for problem in scope_problems:
+            print(colored(f"Error: {problem}", Colors.RED), file=sys.stderr)
+        print("No task was created: fix meta.scope and retry.", file=sys.stderr)
+        return 1
+    meta_values = dict(meta)
+    meta_values["scope"] = scope
+
     # Reusing a slug on the same day is an ordinary accident, and continuing
     # would rewrite the existing task.json below — resetting status, children,
     # parent, branch and meta, which nothing else can reconstruct. Fail like
@@ -627,7 +644,8 @@ def cmd_create(args: argparse.Namespace) -> int:
         "parent": None,
         "relatedFiles": [],
         "notes": "",
-        "meta": meta,
+        "scopePolicyVersion": SCOPE_POLICY_VERSION,
+        "meta": meta_values,
     }
 
     # A directory without task.json is not a task: `list` hides it and every
@@ -1389,6 +1407,15 @@ def cmd_archive(args: argparse.Namespace) -> int:
         print("Move or rename the existing archived task, then retry.", file=sys.stderr)
         return 1
 
+    scope_report = check_archive_scope(task_dir, repo_root)
+    print_scope_report(scope_report)
+    if scope_report["status"] == "blocked":
+        print(
+            f"Not archived: {_repo_relative_path(task_dir, repo_root)} is unchanged.",
+            file=sys.stderr,
+        )
+        return 1
+
     dir_name = task_dir.name
     task_json_path = task_dir / FILE_TASK_JSON
 
@@ -2028,6 +2055,33 @@ def cmd_set_meta(args: argparse.Namespace) -> int:
     meta = data.get("meta")
     if not isinstance(meta, dict):
         meta = {}
+
+    if key == "scope":
+        task_rel = _repo_relative_path(target_dir, repo_root)
+        scope, problems = scope_from_cli_json(value, task_rel)
+        if scope is None:
+            for problem in problems:
+                print(colored(f"Error: {problem}", Colors.RED), file=sys.stderr)
+            return 1
+        previous = meta.get("scope")
+        meta["scope"] = scope
+        data["meta"] = meta
+        if not write_json(task_json, data):
+            _report_write_failure(task_json)
+            return 1
+        if isinstance(previous, dict) and previous.get("snapshot") is not None:
+            print(
+                colored(
+                    "Warning: meta.scope changed after the start snapshot; archive "
+                    "will refuse until the task is started again to record a new "
+                    "baseline.",
+                    Colors.YELLOW,
+                ),
+                file=sys.stderr,
+            )
+        print(colored(f"✓ Meta set: {key} = {value}", Colors.GREEN))
+        return 0
+
     meta[key] = value
     data["meta"] = meta
     if not write_json(task_json, data):

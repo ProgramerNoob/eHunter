@@ -54,6 +54,7 @@ from common.io import (
     write_json,
 )
 from common.task_utils import resolve_task_dir, run_task_hooks
+from common.scope_gate import prepare_scope_start
 from common.tasks import iter_active_tasks, children_progress
 
 # Import command handlers from split modules (also re-exports for plan.py compatibility)
@@ -231,6 +232,10 @@ def cmd_start(args: argparse.Namespace) -> int:
         return 1
 
     task_json_path = full_path / FILE_TASK_JSON
+
+    if not prepare_scope_start(full_path, repo_root, task_dir):
+        print(colored("Error: scope baseline could not be recorded; task was not started.", Colors.RED))
+        return 1
 
     if not resolve_context_key():
         # Degraded mode: no session identity available.

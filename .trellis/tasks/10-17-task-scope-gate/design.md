@@ -20,7 +20,7 @@
 }
 ```
 
-`task.py create` 为每个新任务写顶层 `scopePolicyVersion: 1`，并预置 enforce scope 与自身 task-evidence 路径；`task-evidence` 类别及任务目录覆盖为必需项。既有 planning task 在新版本首次 `start` 时保留已有有效 scope或补默认 scope，再写 marker；已在 rollout 前 active 的旧任务不被伪造为新任务。调用方通过 `--meta scope=<JSON>` 或 `set-meta` 扩展，统一校验 JSON 并将 scope 保存为对象；其它 meta 键维持字符串兼容。路径为仓库相对 POSIX 精确路径或末尾 `/**` 的目录前缀（匹配目录本身与子路径）；拒绝绝对路径、`..`、空 category、未知 version/mode。
+`task.py create` 为每个新任务写顶层 `scopePolicyVersion: 1`，并预置 enforce scope 与自身 task-evidence 路径；`task-evidence` 类别及任务目录覆盖为必需项。既有 planning task 在新版本首次 `start` 时保留已有有效 scope或补默认 scope，再写 marker；已在 rollout 前 active 的旧任务不被伪造为新任务。调用方通过 `--meta scope=<JSON>` 或 `set-meta` 扩展，统一校验 JSON 并将 scope 保存为对象；其它 meta 键维持字符串兼容。路径为仓库相对 POSIX 精确路径或末尾 `/**` 的目录前缀（匹配目录本身与子路径）；拒绝绝对路径、`..`、空 category、未知 version/mode。`task-evidence` 规则必须覆盖任务目录下的文件（例如 `task_rel/**`），只匹配目录本身的精确规则不算覆盖，因为 start 会在快照之后写入 `task.json`。
 
 `scopePolicyVersion` 仅表示 gate 适用版本，`meta.scope.snapshot` 仅指向起始状态证据；二者都不是 allowlist，不复制 categories。
 
