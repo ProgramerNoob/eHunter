@@ -101,9 +101,9 @@ const prep = await bootstrapReader({
 
 调用不抛异常，返回 `{ status, prepFacts, evidence, errors, calls }`；`status` 取 `blocked` > `unknown` > `ready`。`prepFacts` 含 `taskSpace`、`page {label,spaceId}`、`url`、`profile {requested,expected,actual,matches}`、`readerOpen`、`readingMode`（`book`/`scroll`/`unknown`）、`scrollContainer`（真实 `.content.scroll-mode .awesome-scroll-view` 的 `scrollTop`/`scrollHeight`/`clientHeight`）、`pageBaseline`、`windowScroll`、`documentScripts {first,last}`、`readyState`、`calls`、`observedAt`（首次成功观察）。不能证明模式、容器或 baseline 时记 `unknown` 并附错误，不用 window/document 或默认页码补齐。
 
-`errors[].code`：输入不合法为 `invalid-*`；观察/准备失败为 `vite-error-overlay`、`document-not-ready`、`reader-not-mounted`、`reader-not-open`、`mode-ambiguous`、`mode-unknown`、`scroll-container-unknown`、`baseline-unknown`、`host-script-late`、`profile-mismatch`、`page-navigated`、`observation-failed`、`close-reader-failed`、`open-reader-failed`、`bootstrap-failed`、`evidence-write-failed`。每次调用把结果追加到 `<artifactDir>/reader-bootstrap.jsonl`，目录必须解析到仓库 `.tmp/` 内。
+`errors[].code`：入参阶段为具体值 `invalid-artifact-dir`、`invalid-page`、`invalid-profile`、`invalid-task-space`、`invalid-timeout`；页内观察对象不可解析为 `observation-invalid`；其余观察/准备失败为 `vite-error-overlay`、`document-not-ready`、`reader-not-mounted`、`reader-not-open`、`mode-ambiguous`、`mode-unknown`、`scroll-container-unknown`、`baseline-unknown`、`host-script-late`、`profile-mismatch`、`page-navigated`、`observation-failed`、`close-reader-failed`、`open-reader-failed`、`bootstrap-failed`、`evidence-write-failed`。不要用 `invalid-*` 前缀判定入参失败：`observation-invalid` 也是观察失败码，却不在该前缀下。每次调用把结果追加到 `<artifactDir>/reader-bootstrap.jsonl`，目录必须解析到仓库 `.tmp/` 内。
 
-`pageBaseline` 只是证据；断言用 `comparePageBaseline(before, after)` 的相对结果。`comparable` 为 false 时读取 `blockedReason`：`navigated`、`incomparable-spread`（spread 总数不同）、`no-baseline`。`status` 非 `ready` 时下游不得生成通过结论；`unknown` 表示观察不足，不是产品失败，也不是 prepared。fixture 只证明 helper 逻辑，真实初始状态仍须在本地 Vite 与 EH 场景实测。
+`pageBaseline` 只是证据；断言用 `comparePageBaseline(before, after)` 的相对结果。`comparable` 为 false 时读取 `blockedReason`，按优先级取第一个：`navigated` > `incomparable-spread`（spread 总数不同）> `no-baseline`；页面导航会盖掉后两者。`comparable` 为 true 时该字段为 `null`。`status` 非 `ready` 时下游不得生成通过结论；`unknown` 表示观察不足，不是产品失败，也不是 prepared。fixture 只证明 helper 逻辑，真实初始状态仍须在本地 Vite 与 EH 场景实测。
 
 ### 一轮调用
 
