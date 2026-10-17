@@ -1,0 +1,5 @@
+{"file":".trellis/spec/frontend/browser-acceptance.md","reason":"核对 clean/residual/preserved/unknown 分类不触碰用户资源且保留证据"}
+{"file":".pi/skills/eh-test/SKILL.md","reason":"核对 server/PID/port/cwd 归属证据和人工收尾责任"}
+{"file":".trellis/spec/tooling/index.md","reason":"核对结构化 JSON、错误和退出状态边界"}
+{"file":".trellis/tasks/10-17-resource-cleanup-check/design.md","reason":"核对输入字段、只读检查、owner 分类和输出契约"}
+{"file":".trellis/tasks/10-17-resource-cleanup-check/prd.md","reason":"逐条检查显式资源输入、四类结果和安全边界"}

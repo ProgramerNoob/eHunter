@@ -1,0 +1,4 @@
+{"file":".trellis/spec/frontend/browser-acceptance.md","reason":"task-space、agent-owned/user-owned 资源、PID/端口/cwd 核实和收尾证据要求"}
+{"file":".pi/skills/eh-test/SKILL.md","reason":"EH bundle server 的 PID、父进程、cwd、端口、URL 证据与收尾边界"}
+{"file":".trellis/spec/tooling/index.md","reason":"cleanup 命令输入、JSON 输出和退出状态契约"}
+{"file":".trellis/tasks/10-17-resource-cleanup-check/prd.md","reason":"显式资源输入、只读行为、四类结果和输出失败需求"}

@@ -1,0 +1,3 @@
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"Acceptance schema, passed/blocked semantics, evidence truth limits, archive gating and compatibility contracts."}
+{"file":".trellis/spec/frontend/browser-acceptance.md","reason":"withBrowserPreflight artifact, fixed viewport, task-space, dynamic script and cleanup contracts."}
+{"file":".trellis/spec/tooling/index.md","reason":"Tooling-layer quality and acceptance boundary for scripts and task helpers."}

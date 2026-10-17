@@ -1,0 +1,5 @@
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"核对 archive gate 失败不归档、历史 legacy 诊断和用户改动保护"}
+{"file":".trellis/spec/tooling/index.md","reason":"核对 native archive 与 acceptance archive 的共同工具契约"}
+{"file":".trellis/tasks/10-17-task-scope-gate/prd.md","reason":"逐条检查 marker、快照前后差异、两条 archive 路径、legacy 和 finish 标准"}
+{"file":".trellis/tasks/10-17-task-scope-gate/design.md","reason":"核对快照校验、路径分类、失败副作用和回滚边界"}
+{"file":".trellis/tasks/10-17-task-scope-gate/implement.md","reason":"核对 start/archive 接线顺序、fixture 矩阵和验证命令"}

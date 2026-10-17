@@ -1,0 +1,5 @@
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"验收 schemaVersion 1、blocked/failed/unrun 语义、历史 legacy 兼容和归档门禁"}
+{"file":".trellis/spec/frontend/browser-acceptance.md","reason":"artifact manifest/result、profile/task-space、事件未决和 provenance 新鲜度证据"}
+{"file":".trellis/spec/tooling/index.md","reason":"验收工具的输入、输出和退出状态契约"}
+{"file":".trellis/tasks/10-16-acceptance-guardrails/design.md","reason":"跨子任务 artifact task-space 共享事实字段和顺序依赖"}
+{"file":".trellis/tasks/10-17-browser-artifact-verification/prd.md","reason":"fresh/stale/blocked/legacy 需求、source identity 边界与不写 acceptance check 的约束"}

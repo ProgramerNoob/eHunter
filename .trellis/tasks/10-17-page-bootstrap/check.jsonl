@@ -1,0 +1,5 @@
+{"file":".trellis/spec/frontend/browser-acceptance.md","reason":"核对 mode/scroll/page facts、desktop/mobile fixture、事件唯一消费者和 blocked 语义"}
+{"file":".trellis/spec/frontend/product-goals.md","reason":"核对 book/scroll 共同行为和 persisted mode 不能被测试假定覆盖"}
+{"file":".trellis/spec/frontend/features/001-platform-injection/quickstart.md","reason":"核对真实平台初始化与 reader 场景入口未被 debug bridge 替代"}
+{"file":".trellis/tasks/10-17-page-bootstrap/design.md","reason":"核对真实 DOM 观察、prepFacts 接口和正常 UI callback 边界"}
+{"file":".trellis/tasks/10-17-page-bootstrap/prd.md","reason":"逐条检查 persisted mode、相对 baseline、动态脚本和产品代码边界"}

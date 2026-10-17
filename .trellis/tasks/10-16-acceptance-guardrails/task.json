@@ -1,0 +1,42 @@
+{
+  "id": "acceptance-guardrails",
+  "name": "acceptance-guardrails",
+  "title": "验收证据与浏览器收口护栏",
+  "description": "为浏览器验收补充证据新鲜度校验、当前页面 bootstrap、任务范围门禁和资源清理检查，降低误报与重复调试成本。",
+  "status": "planning",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-16",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "10-17-browser-artifact-verification",
+    "10-17-page-bootstrap",
+    "10-17-task-scope-gate",
+    "10-17-resource-cleanup-check"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "spec": [".trellis/spec/**"],
+        "workflow": [".trellis/workflow.md"],
+        "skill": [".pi/skills/eh-test/SKILL.md"],
+        "task-evidence": [".trellis/tasks/10-16-acceptance-guardrails/**"]
+      }
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "persisted book 与 scroll 两种初始 fixture 均能输出实际 reading mode、reader open 状态和可见滚动容器；scroll fixture 证明读取的是 `.awesome-scroll-view` 的 `scrollTop`，不是 window/document。",
+    "AC2": "bootstrap 能在当前页不是固定起始页时保存 baseline，并用相对页码/位置验证前后变化，不因绝对页码不同而误报失败。",
+    "AC3": "自动打开、初始化未完成、动态脚本晚到或页面导航变化等准备异常被记录为 blocked/unknown，下游不生成虚假的 passed prep fact。",
+    "AC4": "desktop 与 mobile fixture 均覆盖，且 helper 不直接调用 `page.events()`、不清理 storage、不改 reader 产品代码；输出证据路径位于 `.tmp/`。",
+    "AC5": "使用同一 task space/page 的场景示例能消费 `prepFacts` 后再进入 book/scroll 功能阶段，既有 browser preflight 测试无回归。"
+  },
+  "checks": [
+    {
+      "id": "ac1-planning",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "验证persisted book 与 scroll 两种初始 fixture 均能输出实际 reading mode、reader open 状态和可见滚动容器；scroll fixture 证明读取的是 `.awesome-scroll-view` 的 `scrollTop`，不是 window/document。",
+      "scope": "persisted book/scroll state and actual visible scroll element observation",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "Planning seed; not executed yet.",
+      "waiver": null
+    },
+    {
+      "id": "ac2-planning",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "验证bootstrap 能在当前页不是固定起始页时保存 baseline，并用相对页码/位置验证前后变化，不因绝对页码不同而误报失败。",
+      "scope": "non-initial page baseline and relative page/position delta",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "Planning seed; not executed yet.",
+      "waiver": null
+    },
+    {
+      "id": "ac3-planning",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "验证自动打开、初始化未完成、动态脚本晚到或页面导航变化等准备异常被记录为 blocked/unknown，下游不生成虚假的 passed prep fact。",
+      "scope": "blocked/unknown preparation on automatic open, incomplete initialization, late script or navigation",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "Planning seed; not executed yet.",
+      "waiver": null
+    },
+    {
+      "id": "ac4-planning",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "验证desktop 与 mobile fixture 均覆盖，且 helper 不直接调用 `page.events()`、不清理 storage、不改 reader 产品代码；输出证据路径位于 `.tmp/`。",
+      "scope": "desktop/mobile fixtures, event-consumer and storage/product boundaries, .tmp evidence",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "Planning seed; not executed yet.",
+      "waiver": null
+    },
+    {
+      "id": "ac5-planning",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "验证使用同一 task space/page 的场景示例能消费 `prepFacts` 后再进入 book/scroll 功能阶段，既有 browser preflight 测试无回归。",
+      "scope": "same task-space/page prepFacts integration and preflight regression",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "Planning seed; not executed yet.",
+      "waiver": null
+    }
+  ]
+}

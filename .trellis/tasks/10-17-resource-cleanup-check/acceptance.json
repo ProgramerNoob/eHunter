@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "owner 取 `agent|user|unknown`，页面观察使用显式时区 RFC3339 时间；agent-owned 页面观察年龄 0–300 秒（含边界）且身份相符时，open 判 residual、closed 判 clean，缺失/无效/未来/过期观察判 unknown；user-owned 始终 preserved，命令不关闭页面。",
+    "AC2": "agent-owned server 的 PID、cwd、command、processStartToken、监听端口和 PID 文件状态与 task-owned 启动 evidence 一致且已清理时输出 clean；匹配进程仍存活/仍监听/PID 文件残留时输出 residual；user-owned 始终 preserved。",
+    "AC3": "PID 被复用、`processStartToken`/cwd/command/port 不匹配、owner 或 createdByTask 缺失时输出 unknown，不杀进程、不删除文件、不把未知资源当 clean。",
+    "AC4": "命令写出 schemaVersion 1 的 `.tmp/` JSON，包含 task space、pages、servers、aggregate/逐项分类、证据和检查时间；所有项为 clean/preserved（包括空列表）时退出 0，unknown/residual 时退出 1，输入/输出错误时退出 2。",
+    "AC5": "既有 `task.py finish`、`withBrowserPreflight` 和 EH/NH/Vite 验收行为无回归；cleanup fixture 覆盖 clean、residual、preserved、unknown 四种结果。"
+  },
+  "checks": [
+    {
+      "id": "ac1-planning",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "验证 owner enum、页面观察的 RFC3339 时区时间和 300 秒有效期、缺失/无效/过期 unknown、user-owned preserved，以及无关闭动作。",
+      "scope": "page owner enum, explicit-timezone timestamps, 0/300/301 second freshness, missing/invalid/future timestamps, and user-owned preservation without close",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "Planning seed; not executed yet.",
+      "waiver": null
+    },
+    {
+      "id": "ac2-planning",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "验证 agent-owned server 的 PID/cwd/command/processStartToken、监听端口和 PID 文件状态与启动 evidence 一致时的 clean/residual 分类，且 user-owned 保留。",
+      "scope": "agent/user/unknown ownership, process identity, task startup evidence, PID/cwd/command/listener/PID-file status",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "Planning seed; not executed yet.",
+      "waiver": null
+    },
+    {
+      "id": "ac3-planning",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "验证 PID 被复用、processStartToken/cwd/command/port 不匹配、owner 或 createdByTask 缺失/非法时逐项输出 unknown，不杀进程、不删除文件、不把未知资源当 clean。",
+      "scope": "unknown ownership and process identity handling, missing/invalid owner or task attribution, no destructive actions",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "Planning seed; not executed yet.",
+      "waiver": null
+    },
+    {
+      "id": "ac4-planning",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "验证 schemaVersion 1/匹配 taskSpace 的 JSON 输出、aggregate 分类、空资源列表、.tmp 路径、拒绝覆盖及 0/1/2 退出状态。",
+      "scope": "report schema, taskSpace validation, empty inputs, evidence and exit status",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "Planning seed; not executed yet.",
+      "waiver": null
+    },
+    {
+      "id": "ac5-planning",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "验证既有 `task.py finish`、`withBrowserPreflight` 和 EH/NH/Vite 验收行为无回归；cleanup fixture 覆盖 clean、residual、preserved、unknown 四种结果。",
+      "scope": "cleanup classifications and existing lifecycle/preflight regression",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "Planning seed; not executed yet.",
+      "waiver": null
+    }
+  ]
+}
