@@ -497,7 +497,7 @@ T024 遗留的两处可选硬化落地：通知标题超长无空格串不换行
 
 ### Main Changes
 
-- `.pi/skills/eh-test` 重命名为 `.pi/skills/reader-test`，SKILL.md 新增平台差异表、NH source 与 EH/NH 报告路径
+- 原 EH 验收技能目录（`.pi/skills/` 下以 eh 命名的旧目录）重命名为 `.pi/skills/reader-test`，SKILL.md 新增平台差异表、NH source 与 EH/NH 报告路径
 - 同步 AGENTS.md、frontend spec 与三份 features quickstart、serve-bundle/cleanup_browser 注释路径
 - acceptance.json 七项检查全部 passed，含 check:docs 与 grep 门禁、NH 688467 与 EH 图页桌面轮、两次 cleanup-browser 报告
 
