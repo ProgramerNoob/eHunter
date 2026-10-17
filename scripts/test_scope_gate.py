@@ -484,6 +484,66 @@ class StartSnapshotTests(ScopeGateFixture):
         )
         self.assertEqual(snapshot["scopeDigest"], scope_gate.scope_digest(scope))
 
+    def test_legacy_planning_task_fills_missing_task_evidence_scope(self) -> None:
+        self.init_repo()
+        rel = ".trellis/tasks/10-17-legacy-no-evidence"
+        scope = {
+            "version": 1,
+            "mode": "enforce",
+            "categories": {"src": ["src/**"]},
+        }
+        self.write(
+            f"{rel}/task.json",
+            json.dumps(
+                {
+                    "id": "10-17-legacy-no-evidence",
+                    "title": "legacy without evidence",
+                    "status": "planning",
+                    "branch": None,
+                    "meta": {"scope": scope},
+                }
+            )
+            + "\n",
+        )
+        self.write(f"{rel}/prd.md", "# legacy without evidence\n")
+
+        rc, _out, err = self.call(
+            task_cli.cmd_start,
+            argparse.Namespace(dir=rel, allow_empty_context=True),
+        )
+        self.assertEqual(rc, 0, err)
+        self.assertIn("default task-evidence", err)
+        data = json.loads(self.read(f"{rel}/task.json"))
+        categories = data["meta"]["scope"]["categories"]
+        self.assertEqual(categories["src"], ["src/**"])
+        self.assertEqual(categories["task-evidence"], [f"{rel}/**"])
+        self.assertIn("snapshot", data["meta"]["scope"])
+
+    def test_set_meta_scope_then_start_records_a_new_baseline(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+        old_snapshot = self.read(f"{self.task_rel()}/{scope_gate.SNAPSHOT_FILE}")
+        new_scope = _scope_with(**{"tests": ["tests/**"]})
+        rc, _out, err = self.call(
+            task_store.cmd_set_meta,
+            argparse.Namespace(
+                dir=self.task_rel(), key="scope", value=json.dumps(new_scope)
+            ),
+        )
+        self.assertEqual(rc, 0, err)
+        stored = self.task_json()["meta"]["scope"]
+        self.assertEqual(stored["categories"]["tests"], ["tests/**"])
+        self.assertNotIn("snapshot", stored)
+
+        rc, _out, err = self.start()
+        self.assertEqual(rc, 0, err)
+        recorded = self.task_json()["meta"]["scope"]["snapshot"]
+        self.assertEqual(recorded["path"], scope_gate.SNAPSHOT_FILE)
+        new_snapshot = self.read(f"{self.task_rel()}/{scope_gate.SNAPSHOT_FILE}")
+        self.assertNotEqual(new_snapshot, old_snapshot)
+        self.assertEqual(
+            json.loads(new_snapshot)["scopeDigest"], scope_gate.scope_digest(stored)
+        )
     def test_second_start_reuses_snapshot_and_keeps_baseline(self) -> None:
         self.init_repo()
         self.prepared_task()
@@ -631,6 +691,13 @@ class SnapshotChangeTests(ScopeGateFixture):
         self.write("src/new.txt", "new\n")
         self.git("add", "src/new.txt")
         self.assertEqual(self.changed(snapshot), {"src/new.txt": ["index"]})
+
+    def test_intent_to_add_new_file_is_included(self) -> None:
+        self.init_repo()
+        snapshot = self.snapshot()
+        self.write("src/new.txt", "new\n")
+        self.git("add", "-N", "src/new.txt")
+        self.assertEqual(self.changed(snapshot), {"src/new.txt": ["worktree"]})
 
     def test_staging_preexisting_untracked_file_is_included(self) -> None:
         self.init_repo()
@@ -805,6 +872,22 @@ class ArchiveGateTests(ScopeGateFixture):
         self.assertEqual(archived_data["status"], "completed")
         self.assertFalse(task_dir.exists())
         self.assertIsNone(active_task.resolve_active_task(self.root).task_path)
+
+    def test_archive_blocks_intent_to_add_outside_scope(self) -> None:
+        self.init_repo()
+        task_dir = self.prepared_task()
+        head_before = self.git("rev-parse", "HEAD")
+        self.write("src/new.txt", "new\n")
+        self.git("add", "-N", "src/new.txt")
+
+        rc, _out, err = self.archive()
+        self.assertEqual(rc, 1)
+        self.assertIn("src/new.txt", err)
+        self.assertIn("scope check blocked", err)
+        self.assertTrue(task_dir.exists())
+        self.assertEqual(self.task_json()["status"], "in_progress")
+        self.assertEqual(active_task.resolve_active_task(self.root).task_path, self.task_rel())
+        self.assertEqual(self.git("rev-parse", "HEAD"), head_before)
 
     def test_archive_allows_declared_exact_and_directory_rules(self) -> None:
         self.init_repo()

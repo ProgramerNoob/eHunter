@@ -64,6 +64,7 @@ from .scope_gate import (
     check_archive_scope,
     prepare_scope_start,
     print_scope_report,
+    repo_relative,
     SCOPE_POLICY_VERSION,
     scope_for_new_task,
     scope_from_cli_json,
@@ -151,10 +152,7 @@ def _find_archived_task_by_dir_name(tasks_dir: Path, dir_name: str) -> Path | No
 
 def _repo_relative_path(path: Path, repo_root: Path) -> str:
     """Format a path relative to the repo root when possible."""
-    try:
-        return path.relative_to(repo_root).as_posix()
-    except ValueError:
-        return str(path)
+    return repo_relative(path, repo_root) or str(path)
 
 
 def _report_read_failure(path: Path, reason: str | None) -> None:
@@ -1428,7 +1426,8 @@ def cmd_archive(args: argparse.Namespace) -> int:
     print_scope_report(scope_report)
     if scope_report["status"] == "blocked":
         print(
-            f"Not archived: {_repo_relative_path(task_dir, repo_root)} is unchanged.",
+            f"Not archived: {_repo_relative_path(task_dir, repo_root)}: scope check "
+            "blocked this archive; task state was not modified.",
             file=sys.stderr,
         )
         return 1
@@ -1465,7 +1464,8 @@ def cmd_archive(args: argparse.Namespace) -> int:
                 getattr(args, "skip_branch_validation", False),
             ):
                 print(
-                    f"Not archived: {_repo_relative_path(task_dir, repo_root)} is unchanged.",
+                    f"Not archived: {_repo_relative_path(task_dir, repo_root)}: branch "
+                    "metadata validation failed; task state was not modified.",
                     file=sys.stderr,
                 )
                 return 1
@@ -1475,9 +1475,10 @@ def cmd_archive(args: argparse.Namespace) -> int:
             if not write_json(task_json_path, data):
                 _report_write_failure(task_json_path)
                 print(
-                    f"Not archived: {_repo_relative_path(task_dir, repo_root)} is unchanged. "
-                    "Archiving a task still marked in progress would hide it from `list` "
-                    "with the wrong status.",
+                    f"Not archived: {_repo_relative_path(task_dir, repo_root)}: could not "
+                    "update task.json; task state was not modified. Archiving a task "
+                    "still marked in progress would hide it from `list` with the wrong "
+                    "status.",
                     file=sys.stderr,
                 )
                 return 1
@@ -2089,9 +2090,9 @@ def cmd_set_meta(args: argparse.Namespace) -> int:
         if isinstance(previous, dict) and previous.get("snapshot") is not None:
             print(
                 colored(
-                    "Warning: meta.scope changed after the start snapshot; archive "
-                    "will refuse until the task is started again to record a new "
-                    "baseline.",
+                    "Warning: meta.scope changed; the previous start baseline no "
+                    "longer applies and its snapshot reference was cleared. Run "
+                    "task.py start before archiving to record a new baseline.",
                     Colors.YELLOW,
                 ),
                 file=sys.stderr,

@@ -29,12 +29,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T10:57:58.393531+00:00",
-        "endedAt": "2026-10-17T10:57:59.410133+00:00",
-        "log": ".tmp/acceptance/10-17-task-scope-gate/tmpetsz3i7d.log"
+        "startedAt": "2026-10-17T11:24:38.763036+00:00",
+        "endedAt": "2026-10-17T11:24:40.035301+00:00",
+        "log": ".tmp/acceptance/10-17-task-scope-gate/tmpv88n_yh5.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-task-scope-gate/tmpetsz3i7d.log"
+        ".tmp/acceptance/10-17-task-scope-gate/tmpv88n_yh5.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -58,12 +58,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T10:57:59.441949+00:00",
-        "endedAt": "2026-10-17T10:58:01.700633+00:00",
-        "log": ".tmp/acceptance/10-17-task-scope-gate/tmptcter40i.log"
+        "startedAt": "2026-10-17T11:24:40.085007+00:00",
+        "endedAt": "2026-10-17T11:24:42.541329+00:00",
+        "log": ".tmp/acceptance/10-17-task-scope-gate/tmpjunnpyve.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-task-scope-gate/tmptcter40i.log"
+        ".tmp/acceptance/10-17-task-scope-gate/tmpjunnpyve.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -88,12 +88,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T10:58:01.732632+00:00",
-        "endedAt": "2026-10-17T10:58:04.158424+00:00",
-        "log": ".tmp/acceptance/10-17-task-scope-gate/tmpz15r8lpa.log"
+        "startedAt": "2026-10-17T11:24:42.592948+00:00",
+        "endedAt": "2026-10-17T11:24:45.273594+00:00",
+        "log": ".tmp/acceptance/10-17-task-scope-gate/tmprju7go0u.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-task-scope-gate/tmpz15r8lpa.log"
+        ".tmp/acceptance/10-17-task-scope-gate/tmprju7go0u.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -116,12 +116,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T10:58:04.188451+00:00",
-        "endedAt": "2026-10-17T10:58:05.032022+00:00",
-        "log": ".tmp/acceptance/10-17-task-scope-gate/tmp8egz8kv0.log"
+        "startedAt": "2026-10-17T11:24:45.326328+00:00",
+        "endedAt": "2026-10-17T11:24:46.171783+00:00",
+        "log": ".tmp/acceptance/10-17-task-scope-gate/tmpd8q2zdv9.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-task-scope-gate/tmp8egz8kv0.log"
+        ".tmp/acceptance/10-17-task-scope-gate/tmpd8q2zdv9.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -145,12 +145,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T10:58:05.062791+00:00",
-        "endedAt": "2026-10-17T10:58:05.235295+00:00",
-        "log": ".tmp/acceptance/10-17-task-scope-gate/tmp3ghbg86q.log"
+        "startedAt": "2026-10-17T11:24:46.222955+00:00",
+        "endedAt": "2026-10-17T11:24:46.395003+00:00",
+        "log": ".tmp/acceptance/10-17-task-scope-gate/tmp4e9chars.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-task-scope-gate/tmp3ghbg86q.log"
+        ".tmp/acceptance/10-17-task-scope-gate/tmp4e9chars.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -173,12 +173,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T10:58:05.266524+00:00",
-        "endedAt": "2026-10-17T10:58:12.725896+00:00",
-        "log": ".tmp/acceptance/10-17-task-scope-gate/tmpvntpu0xs.log"
+        "startedAt": "2026-10-17T11:24:46.445404+00:00",
+        "endedAt": "2026-10-17T11:24:54.497626+00:00",
+        "log": ".tmp/acceptance/10-17-task-scope-gate/tmpg2jm9zvs.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-task-scope-gate/tmpvntpu0xs.log"
+        ".tmp/acceptance/10-17-task-scope-gate/tmpg2jm9zvs.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null

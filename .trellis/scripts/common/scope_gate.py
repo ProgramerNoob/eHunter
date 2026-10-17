@@ -57,7 +57,7 @@ def _timestamp() -> str:
     return datetime.now().astimezone().isoformat(timespec="seconds")
 
 
-def _repo_relative(path: Path, repo_root: Path) -> str | None:
+def repo_relative(path: Path, repo_root: Path) -> str | None:
     try:
         return path.resolve().relative_to(repo_root.resolve()).as_posix()
     except (OSError, ValueError):
@@ -357,7 +357,7 @@ def _current_state(repo_root: Path) -> dict:
             if state is None:
                 raise ScopeGateError(f"cannot read untracked path: {path}")
             untracked[path] = state
-        elif xy[1] in "MDT":
+        elif xy[1] in "MADT":
             state = _worktree_state(repo_root / path)
             if state is None:
                 raise ScopeGateError(f"cannot read changed path: {path}")
@@ -597,6 +597,28 @@ def _report_read_failure(task_json_path: Path) -> None:
     )
 
 
+def _add_default_task_evidence(scope: dict, task_rel: str) -> dict:
+    """Fill the required task-evidence category for a migrating planning task."""
+    categories = scope.get("categories")
+    if not isinstance(categories, dict):
+        return scope
+    rules = categories.get(TASK_EVIDENCE_CATEGORY)
+    needed = f"{task_rel}/task.json"
+    if isinstance(rules, list) and any(
+        isinstance(rule, str) and rule_matches(rule, needed) for rule in rules
+    ):
+        return scope
+    repaired = dict(scope)
+    repaired_categories = dict(categories)
+    default_rule = f"{task_rel}/**"
+    if isinstance(rules, list):
+        repaired_categories[TASK_EVIDENCE_CATEGORY] = [*rules, default_rule]
+    else:
+        repaired_categories[TASK_EVIDENCE_CATEGORY] = [default_rule]
+    repaired["categories"] = repaired_categories
+    return repaired
+
+
 def prepare_scope_start(task_dir: Path, repo_root: Path, task_rel: str) -> bool:
     """Migrate marker/scope and ensure a valid start snapshot before activation.
 
@@ -607,7 +629,7 @@ def prepare_scope_start(task_dir: Path, repo_root: Path, task_rel: str) -> bool:
     if not task_json_path.is_file():
         return True
 
-    data, reason = read_json_checked(task_json_path)
+    data, _ = read_json_checked(task_json_path)
     if data is None:
         _report_read_failure(task_json_path)
         return True
@@ -637,11 +659,20 @@ def prepare_scope_start(task_dir: Path, repo_root: Path, task_rel: str) -> bool:
             _print_problems(["meta.scope: must be a JSON object"])
             return False
         else:
-            problems = validate_scope(scope_value, task_rel)
+            repaired = _add_default_task_evidence(scope_value, task_rel)
+            if repaired is not scope_value:
+                print(
+                    colored(
+                        "Note: added the default task-evidence scope for this task.",
+                        Colors.YELLOW,
+                    ),
+                    file=sys.stderr,
+                )
+            problems = validate_scope(repaired, task_rel)
             if problems:
                 _print_problems(problems)
                 return False
-            scope = dict(scope_value)
+            scope = repaired
         data[SCOPE_MARKER] = SCOPE_POLICY_VERSION
         marker_migrated = True
     else:
@@ -738,7 +769,7 @@ def _empty_report(task_rel: str | None) -> dict:
 
 def check_archive_scope(task_dir: Path, repo_root: Path) -> dict:
     """Evaluate changes since the start snapshot; never mutates the worktree."""
-    task_rel = _repo_relative(task_dir, repo_root)
+    task_rel = repo_relative(task_dir, repo_root)
     report = _empty_report(task_rel)
     if task_rel is None:
         report["status"] = "blocked"

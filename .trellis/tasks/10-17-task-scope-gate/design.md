@@ -20,7 +20,7 @@
 }
 ```
 
-`task.py create` 为每个新任务写顶层 `scopePolicyVersion: 1`，并预置 enforce scope 与自身 task-evidence 路径；`task-evidence` 类别及任务目录覆盖为必需项。自动激活 session 的 create 在所有 task.json 写入完成后捕获初始快照；`--no-start` 或无 session identity 时由后续 `start` 捕获。既有 planning task 在新版本首次 `start` 时保留已有有效 scope 或补默认 scope，再写 marker；已在 rollout 前 active 的旧任务不被伪造为新任务。调用方通过 `--meta scope=<JSON>` 或 `set-meta` 扩展，统一校验 JSON 并将 scope 保存为对象；其它 meta 键维持字符串兼容。路径为仓库相对 POSIX 精确路径或末尾 `/**` 的目录前缀（匹配目录本身与子路径）；拒绝绝对路径、`..`、空 category、未知 version/mode。`task-evidence` 规则必须覆盖任务目录下的文件（例如 `task_rel/**`），只匹配目录本身的精确规则不算覆盖，因为 start 会在快照之后写入 `task.json`。
+`task.py create` 为每个新任务写顶层 `scopePolicyVersion: 1`，并预置 enforce scope 与自身 task-evidence 路径；`task-evidence` 类别及任务目录覆盖为必需项。自动激活 session 的 create 在所有 task.json 写入完成后捕获初始快照；`--no-start` 或无 session identity 时由后续 `start` 捕获。既有 planning task 在新版本首次 `start` 时保留已有有效 scope，缺少 task-evidence 时补默认规则，再写 marker；已在 rollout 前 active 的旧任务不被伪造为新任务。调用方通过 `--meta scope=<JSON>` 或 `set-meta` 扩展，统一校验 JSON 并将 scope 保存为对象；`set-meta` 替换 scope 时清除旧 `snapshot` 引用，需重新 `start` 记录基线。其它 meta 键维持字符串兼容。路径为仓库相对 POSIX 精确路径或末尾 `/**` 的目录前缀（匹配目录本身与子路径）；拒绝绝对路径、`..`、空 category、未知 version/mode。`task-evidence` 规则必须覆盖任务目录下的文件（例如 `task_rel/**`），只匹配目录本身的精确规则不算覆盖，因为 start 会在快照之后写入 `task.json`。
 
 `scopePolicyVersion` 仅表示 gate 适用版本，`meta.scope.snapshot` 仅指向起始状态证据；二者都不是 allowlist，不复制 categories。
 
@@ -36,7 +36,7 @@ Scope 政策只由 `meta.scope.categories` 声明；快照是运行证据，不�
 
 - index tree 相对快照变化覆盖启动后 stage/commit；worktree 相对快照内容变化覆盖启动后 unstaged 修改；
 - 快照前已有 tracked dirty 与 untracked 文件若状态/内容不变则过滤；其后变化、删除或 stage/commit 则重新纳入；
-- 新增 untracked、删除、类型/权限变化均纳入；rename 用源路径缺失和目标路径新增表达，两端分别匹配规则；忽略 git ignored 路径。
+- 新增 untracked、intent-to-add（`git add -N`）、删除、类型/权限变化均纳入；rename 用源路径缺失和目标路径新增表达，两端分别匹配规则；忽略 git ignored 路径。
 - `git` 状态或对象无法可靠计算时 fail closed，不能退化为检查全量 `base_branch` 差异，因为那会把启动前用户改动算给当前 task。
 
 输出 changed/allowed/violations/diagnostics，逐文件列出 category/rule；规则支持精确路径及 `/**` 目录规则。
