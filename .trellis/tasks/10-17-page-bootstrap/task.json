@@ -3,7 +3,7 @@
   "name": "page-bootstrap",
   "title": "当前页面验收 bootstrap",
   "description": "提供基于真实页面当前状态的可复用验收准备步骤，覆盖持久化阅读模式与动态站点脚本。",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -12,7 +12,7 @@
   "assignee": "Warwick",
   "createdAt": "2026-10-17",
   "completedAt": null,
-  "branch": null,
+  "branch": "feat/page-bootstrap",
   "base_branch": "master",
   "worktree_path": null,
   "commit": null,
@@ -27,9 +27,15 @@
       "version": 1,
       "mode": "enforce",
       "categories": {
-        "acceptance-tooling": ["scripts/browser-preflight.mjs"],
-        "tests": ["tests/browser-preflight.test.mjs"],
-        "task-evidence": [".trellis/tasks/10-17-page-bootstrap/**"]
+        "acceptance-tooling": [
+          "scripts/browser-preflight.mjs"
+        ],
+        "tests": [
+          "tests/browser-preflight.test.mjs"
+        ],
+        "task-evidence": [
+          ".trellis/tasks/10-17-page-bootstrap/**"
+        ]
       }
     }
   }

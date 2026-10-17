@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { withBrowserPreflight, BrowserPreflightError } from '../scripts/browser-preflight.mjs';
+import { withBrowserPreflight, BrowserPreflightError, classifyReaderFacts, comparePageBaseline, bootstrapReader } from '../scripts/browser-preflight.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const BASE = path.join(ROOT, '.tmp/browser-preflight/repair-final/cases');
@@ -1018,4 +1018,363 @@ test('a real Vite artifact passes verify-browser and turns stale after an input 
   assert.equal(stale.code, 1);
   assert.equal(stale.report.status, 'stale');
   assert.match(stale.report.errors.join(' '), /source input changed since this round/);
+});
+
+const VIEWPORTS = {
+  desktop: { width: 1200, height: 900, dpr: 1, touchPoints: 0, coarse: false },
+  mobile: { width: 390, height: 844, dpr: 3, touchPoints: 5, coarse: true },
+};
+const READER_URL = 'https://exhentai.org/g/123/0123456789/';
+const uiBox = (patch = {}) => ({ found: true, display: 'block', visibility: 'visible', opacity: '1',
+  rect: { x: 0, y: 0, width: 1200, height: 900 }, ...patch });
+
+function readerState({ profile = 'desktop', mode = 'book', open = true, mounted = true, progress = '12 / 300',
+  scrollTop = 0, spreadCount = 8, visibleSpreadIndex = 2, windowScrollY = 0, readyState = 'complete',
+  overlay = false, url = READER_URL, viewport, scrollViews } = {}) {
+  const size = VIEWPORTS[profile];
+  const bookVisible = mode === 'book' || mode === 'both';
+  const scrollVisible = mode === 'scroll' || mode === 'both';
+  const app = { ...uiBox({ rect: { x: 0, y: 0, width: open ? size.width : 0, height: open ? size.height : 0 } }), mounted };
+  return {
+    url, title: 'fixture gallery', readyState, viewport: viewport ?? { ...size }, overlay, app,
+    bookMode: bookVisible ? uiBox() : { found: false },
+    scrollMode: scrollVisible ? uiBox() : { found: false },
+    scrollViews: scrollViews ?? (mode === 'scroll' ? [{ index: 0, ...uiBox({ rect: { x: 0, y: 0, width: size.width, height: size.height } }),
+      scrollTop, scrollHeight: 9000, clientHeight: size.height }] : []),
+    book: bookVisible ? { spreadCount, visibleSpreadIndex } : null,
+    progress: progress === null ? { found: false, text: null }
+      : { ...uiBox({ rect: { x: 0, y: size.height - 40, width: 60, height: 24 } }), text: progress },
+    window: { scrollX: 0, scrollY: windowScrollY, documentScrollTop: windowScrollY },
+    documentScripts: { total: 6, external: 3 },
+  };
+}
+
+const baselineOf = options => classifyReaderFacts(readerState(options)).pageBaseline;
+async function bootstrapDir() {
+  await fs.mkdir(BASE, { recursive: true });
+  const dir = await fs.mkdtemp(path.join(BASE, 'bootstrap-'));
+  return path.join(dir, 'evidence');
+}
+async function bootstrapRecords(file) {
+  return (await fs.readFile(file, 'utf8')).trim().split('\n').map(JSON.parse);
+}
+function bootstrapPage(raw) {
+  return { label: 'p1', spaceId: 42, evaluate: async () => structuredClone(raw) };
+}
+
+for (const profile of ['desktop', 'mobile']) test(`bootstrap reads a persisted book reader (${profile})`, async () => {
+  const artifactDir = await bootstrapDir();
+  const raw = readerState({ profile, mode: 'book', progress: '12 / 300', spreadCount: 8, visibleSpreadIndex: 2 });
+  const result = await bootstrapReader({ page: bootstrapPage(raw), profile, artifactDir, taskSpace: 'fixture space' });
+  assert.equal(result.status, 'ready', JSON.stringify(result.errors));
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.prepFacts.schema, 'reader-bootstrap');
+  assert.equal(result.prepFacts.readerOpen, true);
+  assert.equal(result.prepFacts.readingMode, 'book');
+  assert.equal(result.prepFacts.scrollContainer, null);
+  assert.deepEqual(result.prepFacts.pageBaseline.book, { spreadCount: 8, visibleSpreadIndex: 2 });
+  assert.deepEqual(result.prepFacts.pageBaseline.progress, { text: '12 / 300', current: 12, total: 300 });
+  assert.equal(result.prepFacts.pageBaseline.url, READER_URL);
+  assert.equal(result.prepFacts.profile.matches, true);
+  assert.deepEqual(result.prepFacts.profile.actual, VIEWPORTS[profile]);
+  assert.equal(result.prepFacts.taskSpace, 'fixture space');
+  assert.equal(result.prepFacts.windowScroll.isScrollContainer, false);
+  assert.deepEqual(result.prepFacts.documentScripts, { total: 6, external: 3 });
+  assert.equal(result.evidence.schema, 'reader-bootstrap');
+  assert.equal(result.evidence.artifactVersion, 1);
+  const [record] = await bootstrapRecords(result.evidence.file);
+  assert.equal(record.status, 'ready');
+  assert.deepEqual(record.errors, []);
+  assert.deepEqual(record.prepFacts, result.prepFacts);
+});
+
+for (const profile of ['desktop', 'mobile']) test(`bootstrap reads a persisted scroll reader from its scroll container (${profile})`, async () => {
+  const artifactDir = await bootstrapDir();
+  const raw = readerState({ profile, mode: 'scroll', scrollTop: 4321, windowScrollY: 17, progress: '7 / 300' });
+  const result = await bootstrapReader({ page: bootstrapPage(raw), profile, artifactDir });
+  assert.equal(result.status, 'ready', JSON.stringify(result.errors));
+  assert.equal(result.prepFacts.readingMode, 'scroll');
+  assert.equal(result.prepFacts.scrollContainer.selector, '.content.scroll-mode .awesome-scroll-view');
+  assert.equal(result.prepFacts.scrollContainer.index, 0);
+  assert.equal(result.prepFacts.scrollContainer.scrollTop, 4321);
+  assert.equal(result.prepFacts.scrollContainer.scrollHeight, 9000);
+  assert.equal(result.prepFacts.scrollContainer.clientHeight, VIEWPORTS[profile].height);
+  assert.equal(result.prepFacts.scrollContainer.windowScrollY, 17);
+  assert.equal(result.prepFacts.pageBaseline.scroll.scrollTop, 4321);
+  assert.equal(result.prepFacts.pageBaseline.book, null);
+  assert.equal(result.prepFacts.windowScroll.scrollY, 17);
+  assert.equal(result.prepFacts.windowScroll.isScrollContainer, false);
+  const [record] = await bootstrapRecords(result.evidence.file);
+  assert.equal(record.prepFacts.scrollContainer.scrollTop, 4321);
+});
+
+test('page baseline comparison uses relative progress instead of absolute page numbers', () => {
+  const moved = comparePageBaseline(baselineOf({ progress: '12 / 300' }), baselineOf({ progress: '14 / 300' }));
+  assert.equal(moved.comparable, true);
+  assert.equal(moved.changed, true);
+  assert.deepEqual(moved.progress, { before: 12, after: 14, delta: 2 });
+  assert.equal(moved.scroll, null);
+  assert.equal(moved.identityChanged, false);
+  const idle = comparePageBaseline(baselineOf({ progress: '12 / 300' }), baselineOf({ progress: '12 / 300' }));
+  assert.equal(idle.comparable, true);
+  assert.equal(idle.changed, false);
+  assert.deepEqual(idle.progress, { before: 12, after: 12, delta: 0 });
+  const lateStart = comparePageBaseline(baselineOf({ progress: '201 / 300' }), baselineOf({ progress: '203 / 300' }));
+  assert.equal(lateStart.comparable, true);
+  assert.equal(lateStart.changed, true);
+  assert.deepEqual(lateStart.progress, { before: 201, after: 203, delta: 2 });
+});
+
+test('page baseline comparison covers scroll, spread identity and mode changes', () => {
+  const scrolled = comparePageBaseline(baselineOf({ mode: 'scroll', scrollTop: 1000 }), baselineOf({ mode: 'scroll', scrollTop: 2500 }));
+  assert.equal(scrolled.comparable, true);
+  assert.equal(scrolled.changed, true);
+  assert.deepEqual(scrolled.scroll, { before: 1000, after: 2500, delta: 1500, direction: 'forward' });
+  const upward = comparePageBaseline(baselineOf({ mode: 'scroll', scrollTop: 2500 }), baselineOf({ mode: 'scroll', scrollTop: 1000 }));
+  assert.deepEqual(upward.scroll, { before: 2500, after: 1000, delta: -1500, direction: 'backward' });
+  const still = comparePageBaseline(baselineOf({ mode: 'scroll', scrollTop: 1000 }), baselineOf({ mode: 'scroll', scrollTop: 1000 }));
+  assert.equal(still.changed, false);
+  assert.equal(still.scroll.direction, 'none');
+  const spread = comparePageBaseline(baselineOf({ visibleSpreadIndex: 2 }), baselineOf({ visibleSpreadIndex: 3 }));
+  assert.equal(spread.identityChanged, true);
+  assert.equal(spread.changed, true);
+  assert.equal(spread.progress.delta, 0);
+  const mode = comparePageBaseline(baselineOf({ mode: 'book' }), baselineOf({ mode: 'scroll', scrollTop: 100 }));
+  assert.equal(mode.modeChanged, true);
+  assert.equal(mode.changed, true);
+  const navigated = comparePageBaseline(baselineOf({}), { ...baselineOf({}), url: 'https://exhentai.org/g/9/deadbeef/' });
+  assert.equal(navigated.urlChanged, true);
+  assert.equal(navigated.comparable, false);
+});
+
+test('page baseline comparison refuses missing or non-positional baselines', () => {
+  const missing = comparePageBaseline(null, baselineOf({}));
+  assert.deepEqual(missing, { comparable: false, changed: false, modeChanged: false, urlChanged: false,
+    progress: null, scroll: null, identityChanged: false });
+  const noPosition = comparePageBaseline(baselineOf({ progress: null }), baselineOf({ progress: null }));
+  assert.equal(noPosition.comparable, false);
+  assert.equal(noPosition.changed, false);
+});
+
+for (const [label, patch, expectedStatus, code] of [
+  ['reader not mounted', { mounted: false }, 'blocked', 'reader-not-mounted'],
+  ['reader mounted but not visible', { open: false }, 'blocked', 'reader-not-open'],
+  ['both mode containers visible', { mode: 'both' }, 'unknown', 'mode-ambiguous'],
+  ['no mode container visible', { mode: 'none' }, 'unknown', 'mode-unknown'],
+  ['scroll mode without a scroll view', { mode: 'scroll', scrollViews: [] }, 'unknown', 'scroll-container-unknown'],
+  ['scroll view hidden', { mode: 'scroll', scrollViews: [{ index: 0, ...uiBox({ display: 'none', rect: { x: 0, y: 0, width: 0, height: 0 } }),
+    scrollTop: 0, scrollHeight: 1, clientHeight: 1 }] }, 'unknown', 'scroll-container-unknown'],
+  ['scroll metrics invalid', { mode: 'scroll', scrollViews: [{ index: 0, ...uiBox(), scrollTop: Number.NaN, scrollHeight: 1, clientHeight: 1 }] }, 'unknown', 'scroll-container-unknown'],
+  ['two visible scroll views', { mode: 'scroll', scrollViews: [{ index: 0, ...uiBox(), scrollTop: 0, scrollHeight: 1, clientHeight: 1 },
+    { index: 1, ...uiBox(), scrollTop: 0, scrollHeight: 1, clientHeight: 1 }] }, 'unknown', 'scroll-container-unknown'],
+  ['document still loading', { readyState: 'loading' }, 'unknown', 'document-not-ready'],
+  ['vite overlay present', { overlay: true }, 'blocked', 'vite-error-overlay'],
+  ['book baseline without progress', { progress: null }, 'unknown', 'baseline-unknown'],
+  ['window scrolling is not a scroll container', { mode: 'scroll', scrollViews: [], windowScrollY: 900 }, 'unknown', 'scroll-container-unknown'],
+]) test(`bootstrap records ${label} as ${expectedStatus}`, async () => {
+  const artifactDir = await bootstrapDir();
+  const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'desktop', artifactDir,
+    observe: async () => readerState(patch) });
+  assert.equal(result.status, expectedStatus, JSON.stringify(result.errors));
+  assert.ok(result.errors.some(error => error.code === code), JSON.stringify(result.errors));
+  assert.notEqual(result.status, 'ready');
+  const [record] = await bootstrapRecords(result.evidence.file);
+  assert.equal(record.status, expectedStatus);
+  assert.deepEqual(record.prepFacts, result.prepFacts);
+  assert.equal(JSON.stringify(record.errors), JSON.stringify(result.errors));
+});
+
+test('bootstrap records a failed observation as blocked with its error details', async () => {
+  const artifactDir = await bootstrapDir();
+  const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'desktop', artifactDir,
+    observe: () => { throw new Error('fixture observe failed'); } });
+  assert.equal(result.status, 'blocked');
+  assert.equal(result.prepFacts, null);
+  const failure = result.errors.find(error => error.code === 'observation-failed');
+  assert.equal(failure.details.name, 'Error');
+  assert.equal(failure.details.message, 'fixture observe failed');
+  assert.equal(typeof failure.details.stack, 'string');
+  const [record] = await bootstrapRecords(result.evidence.file);
+  assert.equal(record.status, 'blocked');
+  assert.equal(record.prepFacts, null);
+});
+
+test('bootstrap keeps the reader open state when closeReader fails', async () => {
+  const artifactDir = await bootstrapDir();
+  const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'desktop', artifactDir,
+    observe: async () => readerState({ open: true }),
+    closeReader: () => { throw new Error('fixture close failed'); } });
+  assert.equal(result.status, 'blocked');
+  assert.ok(result.errors.some(error => error.code === 'close-reader-failed' && error.details.message === 'fixture close failed'));
+  assert.equal(result.prepFacts.readerOpen, true);
+  assert.deepEqual(result.prepFacts.calls.map(call => [call.name, call.ok]),
+    [['observe', true], ['closeReader', false], ['observe', true]]);
+});
+
+test('bootstrap records a failed openReader as blocked', async () => {
+  const artifactDir = await bootstrapDir();
+  const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'desktop', artifactDir,
+    observe: async () => readerState({ open: false }),
+    openReader: () => { throw new Error('fixture open failed'); } });
+  assert.equal(result.status, 'blocked');
+  assert.ok(result.errors.some(error => error.code === 'open-reader-failed'));
+  assert.equal(result.prepFacts.readerOpen, false);
+});
+
+test('bootstrap blocks when the page navigates between observations', async () => {
+  const artifactDir = await bootstrapDir();
+  let observations = 0;
+  const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'desktop', artifactDir,
+    observe: async () => (++observations === 1 ? readerState() : readerState({ open: false, url: `${READER_URL}#navigated` })),
+    closeReader: async () => {} });
+  assert.equal(result.status, 'blocked');
+  const navigated = result.errors.find(error => error.code === 'page-navigated');
+  assert.deepEqual(navigated.details, { before: READER_URL, after: `${READER_URL}#navigated` });
+});
+
+test('bootstrap hooks stay serial and run close before open', async () => {
+  const artifactDir = await bootstrapDir();
+  let open = true, active = 0, maxActive = 0;
+  const step = action => async () => {
+    active++;
+    maxActive = Math.max(maxActive, active);
+    await new Promise(resolve => setTimeout(resolve, 10));
+    action();
+    active--;
+  };
+  const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'desktop', artifactDir,
+    observe: async () => readerState({ open }),
+    closeReader: step(() => { open = false; }),
+    openReader: step(() => { open = true; }) });
+  assert.equal(result.status, 'ready', JSON.stringify(result.errors));
+  assert.equal(result.prepFacts.readerOpen, true);
+  assert.equal(maxActive, 1);
+  assert.deepEqual(result.prepFacts.calls.map(call => call.name), ['observe', 'closeReader', 'observe', 'openReader', 'observe']);
+  assert.equal(result.prepFacts.calls.every(call => call.ok), true);
+});
+
+test('auto-open without callbacks is recorded and never closed by a guessed selector', async () => {
+  const artifactDir = await bootstrapDir();
+  const result = await bootstrapReader({ page: bootstrapPage(readerState()), profile: 'desktop', artifactDir });
+  assert.equal(result.status, 'ready', JSON.stringify(result.errors));
+  assert.equal(result.prepFacts.readerOpen, true);
+  assert.deepEqual(result.prepFacts.calls.map(call => call.name), ['observe']);
+});
+
+test('bootstrap blocks a profile mismatch before downstream assertions', async () => {
+  const artifactDir = await bootstrapDir();
+  const result = await bootstrapReader({ page: bootstrapPage(readerState({ profile: 'desktop' })), profile: 'mobile', artifactDir });
+  assert.equal(result.status, 'blocked');
+  const mismatch = result.errors.find(error => error.code === 'profile-mismatch');
+  assert.deepEqual(mismatch.details.actual, VIEWPORTS.desktop);
+  assert.equal(result.prepFacts.profile.matches, false);
+  assert.equal(result.prepFacts.profile.requested, 'mobile');
+});
+
+test('bootstrap bounds a hanging callback without leaking an unhandled rejection', async () => {
+  const artifactDir = await bootstrapDir();
+  const unhandled = [];
+  const onUnhandled = reason => unhandled.push(reason);
+  process.on('unhandledRejection', onUnhandled);
+  try {
+    const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'desktop', artifactDir, timeoutMs: 20,
+      observe: async () => readerState({ open: true }),
+      closeReader: () => new Promise((_, reject) => setTimeout(() => reject(new Error('late close failure')), 40)) });
+    await new Promise(resolve => setTimeout(resolve, 60));
+    assert.equal(result.status, 'blocked');
+    assert.ok(result.errors.some(error => error.code === 'close-reader-failed' && /timed out after 20ms/.test(error.details.message)));
+    assert.deepEqual(unhandled, []);
+  } finally {
+    process.off('unhandledRejection', onUnhandled);
+  }
+});
+
+test('bootstrap rejects a profile inherited from the prototype chain', async () => {
+  const artifactDir = await bootstrapDir();
+  const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'toString', artifactDir });
+  assert.equal(result.status, 'blocked');
+  assert.equal(result.errors[0].code, 'invalid-profile');
+  assert.equal(result.evidence, null);
+});
+
+test('bootstrap rejects invalid inputs without writing evidence', async () => {
+  const artifactDir = await bootstrapDir();
+  const outside = path.join(ROOT, 'bootstrap-outside-evidence');
+  for (const [label, patch, code] of [
+    ['profile', { profile: 'tablet' }, 'invalid-profile'],
+    ['timeout', { timeoutMs: 0 }, 'invalid-timeout'],
+    ['page', { page: {} }, 'invalid-page'],
+    ['task space', { taskSpace: '   ' }, 'invalid-task-space'],
+    ['artifact dir outside .tmp', { artifactDir: outside }, 'invalid-artifact-dir'],
+    ['relative artifact dir', { artifactDir: '.tmp/bootstrap-relative' }, 'invalid-artifact-dir'],
+  ]) await (async () => {
+    const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'desktop', artifactDir, ...patch });
+    assert.equal(result.status, 'blocked', label);
+    assert.equal(result.prepFacts, null, label);
+    assert.equal(result.evidence, null, label);
+    assert.equal(result.errors[0].code, code, label);
+  })();
+  await assert.rejects(fs.access(outside));
+  await assert.rejects(fs.readdir(artifactDir));
+});
+
+test('bootstrap uses the built-in page observer when no observe callback is passed', async () => {
+  const artifactDir = await bootstrapDir();
+  const raw = readerState();
+  let evaluations = 0;
+  const page = { label: 'p1', spaceId: 42, evaluate: async fn => {
+    evaluations++;
+    assert.equal(typeof fn, 'function');
+    return structuredClone(raw);
+  } };
+  const result = await bootstrapReader({ page, profile: 'desktop', artifactDir });
+  assert.equal(evaluations, 1);
+  assert.equal(result.status, 'ready', JSON.stringify(result.errors));
+  assert.equal(result.prepFacts.readingMode, 'book');
+  assert.deepEqual(result.prepFacts.pageBaseline.progress, { text: '12 / 300', current: 12, total: 300 });
+});
+
+test('bootstrap appends one parseable evidence record per call', async () => {
+  const artifactDir = await bootstrapDir();
+  for (const mode of ['book', 'scroll']) {
+    const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'desktop', artifactDir,
+      observe: async () => readerState({ mode }) });
+    assert.equal(result.status, 'ready', JSON.stringify(result.errors));
+  }
+  const records = await bootstrapRecords(path.join(artifactDir, 'reader-bootstrap.jsonl'));
+  assert.equal(records.length, 2);
+  assert.deepEqual(records.map(record => record.prepFacts.readingMode), ['book', 'scroll']);
+  assert.deepEqual(records.map(record => record.artifactVersion), [1, 1]);
+  assert.deepEqual(records.map(record => record.schema), ['reader-bootstrap', 'reader-bootstrap']);
+});
+
+test('bootstrap inside a preflight round is consumed before the functional phase', async t => {
+  const f = await fixture(t);
+  const runs = [];
+  const result = await f.run(async api => {
+    const eventsBefore = f.page.eventsCalls;
+    const first = await bootstrapReader({ page: f.page, profile: 'desktop', taskSpace: f.page.label,
+      artifactDir: path.join(f.options.artifactDir, 'bootstrap'),
+      observe: async () => readerState({ profile: 'desktop' }) });
+    runs.push(first);
+    api.assert(first.status === 'ready', 'bootstrap must be ready before book assertions', first.errors);
+    api.assert(f.page.eventsCalls === eventsBefore, 'bootstrap must not consume page.events');
+    await api.phase('book-page-turn', () => f.page.queue.push(log('page turned')));
+    const second = await bootstrapReader({ page: f.page, profile: 'desktop', taskSpace: f.page.label,
+      artifactDir: path.join(f.options.artifactDir, 'bootstrap'),
+      observe: async () => readerState({ profile: 'desktop', progress: '14 / 300', visibleSpreadIndex: 3 }) });
+    runs.push(second);
+    const comparison = comparePageBaseline(first.prepFacts.pageBaseline, second.prepFacts.pageBaseline);
+    api.assert(comparison.comparable && comparison.changed && comparison.progress.delta === 2,
+      'a page turn must be observed as a relative baseline change', comparison);
+    api.assert(second.prepFacts.taskSpace === 'p1', 'the same task space page must be reusable');
+  });
+  assert.equal(result.observed, 'passed', JSON.stringify(result.errors));
+  assert.equal(runs.length, 2);
+  assert.equal(runs[0].prepFacts.taskSpace, 'p1');
+  assert.equal(runs[0].prepFacts.readingMode, 'book');
+  assert.ok(f.page.eventsCalls > 0);
+  const records = await bootstrapRecords(runs[1].evidence.file);
+  assert.equal(records.length, 2);
+  assert.equal(records.every(record => record.status === 'ready'), true);
 });

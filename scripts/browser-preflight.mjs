@@ -107,6 +107,292 @@ function observePage() {
   };
 }
 
+// Executed by Ego in the page world. Keep this self-contained; no Node captures.
+function observeReaderState() {
+  const box = element => {
+    if (!element) return { found: false };
+    const style = getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    return { found: true, display: style.display, visibility: style.visibility, opacity: style.opacity,
+      rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height } };
+  };
+  const bookMode = box(document.querySelector('.content.book-mode'));
+  const scrollMode = box(document.querySelector('.content.scroll-mode'));
+  const scrollViews = [...document.querySelectorAll('.content.scroll-mode .awesome-scroll-view')].map((element, index) => {
+    const state = box(element);
+    return { index, found: state.found, display: state.display, visibility: state.visibility, opacity: state.opacity, rect: state.rect,
+      scrollTop: element.scrollTop, scrollHeight: element.scrollHeight, clientHeight: element.clientHeight };
+  });
+  const spreads = bookMode.found ? [...document.querySelectorAll('.content.book-mode .book-spread')] : [];
+  const progressElement = document.querySelector('.status-pannel .progress');
+  const progress = box(progressElement);
+  return {
+    url: location.href, title: document.title, readyState: document.readyState,
+    viewport: { width: innerWidth, height: innerHeight, dpr: devicePixelRatio,
+      touchPoints: navigator.maxTouchPoints, coarse: matchMedia('(pointer: coarse)').matches },
+    overlay: !!document.querySelector('vite-error-overlay'),
+    app: { ...box(document.querySelector('#ehunter-app')),
+      mounted: !!document.querySelector('#ehunter-app .ehunter-container') },
+    bookMode, scrollMode, scrollViews,
+    book: bookMode.found ? {
+      spreadCount: spreads.length,
+      visibleSpreadIndex: spreads.findIndex(element => { const state = box(element); return state.rect.width > 0 && state.rect.height > 0; }),
+    } : null,
+    progress: { ...progress, text: progressElement ? progressElement.textContent : null },
+    window: { scrollX, scrollY,
+      documentScrollTop: document.scrollingElement ? document.scrollingElement.scrollTop : document.documentElement.scrollTop },
+    documentScripts: { total: document.scripts.length, external: [...document.scripts].filter(script => !!script.src).length },
+  };
+}
+
+const BOOTSTRAP_SCHEMA = 'reader-bootstrap';
+const BOOTSTRAP_FILE = 'reader-bootstrap.jsonl';
+const SCROLL_VIEW_SELECTOR = '.content.scroll-mode .awesome-scroll-view';
+
+function isVisibleBox(box) {
+  if (!box || typeof box !== 'object' || box.found === false) return false;
+  if (box.display === 'none' || box.visibility === 'hidden') return false;
+  if (Number(box.opacity ?? 1) === 0) return false;
+  const width = Number(box.rect?.width);
+  const height = Number(box.rect?.height);
+  return Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0;
+}
+
+function progressFact(rawProgress) {
+  if (!isVisibleBox(rawProgress)) return null;
+  const text = typeof rawProgress.text === 'string' ? rawProgress.text.trim() : '';
+  const match = /^(\d+)\s*\/\s*(\d+)$/.exec(text);
+  return match ? { text, current: Number(match[1]), total: Number(match[2]) } : null;
+}
+
+function bookFact(rawBook) {
+  if (!rawBook || !Number.isInteger(rawBook.spreadCount) || rawBook.spreadCount < 1) return null;
+  if (!Number.isInteger(rawBook.visibleSpreadIndex)) return null;
+  if (rawBook.visibleSpreadIndex < 0 || rawBook.visibleSpreadIndex >= rawBook.spreadCount) return null;
+  return { spreadCount: rawBook.spreadCount, visibleSpreadIndex: rawBook.visibleSpreadIndex };
+}
+
+/** Classifies page-world reader facts; unknown facts are never filled with defaults. */
+export function classifyReaderFacts(raw) {
+  const facts = {
+    readerOpen: false, readingMode: 'unknown', scrollContainer: null, pageBaseline: null,
+    viewport: raw?.viewport ?? null, url: raw?.url ?? null, readyState: raw?.readyState ?? null,
+    documentScripts: raw?.documentScripts ?? null, window: raw?.window ?? null, errors: [],
+  };
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    facts.errors.push({ code: 'observation-invalid', severity: 'blocked', message: 'Reader observation is not an object' });
+    return facts;
+  }
+  const blocked = (code, message, details) => facts.errors.push({ code, severity: 'blocked', message, ...(details === undefined ? {} : { details }) });
+  const unknown = (code, message, details) => facts.errors.push({ code, severity: 'unknown', message, ...(details === undefined ? {} : { details }) });
+  if (raw.overlay) blocked('vite-error-overlay', 'Vite error overlay is present');
+  if (raw.readyState !== 'complete') unknown('document-not-ready', 'Document is not complete', { readyState: raw.readyState ?? null });
+  const app = raw.app;
+  if (app?.found === false || app?.mounted !== true) {
+    blocked('reader-not-mounted', 'Reader mount marker is missing', app ? { found: app.found !== false, mounted: !!app.mounted } : undefined);
+    return facts;
+  }
+  facts.readerOpen = isVisibleBox(app);
+  if (!facts.readerOpen) {
+    blocked('reader-not-open', 'Reader is mounted but not visible',
+      { display: app.display, visibility: app.visibility, opacity: app.opacity, rect: app.rect });
+    return facts;
+  }
+  const bookVisible = isVisibleBox(raw.bookMode);
+  const scrollVisible = isVisibleBox(raw.scrollMode);
+  if (bookVisible && scrollVisible) unknown('mode-ambiguous', 'Book and scroll mode containers are both visible');
+  else if (bookVisible) facts.readingMode = 'book';
+  else if (scrollVisible) facts.readingMode = 'scroll';
+  else unknown('mode-unknown', 'No reader mode container is visible');
+  if (facts.readingMode === 'scroll') {
+    const views = (Array.isArray(raw.scrollViews) ? raw.scrollViews : [])
+      .map((view, index) => ({ ...view, index: Number.isInteger(view?.index) ? view.index : index }));
+    const visible = views.filter(isVisibleBox);
+    if (visible.length !== 1) {
+      unknown('scroll-container-unknown', 'Scroll mode needs exactly one visible scroll view', { visible: visible.length, total: views.length, selector: SCROLL_VIEW_SELECTOR });
+    } else {
+      const [view] = visible;
+      const metrics = [view.scrollTop, view.scrollHeight, view.clientHeight];
+      if (!metrics.every(value => Number.isFinite(value) && value >= 0)) {
+        unknown('scroll-container-unknown', 'Scroll metrics are invalid', { scrollTop: view.scrollTop, scrollHeight: view.scrollHeight, clientHeight: view.clientHeight });
+      } else {
+        facts.scrollContainer = { selector: SCROLL_VIEW_SELECTOR, index: view.index, scrollTop: view.scrollTop,
+          scrollHeight: view.scrollHeight, clientHeight: view.clientHeight,
+          windowScrollY: Number.isFinite(raw.window?.scrollY) ? raw.window.scrollY : 0 };
+      }
+    }
+  }
+  const progress = progressFact(raw.progress);
+  const scroll = facts.scrollContainer && { selector: facts.scrollContainer.selector, index: facts.scrollContainer.index,
+    scrollTop: facts.scrollContainer.scrollTop, scrollHeight: facts.scrollContainer.scrollHeight, clientHeight: facts.scrollContainer.clientHeight };
+  if (!progress && !scroll) unknown('baseline-unknown', 'Neither progress text nor a scroll position is observable');
+  facts.pageBaseline = { mode: facts.readingMode, url: facts.url, progress: progress ? { ...progress } : null,
+    scroll: scroll || null, book: facts.readingMode === 'book' ? bookFact(raw.book) : null };
+  return facts;
+}
+
+/** Relative page comparison; absolute page numbers are evidence, never assertions. */
+export function comparePageBaseline(before, after) {
+  const result = { comparable: false, changed: false, modeChanged: false, urlChanged: false,
+    progress: null, scroll: null, identityChanged: false };
+  if (!before || typeof before !== 'object' || !after || typeof after !== 'object') return result;
+  const progressBefore = Number.isFinite(before.progress?.current) ? before.progress.current : null;
+  const progressAfter = Number.isFinite(after.progress?.current) ? after.progress.current : null;
+  const scrollBefore = Number.isFinite(before.scroll?.scrollTop) ? before.scroll.scrollTop : null;
+  const scrollAfter = Number.isFinite(after.scroll?.scrollTop) ? after.scroll.scrollTop : null;
+  if (progressBefore !== null && progressAfter !== null) {
+    result.progress = { before: progressBefore, after: progressAfter, delta: progressAfter - progressBefore };
+  }
+  if (scrollBefore !== null && scrollAfter !== null) {
+    const delta = scrollAfter - scrollBefore;
+    result.scroll = { before: scrollBefore, after: scrollAfter, delta, direction: delta > 0 ? 'forward' : delta < 0 ? 'backward' : 'none' };
+  }
+  const beforeSpread = before.book?.visibleSpreadIndex;
+  const afterSpread = after.book?.visibleSpreadIndex;
+  if (Number.isInteger(beforeSpread) && Number.isInteger(afterSpread)) result.identityChanged = beforeSpread !== afterSpread;
+  result.urlChanged = (before.url ?? null) !== (after.url ?? null);
+  result.modeChanged = (before.mode ?? null) !== (after.mode ?? null);
+  result.comparable = !result.urlChanged && (result.progress !== null || result.scroll !== null);
+  result.changed = result.modeChanged || result.identityChanged
+    || (result.progress !== null && result.progress.delta !== 0)
+    || (result.scroll !== null && result.scroll.delta !== 0);
+  return result;
+}
+
+/**
+ * Preparation-only observation of the current page. Never throws: invalid inputs,
+ * failed observation and unwritable evidence return a blocked result. Callbacks are
+ * normal UI actions; page.events() stays owned by withBrowserPreflight.
+ */
+export async function bootstrapReader({ page, taskSpace, profile, observe, closeReader, openReader, artifactDir, timeoutMs = 15000 } = {}) {
+  const errors = [], calls = [];
+  let observedAt = new Date().toISOString();
+  const status = () => (errors.some(error => error.severity === 'blocked') ? 'blocked' : errors.length ? 'unknown' : 'ready');
+  const fail = (code, message, details) => errors.push({ code, severity: 'blocked', message, ...(details === undefined ? {} : { details }) });
+  const invalid = (code, message, details) => {
+    fail(code, message, details);
+    return { status: 'blocked', prepFacts: null, evidence: null, errors, calls };
+  };
+  if (profile !== undefined && profile !== null && !Object.hasOwn(PROFILES, profile)) return invalid('invalid-profile', 'profile must be desktop or mobile', { profile });
+  if (taskSpace !== undefined && taskSpace !== null && (typeof taskSpace !== 'string' || taskSpace.trim() === '')) {
+    return invalid('invalid-task-space', 'taskSpace must be a nonempty string when provided', { taskSpace });
+  }
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0 || timeoutMs > 60000) return invalid('invalid-timeout', 'timeoutMs must be in (0, 60000]', { timeoutMs });
+  if (!page || typeof page.evaluate !== 'function') return invalid('invalid-page', 'page must provide evaluate()', { evaluate: typeof page?.evaluate });
+  if (typeof artifactDir !== 'string' || !path.isAbsolute(artifactDir) || !inside(path.join(ROOT, '.tmp'), artifactDir)) {
+    return invalid('invalid-artifact-dir', 'artifactDir must be an absolute path inside this repository .tmp', { artifactDir });
+  }
+  const bounded = async (label, operation, limit = timeoutMs) => {
+    let timer;
+    const running = Promise.resolve().then(operation);
+    try {
+      return await Promise.race([running, new Promise((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} timed out after ${limit}ms`)), limit);
+      })]);
+    } finally {
+      clearTimeout(timer);
+      running.catch(() => {});
+    }
+  };
+  const observeOnce = async () => {
+    const startedAt = new Date().toISOString();
+    try {
+      const raw = await bounded('observe', () => (typeof observe === 'function' ? observe() : page.evaluate(observeReaderState)));
+      if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('Reader observation must be an object');
+      calls.push({ name: 'observe', startedAt, endedAt: new Date().toISOString(), ok: true });
+      observedAt = new Date().toISOString();
+      return raw;
+    } catch (error) {
+      calls.push({ name: 'observe', startedAt, endedAt: new Date().toISOString(), ok: false, error: errorRecord(error) });
+      fail('observation-failed', 'Reader state observation failed', { name: error?.name ?? 'Error', message: error?.message ?? String(error), stack: error?.stack });
+      return null;
+    }
+  };
+  const callHook = async (name, code, callback) => {
+    const startedAt = new Date().toISOString();
+    try {
+      await bounded(name, () => callback());
+      calls.push({ name, startedAt, endedAt: new Date().toISOString(), ok: true });
+      return true;
+    } catch (error) {
+      calls.push({ name, startedAt, endedAt: new Date().toISOString(), ok: false, error: errorRecord(error) });
+      fail(code, `${name} callback failed`, errorRecord(error));
+      return false;
+    }
+  };
+  const finish = async prepFacts => {
+    let current = status();
+    let evidence = null;
+    try {
+      await fs.mkdir(artifactDir, { recursive: true });
+      const realTmp = await fs.realpath(path.join(ROOT, '.tmp'));
+      const realTarget = await fs.realpath(artifactDir);
+      if (!inside(realTmp, realTarget)) {
+        fail('invalid-artifact-dir', 'artifactDir resolves outside this repository .tmp', { artifactDir, resolved: realTarget });
+      } else {
+        const file = path.join(realTarget, BOOTSTRAP_FILE);
+        await fs.appendFile(file, JSON.stringify({ schema: BOOTSTRAP_SCHEMA, artifactVersion: 1, status: current, prepFacts, errors, calls }) + '\n');
+        evidence = { path: path.relative(ROOT, file), file, schema: BOOTSTRAP_SCHEMA, artifactVersion: 1 };
+      }
+    } catch (error) {
+      fail('evidence-write-failed', 'Reader bootstrap evidence could not be written', errorRecord(error));
+    }
+    current = status();
+    return { status: current, prepFacts, evidence, errors, calls };
+  };
+  try {
+    const first = await observeOnce();
+    if (!first) return await finish(null);
+    let current = first;
+    if (typeof closeReader === 'function' && classifyReaderFacts(first).readerOpen) {
+      await callHook('closeReader', 'close-reader-failed', closeReader);
+      current = (await observeOnce()) ?? current;
+    }
+    if (typeof openReader === 'function' && !classifyReaderFacts(current).readerOpen) {
+      await callHook('openReader', 'open-reader-failed', openReader);
+      current = (await observeOnce()) ?? current;
+    }
+    const facts = classifyReaderFacts(current);
+    errors.push(...facts.errors);
+    if (typeof first.url === 'string' && typeof facts.url === 'string' && first.url !== facts.url) {
+      fail('page-navigated', 'Page navigated during bootstrap', { before: first.url, after: facts.url });
+    }
+    let profileFact = null;
+    if (profile !== undefined && profile !== null) {
+      const expected = { ...PROFILES[profile] };
+      const actual = facts.viewport ? { width: facts.viewport.width, height: facts.viewport.height, dpr: facts.viewport.dpr,
+        touchPoints: facts.viewport.touchPoints, coarse: facts.viewport.coarse } : null;
+      const matches = !!actual && actual.width === expected.width && actual.height === expected.height
+        && Number.isFinite(actual.dpr) && Math.abs(actual.dpr - expected.dpr) <= 1e-6
+        && actual.touchPoints === expected.touchPoints && actual.coarse === expected.coarse;
+      profileFact = { requested: profile, expected, actual, matches };
+      if (!matches) fail('profile-mismatch', 'Measured viewport does not match the requested profile', profileFact);
+    }
+    const prepFacts = {
+      schema: BOOTSTRAP_SCHEMA,
+      taskSpace: taskSpace ?? null,
+      url: facts.url,
+      profile: profileFact,
+      readerOpen: facts.readerOpen,
+      readingMode: facts.readingMode,
+      scrollContainer: facts.scrollContainer,
+      pageBaseline: facts.pageBaseline,
+      windowScroll: { scrollX: Number.isFinite(facts.window?.scrollX) ? facts.window.scrollX : null,
+        scrollY: Number.isFinite(facts.window?.scrollY) ? facts.window.scrollY : null,
+        documentScrollTop: Number.isFinite(facts.window?.documentScrollTop) ? facts.window.documentScrollTop : null,
+        isScrollContainer: false },
+      documentScripts: facts.documentScripts,
+      readyState: facts.readyState,
+      calls,
+      observedAt,
+    };
+    return await finish(prepFacts);
+  } catch (error) {
+    fail('bootstrap-failed', 'Reader bootstrap failed', errorRecord(error));
+    return { status: 'blocked', prepFacts: null, evidence: null, errors, calls };
+  }
+}
+
 /**
  * One call is one CDP session/round. Callers own the existing Ego space, services,
  * UI selectors, and acceptance.json. They must not drain page.events themselves.

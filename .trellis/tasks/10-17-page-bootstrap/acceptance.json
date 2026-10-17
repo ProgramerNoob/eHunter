@@ -9,22 +9,36 @@
   },
   "checks": [
     {
-      "id": "ac1-planning",
+      "id": "ac1-persisted-book-and-scroll",
       "ac": [
         "AC1"
       ],
       "claim": "验证persisted book 与 scroll 两种初始 fixture 均能输出实际 reading mode、reader open 状态和可见滚动容器；scroll fixture 证明读取的是 `.awesome-scroll-view` 的 `scrollTop`，不是 window/document。",
-      "scope": "persisted book/scroll state and actual visible scroll element observation",
+      "scope": "persisted book/scroll readers on desktop and mobile, built-in page observer",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "node",
+          "--test",
+          "--test-name-pattern=bootstrap reads a persisted (book|scroll) reader|bootstrap uses the built-in page observer when no observe callback is passed",
+          "tests/browser-preflight.test.mjs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T07:22:46.589146+00:00",
+        "endedAt": "2026-10-17T07:22:46.665396+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp9syn9ucs.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-17-page-bootstrap/tmp9syn9ucs.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     },
     {
-      "id": "ac2-planning",
+      "id": "ac2-relative-baseline",
       "ac": [
         "AC2"
       ],
@@ -32,14 +46,28 @@
       "scope": "non-initial page baseline and relative page/position delta",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "node",
+          "--test",
+          "--test-name-pattern=page baseline comparison",
+          "tests/browser-preflight.test.mjs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T07:22:49.787045+00:00",
+        "endedAt": "2026-10-17T07:22:49.859213+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmpukpmu1d5.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-17-page-bootstrap/tmpukpmu1d5.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     },
     {
-      "id": "ac3-planning",
+      "id": "ac3-preparation-blocked-or-unknown",
       "ac": [
         "AC3"
       ],
@@ -47,14 +75,28 @@
       "scope": "blocked/unknown preparation on automatic open, incomplete initialization, late script or navigation",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "node",
+          "--test",
+          "--test-name-pattern=bootstrap records .* as (blocked|unknown)|bootstrap records a failed observation as blocked|bootstrap keeps the reader open state when closeReader fails|bootstrap records a failed openReader as blocked|bootstrap blocks when the page navigates between observations|bootstrap blocks a profile mismatch before downstream assertions|bootstrap bounds a hanging callback|bootstrap rejects a profile inherited from the prototype chain",
+          "tests/browser-preflight.test.mjs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T07:22:51.913377+00:00",
+        "endedAt": "2026-10-17T07:22:52.085740+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp4v5fs5d3.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-17-page-bootstrap/tmp4v5fs5d3.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     },
     {
-      "id": "ac4-planning",
+      "id": "ac4-desktop-mobile-and-boundaries",
       "ac": [
         "AC4"
       ],
@@ -62,25 +104,52 @@
       "scope": "desktop/mobile fixtures, event-consumer and storage/product boundaries, .tmp evidence",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "node",
+          "--test",
+          "--test-name-pattern=bootstrap reads a persisted (book|scroll) reader|bootstrap inside a preflight round is consumed before the functional phase|bootstrap rejects invalid inputs without writing evidence|bootstrap appends one parseable evidence record per call",
+          "tests/browser-preflight.test.mjs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T07:22:54.047070+00:00",
+        "endedAt": "2026-10-17T07:22:54.238594+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmpkss3hul7.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-17-page-bootstrap/tmpkss3hul7.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     },
     {
-      "id": "ac5-planning",
+      "id": "ac5-prep-consumed-before-functional-phase",
       "ac": [
         "AC5"
       ],
       "claim": "验证使用同一 task space/page 的场景示例能消费 `prepFacts` 后再进入 book/scroll 功能阶段，既有 browser preflight 测试无回归。",
-      "scope": "same task-space/page prepFacts integration and preflight regression",
+      "scope": "same task-space/page prepFacts integration and full preflight regression",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "node",
+          "--test",
+          "tests/browser-preflight.test.mjs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T07:22:55.755741+00:00",
+        "endedAt": "2026-10-17T07:23:02.595788+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmpdo759fu9.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-17-page-bootstrap/tmpdo759fu9.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     }
   ]
