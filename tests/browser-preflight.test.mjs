@@ -1155,7 +1155,7 @@ test('page baseline comparison refuses missing or non-positional baselines', () 
   const noPosition = comparePageBaseline(baselineOf({ progress: null, spreadCount: 0 }), baselineOf({ progress: null, spreadCount: 0 }));
   assert.equal(noPosition.comparable, false);
   assert.equal(noPosition.blockedReason, 'no-baseline');
-  assert.equal(noPosition.blockedReason, 'no-baseline');
+  assert.equal(noPosition.changed, false);
   const spreadLayoutChanged = comparePageBaseline(
     baselineOf({ progress: null, spreadCount: 8, visibleSpreadIndex: 2 }),
     baselineOf({ progress: null, spreadCount: 10, visibleSpreadIndex: 2 }));

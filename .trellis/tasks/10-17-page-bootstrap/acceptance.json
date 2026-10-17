@@ -22,16 +22,16 @@
         "argv": [
           "python3",
           "-c",
-          "import re,subprocess,sys; p=r'''bootstrap reads a persisted (book|scroll) reader|bootstrap uses the built-in page observer when no observe callback is passed'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); named=[l for l in c.stdout.splitlines() if re.match(r'^ok \\d+ - ',l) and '# SKIP' not in l and not l.endswith(' - tests/browser-preflight.test.mjs')]; print('guard: named tests', len(named)); sys.exit(0 if c.returncode==0 and named else 1)"
+          "import re,subprocess,sys; p=r'''bootstrap reads a persisted (book|scroll) reader|bootstrap uses the built-in page observer when no observe callback is passed'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); zero=re.search(r'(?m)^1\\.\\.0$',c.stdout); ok=re.search(r'(?m)^ok \\d+ - ',c.stdout); print('guard: zero-plan', bool(zero)); sys.exit(0 if c.returncode==0 and ok and not zero else 1)"
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T08:14:19.069100+00:00",
-        "endedAt": "2026-10-17T08:14:19.153893+00:00",
-        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp92poa1v8.log"
+        "startedAt": "2026-10-17T08:19:01.788098+00:00",
+        "endedAt": "2026-10-17T08:19:01.873254+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp6b2_pl6y.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-page-bootstrap/tmp92poa1v8.log"
+        ".tmp/acceptance/10-17-page-bootstrap/tmp6b2_pl6y.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -50,16 +50,16 @@
         "argv": [
           "python3",
           "-c",
-          "import re,subprocess,sys; p=r'''page baseline comparison'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); named=[l for l in c.stdout.splitlines() if re.match(r'^ok \\d+ - ',l) and '# SKIP' not in l and not l.endswith(' - tests/browser-preflight.test.mjs')]; print('guard: named tests', len(named)); sys.exit(0 if c.returncode==0 and named else 1)"
+          "import re,subprocess,sys; p=r'''page baseline comparison'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); zero=re.search(r'(?m)^1\\.\\.0$',c.stdout); ok=re.search(r'(?m)^ok \\d+ - ',c.stdout); print('guard: zero-plan', bool(zero)); sys.exit(0 if c.returncode==0 and ok and not zero else 1)"
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T08:14:19.179982+00:00",
-        "endedAt": "2026-10-17T08:14:19.259523+00:00",
-        "log": ".tmp/acceptance/10-17-page-bootstrap/tmpvki_itpu.log"
+        "startedAt": "2026-10-17T08:19:01.899327+00:00",
+        "endedAt": "2026-10-17T08:19:01.978285+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp2rbolss4.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-page-bootstrap/tmpvki_itpu.log"
+        ".tmp/acceptance/10-17-page-bootstrap/tmp2rbolss4.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -78,16 +78,16 @@
         "argv": [
           "python3",
           "-c",
-          "import re,subprocess,sys; p=r'''bootstrap records .* as (blocked|unknown)|bootstrap records a failed observation as blocked|bootstrap keeps the reader open state when closeReader fails|bootstrap records a failed openReader as blocked|bootstrap blocks when the page navigates between observations|bootstrap blocks a profile mismatch before downstream assertions|bootstrap bounds a hanging callback|bootstrap rejects a profile inherited from the prototype chain'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); named=[l for l in c.stdout.splitlines() if re.match(r'^ok \\d+ - ',l) and '# SKIP' not in l and not l.endswith(' - tests/browser-preflight.test.mjs')]; print('guard: named tests', len(named)); sys.exit(0 if c.returncode==0 and named else 1)"
+          "import re,subprocess,sys; p=r'''bootstrap records .* as (blocked|unknown)|bootstrap records a failed observation as blocked|bootstrap keeps the reader open state when closeReader fails|bootstrap records a failed openReader as blocked|bootstrap blocks when the page navigates between observations|bootstrap blocks a profile mismatch before downstream assertions|bootstrap bounds a hanging callback|bootstrap rejects a profile inherited from the prototype chain'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); zero=re.search(r'(?m)^1\\.\\.0$',c.stdout); ok=re.search(r'(?m)^ok \\d+ - ',c.stdout); print('guard: zero-plan', bool(zero)); sys.exit(0 if c.returncode==0 and ok and not zero else 1)"
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T08:14:19.285385+00:00",
-        "endedAt": "2026-10-17T08:14:19.462519+00:00",
-        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp6i36wf3y.log"
+        "startedAt": "2026-10-17T08:19:02.004400+00:00",
+        "endedAt": "2026-10-17T08:19:02.183333+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp2xh07bte.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-page-bootstrap/tmp6i36wf3y.log"
+        ".tmp/acceptance/10-17-page-bootstrap/tmp2xh07bte.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -106,16 +106,16 @@
         "argv": [
           "python3",
           "-c",
-          "import re,subprocess,sys; p=r'''bootstrap reads a persisted (book|scroll) reader|bootstrap inside a preflight round is consumed before the functional phase|bootstrap rejects invalid inputs without writing evidence|bootstrap appends one parseable evidence record per call'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); named=[l for l in c.stdout.splitlines() if re.match(r'^ok \\d+ - ',l) and '# SKIP' not in l and not l.endswith(' - tests/browser-preflight.test.mjs')]; print('guard: named tests', len(named)); sys.exit(0 if c.returncode==0 and named else 1)"
+          "import re,subprocess,sys; p=r'''bootstrap reads a persisted (book|scroll) reader|bootstrap inside a preflight round is consumed before the functional phase|bootstrap rejects invalid inputs without writing evidence|bootstrap appends one parseable evidence record per call'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); zero=re.search(r'(?m)^1\\.\\.0$',c.stdout); ok=re.search(r'(?m)^ok \\d+ - ',c.stdout); print('guard: zero-plan', bool(zero)); sys.exit(0 if c.returncode==0 and ok and not zero else 1)"
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T08:14:19.491762+00:00",
-        "endedAt": "2026-10-17T08:14:19.691308+00:00",
-        "log": ".tmp/acceptance/10-17-page-bootstrap/tmpjl5wjazk.log"
+        "startedAt": "2026-10-17T08:19:02.213879+00:00",
+        "endedAt": "2026-10-17T08:19:02.415153+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp2mpfvkji.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-page-bootstrap/tmpjl5wjazk.log"
+        ".tmp/acceptance/10-17-page-bootstrap/tmp2mpfvkji.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -134,16 +134,16 @@
         "argv": [
           "python3",
           "-c",
-          "import re,subprocess,sys; p=r'''bootstrap inside a preflight round is consumed before the functional phase|bootstrap hooks stay serial|bootstrap appends one parseable evidence record per call|bootstrap reads a persisted (book|scroll) reader'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); named=[l for l in c.stdout.splitlines() if re.match(r'^ok \\d+ - ',l) and '# SKIP' not in l and not l.endswith(' - tests/browser-preflight.test.mjs')]; print('guard: named tests', len(named)); sys.exit(0 if c.returncode==0 and named else 1)"
+          "import re,subprocess,sys; p=r'''bootstrap inside a preflight round is consumed before the functional phase|bootstrap hooks stay serial|bootstrap appends one parseable evidence record per call|bootstrap reads a persisted (book|scroll) reader'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); zero=re.search(r'(?m)^1\\.\\.0$',c.stdout); ok=re.search(r'(?m)^ok \\d+ - ',c.stdout); print('guard: zero-plan', bool(zero)); sys.exit(0 if c.returncode==0 and ok and not zero else 1)"
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T08:14:19.722369+00:00",
-        "endedAt": "2026-10-17T08:14:19.946972+00:00",
-        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp3xl5eard.log"
+        "startedAt": "2026-10-17T08:19:02.446480+00:00",
+        "endedAt": "2026-10-17T08:19:02.670304+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmpqgvp0ntw.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-page-bootstrap/tmp3xl5eard.log"
+        ".tmp/acceptance/10-17-page-bootstrap/tmpqgvp0ntw.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -166,12 +166,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T08:14:25.054236+00:00",
-        "endedAt": "2026-10-17T08:14:39.415487+00:00",
-        "log": ".tmp/acceptance/10-17-page-bootstrap/tmpqs721cfm.log"
+        "startedAt": "2026-10-17T08:19:14.779929+00:00",
+        "endedAt": "2026-10-17T08:19:28.955071+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmpw0_ng6o4.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-page-bootstrap/tmpqs721cfm.log"
+        ".tmp/acceptance/10-17-page-bootstrap/tmpw0_ng6o4.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
