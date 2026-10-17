@@ -77,4 +77,4 @@ manifest.json: no artifactVersion 1 provenance; re-run browser acceptance and ba
 
 ## 已知成本
 
-每轮每个 checkpoint 的 `unchanged()` 都会重读全部 source 输入与 `scenarioInputs`（通常是个位数量的小文件），并追加 `fingerprints.jsonl`。这是轮次内篡改检测的必要成本：缓存 hash 或只比对 mtime 都会放弃对内容变化的检测，因此不做优化。真实验收一轮的 checkpoint 数量有限，读放大不影响时效。
+`unchanged()` 每轮只在三处调用：导航前基线、轮次结束和 finally 收尾。每次重读全部 source 输入与 `scenarioInputs`（通常是个位数量的小文件）并追加 `fingerprints.jsonl`；读文件算 hash 是检测轮次内输入变化的唯一手段，不可缓存。三处合计约几十次小文件读，相对一轮十几秒的浏览器时序是噪声级别，没有值得优化的空间。
