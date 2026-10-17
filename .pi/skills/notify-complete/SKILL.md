@@ -10,37 +10,19 @@ metadata:
 
 # 测试与完成通知
 
-通过 pi 的 `bash` 工具执行对应阶段的命令。测试开始前播放 5 次，任务完成后播放 10 次，每次播放后间隔 0.5 秒。通知在后台运行，不阻塞主任务。
-
-## 在 pi 中调用
-
-```text
-/skill:notify-complete test-start
-/skill:notify-complete task-complete
-```
-
-pi 将命令后的文本作为用户指令附在技能正文之后。`test-start` 对应短通知，`task-complete` 对应长通知；没有参数时按当前任务阶段选择，单独调用时默认长通知。
-
-## 执行
-
-1. 用户明确要求静音或跳过通知时，本次按用户要求处理。
-2. 确认 `afplay` 命令可用且 `/System/Library/Sounds/Ping.aiff` 可读。若环境不支持，在结果中简短说明并继续主任务。
-3. 按阶段执行下面的一条命令。两个阶段分别通知，同一阶段无需重复触发。
-
-### 测试开始前：短通知
-
-在启动测试命令或浏览器验证前，用 `bash` 执行：
+测试开始前播放 5 次，任务完成后播放 10 次，每次间隔 0.5 秒；失败时输出可见原因。用 pi 的 `bash` 工具执行一次下面的命令，改 `COUNT` 即为对应阶段，命令在后台播放、不阻塞主任务。
 
 ```bash
-(for i in $(seq 1 5); do afplay /System/Library/Sounds/Ping.aiff; sleep 0.5; done) >/dev/null 2>&1 &
+COUNT=5  # test-start: 5；task-complete: 10
+SOUND=/System/Library/Sounds/Ping.aiff
+if ! AFPLAY=$(command -v afplay) || [ ! -r "$SOUND" ]; then
+  echo "notify-complete: 找不到 afplay 或 ${SOUND}，已跳过通知" >&2
+  exit 0
+fi
+(for i in $(seq 1 "$COUNT"); do
+  "$AFPLAY" "$SOUND" || echo "notify-complete: 第 ${i} 次播放失败" >&2
+  sleep 0.5
+done) &
 ```
 
-### 任务完成后：长通知
-
-完成实现、修复、排查、文档、测试或说明任务后，在最终回复前用 `bash` 执行：
-
-```bash
-(for i in $(seq 1 10); do afplay /System/Library/Sounds/Ping.aiff; sleep 0.5; done) >/dev/null 2>&1 &
-```
-
-后台进程会在播放结束后自行退出。命令成功启动表示已触发通知，不代表用户已经听到或完成验收。
+用户明确要求静音或跳过时不再执行。命令成功启动只表示通知已触发，不代表用户已听到或完成验收。
