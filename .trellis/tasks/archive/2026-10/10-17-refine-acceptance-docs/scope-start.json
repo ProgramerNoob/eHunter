@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-17-refine-acceptance-docs",
+  "branch": "master",
+  "head": "78a7af31df45a3d9978bd54b5761811874a9bf5a",
+  "indexTree": "d7649486dc319496252bfc551bbf92badbf25c28",
+  "capturedAt": "2026-10-17T23:24:17+08:00",
+  "scopeDigest": "8db1488b3ce7747a27812a8adbc8fe5084002359283abc28655041f26829cf24",
+  "dirty": {
+    ".trellis/tasks/10-17-refine-acceptance-docs/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "1c6e6ad12c486a2060a93401f9fadf615bb4f2806706cd3f32985011eb9c3a1d"
+    }
+  },
+  "untracked": {}
+}

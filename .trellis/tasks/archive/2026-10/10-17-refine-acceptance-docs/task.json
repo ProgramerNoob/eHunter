@@ -3,7 +3,7 @@
   "name": "refine-acceptance-docs",
   "title": "精简验收文档与技能",
   "description": "精简 AGENTS.md 与 reader-test/notify-complete 技能，去除与 browser-acceptance.md、workflow.md 的重复内容，修复 PLATFORM 传递与序号引用缺陷",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -11,7 +11,7 @@
   "creator": "Warwick",
   "assignee": "Warwick",
   "createdAt": "2026-10-17",
-  "completedAt": null,
+  "completedAt": "2026-10-17",
   "branch": "master",
   "base_branch": "master",
   "worktree_path": null,
@@ -30,11 +30,19 @@
       "categories": {
         "task-evidence": [
           ".trellis/tasks/10-17-refine-acceptance-docs/**"
+        ],
+        "project-docs": [
+          "AGENTS.md",
+          ".trellis/spec/frontend/browser-acceptance.md"
+        ],
+        "skill-docs": [
+          ".pi/skills/reader-test/**",
+          ".pi/skills/notify-complete/**"
         ]
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "7c7c659a016409cfd0476434e0c825d336a6bf8611ac40f24a6027acaa73e340"
+        "sha256": "380e30cf93a3bd3775f88b9b1aa8b66381fc8474bb6de8681cdbafdd25346024"
       }
     }
   }
