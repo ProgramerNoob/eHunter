@@ -61,12 +61,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T12:36:47.906313+00:00",
-        "endedAt": "2026-10-17T12:36:48.245075+00:00",
-        "log": ".tmp/acceptance/10-16-acceptance-guardrails/tmpisipb373.log"
+        "startedAt": "2026-10-17T12:58:16.914512+00:00",
+        "endedAt": "2026-10-17T12:58:17.936448+00:00",
+        "log": ".tmp/acceptance/10-16-acceptance-guardrails/tmp66zjqddj.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-16-acceptance-guardrails/tmpisipb373.log"
+        ".tmp/acceptance/10-16-acceptance-guardrails/tmp66zjqddj.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -157,12 +157,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T12:36:57.587321+00:00",
-        "endedAt": "2026-10-17T12:37:22.886441+00:00",
-        "log": ".tmp/acceptance/10-16-acceptance-guardrails/tmpnl_r45th.log"
+        "startedAt": "2026-10-17T12:57:38.485453+00:00",
+        "endedAt": "2026-10-17T12:58:02.018474+00:00",
+        "log": ".tmp/acceptance/10-16-acceptance-guardrails/tmp_ujgfz70.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-16-acceptance-guardrails/tmpnl_r45th.log"
+        ".tmp/acceptance/10-16-acceptance-guardrails/tmp_ujgfz70.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
