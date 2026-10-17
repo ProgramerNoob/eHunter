@@ -5,7 +5,7 @@ import { createHash, randomUUID } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const PROFILES = {
+export const PROFILES = {
   desktop: { width: 1200, height: 900, dpr: 1, mobile: false, touchPoints: 0, coarse: false },
   mobile: { width: 390, height: 844, dpr: 3, mobile: true, touchPoints: 5, coarse: true },
 };
@@ -24,6 +24,16 @@ class ProductAssertion extends Error {
 }
 function requireCondition(condition, message, details) {
   if (!condition) throw new Blocked(message, details);
+}
+function raceTimeout(label, limit, operation, makeError, settle = false) {
+  let timer;
+  const running = Promise.resolve().then(operation);
+  return Promise.race([running, new Promise((_, reject) => {
+    timer = setTimeout(() => reject(makeError(`${label} timed out after ${limit}ms`)), limit);
+  })]).finally(() => {
+    clearTimeout(timer);
+    if (settle) running.catch(() => {});
+  });
 }
 
 /** Rejection retains both the original error and all collection/persistence errors. */
@@ -218,23 +228,24 @@ export function classifyReaderFacts(raw) {
       } else {
         facts.scrollContainer = { selector: SCROLL_VIEW_SELECTOR, index: view.index, scrollTop: view.scrollTop,
           scrollHeight: view.scrollHeight, clientHeight: view.clientHeight,
-          windowScrollY: Number.isFinite(raw.window?.scrollY) ? raw.window.scrollY : 0 };
+          windowScrollY: Number.isFinite(raw.window?.scrollY) ? raw.window.scrollY : null };
       }
     }
   }
   const progress = progressFact(raw.progress);
+  const book = facts.readingMode === 'book' ? bookFact(raw.book) : null;
   const scroll = facts.scrollContainer && { selector: facts.scrollContainer.selector, index: facts.scrollContainer.index,
     scrollTop: facts.scrollContainer.scrollTop, scrollHeight: facts.scrollContainer.scrollHeight, clientHeight: facts.scrollContainer.clientHeight };
-  if (!progress && !scroll) unknown('baseline-unknown', 'Neither progress text nor a scroll position is observable');
+  if (!progress && !scroll && !book) unknown('baseline-unknown', 'No progress text, scroll position or book spread is observable');
   facts.pageBaseline = { mode: facts.readingMode, url: facts.url, progress: progress ? { ...progress } : null,
-    scroll: scroll || null, book: facts.readingMode === 'book' ? bookFact(raw.book) : null };
+    scroll: scroll || null, book };
   return facts;
 }
 
 /** Relative page comparison; absolute page numbers are evidence, never assertions. */
 export function comparePageBaseline(before, after) {
-  const result = { comparable: false, changed: false, modeChanged: false, urlChanged: false,
-    progress: null, scroll: null, identityChanged: false };
+  const result = { comparable: false, changed: false, modeChanged: false, urlChanged: false, blockedReason: null,
+    progress: null, scroll: null, spread: null, identityChanged: false };
   if (!before || typeof before !== 'object' || !after || typeof after !== 'object') return result;
   const progressBefore = Number.isFinite(before.progress?.current) ? before.progress.current : null;
   const progressAfter = Number.isFinite(after.progress?.current) ? after.progress.current : null;
@@ -247,15 +258,23 @@ export function comparePageBaseline(before, after) {
     const delta = scrollAfter - scrollBefore;
     result.scroll = { before: scrollBefore, after: scrollAfter, delta, direction: delta > 0 ? 'forward' : delta < 0 ? 'backward' : 'none' };
   }
-  const beforeSpread = before.book?.visibleSpreadIndex;
-  const afterSpread = after.book?.visibleSpreadIndex;
-  if (Number.isInteger(beforeSpread) && Number.isInteger(afterSpread)) result.identityChanged = beforeSpread !== afterSpread;
+  const spreadBefore = Number.isInteger(before.book?.visibleSpreadIndex) ? before.book.visibleSpreadIndex : null;
+  const spreadAfter = Number.isInteger(after.book?.visibleSpreadIndex) ? after.book.visibleSpreadIndex : null;
+  if (spreadBefore !== null && spreadAfter !== null && before.book.spreadCount === after.book.spreadCount) {
+    const delta = spreadAfter - spreadBefore;
+    result.spread = { before: spreadBefore, after: spreadAfter, delta, direction: delta > 0 ? 'forward' : delta < 0 ? 'backward' : 'none' };
+    result.identityChanged = delta !== 0;
+  } else if (spreadBefore !== null && spreadAfter !== null) {
+    result.identityChanged = spreadBefore !== spreadAfter;
+  }
   result.urlChanged = (before.url ?? null) !== (after.url ?? null);
   result.modeChanged = (before.mode ?? null) !== (after.mode ?? null);
-  result.comparable = !result.urlChanged && (result.progress !== null || result.scroll !== null);
+  result.comparable = !result.urlChanged && (result.progress !== null || result.scroll !== null || result.spread !== null);
+  result.blockedReason = result.urlChanged ? 'navigated' : result.comparable ? null : 'no-baseline';
   result.changed = result.modeChanged || result.identityChanged
     || (result.progress !== null && result.progress.delta !== 0)
-    || (result.scroll !== null && result.scroll.delta !== 0);
+    || (result.scroll !== null && result.scroll.delta !== 0)
+    || (result.spread !== null && result.spread.delta !== 0);
   return result;
 }
 
@@ -266,9 +285,10 @@ export function comparePageBaseline(before, after) {
  */
 export async function bootstrapReader({ page, taskSpace, profile, observe, closeReader, openReader, artifactDir, timeoutMs = 15000 } = {}) {
   const errors = [], calls = [];
-  let observedAt = new Date().toISOString();
+  let observedAt = null;
   const status = () => (errors.some(error => error.severity === 'blocked') ? 'blocked' : errors.length ? 'unknown' : 'ready');
   const fail = (code, message, details) => errors.push({ code, severity: 'blocked', message, ...(details === undefined ? {} : { details }) });
+  const unknown = (code, message, details) => errors.push({ code, severity: 'unknown', message, ...(details === undefined ? {} : { details }) });
   const invalid = (code, message, details) => {
     fail(code, message, details);
     return { status: 'blocked', prepFacts: null, evidence: null, errors, calls };
@@ -282,25 +302,14 @@ export async function bootstrapReader({ page, taskSpace, profile, observe, close
   if (typeof artifactDir !== 'string' || !path.isAbsolute(artifactDir) || !inside(path.join(ROOT, '.tmp'), artifactDir)) {
     return invalid('invalid-artifact-dir', 'artifactDir must be an absolute path inside this repository .tmp', { artifactDir });
   }
-  const bounded = async (label, operation, limit = timeoutMs) => {
-    let timer;
-    const running = Promise.resolve().then(operation);
-    try {
-      return await Promise.race([running, new Promise((_, reject) => {
-        timer = setTimeout(() => reject(new Error(`${label} timed out after ${limit}ms`)), limit);
-      })]);
-    } finally {
-      clearTimeout(timer);
-      running.catch(() => {});
-    }
-  };
+  const bounded = (label, operation, limit = timeoutMs) => raceTimeout(label, limit, operation, message => new Error(message), true);
   const observeOnce = async () => {
     const startedAt = new Date().toISOString();
     try {
       const raw = await bounded('observe', () => (typeof observe === 'function' ? observe() : page.evaluate(observeReaderState)));
       if (!raw || typeof raw !== 'object' || Array.isArray(raw)) throw new Error('Reader observation must be an object');
       calls.push({ name: 'observe', startedAt, endedAt: new Date().toISOString(), ok: true });
-      observedAt = new Date().toISOString();
+      observedAt ??= new Date().toISOString();
       return raw;
     } catch (error) {
       calls.push({ name: 'observe', startedAt, endedAt: new Date().toISOString(), ok: false, error: errorRecord(error) });
@@ -321,30 +330,30 @@ export async function bootstrapReader({ page, taskSpace, profile, observe, close
     }
   };
   const finish = async prepFacts => {
-    let current = status();
     let evidence = null;
     try {
-      await fs.mkdir(artifactDir, { recursive: true });
       const realTmp = await fs.realpath(path.join(ROOT, '.tmp'));
+      await fs.mkdir(artifactDir, { recursive: true });
       const realTarget = await fs.realpath(artifactDir);
       if (!inside(realTmp, realTarget)) {
         fail('invalid-artifact-dir', 'artifactDir resolves outside this repository .tmp', { artifactDir, resolved: realTarget });
+        await fs.rmdir(artifactDir).catch(() => {});
       } else {
         const file = path.join(realTarget, BOOTSTRAP_FILE);
-        await fs.appendFile(file, JSON.stringify({ schema: BOOTSTRAP_SCHEMA, artifactVersion: 1, status: current, prepFacts, errors, calls }) + '\n');
+        await fs.appendFile(file, JSON.stringify({ schema: BOOTSTRAP_SCHEMA, artifactVersion: 1, status: status(), prepFacts, errors, calls }) + '\n');
         evidence = { path: path.relative(ROOT, file), file, schema: BOOTSTRAP_SCHEMA, artifactVersion: 1 };
       }
     } catch (error) {
       fail('evidence-write-failed', 'Reader bootstrap evidence could not be written', errorRecord(error));
     }
-    current = status();
-    return { status: current, prepFacts, evidence, errors, calls };
+    return { status: status(), prepFacts, evidence, errors, calls };
   };
   try {
     const first = await observeOnce();
     if (!first) return await finish(null);
     let current = first;
-    if (typeof closeReader === 'function' && classifyReaderFacts(first).readerOpen) {
+    const firstFacts = classifyReaderFacts(first);
+    if (typeof closeReader === 'function' && firstFacts.readerOpen) {
       await callHook('closeReader', 'close-reader-failed', closeReader);
       current = (await observeOnce()) ?? current;
     }
@@ -354,6 +363,11 @@ export async function bootstrapReader({ page, taskSpace, profile, observe, close
     }
     const facts = classifyReaderFacts(current);
     errors.push(...facts.errors);
+    const firstScripts = firstFacts.documentScripts;
+    const lastScripts = facts.documentScripts;
+    if (Number.isFinite(firstScripts?.total) && Number.isFinite(lastScripts?.total) && lastScripts.total > firstScripts.total) {
+      unknown('host-script-late', 'Scripts arrived after the first reader observation', { first: firstScripts, last: lastScripts });
+    }
     if (typeof first.url === 'string' && typeof facts.url === 'string' && first.url !== facts.url) {
       fail('page-navigated', 'Page navigated during bootstrap', { before: first.url, after: facts.url });
     }
@@ -371,6 +385,7 @@ export async function bootstrapReader({ page, taskSpace, profile, observe, close
     const prepFacts = {
       schema: BOOTSTRAP_SCHEMA,
       taskSpace: taskSpace ?? null,
+      page: { label: page.label ?? null, spaceId: page.spaceId ?? null },
       url: facts.url,
       profile: profileFact,
       readerOpen: facts.readerOpen,
@@ -379,9 +394,8 @@ export async function bootstrapReader({ page, taskSpace, profile, observe, close
       pageBaseline: facts.pageBaseline,
       windowScroll: { scrollX: Number.isFinite(facts.window?.scrollX) ? facts.window.scrollX : null,
         scrollY: Number.isFinite(facts.window?.scrollY) ? facts.window.scrollY : null,
-        documentScrollTop: Number.isFinite(facts.window?.documentScrollTop) ? facts.window.documentScrollTop : null,
-        isScrollContainer: false },
-      documentScripts: facts.documentScripts,
+        documentScrollTop: Number.isFinite(facts.window?.documentScrollTop) ? facts.window.documentScrollTop : null },
+      documentScripts: { first: firstScripts, last: lastScripts },
       readyState: facts.readyState,
       calls,
       observedAt,
@@ -436,14 +450,7 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
     result.errors.push({ phase: where, ...errorRecord(error) });
     stickyError ??= error;
   };
-  async function bounded(label, operation, limit = timeoutMs) {
-    let timer;
-    try {
-      return await Promise.race([Promise.resolve().then(operation), new Promise((_, reject) => {
-        timer = setTimeout(() => reject(new Blocked(`${label} timed out after ${limit}ms`)), limit);
-      })]);
-    } finally { clearTimeout(timer); }
-  }
+  const bounded = (label, operation, limit = timeoutMs) => raceTimeout(label, limit, operation, message => new Blocked(message));
   async function save(name, value, append = false) {
     try {
       const text = JSON.stringify(value, null, append ? undefined : 2) + '\n';

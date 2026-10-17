@@ -5,7 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { withBrowserPreflight, BrowserPreflightError, classifyReaderFacts, comparePageBaseline, bootstrapReader } from '../scripts/browser-preflight.mjs';
+import { withBrowserPreflight, BrowserPreflightError, classifyReaderFacts, comparePageBaseline, bootstrapReader, PROFILES } from '../scripts/browser-preflight.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const BASE = path.join(ROOT, '.tmp/browser-preflight/repair-final/cases');
@@ -1020,10 +1020,10 @@ test('a real Vite artifact passes verify-browser and turns stale after an input 
   assert.match(stale.report.errors.join(' '), /source input changed since this round/);
 });
 
-const VIEWPORTS = {
-  desktop: { width: 1200, height: 900, dpr: 1, touchPoints: 0, coarse: false },
-  mobile: { width: 390, height: 844, dpr: 3, touchPoints: 5, coarse: true },
-};
+const VIEWPORTS = Object.fromEntries(Object.entries(PROFILES).map(([name, profile]) => [name,
+  { width: profile.width, height: profile.height, dpr: profile.dpr, touchPoints: profile.touchPoints, coarse: profile.coarse }]));
+const SCROLL_HEIGHT = 9000;
+const SCROLL_TOP = 4321;
 const READER_URL = 'https://exhentai.org/g/123/0123456789/';
 const uiBox = (patch = {}) => ({ found: true, display: 'block', visibility: 'visible', opacity: '1',
   rect: { x: 0, y: 0, width: 1200, height: 900 }, ...patch });
@@ -1040,7 +1040,7 @@ function readerState({ profile = 'desktop', mode = 'book', open = true, mounted 
     bookMode: bookVisible ? uiBox() : { found: false },
     scrollMode: scrollVisible ? uiBox() : { found: false },
     scrollViews: scrollViews ?? (mode === 'scroll' ? [{ index: 0, ...uiBox({ rect: { x: 0, y: 0, width: size.width, height: size.height } }),
-      scrollTop, scrollHeight: 9000, clientHeight: size.height }] : []),
+      scrollTop, scrollHeight: SCROLL_HEIGHT, clientHeight: size.height }] : []),
     book: bookVisible ? { spreadCount, visibleSpreadIndex } : null,
     progress: progress === null ? { found: false, text: null }
       : { ...uiBox({ rect: { x: 0, y: size.height - 40, width: 60, height: 24 } }), text: progress },
@@ -1078,8 +1078,8 @@ for (const profile of ['desktop', 'mobile']) test(`bootstrap reads a persisted b
   assert.equal(result.prepFacts.profile.matches, true);
   assert.deepEqual(result.prepFacts.profile.actual, VIEWPORTS[profile]);
   assert.equal(result.prepFacts.taskSpace, 'fixture space');
-  assert.equal(result.prepFacts.windowScroll.isScrollContainer, false);
-  assert.deepEqual(result.prepFacts.documentScripts, { total: 6, external: 3 });
+  assert.deepEqual(result.prepFacts.page, { label: 'p1', spaceId: 42 });
+  assert.deepEqual(result.prepFacts.documentScripts, { first: { total: 6, external: 3 }, last: { total: 6, external: 3 } });
   assert.equal(result.evidence.schema, 'reader-bootstrap');
   assert.equal(result.evidence.artifactVersion, 1);
   const [record] = await bootstrapRecords(result.evidence.file);
@@ -1090,22 +1090,21 @@ for (const profile of ['desktop', 'mobile']) test(`bootstrap reads a persisted b
 
 for (const profile of ['desktop', 'mobile']) test(`bootstrap reads a persisted scroll reader from its scroll container (${profile})`, async () => {
   const artifactDir = await bootstrapDir();
-  const raw = readerState({ profile, mode: 'scroll', scrollTop: 4321, windowScrollY: 17, progress: '7 / 300' });
+  const raw = readerState({ profile, mode: 'scroll', scrollTop: SCROLL_TOP, windowScrollY: 17, progress: '7 / 300' });
   const result = await bootstrapReader({ page: bootstrapPage(raw), profile, artifactDir });
   assert.equal(result.status, 'ready', JSON.stringify(result.errors));
   assert.equal(result.prepFacts.readingMode, 'scroll');
   assert.equal(result.prepFacts.scrollContainer.selector, '.content.scroll-mode .awesome-scroll-view');
   assert.equal(result.prepFacts.scrollContainer.index, 0);
-  assert.equal(result.prepFacts.scrollContainer.scrollTop, 4321);
-  assert.equal(result.prepFacts.scrollContainer.scrollHeight, 9000);
+  assert.equal(result.prepFacts.scrollContainer.scrollTop, SCROLL_TOP);
+  assert.equal(result.prepFacts.scrollContainer.scrollHeight, SCROLL_HEIGHT);
   assert.equal(result.prepFacts.scrollContainer.clientHeight, VIEWPORTS[profile].height);
   assert.equal(result.prepFacts.scrollContainer.windowScrollY, 17);
-  assert.equal(result.prepFacts.pageBaseline.scroll.scrollTop, 4321);
+  assert.equal(result.prepFacts.pageBaseline.scroll.scrollTop, SCROLL_TOP);
   assert.equal(result.prepFacts.pageBaseline.book, null);
   assert.equal(result.prepFacts.windowScroll.scrollY, 17);
-  assert.equal(result.prepFacts.windowScroll.isScrollContainer, false);
   const [record] = await bootstrapRecords(result.evidence.file);
-  assert.equal(record.prepFacts.scrollContainer.scrollTop, 4321);
+  assert.equal(record.prepFacts.scrollContainer.scrollTop, SCROLL_TOP);
 });
 
 test('page baseline comparison uses relative progress instead of absolute page numbers', () => {
@@ -1137,6 +1136,8 @@ test('page baseline comparison covers scroll, spread identity and mode changes',
   assert.equal(still.scroll.direction, 'none');
   const spread = comparePageBaseline(baselineOf({ visibleSpreadIndex: 2 }), baselineOf({ visibleSpreadIndex: 3 }));
   assert.equal(spread.identityChanged, true);
+  assert.equal(spread.comparable, true);
+  assert.deepEqual(spread.spread, { before: 2, after: 3, delta: 1, direction: 'forward' });
   assert.equal(spread.changed, true);
   assert.equal(spread.progress.delta, 0);
   const mode = comparePageBaseline(baselineOf({ mode: 'book' }), baselineOf({ mode: 'scroll', scrollTop: 100 }));
@@ -1144,15 +1145,16 @@ test('page baseline comparison covers scroll, spread identity and mode changes',
   assert.equal(mode.changed, true);
   const navigated = comparePageBaseline(baselineOf({}), { ...baselineOf({}), url: 'https://exhentai.org/g/9/deadbeef/' });
   assert.equal(navigated.urlChanged, true);
-  assert.equal(navigated.comparable, false);
+  assert.equal(navigated.blockedReason, 'navigated');
 });
 
 test('page baseline comparison refuses missing or non-positional baselines', () => {
   const missing = comparePageBaseline(null, baselineOf({}));
   assert.deepEqual(missing, { comparable: false, changed: false, modeChanged: false, urlChanged: false,
-    progress: null, scroll: null, identityChanged: false });
-  const noPosition = comparePageBaseline(baselineOf({ progress: null }), baselineOf({ progress: null }));
+    blockedReason: null, progress: null, scroll: null, spread: null, identityChanged: false });
+  const noPosition = comparePageBaseline(baselineOf({ progress: null, spreadCount: 0 }), baselineOf({ progress: null, spreadCount: 0 }));
   assert.equal(noPosition.comparable, false);
+  assert.equal(noPosition.blockedReason, 'no-baseline');
   assert.equal(noPosition.changed, false);
 });
 
@@ -1169,7 +1171,7 @@ for (const [label, patch, expectedStatus, code] of [
     { index: 1, ...uiBox(), scrollTop: 0, scrollHeight: 1, clientHeight: 1 }] }, 'unknown', 'scroll-container-unknown'],
   ['document still loading', { readyState: 'loading' }, 'unknown', 'document-not-ready'],
   ['vite overlay present', { overlay: true }, 'blocked', 'vite-error-overlay'],
-  ['book baseline without progress', { progress: null }, 'unknown', 'baseline-unknown'],
+  ['book baseline without progress or spreads', { progress: null, spreadCount: 0 }, 'unknown', 'baseline-unknown'],
   ['window scrolling is not a scroll container', { mode: 'scroll', scrollViews: [], windowScrollY: 900 }, 'unknown', 'scroll-container-unknown'],
 ]) test(`bootstrap records ${label} as ${expectedStatus}`, async () => {
   const artifactDir = await bootstrapDir();
@@ -1232,6 +1234,26 @@ test('bootstrap blocks when the page navigates between observations', async () =
   assert.deepEqual(navigated.details, { before: READER_URL, after: `${READER_URL}#navigated` });
 });
 
+
+test('bootstrap records a late host script as unknown', async () => {
+  const artifactDir = await bootstrapDir();
+  let observations = 0;
+  const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'desktop', artifactDir,
+    observe: async () => {
+      observations++;
+      const raw = readerState({ open: observations !== 2 });
+      raw.documentScripts = { total: observations === 3 ? 8 : 6, external: 3 };
+      return raw;
+    },
+    closeReader: async () => {},
+    openReader: async () => {} });
+  assert.equal(result.status, 'unknown', JSON.stringify(result.errors));
+  const late = result.errors.find(error => error.code === 'host-script-late');
+  assert.deepEqual(late.details, { first: { total: 6, external: 3 }, last: { total: 8, external: 3 } });
+  assert.deepEqual(result.prepFacts.documentScripts, { first: { total: 6, external: 3 }, last: { total: 8, external: 3 } });
+  const [record] = await bootstrapRecords(result.evidence.file);
+  assert.equal(record.status, 'unknown');
+});
 test('bootstrap hooks stay serial and run close before open', async () => {
   const artifactDir = await bootstrapDir();
   let open = true, active = 0, maxActive = 0;
