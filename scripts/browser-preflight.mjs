@@ -260,7 +260,9 @@ export function comparePageBaseline(before, after) {
   }
   const spreadBefore = Number.isInteger(before.book?.visibleSpreadIndex) ? before.book.visibleSpreadIndex : null;
   const spreadAfter = Number.isInteger(after.book?.visibleSpreadIndex) ? after.book.visibleSpreadIndex : null;
-  if (spreadBefore !== null && spreadAfter !== null && before.book.spreadCount === after.book.spreadCount) {
+  const spreadCountsDiffer = spreadBefore !== null && spreadAfter !== null
+    && before.book?.spreadCount !== after.book?.spreadCount;
+  if (spreadBefore !== null && spreadAfter !== null && !spreadCountsDiffer) {
     const delta = spreadAfter - spreadBefore;
     result.spread = { before: spreadBefore, after: spreadAfter, delta, direction: delta > 0 ? 'forward' : delta < 0 ? 'backward' : 'none' };
     result.identityChanged = delta !== 0;
@@ -270,7 +272,10 @@ export function comparePageBaseline(before, after) {
   result.urlChanged = (before.url ?? null) !== (after.url ?? null);
   result.modeChanged = (before.mode ?? null) !== (after.mode ?? null);
   result.comparable = !result.urlChanged && (result.progress !== null || result.scroll !== null || result.spread !== null);
-  result.blockedReason = result.urlChanged ? 'navigated' : result.comparable ? null : 'no-baseline';
+  if (result.urlChanged) result.blockedReason = 'navigated';
+  else if (result.comparable) result.blockedReason = null;
+  else if (spreadCountsDiffer) result.blockedReason = 'incomparable-spread';
+  else result.blockedReason = 'no-baseline';
   result.changed = result.modeChanged || result.identityChanged
     || (result.progress !== null && result.progress.delta !== 0)
     || (result.scroll !== null && result.scroll.delta !== 0)

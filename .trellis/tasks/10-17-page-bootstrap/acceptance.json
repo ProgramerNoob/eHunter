@@ -13,7 +13,7 @@
       "ac": [
         "AC1"
       ],
-      "claim": "验证persisted book 与 scroll 两种初始 fixture 均能输出实际 reading mode、reader open 状态和可见滚动容器；scroll fixture 证明读取的是 `.awesome-scroll-view` 的 `scrollTop`，不是 window/document。",
+      "claim": "合成 fixture 验证 persisted book 与 scroll 两种初始状态均能输出实际 reading mode、reader open 状态和可见滚动容器；scroll fixture 证明读取的是 `.awesome-scroll-view` 的 `scrollTop`，不是 window/document。真实页面观测归父任务浏览器验收。",
       "scope": "persisted book/scroll readers on desktop and mobile, built-in page observer",
       "method": "command",
       "dimension": "behavior",
@@ -22,16 +22,16 @@
         "argv": [
           "python3",
           "-c",
-          "import re,subprocess,sys; p=r'''bootstrap reads a persisted (book|scroll) reader|bootstrap uses the built-in page observer when no observe callback is passed'''; c=subprocess.run(['node','--test','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); m=re.search(r'(?m)^(?:ℹ|#) pass (\\d+)',c.stdout); print('guard: pass count', m.group(1) if m else None); sys.exit(0 if c.returncode==0 and m and int(m.group(1))>0 else 1)"
+          "import re,subprocess,sys; p=r'''bootstrap reads a persisted (book|scroll) reader|bootstrap uses the built-in page observer when no observe callback is passed'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); named=[l for l in c.stdout.splitlines() if re.match(r'^ok \\d+ - ',l) and '# SKIP' not in l and not l.endswith(' - tests/browser-preflight.test.mjs')]; print('guard: named tests', len(named)); sys.exit(0 if c.returncode==0 and named else 1)"
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T08:06:35.428168+00:00",
-        "endedAt": "2026-10-17T08:06:35.519592+00:00",
-        "log": ".tmp/acceptance/10-17-page-bootstrap/tmphqw0k4z5.log"
+        "startedAt": "2026-10-17T08:14:19.069100+00:00",
+        "endedAt": "2026-10-17T08:14:19.153893+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp92poa1v8.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-page-bootstrap/tmphqw0k4z5.log"
+        ".tmp/acceptance/10-17-page-bootstrap/tmp92poa1v8.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -41,7 +41,7 @@
       "ac": [
         "AC2"
       ],
-      "claim": "验证bootstrap 能在当前页不是固定起始页时保存 baseline，并用相对页码/位置验证前后变化，不因绝对页码不同而误报失败。",
+      "claim": "验证 bootstrap 能在当前页不是固定起始页时保存 baseline，并用相对页码/位置验证前后变化，不因绝对页码不同而误报失败；含 scroll、spread identity、mode 变化与 spreadCount 不同的 `incomparable-spread` 诊断。",
       "scope": "non-initial page baseline and relative page/position delta",
       "method": "command",
       "dimension": "behavior",
@@ -50,16 +50,16 @@
         "argv": [
           "python3",
           "-c",
-          "import re,subprocess,sys; p=r'''page baseline comparison'''; c=subprocess.run(['node','--test','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); m=re.search(r'(?m)^(?:ℹ|#) pass (\\d+)',c.stdout); print('guard: pass count', m.group(1) if m else None); sys.exit(0 if c.returncode==0 and m and int(m.group(1))>0 else 1)"
+          "import re,subprocess,sys; p=r'''page baseline comparison'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); named=[l for l in c.stdout.splitlines() if re.match(r'^ok \\d+ - ',l) and '# SKIP' not in l and not l.endswith(' - tests/browser-preflight.test.mjs')]; print('guard: named tests', len(named)); sys.exit(0 if c.returncode==0 and named else 1)"
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T08:07:06.615496+00:00",
-        "endedAt": "2026-10-17T08:07:06.701007+00:00",
-        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp8wh4re_d.log"
+        "startedAt": "2026-10-17T08:14:19.179982+00:00",
+        "endedAt": "2026-10-17T08:14:19.259523+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmpvki_itpu.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-page-bootstrap/tmp8wh4re_d.log"
+        ".tmp/acceptance/10-17-page-bootstrap/tmpvki_itpu.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -70,7 +70,7 @@
         "AC3"
       ],
       "claim": "验证自动打开、初始化未完成、动态脚本晚到或页面导航变化等准备异常被记录为 blocked/unknown，下游不生成虚假的 passed prep fact。",
-      "scope": "blocked/unknown preparation on automatic open, incomplete initialization, late script or navigation",
+      "scope": "blocked/unknown preparation branches; the filter also selects other bootstrap blocked/unknown tests, wider than the AC3 examples",
       "method": "command",
       "dimension": "behavior",
       "observed": "passed",
@@ -78,16 +78,16 @@
         "argv": [
           "python3",
           "-c",
-          "import re,subprocess,sys; p=r'''bootstrap records .* as (blocked|unknown)|bootstrap records a failed observation as blocked|bootstrap keeps the reader open state when closeReader fails|bootstrap records a failed openReader as blocked|bootstrap blocks when the page navigates between observations|bootstrap blocks a profile mismatch before downstream assertions|bootstrap bounds a hanging callback|bootstrap rejects a profile inherited from the prototype chain'''; c=subprocess.run(['node','--test','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); m=re.search(r'(?m)^(?:ℹ|#) pass (\\d+)',c.stdout); print('guard: pass count', m.group(1) if m else None); sys.exit(0 if c.returncode==0 and m and int(m.group(1))>0 else 1)"
+          "import re,subprocess,sys; p=r'''bootstrap records .* as (blocked|unknown)|bootstrap records a failed observation as blocked|bootstrap keeps the reader open state when closeReader fails|bootstrap records a failed openReader as blocked|bootstrap blocks when the page navigates between observations|bootstrap blocks a profile mismatch before downstream assertions|bootstrap bounds a hanging callback|bootstrap rejects a profile inherited from the prototype chain'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); named=[l for l in c.stdout.splitlines() if re.match(r'^ok \\d+ - ',l) and '# SKIP' not in l and not l.endswith(' - tests/browser-preflight.test.mjs')]; print('guard: named tests', len(named)); sys.exit(0 if c.returncode==0 and named else 1)"
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T08:06:35.650734+00:00",
-        "endedAt": "2026-10-17T08:06:35.830105+00:00",
-        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp89cb134h.log"
+        "startedAt": "2026-10-17T08:14:19.285385+00:00",
+        "endedAt": "2026-10-17T08:14:19.462519+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp6i36wf3y.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-page-bootstrap/tmp89cb134h.log"
+        ".tmp/acceptance/10-17-page-bootstrap/tmp6i36wf3y.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -97,7 +97,7 @@
       "ac": [
         "AC4"
       ],
-      "claim": "验证desktop 与 mobile fixture 均覆盖，且 helper 不直接调用 `page.events()`、不清理 storage、不改 reader 产品代码；输出证据路径位于 `.tmp/`。",
+      "claim": "合成 desktop 与 mobile fixture 均覆盖，且 helper 不直接调用 `page.events()`、不清理 storage、不改 reader 产品代码；输出证据路径位于 `.tmp/`。真实视口观测归父任务浏览器验收。",
       "scope": "desktop/mobile fixtures, event-consumer and storage/product boundaries, .tmp evidence",
       "method": "command",
       "dimension": "behavior",
@@ -106,16 +106,16 @@
         "argv": [
           "python3",
           "-c",
-          "import re,subprocess,sys; p=r'''bootstrap reads a persisted (book|scroll) reader|bootstrap inside a preflight round is consumed before the functional phase|bootstrap rejects invalid inputs without writing evidence|bootstrap appends one parseable evidence record per call'''; c=subprocess.run(['node','--test','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); m=re.search(r'(?m)^(?:ℹ|#) pass (\\d+)',c.stdout); print('guard: pass count', m.group(1) if m else None); sys.exit(0 if c.returncode==0 and m and int(m.group(1))>0 else 1)"
+          "import re,subprocess,sys; p=r'''bootstrap reads a persisted (book|scroll) reader|bootstrap inside a preflight round is consumed before the functional phase|bootstrap rejects invalid inputs without writing evidence|bootstrap appends one parseable evidence record per call'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); named=[l for l in c.stdout.splitlines() if re.match(r'^ok \\d+ - ',l) and '# SKIP' not in l and not l.endswith(' - tests/browser-preflight.test.mjs')]; print('guard: named tests', len(named)); sys.exit(0 if c.returncode==0 and named else 1)"
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T08:06:35.860590+00:00",
-        "endedAt": "2026-10-17T08:06:36.063356+00:00",
-        "log": ".tmp/acceptance/10-17-page-bootstrap/tmpzmupo8k3.log"
+        "startedAt": "2026-10-17T08:14:19.491762+00:00",
+        "endedAt": "2026-10-17T08:14:19.691308+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmpjl5wjazk.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-page-bootstrap/tmpzmupo8k3.log"
+        ".tmp/acceptance/10-17-page-bootstrap/tmpjl5wjazk.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -134,16 +134,16 @@
         "argv": [
           "python3",
           "-c",
-          "import re,subprocess,sys; p=r'''bootstrap inside a preflight round is consumed before the functional phase|bootstrap hooks stay serial|bootstrap appends one parseable evidence record per call|bootstrap reads a persisted (book|scroll) reader'''; c=subprocess.run(['node','--test','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); m=re.search(r'(?m)^(?:ℹ|#) pass (\\d+)',c.stdout); print('guard: pass count', m.group(1) if m else None); sys.exit(0 if c.returncode==0 and m and int(m.group(1))>0 else 1)"
+          "import re,subprocess,sys; p=r'''bootstrap inside a preflight round is consumed before the functional phase|bootstrap hooks stay serial|bootstrap appends one parseable evidence record per call|bootstrap reads a persisted (book|scroll) reader'''; c=subprocess.run(['node','--test','--test-reporter=tap','--test-name-pattern='+p,'tests/browser-preflight.test.mjs'],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); named=[l for l in c.stdout.splitlines() if re.match(r'^ok \\d+ - ',l) and '# SKIP' not in l and not l.endswith(' - tests/browser-preflight.test.mjs')]; print('guard: named tests', len(named)); sys.exit(0 if c.returncode==0 and named else 1)"
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T08:06:36.095823+00:00",
-        "endedAt": "2026-10-17T08:06:36.320322+00:00",
-        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp26xf21wc.log"
+        "startedAt": "2026-10-17T08:14:19.722369+00:00",
+        "endedAt": "2026-10-17T08:14:19.946972+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp3xl5eard.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-page-bootstrap/tmp26xf21wc.log"
+        ".tmp/acceptance/10-17-page-bootstrap/tmp3xl5eard.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -166,12 +166,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T08:07:06.729117+00:00",
-        "endedAt": "2026-10-17T08:07:21.060917+00:00",
-        "log": ".tmp/acceptance/10-17-page-bootstrap/tmp5d2oh96q.log"
+        "startedAt": "2026-10-17T08:14:25.054236+00:00",
+        "endedAt": "2026-10-17T08:14:39.415487+00:00",
+        "log": ".tmp/acceptance/10-17-page-bootstrap/tmpqs721cfm.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-page-bootstrap/tmp5d2oh96q.log"
+        ".tmp/acceptance/10-17-page-bootstrap/tmpqs721cfm.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
