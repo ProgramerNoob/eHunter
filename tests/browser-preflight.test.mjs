@@ -1227,6 +1227,22 @@ test('bootstrap reports close-reader-timeout when the reader stays open', async 
   assert.ok(result.errors.some(error => error.code === 'close-reader-timeout'));
 });
 
+test('bootstrap does not report a timeout when a polling observation fails', async () => {
+  const artifactDir = await bootstrapDir();
+  let calls = 0;
+  const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'desktop', artifactDir, timeoutMs: 120,
+    observe: async () => {
+      calls += 1;
+      if (calls === 1) return readerState({ open: true });
+      throw new Error('polling observation failed');
+    },
+    closeReader: async () => {} });
+  assert.equal(result.status, 'blocked');
+  assert.ok(result.errors.some(error => error.code === 'observation-failed' && error.details.message === 'polling observation failed'));
+  assert.ok(!result.errors.some(error => error.code === 'close-reader-timeout'));
+  assert.equal(result.prepFacts.readerOpen, true);
+});
+
 test('bootstrap reports open-reader-timeout when the reader stays closed', async () => {
   const artifactDir = await bootstrapDir();
   let open = true;

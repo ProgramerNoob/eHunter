@@ -336,9 +336,11 @@ export async function bootstrapReader({ page, taskSpace, profile, observe, close
   };
   const waitForOpenState = async wantOpen => {
     const deadline = Date.now() + timeoutMs;
+    let wait = 100;
     let current = await observeOnce();
     while (current && classifyReaderFacts(current).readerOpen !== wantOpen && Date.now() < deadline) {
-      await delay(100);
+      await delay(wait);
+      wait = Math.min(wait * 2, 500);
       current = await observeOnce();
     }
     return current;
@@ -369,16 +371,22 @@ export async function bootstrapReader({ page, taskSpace, profile, observe, close
     const firstFacts = classifyReaderFacts(first);
     if (typeof closeReader === 'function' && firstFacts.readerOpen) {
       if (await callHook('closeReader', 'close-reader-failed', closeReader)) {
-        current = (await waitForOpenState(false)) ?? current;
-        if (classifyReaderFacts(current).readerOpen) fail('close-reader-timeout', 'Reader did not close within timeoutMs', { timeoutMs });
+        const closed = await waitForOpenState(false);
+        if (closed) {
+          current = closed;
+          if (classifyReaderFacts(current).readerOpen) fail('close-reader-timeout', 'Reader did not close within timeoutMs', { timeoutMs });
+        }
       } else {
         current = (await observeOnce()) ?? current;
       }
     }
     if (typeof openReader === 'function' && !classifyReaderFacts(current).readerOpen) {
       if (await callHook('openReader', 'open-reader-failed', openReader)) {
-        current = (await waitForOpenState(true)) ?? current;
-        if (!classifyReaderFacts(current).readerOpen) fail('open-reader-timeout', 'Reader did not open within timeoutMs', { timeoutMs });
+        const opened = await waitForOpenState(true);
+        if (opened) {
+          current = opened;
+          if (!classifyReaderFacts(current).readerOpen) fail('open-reader-timeout', 'Reader did not open within timeoutMs', { timeoutMs });
+        }
       } else {
         current = (await observeOnce()) ?? current;
       }
