@@ -201,6 +201,21 @@ helper 是本轮唯一 `page.events()` 消费者。所有捕获的原始事件�
 
 `python3 scripts/acceptance.py verify-browser <artifact-dir>` 只读校验该轮产物：重算 source bundle/loader 或 Vite 输入、`scenarioInputs` 与 Vite 聚合指纹，并复核 manifest/result 关联、`observed`、`checks`、`errors`、`eventCollection.unresolved` 与 source-specific identity。状态与退出码为 `passed` 0、`stale`/`blocked` 1、`invalid` 2、`legacy` 3（缺少 provenance 的历史产物）；输出 JSON 的 `errors` 给出可定位的不匹配事实，命令不修改产物或 `acceptance.json`。
 
+### 资源清理检查
+
+收尾时用显式声明核对本任务创建的页面、服务、端口和 PID 文件。命令只读检查并写报告，不关闭页面、不发送 `kill`、不删除 PID 文件或已有证据；实际清理由验收者确认归属后执行。
+
+```bash
+python3 scripts/acceptance.py cleanup-browser <task-space> --pages <pages.json> --servers <servers.json> --output <repo>/.tmp/cleanup-browser.json
+```
+
+- `<task-space>` 是本轮 Ego task space，必须与两份输入的 `taskSpace` 相同。页面 `spaceId` 是 Ego 数字 id，不是 Trellis 任务名；`createdByTask` 才对应任务。
+- pages 输入：`{schemaVersion:1, taskSpace, pages:[{label, spaceId, pageId, owner, createdByTask, state, observedAt, evidence}]}`。agent-owned 页面要求 0–300 秒内、带显式时区的 RFC3339 `observedAt`；有效 `closed` 为 clean、`open` 为 residual。`owner:user` 始终 preserved，不校验其逐项字段。
+- servers 输入：`{schemaVersion:1, taskSpace, servers:[{label, pid, pidFile, port, expectedCwd, expectedCommand, processStartToken, owner, createdByTask, evidence}]}`；`processStartToken` 形如 `<pid>@<ps -o lstart=>`，`evidence` 每条都要能解析到可读文件。
+- 分类：agent-owned 且进程已退出、端口释放、PID 文件已由调用方清理、启动身份与 evidence 相符为 clean；进程仍存活/监听或 PID 文件残留为 residual；PID 复用、cwd/命令/启动标识/端口不符、owner 或 createdByTask 缺失、evidence 缺失或不可读为 unknown。user-owned 为 preserved；逐项未知不是命令级输入错误。
+- 退出码：`0` 全为 clean/preserved（空列表也是 clean），`1` 含 residual/unknown，`2` 输入或输出错误。输出固定 `schemaVersion:1`，含 `checkedAt`、`aggregate`、逐项 `classification`/`reasons`/`evidence`；只写仓库 `.tmp/`，拒绝覆盖已有文件。
+- 报告只描述声明资源的收尾状态，不证明功能通过。residual/unknown 需人工核对归属并保留证据，不得把分类当作清理动作或功能结论。
+
 超时或异常仍保存 finally 事件、原始错误及采集/写盘错误。`page.events()` 超时不取消底层读取：helper 保留唯一在途读取及原阶段，finally 额外有界等待1000毫秒；迟到批次仍先追加落盘，超时状态保持 blocked。`result.eventCollection.unresolved` 非空表示返回结果时读取尚未结束，外层须处理该在途调用后才开始下一轮；进程退出后的批次无法保证保存。drain 后保存失败保留内存批次，在 `BrowserPreflightError.result.unsaved` 与 stderr 给出诊断；result 保存失败也禁止成功。硬终止不能保证 finally，只有初始 incomplete manifest 或 `result.pending.json` 不表示完成；CDP buffer 容量未知，不承诺绝对无事件丢失。coverage 持续启用以覆盖新增模块，可能影响时序，不作为严格手势时间或性能验收证据。
 
 截图用 `check.screenshot(...)` 保存，再用当前会话图片读取工具检查布局、颜色、间距、阴影、圆角、弹窗和可见状态；helper 的 `visualReview` 仍为 unrun，主会话记录实际视觉检查。PNG 使用 CSS scale，像素宽度不能推导 DPR。UI 改动完成桌面与移动两种固定 profile 的关键交互与截图；涉及断点时补测边界。helper 只支持两个固定 profile，其他断点须另记实际配置与证据，严格预检覆盖范围保持明确。
@@ -235,6 +250,6 @@ helper 是本轮唯一 `page.events()` 消费者。所有捕获的原始事件�
 
 ## 5. 收尾或交还用户
 
-成功完成后，保存逐项结果、日志和已阅读的截图，在同一任务空间执行一次 `await task.finish({ keep: [] })` 并等待返回。仅在交付物需留在浏览器供用户继续操作时保留相应页面。helper 不创建/结束空间或管理服务；外层按服务归属核实并停止本次服务及 npm 父进程，确认退出和端口释放，清理本次创建且无需保留的临时产物，保留用户已有资源、存储和交付证据，执行完成长通知。
+成功完成后，保存逐项结果、日志和已阅读的截图，按顺序完成收尾证据：停止本轮服务并确认进程退出、端口释放 → 用 `cleanup-browser` 生成 `.tmp/` 资源报告 → 对每轮产物运行 `verify-browser <artifact-dir>` → 由主会话回填并运行 `acceptance.py summarize`。最后在同一任务空间执行一次 `await task.finish({ keep: [] })` 并等待返回。仅在交付物需留在浏览器供用户继续操作时保留相应页面。helper 不创建/结束空间或管理服务；外层按服务归属核实并停止本次服务及 npm 父进程，确认退出和端口释放，清理本次创建且无需保留的临时产物，保留用户已有资源、存储和交付证据，执行完成长通知。资源报告只证明声明资源的收尾状态，不替代功能验收；residual/unknown 保留并人工核对归属后再处理。
 
 遇到登录、浏览器权限提示或用户接管时，遵循 ego-browser 技能的 `handOff()` / 接管流程，说明用户需要完成的动作；恢复时继续使用同一空间。阻塞或报错时报告已验证与未验证部分，不把局部通过写成完整验收通过。

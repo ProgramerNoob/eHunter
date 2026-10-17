@@ -3,7 +3,7 @@
   "name": "acceptance-guardrails",
   "title": "验收证据与浏览器收口护栏",
   "description": "为浏览器验收补充证据新鲜度校验、当前页面 bootstrap、任务范围门禁和资源清理检查，降低误报与重复调试成本。",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -12,7 +12,7 @@
   "assignee": "Warwick",
   "createdAt": "2026-10-16",
   "completedAt": null,
-  "branch": null,
+  "branch": "feat/acceptance-guardrails",
   "base_branch": "master",
   "worktree_path": null,
   "commit": null,
@@ -32,11 +32,24 @@
       "version": 1,
       "mode": "enforce",
       "categories": {
-        "spec": [".trellis/spec/**"],
-        "workflow": [".trellis/workflow.md"],
-        "skill": [".pi/skills/eh-test/SKILL.md"],
-        "task-evidence": [".trellis/tasks/10-16-acceptance-guardrails/**"]
+        "spec": [
+          ".trellis/spec/**"
+        ],
+        "workflow": [
+          ".trellis/workflow.md"
+        ],
+        "skill": [
+          ".pi/skills/eh-test/SKILL.md"
+        ],
+        "task-evidence": [
+          ".trellis/tasks/10-16-acceptance-guardrails/**"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "805d334e57a3cb5951dbb68e8558b25e437e4aead34b93bcf476faa5e917cfee"
       }
     }
-  }
+  },
+  "scopePolicyVersion": 1
 }

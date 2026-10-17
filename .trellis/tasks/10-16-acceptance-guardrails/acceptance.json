@@ -10,93 +10,189 @@
   },
   "checks": [
     {
-      "id": "ac1-planning",
+      "id": "ac1-artifact-verifier",
       "ac": [
         "AC1"
       ],
-      "claim": "验证acceptance 工具能拒绝或标记与当前 build/loader/source 不匹配的旧 browser artifact，并能拒绝报告 passed 但 `result.json` blocked/failed 的检查。",
-      "scope": "browser-artifact freshness and result semantics",
+      "claim": "验证 `verify-browser` 按当前 source/bundle/loader 指纹重算，拒绝 stale、identity 不符与 blocked-in-passed 的产物，并保留 legacy 状态。",
+      "scope": "`scripts/test_browser_artifact_verification.py`（30 tests）；只读 fixture，无浏览器调用",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_browser_artifact_verification.py",
+          "-v"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T12:36:47.759344+00:00",
+        "endedAt": "2026-10-17T12:36:47.871672+00:00",
+        "log": ".tmp/acceptance/10-16-acceptance-guardrails/tmpfkykyi2_.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-16-acceptance-guardrails/tmpfkykyi2_.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     },
     {
-      "id": "ac2-planning",
+      "id": "ac2-page-bootstrap",
       "ac": [
         "AC2"
       ],
-      "claim": "验证当前页面 bootstrap 在 persisted book/scroll 两种初始状态下都能输出真实模式、滚动容器和页码基线；至少有 desktop 与 mobile fixture/回归覆盖。",
-      "scope": "persisted reading modes, visible scroll container and page baseline",
+      "claim": "验证 `bootstrapReader` 在 persisted book/scroll 下记录真实模式、scroll 容器与相对页基线，覆盖异常与 desktop/mobile profile。",
+      "scope": "`tests/browser-preflight.test.mjs` 中 name 含 bootstrap 的子测试；合成页 fixture，不是真实站点",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-c",
+          "import re,subprocess,sys; p=r\"bootstrap\"; c=subprocess.run([\"node\",\"--test\",\"--test-reporter=tap\",\"--test-name-pattern=\"+p,\"tests/browser-preflight.test.mjs\"],text=True,capture_output=True); sys.stdout.write(c.stdout); sys.stderr.write(c.stderr); zero=re.search(r\"(?m)^1\\.\\.0$\",c.stdout); ok=re.search(r\"(?m)^ok \\d+ - \",c.stdout); sys.exit(0 if c.returncode==0 and ok and not zero else 1)"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T12:36:47.906313+00:00",
+        "endedAt": "2026-10-17T12:36:48.245075+00:00",
+        "log": ".tmp/acceptance/10-16-acceptance-guardrails/tmpisipb373.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-16-acceptance-guardrails/tmpisipb373.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     },
     {
-      "id": "ac3-planning",
+      "id": "ac3-scope-gate",
       "ac": [
         "AC3"
       ],
-      "claim": "验证任务范围声明能在直接归档与 acceptance 归档路径中对越界改动阻断，并在合法 tooling、测试、规范和任务证据改动时通过；`task.py finish` 不受范围门禁影响。",
-      "scope": "scope snapshot changes and both archive entry points",
+      "claim": "验证 `meta.scope` 门禁在直接/acceptance archive 路径阻断越界、放行合法改动，`task.py finish` 不触发门禁，旧任务保留 legacy 诊断。",
+      "scope": "`scripts/test_scope_gate.py`（55 tests），含临时 task fixture",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_scope_gate.py",
+          "-v"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T12:36:48.279819+00:00",
+        "endedAt": "2026-10-17T12:36:54.645725+00:00",
+        "log": ".tmp/acceptance/10-16-acceptance-guardrails/tmp73wgqal7.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-16-acceptance-guardrails/tmp73wgqal7.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     },
     {
-      "id": "ac4-planning",
+      "id": "ac4-cleanup-browser",
       "ac": [
         "AC4"
       ],
-      "claim": "验证资源清理检查能识别本任务残留的 agent-owned page、server、端口或 PID 文件，同时不触碰 user-owned 页面。",
-      "scope": "cleanup classification and preservation of user-owned resources",
+      "claim": "验证 `cleanup-browser` 区分 clean/residual/preserved/unknown，user-owned 不触碰，PID 复用/证据缺失判 unknown，输出与退出码稳定。",
+      "scope": "`scripts/test_cleanup_browser.py`（28 tests），FakeProbe；未探测真实 Vite/EH server",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_cleanup_browser.py",
+          "-v"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T12:36:54.681654+00:00",
+        "endedAt": "2026-10-17T12:36:55.052359+00:00",
+        "log": ".tmp/acceptance/10-16-acceptance-guardrails/tmpb4j0leli.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-16-acceptance-guardrails/tmpb4j0leli.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     },
     {
-      "id": "ac5-planning",
+      "id": "ac5-full-regressions",
       "ac": [
         "AC5"
       ],
-      "claim": "验证`npm test`、`npm run type-check`、`npm run build-prod`、`npm run check:docs` 与新增专项测试通过；既有 EH/NH/Vite preflight 测试无回归。",
-      "scope": "full test, type-check, production build, docs check and existing EH/NH/Vite preflight regression",
+      "claim": "整体回归：`npm run check` 覆盖 type-check、acceptance/storage/browser-preflight/reader-lifecycle 测试、生产构建与文档链接检查。",
+      "scope": "`npm run check`（含 `npm test`、build-prod、check-docs）；不包含真实 EH/NH/Vite 浏览器轮次",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T12:36:57.587321+00:00",
+        "endedAt": "2026-10-17T12:37:22.886441+00:00",
+        "log": ".tmp/acceptance/10-16-acceptance-guardrails/tmpnl_r45th.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-16-acceptance-guardrails/tmpnl_r45th.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     },
     {
-      "id": "ac6-planning",
+      "id": "ac6-shared-docs",
       "ac": [
         "AC6"
       ],
-      "claim": "验证`.trellis/spec/`、`eh-test` skill 和 task workflow 文档记录新契约、失败分类、兼容策略和最小使用示例；任务可用一条收尾路径生成完整证据。",
-      "scope": "integrated specs, skill and workflow documentation plus end-to-end evidence workflow",
+      "claim": "验证共用文档记录 verify-browser、bootstrap、scope gate、cleanup-browser 及一条收尾证据路径。",
+      "scope": "读取 `.trellis/spec/frontend/browser-acceptance.md`、`quality-guidelines.md`、`.trellis/spec/tooling/index.md`、`.trellis/workflow.md`、`.pi/skills/eh-test/SKILL.md` 的关键段落",
       "method": "command",
       "dimension": "behavior",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "Planning seed; not executed yet.",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-c",
+          "import pathlib; r=pathlib.Path(\".\"); ba=(r/\".trellis/spec/frontend/browser-acceptance.md\").read_text(); qg=(r/\".trellis/spec/frontend/quality-guidelines.md\").read_text(); wf=(r/\".trellis/workflow.md\").read_text(); sk=(r/\".pi/skills/eh-test/SKILL.md\").read_text(); ti=(r/\".trellis/spec/tooling/index.md\").read_text(); facts={\"cleanup-section\":\"### 资源清理检查\" in ba and \"cleanup-browser\" in ba,\"closing-path\":\"cleanup-browser\" in ba and \"verify-browser\" in ba and \"acceptance.py summarize\" in ba,\"native-archive\":\"enforces the task scope gate\" in qg and \"does not check this\" in qg,\"workflow\":\"scope-start.json\" in wf and \"tooling/task-scope-gate.md\" in wf,\"eh-test\":\"cleanup-browser\" in sk,\"tooling-index\":\"验收资源清理检查\" in ti}; failed=[k for k,v in facts.items() if not v]; print(facts); print(\"failed:\",failed); raise SystemExit(1 if failed else 0)"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-17T12:36:55.087776+00:00",
+        "endedAt": "2026-10-17T12:36:55.106944+00:00",
+        "log": ".tmp/acceptance/10-16-acceptance-guardrails/tmp75aa8dy1.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-16-acceptance-guardrails/tmp75aa8dy1.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     }
   ]

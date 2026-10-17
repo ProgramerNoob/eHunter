@@ -122,4 +122,4 @@ UI 改动分别用通用指南的 desktop / mobile 固定 profile 运行预检�
 
 主会话按通用指南回填逐项 `acceptance.json`，引用实际命令日志和 helper 证据；准备 blocked 与产品断言 failed 分开，不能经 `acceptance.py run` 的普通非零映射冒充浏览器分类，也不手写整体 passed。报告列出未验证范围，构建成功不能替代功能验收。
 
-按 [通用收尾/接管流程](../../../.trellis/spec/frontend/browser-acceptance.md#5-收尾或交还用户) 处理同一空间；清理前核实本轮 server 的具体监听 PID 和 npm 父进程，确认退出及端口释放，清理本轮 PID 文件，保留用户资源、存储和交付证据。成功才 finish 空间；阻塞/接管保留同一空间并按 Ego 规则处理。最终回复前执行完成通知。
+按 [通用收尾/接管流程](../../../.trellis/spec/frontend/browser-acceptance.md#5-收尾或交还用户) 处理同一空间；清理前核实本轮 server 的具体监听 PID 和 npm 父进程，确认退出及端口释放，清理本轮 PID 文件，保留用户资源、存储和交付证据。成功后用 `cleanup-browser <task-space> --pages <pages.json> --servers <servers.json> --output .tmp/cleanup-browser.json` 生成资源报告：声明本轮页面（`spaceId`/`pageId`、owner、带时区 `observedAt`、evidence）与 bundle server（pid/pidFile/port/cwd/command/processStartToken/evidence）；user-owned 资源标 `user` 并保留。退出 `0` 才视为收尾完成，residual/unknown 人工核对归属后处理；报告不替代功能验收。成功才 finish 空间；阻塞/接管保留同一空间并按 Ego 规则处理。最终回复前执行完成通知。

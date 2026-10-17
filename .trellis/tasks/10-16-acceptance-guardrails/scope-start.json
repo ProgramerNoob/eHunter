@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-16-acceptance-guardrails",
+  "branch": "master",
+  "head": "e11d09311410baac26c2154423db55a8ee1af272",
+  "indexTree": "234ae8ef646f2b327a42ac04d6b530295a819092",
+  "capturedAt": "2026-10-17T20:34:52+08:00",
+  "scopeDigest": "9e45cfaa4809ab431901ef38d8bbb537a154467fc2fc553634b443a9fad0b5b1",
+  "dirty": {},
+  "untracked": {}
+}
