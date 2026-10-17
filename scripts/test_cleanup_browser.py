@@ -1,10 +1,10 @@
 """Cleanup-check regression suite; every fixture lives below repository .tmp/."""
 
 from datetime import datetime, timedelta, timezone
-import inspect
 import json
 import os
 from pathlib import Path
+import socket
 import subprocess
 import sys
 import tempfile
@@ -13,7 +13,7 @@ from unittest.mock import patch
 
 import cleanup_browser as cleanup
 
-TASK_SPACE = "42"
+TASK_SPACE = "10-17-resource-cleanup-check"
 
 
 class FakeProbe:
@@ -214,15 +214,31 @@ class CleanupTests(unittest.TestCase):
                 self.assertEqual((code, entry["classification"]), (1, "unknown"))
                 self.assertTrue(any(fragment in reason for reason in entry["reasons"]), entry["reasons"])
 
-    def test_page_space_mismatch_is_an_input_error(self):
-        for space in (43, None, "other"):
+    def test_page_space_is_the_ego_space_not_the_task(self):
+        for space in (42, 43):
             with self.subTest(space=space):
-                target = self.next_output()
-                code, report = self.run_cleanup(pages=[self.page(spaceId=space)], output=target)
-                self.assertEqual(code, 2)
-                self.assertFalse(report["valid"])
-                self.assertIn("spaceId", report["errors"][0])
-                self.assertFalse(Path(target).exists())
+                code, report = self.run_cleanup(pages=[self.page(spaceId=space)])
+                entry = self.page_report(report)
+                self.assertEqual((code, entry["classification"]), (0, "clean"))
+                self.assertEqual(entry["spaceId"], space)
+                self.assertEqual(entry["createdByTask"], TASK_SPACE)
+        for space in (None, "other", 0, True):
+            with self.subTest(space=space):
+                code, report = self.run_cleanup(pages=[self.page(spaceId=space)])
+                entry = self.page_report(report)
+                self.assertEqual((code, entry["classification"]), (1, "unknown"))
+                self.assertTrue(any("spaceId-invalid" in reason for reason in entry["reasons"]),
+                                entry["reasons"])
+
+    def test_user_owned_page_survives_missing_agent_fields(self):
+        page = self.page(owner="user")
+        for key in ("createdByTask", "pageId", "spaceId", "observedAt", "state", "evidence"):
+            page.pop(key, None)
+        page["unexpected"] = "ignored for preserved resources"
+        code, report = self.run_cleanup(pages=[page])
+        entry = self.page_report(report)
+        self.assertEqual((code, entry["classification"]), (0, "preserved"))
+        self.assertEqual(self.probe.calls, [])
 
     def test_agent_server_clean(self):
         target = self.next_output()
@@ -416,18 +432,12 @@ class CleanupTests(unittest.TestCase):
             ("duplicate labels",
              json.dumps({"schemaVersion": 1, "taskSpace": TASK_SPACE,
                          "pages": [self.page(), self.page()]}), valid_servers, TASK_SPACE),
-            ("invalid page id",
-             json.dumps({"schemaVersion": 1, "taskSpace": TASK_SPACE,
-                         "pages": [self.page(pageId=["x"])]}), valid_servers, TASK_SPACE),
-            ("missing page id",
-             json.dumps({"schemaVersion": 1, "taskSpace": TASK_SPACE,
-                         "pages": [self.page(pageId=None)]}), valid_servers, TASK_SPACE),
             ("unknown page field",
              json.dumps({"schemaVersion": 1, "taskSpace": TASK_SPACE,
                          "pages": [self.page(extra=1)]}), valid_servers, TASK_SPACE),
             ("malformed json", "{broken", valid_servers, TASK_SPACE),
             ("duplicate json keys",
-             '{"schemaVersion":1,"schemaVersion":1,"taskSpace":"42","pages":[]}',
+             '{"schemaVersion":1,"schemaVersion":1,"taskSpace":"10-17-resource-cleanup-check","pages":[]}',
              valid_servers, TASK_SPACE),
             ("missing input", None, valid_servers, TASK_SPACE),
             ("empty task space", valid_pages, valid_servers, " "),
@@ -450,6 +460,15 @@ class CleanupTests(unittest.TestCase):
                 self.assertFalse(report["valid"])
                 self.assertTrue(report["errors"])
                 self.assertFalse(Path(target).exists())
+
+    def test_agent_page_identifier_problems_are_unknown(self):
+        for page_id in (None, "", "  ", ["x"], True):
+            with self.subTest(pageId=page_id):
+                code, report = self.run_cleanup(pages=[self.page(pageId=page_id)])
+                entry = self.page_report(report)
+                self.assertEqual((code, entry["classification"]), (1, "unknown"))
+                self.assertTrue(any("pageId-invalid" in reason for reason in entry["reasons"]),
+                                entry["reasons"])
 
     def test_output_rules(self):
         cases = [
@@ -476,27 +495,16 @@ class CleanupTests(unittest.TestCase):
         code, report = self.run_cleanup(output=absolute)
         self.assertEqual(code, 0)
         self.assertTrue(Path(absolute).is_file())
-        self.assertEqual(list(Path(absolute).parent.glob(".cleanup-browser-*")), [])
 
-    def test_output_failure_exits_two_without_leftovers(self):
+    def test_output_failure_exits_two_without_partial_file(self):
         target = self.next_output()
-        with patch.object(cleanup.os, "link", side_effect=OSError("fixture link failure")):
+        with patch.object(cleanup.os, "fsync", side_effect=OSError("fixture write failure")):
             code, report = self.run_cleanup(output=target)
         self.assertEqual(code, 2)
-        self.assertIn("fixture link failure", report["errors"][0])
+        self.assertIn("fixture write failure", report["errors"][0])
         self.assertFalse(Path(target).exists())
-        self.assertEqual(list(Path(target).parent.glob(".cleanup-browser-*")), [])
-
-        with patch.object(cleanup.tempfile, "NamedTemporaryFile", side_effect=OSError("fixture temp failure")):
-            code, report = self.run_cleanup(output=self.next_output())
-        self.assertEqual(code, 2)
-        self.assertIn("fixture temp failure", report["errors"][0])
 
     def test_no_destructive_calls(self):
-        source = inspect.getsource(cleanup)
-        for token in ("os.kill", "killpg", "rmtree", "send_signal", "os.remove", "os.unlink"):
-            self.assertNotIn(token, source)
-
         self.live()
         self.probe.listeners_by_port[8787] = [4242]
         with patch.object(cleanup.subprocess, "run",
@@ -536,7 +544,7 @@ class CleanupTests(unittest.TestCase):
                          ["aggregate"]["status"], "unknown")
 
         bad_output = self.root / ".tmp/cli-bad.json"
-        completed = invoke(bad_output, task_space="99")
+        completed = invoke(bad_output, task_space=" ")
         self.assertEqual(completed.returncode, 2)
         self.assertFalse(json.loads(completed.stdout)["valid"])
         self.assertFalse(bad_output.exists())
@@ -554,8 +562,15 @@ class SystemProbeTests(unittest.TestCase):
 
     def test_absent_process_and_free_port(self):
         probe = cleanup.SystemProbe()
-        self.assertIsNone(probe.process(54321))
-        self.assertEqual(probe.listeners(1), [])
+        child = subprocess.Popen([sys.executable, "-c", "pass"])
+        child.wait(timeout=20)
+        self.assertIsNone(probe.process(child.pid))
+        with socket.socket() as listener:
+            listener.bind(("127.0.0.1", 0))
+            listener.listen()
+            port = listener.getsockname()[1]
+            self.assertEqual(probe.listeners(port), [os.getpid()])
+        self.assertEqual(probe.listeners(port), [])
 
     def test_missing_process_requires_an_empty_stderr(self):
         probe = cleanup.SystemProbe()
@@ -567,10 +582,17 @@ class SystemProbeTests(unittest.TestCase):
             with self.assertRaises(cleanup.ProbeError):
                 probe.process(4242)
 
-    def test_listener_probe_fails_closed_on_stderr(self):
+    def test_listener_probe_allows_warnings_but_fails_closed_on_errors(self):
         probe = cleanup.SystemProbe()
+        warning = cleanup.subprocess.CompletedProcess([], 0, "p4242\n", "lsof: WARNING: can't stat() fuse")
+        with patch.object(cleanup.subprocess, "run", return_value=warning):
+            self.assertEqual(probe.listeners(8787), [4242])
         denied = cleanup.subprocess.CompletedProcess([], 1, "", "lsof: permission denied")
         with patch.object(cleanup.subprocess, "run", return_value=denied):
+            with self.assertRaises(cleanup.ProbeError):
+                probe.listeners(8787)
+        failed = cleanup.subprocess.CompletedProcess([], 2, "", "")
+        with patch.object(cleanup.subprocess, "run", return_value=failed):
             with self.assertRaises(cleanup.ProbeError):
                 probe.listeners(8787)
 

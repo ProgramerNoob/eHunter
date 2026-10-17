@@ -13,8 +13,8 @@
       "ac": [
         "AC1"
       ],
-      "claim": "页面 owner 枚举、显式时区 RFC3339、0/300/301 秒边界、缺失/非法/未来观察、身份不符与 user-owned 保留均由单元测试固定。",
-      "scope": "page owner enum, RFC3339 timezone strictness, 0/300/301 second window, missing/invalid/future observations, identity mismatch and user-owned preservation",
+      "claim": "页面 owner 枚举、显式时区 RFC3339、0/300/301 秒边界、缺失/非法/未来观察、Ego spaceId 与 Trellis 任务标识分离、身份不符以及 user-owned 缺字段仍 preserved 均由单元测试固定。",
+      "scope": "page owner enum, RFC3339 timezone strictness, 0/300/301 second window, missing/invalid/future observations, ego spaceId distinct from the task identifier, identity mismatch, user-owned preservation without field validation",
       "method": "command",
       "dimension": "behavior",
       "observed": "passed",
@@ -36,12 +36,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T11:56:49.971086+00:00",
-        "endedAt": "2026-10-17T11:56:50.053750+00:00",
-        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmpfvicy337.log"
+        "startedAt": "2026-10-17T12:17:42.089381+00:00",
+        "endedAt": "2026-10-17T12:17:42.170778+00:00",
+        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmplm4p0n5h.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-resource-cleanup-check/tmpfvicy337.log"
+        ".tmp/acceptance/10-17-resource-cleanup-check/tmplm4p0n5h.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -76,12 +76,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T11:56:50.056436+00:00",
-        "endedAt": "2026-10-17T11:56:50.157546+00:00",
-        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmpdhnle9y6.log"
+        "startedAt": "2026-10-17T12:17:42.203528+00:00",
+        "endedAt": "2026-10-17T12:17:42.292661+00:00",
+        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmp423h9zd5.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-resource-cleanup-check/tmpdhnle9y6.log"
+        ".tmp/acceptance/10-17-resource-cleanup-check/tmp423h9zd5.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -92,7 +92,7 @@
         "AC3"
       ],
       "claim": "PID 复用、startToken/cwd/command/port 不匹配、归属或证据缺失时逐项 unknown，且没有破坏性调用。",
-      "scope": "PID reuse and identity mismatches, missing ownership/evidence, probe failures and absence of destructive calls",
+      "scope": "PID reuse and identity mismatches, invalid pageId, missing ownership/evidence, probe failures and absence of destructive calls",
       "method": "command",
       "dimension": "behavior",
       "observed": "passed",
@@ -118,16 +118,18 @@
           "-k",
           "incomplete_server",
           "-k",
-          "no_destructive_calls"
+          "no_destructive_calls",
+          "-k",
+          "page_identifier"
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T11:56:50.159814+00:00",
-        "endedAt": "2026-10-17T11:56:50.265527+00:00",
-        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmprm05znsj.log"
+        "startedAt": "2026-10-17T12:17:42.321686+00:00",
+        "endedAt": "2026-10-17T12:17:42.417963+00:00",
+        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmpliyrw09e.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-resource-cleanup-check/tmprm05znsj.log"
+        ".tmp/acceptance/10-17-resource-cleanup-check/tmpliyrw09e.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -166,12 +168,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T11:56:50.267580+00:00",
-        "endedAt": "2026-10-17T11:56:50.481448+00:00",
-        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmp4_pmlx4f.log"
+        "startedAt": "2026-10-17T12:17:42.449916+00:00",
+        "endedAt": "2026-10-17T12:17:42.652406+00:00",
+        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmpod79qw64.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-resource-cleanup-check/tmp4_pmlx4f.log"
+        ".tmp/acceptance/10-17-resource-cleanup-check/tmpod79qw64.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -181,7 +183,7 @@
       "ac": [
         "AC5"
       ],
-      "claim": "既有 acceptance、scope gate、archive、preflight 与构建/文档检查全链路通过，且 cleanup 四类分类已由前四项覆盖；本轮仅单测/构建/文档，未执行真实 EH/NH/Vite 浏览器轮次或 task.py finish。",
+      "claim": "npm run check 覆盖的 acceptance、scope gate、archive、preflight、storage、reader lifecycle、构建与文档检查全部通过；本条只声称该命令实际执行的回归范围，不声称真实 EH/NH/Vite 浏览器轮次或 task.py finish 已运行。",
       "scope": "full npm run check regression (acceptance suites, storage, browser-preflight, reader lifecycle, build-prod, docs); no live EH/NH/Vite rounds",
       "method": "command",
       "dimension": "behavior",
@@ -194,14 +196,14 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T11:56:50.483785+00:00",
-        "endedAt": "2026-10-17T11:57:12.456852+00:00",
-        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmp4y4rumvv.log"
+        "startedAt": "2026-10-17T12:17:42.683907+00:00",
+        "endedAt": "2026-10-17T12:18:04.594570+00:00",
+        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmpfn27s2h2.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-resource-cleanup-check/tmp4y4rumvv.log"
+        ".tmp/acceptance/10-17-resource-cleanup-check/tmpfn27s2h2.log"
       ],
-      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "note": "Tooling-only change: this check passes only what `npm run check` actually ran. Live EH/NH/Vite browser rounds and task.py finish are not claimed and stay with the parent task.",
       "waiver": null
     }
   ]

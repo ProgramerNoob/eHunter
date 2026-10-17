@@ -16,7 +16,6 @@ import os
 from pathlib import Path
 import re
 import subprocess
-import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_VERSION = 1
@@ -143,7 +142,7 @@ def evidence_files_problem(root, evidence):
     return None
 
 
-def isoformat(moment):
+def rfc3339(moment):
     return moment.astimezone(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
 
 
@@ -188,24 +187,21 @@ def diagnostic(resource, label, code, message):
     return {"resource": resource, "label": label, "code": code, "message": message}
 
 
+def item_label(item, location):
+    label = item.get("label")
+    require(nonempty_text(label), f"{location}.label: expected a nonempty string")
+    return label
+
+
 def page_entry(index, item, task_space, root, checked_at):
     location = f"pages[{index}]"
-    extra = item.keys() - PAGE_FIELDS
-    require(not extra, f"{location}: unknown fields {sorted(extra)}")
-    label = item["label"]
-    page_id = item.get("pageId")
-    require(page_id is not None and isinstance(page_id, (str, int))
-            and not isinstance(page_id, bool)
-            and not (isinstance(page_id, str) and not page_id.strip()),
-            f"{location}.pageId: expected a nonempty string or integer")
-    require(same_identity(item.get("spaceId"), task_space),
-            f"{location}.spaceId: must equal the task space {task_space!r}")
-
+    require(isinstance(item, dict), f"{location}: expected an object")
+    label = item_label(item, location)
     evidence, evidence_problem = evidence_list(item.get("evidence"), f"{location}.evidence")
     entry = {
         "label": label,
         "spaceId": item.get("spaceId"),
-        "pageId": page_id,
+        "pageId": item.get("pageId"),
         "owner": item.get("owner"),
         "createdByTask": item.get("createdByTask"),
         "state": item.get("state"),
@@ -219,7 +215,7 @@ def page_entry(index, item, task_space, root, checked_at):
     if owner == "user":
         entry["classification"] = "preserved"
         entry["reasons"] = [
-            "owner-user: user-owned pages are preserved and never observed or closed by this command"]
+            "owner-user: user-owned pages are preserved; their fields are not validated and the page is never closed"]
         return entry
     if owner is None:
         entry["reasons"] = ["owner-missing: declare owner as agent, user or unknown"]
@@ -230,6 +226,8 @@ def page_entry(index, item, task_space, root, checked_at):
     if owner == "unknown":
         entry["reasons"] = ["owner-unknown: ownership is not proven, so the page is neither clean nor residual"]
         return entry
+    extra = item.keys() - PAGE_FIELDS
+    require(not extra, f"{location}: unknown fields {sorted(extra)}")
 
     created = entry["createdByTask"]
     if isinstance(created, bool) or not isinstance(created, (str, int)) or not str(created).strip():
@@ -237,6 +235,15 @@ def page_entry(index, item, task_space, root, checked_at):
         return entry
     if not same_identity(created, task_space):
         entry["reasons"] = [f"createdByTask-mismatch: {created!r} does not match the task space {task_space!r}"]
+        return entry
+    if not positive_int(entry["spaceId"]):
+        entry["reasons"] = [
+            "spaceId-invalid: declare the Ego task space as a positive integer; it is not the task identifier"]
+        return entry
+    page_id = entry["pageId"]
+    if isinstance(page_id, bool) or not isinstance(page_id, (str, int)) or (
+            isinstance(page_id, str) and not page_id.strip()):
+        entry["reasons"] = ["pageId-invalid: declare the page identifier as a nonempty string or integer"]
         return entry
     evidence_problem = evidence_problem or evidence_files_problem(root, evidence)
     if evidence_problem:
@@ -257,13 +264,14 @@ def page_entry(index, item, task_space, root, checked_at):
         return entry
 
     age = (checked_at - observed).total_seconds()
-    entry["ageSeconds"] = round(age, 3)
+    rounded_age = round(age, 3)
+    entry["ageSeconds"] = rounded_age
     if age < 0:
-        entry["reasons"] = [f"observation-future: observedAt is {-age:.3f}s ahead of checkedAt"]
+        entry["reasons"] = [f"observation-future: observedAt is {-rounded_age:.3f}s ahead of checkedAt"]
         return entry
-    if age > OBSERVATION_WINDOW:
+    if rounded_age > OBSERVATION_WINDOW:
         entry["reasons"] = [
-            f"observation-expired: observedAt is {age:.3f}s older than the {OBSERVATION_WINDOW}s window"]
+            f"observation-expired: observedAt is {rounded_age:.3f}s older than the {OBSERVATION_WINDOW}s window"]
         return entry
     if state == "unknown":
         entry["reasons"] = ["observation-unknown: the caller did not observe open or closed"]
@@ -271,11 +279,11 @@ def page_entry(index, item, task_space, root, checked_at):
     if state == "closed":
         entry["classification"] = "clean"
         entry["reasons"] = [
-            f"page-closed: valid observation {age:.3f}s old and identity matches the task space"]
+            f"page-closed: valid observation {rounded_age:.3f}s old and identity matches the creating task"]
         return entry
     entry["classification"] = "residual"
     entry["reasons"] = [
-        f"page-still-open: valid observation {age:.3f}s old shows the agent-owned page is still open"]
+        f"page-still-open: valid observation {rounded_age:.3f}s old shows the agent-owned page is still open"]
     return entry
 
 
@@ -322,11 +330,11 @@ def probe_unknown(entry, diagnostics, label, code, exc):
 
 def server_entry(index, item, task_space, root, probe, diagnostics):
     location = f"servers[{index}]"
-    extra = item.keys() - SERVER_FIELDS
-    require(not extra, f"{location}: unknown fields {sorted(extra)}")
+    require(isinstance(item, dict), f"{location}: expected an object")
+    label = item_label(item, location)
     evidence, evidence_problem = evidence_list(item.get("evidence"), f"{location}.evidence")
     entry = {
-        "label": item["label"],
+        "label": label,
         "owner": item.get("owner"),
         "createdByTask": item.get("createdByTask"),
         "pid": item.get("pid"),
@@ -355,6 +363,8 @@ def server_entry(index, item, task_space, root, probe, diagnostics):
     if owner == "unknown":
         entry["reasons"] = ["owner-unknown: ownership is not proven, so the process is never probed"]
         return entry
+    extra = item.keys() - SERVER_FIELDS
+    require(not extra, f"{location}: unknown fields {sorted(extra)}")
 
     created = entry["createdByTask"]
     if isinstance(created, bool) or not isinstance(created, (str, int)) or not str(created).strip():
@@ -491,7 +501,7 @@ def build_report(root, task_space, pages, servers, checked_at, probe):
         "valid": True,
         "schemaVersion": SCHEMA_VERSION,
         "taskSpace": task_space,
-        "checkedAt": isoformat(checked_at),
+        "checkedAt": rfc3339(checked_at),
         "pages": page_entries,
         "servers": server_entries,
         "aggregate": {
@@ -520,25 +530,22 @@ def output_path(root, value):
 
 def write_report(root, value, report):
     path = output_path(root, value)
-    temp = None
     try:
-        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
-                                         prefix=".cleanup-browser-", suffix=".json",
-                                         delete=False) as stream:
-            temp = Path(stream.name)
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
+    except FileExistsError as exc:
+        raise InputError(f"output: refusing to overwrite the existing file {value}") from exc
+    except OSError as exc:
+        raise InputError(f"output: cannot write {value}: {exc}") from exc
+    try:
+        with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
             json.dump(report, stream, ensure_ascii=False, indent=2)
             stream.write("\n")
             stream.flush()
             os.fsync(stream.fileno())
-        try:
-            os.link(temp, path)
-        except FileExistsError as exc:
-            raise InputError(f"output: refusing to overwrite the existing file {value}") from exc
-        except OSError as exc:
-            raise InputError(f"output: cannot write {value}: {exc}") from exc
-    finally:
-        if temp is not None and temp.exists():
-            temp.unlink()
+    except OSError as exc:
+        path.unlink(missing_ok=True)
+        raise InputError(f"output: cannot write {value}: {exc}") from exc
+    return path
 
 
 class SystemProbe:
@@ -588,10 +595,11 @@ class SystemProbe:
 
     def listeners(self, port):
         completed = self._run(["lsof", "-nP", f"-iTCP:{port}", "-sTCP:LISTEN", "-F", "p"])
-        message = completed.stderr.strip()
-        if completed.returncode not in (0, 1) or message:
-            raise ProbeError(
-                f"lsof could not list port {port}: {message or completed.returncode}")
+        problems = [line for line in completed.stderr.splitlines()
+                    if line.strip() and not line.startswith("lsof: WARNING")]
+        if completed.returncode not in (0, 1) or problems:
+            detail = "; ".join(problems) or completed.returncode
+            raise ProbeError(f"lsof could not list port {port}: {detail}")
         pids = set()
         for line in completed.stdout.splitlines():
             if not line.startswith("p"):
@@ -611,7 +619,7 @@ class SystemProbe:
         return {"present": present, "content": content}
 
 
-def run_cleanup(root, task_space, pages_argument, servers_argument, output, probe=None, now=None):
+def run_cleanup(root, task_space, pages_argument, servers_argument, output_file, probe=None, now=None):
     root = Path(root).resolve()
     checked_at = now or datetime.now(timezone.utc)
     try:
@@ -624,7 +632,7 @@ def run_cleanup(root, task_space, pages_argument, servers_argument, output, prob
         unique_labels(servers, "servers")
         report = build_report(root, task_space.strip(), pages, servers,
                               checked_at.astimezone(timezone.utc), probe or SystemProbe())
-        write_report(root, output, report)
+        write_report(root, output_file, report)
         return report, 0 if report["aggregate"]["status"] == "clean" else 1
     except InputError as exc:
         return {"valid": False, "status": "invalid", "errors": [str(exc)]}, 2

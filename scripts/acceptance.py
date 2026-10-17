@@ -639,7 +639,9 @@ def main(argv=None, root=None):
     browser = commands.add_parser("verify-browser")
     browser.add_argument("artifact", help="explicit repository-relative or absolute artifact directory")
     cleanup = commands.add_parser("cleanup-browser")
-    cleanup.add_argument("task_space", help="task space that owns the declared pages and servers")
+    cleanup.add_argument(
+        "task_space",
+        help="Trellis task whose cleanup is being checked; page spaceId is the separate Ego task space")
     cleanup.add_argument("--pages", required=True, help="path to the page declaration JSON")
     cleanup.add_argument("--servers", required=True, help="path to the server declaration JSON")
     cleanup.add_argument("--output", required=True, help="new report path below .tmp/")
