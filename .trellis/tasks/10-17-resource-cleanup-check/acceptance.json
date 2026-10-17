@@ -36,12 +36,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T12:17:42.089381+00:00",
-        "endedAt": "2026-10-17T12:17:42.170778+00:00",
-        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmplm4p0n5h.log"
+        "startedAt": "2026-10-17T12:26:48.231608+00:00",
+        "endedAt": "2026-10-17T12:26:48.323796+00:00",
+        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmpltzm_il2.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-resource-cleanup-check/tmplm4p0n5h.log"
+        ".tmp/acceptance/10-17-resource-cleanup-check/tmpltzm_il2.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -76,12 +76,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T12:17:42.203528+00:00",
-        "endedAt": "2026-10-17T12:17:42.292661+00:00",
-        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmp423h9zd5.log"
+        "startedAt": "2026-10-17T12:26:48.325008+00:00",
+        "endedAt": "2026-10-17T12:26:48.424910+00:00",
+        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmpv4qlvg4r.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-resource-cleanup-check/tmp423h9zd5.log"
+        ".tmp/acceptance/10-17-resource-cleanup-check/tmpv4qlvg4r.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -124,12 +124,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T12:17:42.321686+00:00",
-        "endedAt": "2026-10-17T12:17:42.417963+00:00",
-        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmpliyrw09e.log"
+        "startedAt": "2026-10-17T12:26:48.426039+00:00",
+        "endedAt": "2026-10-17T12:26:48.537476+00:00",
+        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmpp8y_hz_7.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-resource-cleanup-check/tmpliyrw09e.log"
+        ".tmp/acceptance/10-17-resource-cleanup-check/tmpp8y_hz_7.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -168,12 +168,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T12:17:42.449916+00:00",
-        "endedAt": "2026-10-17T12:17:42.652406+00:00",
-        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmpod79qw64.log"
+        "startedAt": "2026-10-17T12:26:48.538893+00:00",
+        "endedAt": "2026-10-17T12:26:48.749458+00:00",
+        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmp8nstozwp.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-resource-cleanup-check/tmpod79qw64.log"
+        ".tmp/acceptance/10-17-resource-cleanup-check/tmp8nstozwp.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -196,14 +196,14 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T12:17:42.683907+00:00",
-        "endedAt": "2026-10-17T12:18:04.594570+00:00",
-        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmpfn27s2h2.log"
+        "startedAt": "2026-10-17T12:26:48.750720+00:00",
+        "endedAt": "2026-10-17T12:27:10.665873+00:00",
+        "log": ".tmp/acceptance/10-17-resource-cleanup-check/tmpo0n8am5e.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-resource-cleanup-check/tmpfn27s2h2.log"
+        ".tmp/acceptance/10-17-resource-cleanup-check/tmpo0n8am5e.log"
       ],
-      "note": "Tooling-only change: this check passes only what `npm run check` actually ran. Live EH/NH/Vite browser rounds and task.py finish are not claimed and stay with the parent task.",
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     }
   ]

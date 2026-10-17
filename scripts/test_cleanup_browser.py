@@ -470,6 +470,17 @@ class CleanupTests(unittest.TestCase):
                 self.assertTrue(any("pageId-invalid" in reason for reason in entry["reasons"]),
                                 entry["reasons"])
 
+    def test_user_owned_pages_still_need_unique_report_labels(self):
+        cases = [
+            ("missing", [{"owner": "user"}], "label: expected a nonempty string"),
+            ("duplicate", [self.page(owner="user"), self.page(owner="user")], "duplicate 'p1'"),
+        ]
+        for label, pages, fragment in cases:
+            with self.subTest(label=label):
+                code, report = self.run_cleanup(pages=pages)
+                self.assertEqual(code, 2)
+                self.assertTrue(any(fragment in error for error in report["errors"]), report["errors"])
+
     def test_output_rules(self):
         cases = [
             ("outside tmp", ".trellis/report.json"),
@@ -503,6 +514,7 @@ class CleanupTests(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertIn("fixture write failure", report["errors"][0])
         self.assertFalse(Path(target).exists())
+        self.assertEqual(list(Path(target).parent.glob(f".{Path(target).name}.*.part")), [])
 
     def test_no_destructive_calls(self):
         self.live()

@@ -8,7 +8,6 @@ It never closes pages, signals processes, or deletes PID files.
 Declared server identity is the launch record: `expectedCwd`, the recorded `ps -ww -o args=`
 line in `expectedCommand`, and `processStartToken` in the form `<pid>@<ps -o lstart=>`.
 """
-
 from collections import Counter
 from datetime import datetime, timezone
 import json
@@ -16,6 +15,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import tempfile
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA_VERSION = 1
@@ -215,7 +215,7 @@ def page_entry(index, item, task_space, root, checked_at):
     if owner == "user":
         entry["classification"] = "preserved"
         entry["reasons"] = [
-            "owner-user: user-owned pages are preserved; their fields are not validated and the page is never closed"]
+            "owner-user: user-owned pages are preserved; pageId, spaceId, state, observedAt and evidence are not validated, and the page is never closed"]
         return entry
     if owner is None:
         entry["reasons"] = ["owner-missing: declare owner as agent, user or unknown"]
@@ -531,20 +531,25 @@ def output_path(root, value):
 def write_report(root, value, report):
     path = output_path(root, value)
     try:
-        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644)
-    except FileExistsError as exc:
-        raise InputError(f"output: refusing to overwrite the existing file {value}") from exc
+        descriptor, temporary = tempfile.mkstemp(
+            prefix=f".{path.name}.", suffix=".part", dir=path.parent)
     except OSError as exc:
         raise InputError(f"output: cannot write {value}: {exc}") from exc
+    temporary = Path(temporary)
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8") as stream:
             json.dump(report, stream, ensure_ascii=False, indent=2)
             stream.write("\n")
             stream.flush()
             os.fsync(stream.fileno())
+        os.chmod(temporary, 0o644)
+        os.link(temporary, path)
+    except FileExistsError as exc:
+        raise InputError(f"output: refusing to overwrite the existing file {value}") from exc
     except OSError as exc:
-        path.unlink(missing_ok=True)
         raise InputError(f"output: cannot write {value}: {exc}") from exc
+    finally:
+        temporary.unlink(missing_ok=True)
     return path
 
 
