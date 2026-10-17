@@ -317,8 +317,9 @@ evidence. Native failure may occur after a move or pointer change: inspect state
 never automatically rerun an archive. The wrapper does not fix native archive bugs.
 
 This gates the project's standard check/commit/finish-work path. Direct native
-`task.py archive` still enforces the task scope gate, but it does not check this
-acceptance record: only `acceptance.py archive` verifies it. `task.py validate`
+`task.py archive` still enforces the task scope gate for tasks that declare
+`scopePolicyVersion` (legacy tasks get a diagnostic only), but it does not check
+this acceptance record: only `acceptance.py archive` verifies it. `task.py validate`
 checks context manifests only. `task.py finish` clears the active pointer without
 either check and does not imply completed acceptance.
 

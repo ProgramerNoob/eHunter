@@ -334,6 +334,15 @@ export async function bootstrapReader({ page, taskSpace, profile, observe, close
       return false;
     }
   };
+  const waitForOpenState = async wantOpen => {
+    const deadline = Date.now() + timeoutMs;
+    let current = await observeOnce();
+    while (current && classifyReaderFacts(current).readerOpen !== wantOpen && Date.now() < deadline) {
+      await delay(100);
+      current = await observeOnce();
+    }
+    return current;
+  };
   const finish = async prepFacts => {
     let evidence = null;
     try {
@@ -359,12 +368,20 @@ export async function bootstrapReader({ page, taskSpace, profile, observe, close
     let current = first;
     const firstFacts = classifyReaderFacts(first);
     if (typeof closeReader === 'function' && firstFacts.readerOpen) {
-      await callHook('closeReader', 'close-reader-failed', closeReader);
-      current = (await observeOnce()) ?? current;
+      if (await callHook('closeReader', 'close-reader-failed', closeReader)) {
+        current = (await waitForOpenState(false)) ?? current;
+        if (classifyReaderFacts(current).readerOpen) fail('close-reader-timeout', 'Reader did not close within timeoutMs', { timeoutMs });
+      } else {
+        current = (await observeOnce()) ?? current;
+      }
     }
     if (typeof openReader === 'function' && !classifyReaderFacts(current).readerOpen) {
-      await callHook('openReader', 'open-reader-failed', openReader);
-      current = (await observeOnce()) ?? current;
+      if (await callHook('openReader', 'open-reader-failed', openReader)) {
+        current = (await waitForOpenState(true)) ?? current;
+        if (!classifyReaderFacts(current).readerOpen) fail('open-reader-timeout', 'Reader did not open within timeoutMs', { timeoutMs });
+      } else {
+        current = (await observeOnce()) ?? current;
+      }
     }
     const facts = classifyReaderFacts(current);
     errors.push(...facts.errors);

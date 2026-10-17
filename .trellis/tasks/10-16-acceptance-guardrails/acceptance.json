@@ -172,27 +172,72 @@
       "ac": [
         "AC6"
       ],
-      "claim": "验证共用文档记录 verify-browser、bootstrap、scope gate、cleanup-browser 及一条收尾证据路径。",
-      "scope": "读取 `.trellis/spec/frontend/browser-acceptance.md`、`quality-guidelines.md`、`.trellis/spec/tooling/index.md`、`.trellis/workflow.md`、`.pi/skills/eh-test/SKILL.md` 的关键段落",
+      "claim": "验证共用文档记录 verify-browser、bootstrap、scope gate、cleanup-browser 的契约、失败分类、legacy 兼容与最小用法示例，并给出一条完整收尾顺序。",
+      "scope": "读取 `.trellis/spec/frontend/browser-acceptance.md`、`quality-guidelines.md`、`.trellis/spec/tooling/{index,task-scope-gate}.md`、`.trellis/workflow.md`、`.pi/skills/eh-test/SKILL.md` 的关键段落与命令示例",
       "method": "command",
-      "dimension": "behavior",
+      "dimension": "content",
       "observed": "passed",
       "execution": {
         "argv": [
           "python3",
           "-c",
-          "import pathlib; r=pathlib.Path(\".\"); ba=(r/\".trellis/spec/frontend/browser-acceptance.md\").read_text(); qg=(r/\".trellis/spec/frontend/quality-guidelines.md\").read_text(); wf=(r/\".trellis/workflow.md\").read_text(); sk=(r/\".pi/skills/eh-test/SKILL.md\").read_text(); ti=(r/\".trellis/spec/tooling/index.md\").read_text(); facts={\"cleanup-section\":\"### 资源清理检查\" in ba and \"cleanup-browser\" in ba,\"closing-path\":\"cleanup-browser\" in ba and \"verify-browser\" in ba and \"acceptance.py summarize\" in ba,\"native-archive\":\"enforces the task scope gate\" in qg and \"does not check this\" in qg,\"workflow\":\"scope-start.json\" in wf and \"tooling/task-scope-gate.md\" in wf,\"eh-test\":\"cleanup-browser\" in sk,\"tooling-index\":\"验收资源清理检查\" in ti}; failed=[k for k,v in facts.items() if not v]; print(facts); print(\"failed:\",failed); raise SystemExit(1 if failed else 0)"
+          "import pathlib; r=pathlib.Path(\".\"); ba=(r/\".trellis/spec/frontend/browser-acceptance.md\").read_text(); qg=(r/\".trellis/spec/frontend/quality-guidelines.md\").read_text(); wf=(r/\".trellis/workflow.md\").read_text(); sk=(r/\".pi/skills/eh-test/SKILL.md\").read_text(); ti=(r/\".trellis/spec/tooling/index.md\").read_text(); tsg=(r/\".trellis/spec/tooling/task-scope-gate.md\").read_text(); facts={\"cleanup-section\":\"### 资源清理检查\" in ba and all(x in ba for x in (\"cleanup-browser\",\"residual\",\"preserved\",\"unknown\")),\"task-space\":\"Trellis 任务标识\" in ba and \"createdByTask` 必须等于\" in ba,\"bootstrap\":\"### 当前页面 bootstrap\" in ba and \"bootstrapReader\" in ba and \"host-script-late\" in ba,\"verify\":\"verify-browser\" in ba and \"legacy\" in ba,\"closing-path\":all(x in ba for x in (\"verify-browser\",\"task.finish\",\"cleanup-browser\",\"acceptance.py summarize\")),\"native-archive\":\"scopePolicyVersion\" in qg and \"legacy tasks get a diagnostic only\" in qg,\"workflow\":\"scope-start.json\" in wf and \"tooling/task-scope-gate.md\" in wf and \"legacy tasks get a diagnostic only\" in wf,\"scope-legacy\":\"legacy\" in tsg and \"scopePolicyVersion\" in tsg,\"eh-test\":all(x in sk for x in (\"createdByTask\",\"expectedCommand\",\"processStartToken\",\"cleanup-browser\")),\"tooling-index\":\"验收资源清理检查\" in ti}; failed=[k for k,v in facts.items() if not v]; print(facts); print(\"failed:\",failed); raise SystemExit(1 if failed else 0)"
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T12:36:55.087776+00:00",
-        "endedAt": "2026-10-17T12:36:55.106944+00:00",
-        "log": ".tmp/acceptance/10-16-acceptance-guardrails/tmp75aa8dy1.log"
+        "startedAt": "2026-10-17T12:42:39.616762+00:00",
+        "endedAt": "2026-10-17T12:42:39.635495+00:00",
+        "log": ".tmp/acceptance/10-16-acceptance-guardrails/tmp7izf8_84.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-16-acceptance-guardrails/tmp75aa8dy1.log"
+        ".tmp/acceptance/10-16-acceptance-guardrails/tmp7izf8_84.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac2-live-browser-rounds",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "真实 persisted book/scroll 初始状态在本地 Vite 与 EH 生产包上均由 bootstrapReader 记录正确模式、scroll 容器或 spread 基线与 profile；desktop/mobile 各一轮。",
+      "scope": "本地 Vite 与 EH 的 8 轮真实浏览器 helper 运行（book/scroll × desktop/mobile）；不含 NH 与其他站点，不覆盖本次未改动的功能分支。",
+      "method": "inspection",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/parent-closeout/verify-browser.log",
+        ".tmp/browser-preflight/local-book-desktop-1cff4755-98c1-48d7-9ab0-ae9e51ee5c48/result.json",
+        ".tmp/browser-preflight/local-scroll-desktop-9ed24ea5-c3d3-4100-9a08-bb5e2acdebd7/result.json",
+        ".tmp/browser-preflight/local-scroll-mobile-50e54e22-5b3e-4c8f-b4f5-e85f64fb9c64/result.json",
+        ".tmp/browser-preflight/local-book-mobile-cc995e4e-f846-4a82-aa82-95e0cf4a5959/result.json",
+        ".tmp/browser-preflight/eh-book-desktop-ab540690-6313-4632-ae19-a5696a1c02fb/result.json",
+        ".tmp/browser-preflight/eh-scroll-desktop-eb318eaf-bd63-4d3e-bc4e-a6f8b32820d2/result.json",
+        ".tmp/browser-preflight/eh-book-mobile-c2021aa9-4676-4212-8b02-bc1ea7a97173/result.json",
+        ".tmp/browser-preflight/eh-scroll-mobile-5162019c-964a-4164-aecc-c1fe1d224fb6/result.json"
+      ],
+      "note": "8 轮均 status ready、errors 空；EH 轮次通过生产包身份与 grant/connect 检查；每轮 verify-browser 退出 0；桌面/移动截图已人工查看。",
+      "waiver": null
+    },
+    {
+      "id": "ac5-live-cleanup",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "cleanup-browser 对真实运行的 Vite 与 bundle server 完成进程、端口、PID 文件检查并输出 clean，不触碰用户资源。",
+      "scope": "本任务创建的两个 agent-owned 服务与一个 Ego 页面；不含用户已有服务、其他任务页面或真实站点压力测试。",
+      "method": "inspection",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/parent-closeout/cleanup-report.json",
+        ".tmp/parent-closeout/service-pre-stop.json",
+        ".tmp/parent-closeout/service-post-stop.json",
+        ".tmp/parent-closeout/verify-browser.log"
+      ],
+      "note": "服务停止前记录 PID/cwd/command/启动 token，停止后端口释放且 PID 文件已删除；cleanup aggregate clean、exit 0，pages 1 clean、servers 2 exited-and-cleaned。",
       "waiver": null
     }
   ]

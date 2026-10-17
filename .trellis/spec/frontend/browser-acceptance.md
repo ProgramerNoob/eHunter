@@ -209,7 +209,7 @@ helper 是本轮唯一 `page.events()` 消费者。所有捕获的原始事件�
 python3 scripts/acceptance.py cleanup-browser <task-space> --pages <pages.json> --servers <servers.json> --output <repo>/.tmp/cleanup-browser.json
 ```
 
-- `<task-space>` 是本轮 Ego task space，必须与两份输入的 `taskSpace` 相同。页面 `spaceId` 是 Ego 数字 id，不是 Trellis 任务名；`createdByTask` 才对应任务。
+- `<task-space>` 是本轮 Trellis 任务标识（任务名），两份输入的 `taskSpace` 必须与它相同。页面 `spaceId` 是 Ego 数字 space id，与任务名无关；agent-owned 项的 `createdByTask` 必须等于 `<task-space>`。
 - pages 输入：`{schemaVersion:1, taskSpace, pages:[{label, spaceId, pageId, owner, createdByTask, state, observedAt, evidence}]}`。agent-owned 页面要求 0–300 秒内、带显式时区的 RFC3339 `observedAt`；有效 `closed` 为 clean、`open` 为 residual。`owner:user` 始终 preserved，不校验其逐项字段。
 - servers 输入：`{schemaVersion:1, taskSpace, servers:[{label, pid, pidFile, port, expectedCwd, expectedCommand, processStartToken, owner, createdByTask, evidence}]}`；`processStartToken` 形如 `<pid>@<ps -o lstart=>`，`evidence` 每条都要能解析到可读文件。
 - 分类：agent-owned 且进程已退出、端口释放、PID 文件已由调用方清理、启动身份与 evidence 相符为 clean；进程仍存活/监听或 PID 文件残留为 residual；PID 复用、cwd/命令/启动标识/端口不符、owner 或 createdByTask 缺失、evidence 缺失或不可读为 unknown。user-owned 为 preserved；逐项未知不是命令级输入错误。
@@ -250,6 +250,6 @@ python3 scripts/acceptance.py cleanup-browser <task-space> --pages <pages.json> 
 
 ## 5. 收尾或交还用户
 
-成功完成后，保存逐项结果、日志和已阅读的截图，按顺序完成收尾证据：停止本轮服务并确认进程退出、端口释放 → 用 `cleanup-browser` 生成 `.tmp/` 资源报告 → 对每轮产物运行 `verify-browser <artifact-dir>` → 由主会话回填并运行 `acceptance.py summarize`。最后在同一任务空间执行一次 `await task.finish({ keep: [] })` 并等待返回。仅在交付物需留在浏览器供用户继续操作时保留相应页面。helper 不创建/结束空间或管理服务；外层按服务归属核实并停止本次服务及 npm 父进程，确认退出和端口释放，清理本次创建且无需保留的临时产物，保留用户已有资源、存储和交付证据，执行完成长通知。资源报告只证明声明资源的收尾状态，不替代功能验收；residual/unknown 保留并人工核对归属后再处理。
+成功完成后，保存逐项结果、日志和已阅读的截图，按顺序完成收尾证据：停止本轮服务并确认进程退出、端口释放 → 对每轮产物运行 `verify-browser <artifact-dir>` → 在同一任务空间执行一次 `await task.finish({ keep: [] })` 并等待返回，关闭 agent-owned 页面 → 用 `cleanup-browser` 生成 `.tmp/` 资源报告（页面按关闭后的观察记为 `closed`）→ 由主会话回填并运行 `acceptance.py summarize`。交付物需留在浏览器供用户继续操作时保留相应页面，并把该页面显式记为 `open`；报告出现 residual 时人工核对并保留证据，不能为了退出码修改观察。helper 不创建/结束空间或管理服务；外层按服务归属核实并停止本次服务及 npm 父进程，确认退出和端口释放，清理本次创建且无需保留的临时产物，保留用户已有资源、存储和交付证据，执行完成长通知。资源报告只证明声明资源的收尾状态，不替代功能验收；residual/unknown 保留并人工核对归属后再处理。
 
 遇到登录、浏览器权限提示或用户接管时，遵循 ego-browser 技能的 `handOff()` / 接管流程，说明用户需要完成的动作；恢复时继续使用同一空间。阻塞或报错时报告已验证与未验证部分，不把局部通过写成完整验收通过。

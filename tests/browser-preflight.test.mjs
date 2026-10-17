@@ -1280,6 +1280,20 @@ test('bootstrap hooks stay serial and run close before open', async () => {
   assert.equal(result.prepFacts.calls.every(call => call.ok), true);
 });
 
+test('bootstrap waits for the close transition before reopening', async () => {
+  const artifactDir = await bootstrapDir();
+  let open = true;
+  const result = await bootstrapReader({ page: bootstrapPage({}), profile: 'desktop', artifactDir,
+    observe: async () => readerState({ open }),
+    closeReader: () => { setTimeout(() => { open = false; }, 30); },
+    openReader: () => { open = true; } });
+  assert.equal(result.status, 'ready', JSON.stringify(result.errors));
+  assert.equal(result.prepFacts.readerOpen, true);
+  assert.ok(result.prepFacts.calls.some(call => call.name === 'openReader' && call.ok));
+  await new Promise(resolve => setTimeout(resolve, 150));
+  assert.equal(open, true);
+});
+
 test('auto-open without callbacks is recorded and never closed by a guessed selector', async () => {
   const artifactDir = await bootstrapDir();
   const result = await bootstrapReader({ page: bootstrapPage(readerState()), profile: 'desktop', artifactDir });
