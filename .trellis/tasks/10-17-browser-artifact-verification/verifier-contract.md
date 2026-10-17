@@ -30,7 +30,7 @@ manifest 保持 `state: 'incomplete'`，只固定本轮身份：`runId`、`round
 python3 scripts/acceptance.py verify-browser <artifact-dir>
 ```
 
-只读：不写 artifact，不改 `acceptance.json`，可重复执行。`<artifact-dir>` 必须在仓库内且为目录；不要求位于 `.tmp/` 下，但只有真实 preflight 产物能通过（缺少 provenance 判 `legacy`），手写目录不会因为结构相似而被当成新鲜证据。
+只读：不写 artifact，不改 `acceptance.json`，可重复执行。`<artifact-dir>` 必须在仓库内且为目录；不要求位于 `.tmp/` 下，缺少 provenance 的目录判 `legacy`。verifier 只做结构与 hash 对照，不验证产物的因果链或来源真实性——三份 JSON 字段齐全且 hash 与当前文件一致就能得到 `passed`，防伪造依赖 artifact 生成链路本身，不在本命令的职责内。
 
 输出：
 
@@ -74,3 +74,7 @@ result.json: provenance source.fingerprint does not match its files
 identity: no recorded execution hash
 manifest.json: no artifactVersion 1 provenance; re-run browser acceptance and backfill freshness facts
 ```
+
+## 已知成本
+
+每轮每个 checkpoint 的 `unchanged()` 都会重读全部 source 输入与 `scenarioInputs`（通常是个位数量的小文件），并追加 `fingerprints.jsonl`。这是轮次内篡改检测的必要成本：缓存 hash 或只比对 mtime 都会放弃对内容变化的检测，因此不做优化。真实验收一轮的 checkpoint 数量有限，读放大不影响时效。

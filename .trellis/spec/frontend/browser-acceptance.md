@@ -85,15 +85,18 @@ helper 比对当前文档**全部已加载项目模块**：Node 从已确认 ori
 
 以下为放在恢复 `task`、`page` 之后的 JavaScript 模板。每轮重新声明 `root`（真实仓库绝对路径）、`origin` 和上述 `source`；`profile` 为固定 profile 名，`openSelector`、`modeSelector`、`closeSelector` 是本轮快照已观察的稳定选择器。EH 使用 [eh-test 的 source](../../../.pi/skills/eh-test/SKILL.md#2-准备-eh-source)。所有方法顺序 `await`：
 
-每次调用必须传入非空 `scenarioInputs`：本轮实际依赖的仓库相对路径数组（例如场景配置或输入快照），不能使用绝对路径或越出仓库的路径；helper 在导航前记录每项 SHA-256 与聚合值，并在轮次结束前复核，变化即 blocked。`taskSpace` 可选，用于把产物关联到用户任务空间。
+每次调用必须传入非空 `scenarioInputs`：本轮实际依赖的仓库相对路径数组（例如场景配置或输入快照），不能使用绝对路径或越出仓库的路径；helper 在导航前记录每项 SHA-256 与聚合值，并在轮次结束前复核，变化即 blocked。`taskSpace` 可选，用于把产物关联到用户任务空间。下面的模板先用 `fs` 写出一份输入快照再传入，照抄即可运行；实际场景替换成本轮真正依赖的仓库文件。
 
 ```js
 const { pathToFileURL } = await import('node:url');
 const { randomUUID } = await import('node:crypto');
+const fs = await import('node:fs/promises');
 const { withBrowserPreflight, BrowserPreflightError } = await import(
   pathToFileURL(`${root}/scripts/browser-preflight.mjs`).href
 );
-const scenarioInputs = ['.tmp/scenario-inputs/reader.json']; // 本轮实际依赖的仓库相对输入
+const scenarioInputs = ['.tmp/scenario-inputs/reader.json'];
+await fs.mkdir(`${root}/.tmp/scenario-inputs`, { recursive: true });
+await fs.writeFile(`${root}/${scenarioInputs[0]}`, JSON.stringify({ scene: 'reader', profile }) + '\n');
 const artifactDir = `${root}/.tmp/browser-preflight/${profile}-${randomUUID()}`;
 try {
   const result = await withBrowserPreflight({
