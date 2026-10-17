@@ -1,0 +1,3 @@
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "核对改名后链接与锚点、NH 差异表述是否与指南冲突"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "核对文档层改动的验收路由与 acceptance 回填要求"}
+{"file": ".trellis/spec/frontend/features/001-platform-injection/quickstart.md", "reason": "平台注入用例中 EH/NH 入口 URL 与验收期望"}

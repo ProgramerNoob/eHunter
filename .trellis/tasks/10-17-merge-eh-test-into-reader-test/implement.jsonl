@@ -1,0 +1,3 @@
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "EH/NH userscript source 契约、kind: nh 的 URL 与登录前置、准备门与收尾步骤"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "acceptance 记录 schema、验收路由表、文档与提交边界"}
+{"file": ".pi/skills/eh-test/SKILL.md", "reason": "被改造的技能正文：现有 EH 专用流程、source 模板、报告与时序约定"}

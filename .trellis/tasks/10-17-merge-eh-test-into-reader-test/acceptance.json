@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "`.pi/skills/reader-test/SKILL.md` 与 `.pi/skills/reader-test/ehunter-dev-loader.user.js` 存在，`eh-test` 目录已不存在；frontmatter `name`、description、`/skill:reader-test` 示例与平台参数说明一致，`platform: eh` 与 `platform: nh` 两条路径各自可读、无未定义字段。",
+    "AC2": "平台差异表事实正确：NH 不要求 `loggedIn`（对齐 `scripts/browser-preflight.mjs:1045`）、URL 形态对齐 `:720` 的 `/g/<id>/<page>/`、原图/换源 N/A 对齐 `src/platform/nh/service/AlbumServiceImpl.ts` 的 `isSupportOriginImg()` / `isSupportImgChangeSource()`。",
+    "AC3": "活跃引用全部更新：`.trellis/spec/frontend/{index.md,browser-acceptance.md,quality-guidelines.md}`、`.trellis/spec/frontend/features/{index.md,001-add-pageflip-toggle/quickstart.md,001-add-pageview-magnifier/quickstart.md,002-more-settings-modal/quickstart.md}`、`AGENTS.md`、`scripts/serve-bundle.mjs`、`scripts/cleanup_browser.py` 不再指向 `eh-test`；`archive/` 未被改动。",
+    "AC4": "`npm run check:docs` 通过（零断链），`grep -rn \"skills/eh-test\"` 在活跃文件（排除 `.tmp/`、`.trellis/tasks/archive/`）零命中。",
+    "AC5": "真实平台证据：`platform: nh` 在真实 `https://nhentai.net/g/688467/1/`（默认页不可访问时换其他可访问 gallery 并记录实际地址）跑通准备门（单一生产候选 + 指纹 + coverage）与首屏断言，桌面 profile 至少一次；`platform: eh` 至少验证一条既有 EH 页仍能进入准备门。构建或真实页面受阻时如实记为 blocked 并说明下游未执行范围，不得以构建成功替代。",
+    "AC6": "报告与收尾：报告文件名符合 R6，资源清理步骤保留；本轮 server PID 文件清理、端口释放已核实。"
+  },
+  "checks": [
+    {
+      "id": "ac1-skill-structure",
+      "ac": ["AC1"],
+      "claim": "reader-test 技能目录存在、eh-test 目录已移除，frontmatter 名称与 description 覆盖 EH/NH，入口示例含 platform: eh|nh，技能内相对链接指向真实文件。",
+      "scope": "`.pi/skills/reader-test/` 目录结构、`SKILL.md` frontmatter 与调用示例段、正文相对链接；静态检查，不含浏览器执行",
+      "method": "inspection",
+      "dimension": "structure",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中，未检查",
+      "waiver": null
+    },
+    {
+      "id": "ac2-platform-table",
+      "ac": ["AC2"],
+      "claim": "技能中的平台差异表与 preflight 契约一致：NH 不要求 loggedIn、URL 为 /g/<id>/<page>/、原图/换源为 N/A。",
+      "scope": "`SKILL.md` 平台差异表与 NH source 代码块，对照 `scripts/browser-preflight.mjs:719-720`、`:1045-1046` 与 `src/platform/nh/service/AlbumServiceImpl.ts` 的能力方法；静态检查",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中，未检查",
+      "waiver": null
+    },
+    {
+      "id": "ac3-active-references",
+      "ac": ["AC3"],
+      "claim": "附件清单中的活跃文件已更新为新路径与新名称，archive 目录保持原样。",
+      "scope": "AGENTS.md、`.trellis/spec/frontend/{index.md,browser-acceptance.md,quality-guidelines.md}`、`features/{index.md,001-add-pageflip-toggle/quickstart.md,001-add-pageview-magnifier/quickstart.md,002-more-settings-modal/quickstart.md}`、`scripts/serve-bundle.mjs`、`scripts/cleanup_browser.py`；逐文件阅读确认，`git status` 证明 archive 无改动",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中，未检查",
+      "waiver": null
+    },
+    {
+      "id": "ac4-doc-links-and-grep",
+      "ac": ["AC4"],
+      "claim": "文档链接检查零断链，且活跃文件不再包含 skills/eh-test 引用。",
+      "scope": "`npm run check:docs` 与一条 grep 门禁命令（排除 node_modules、`^./.tmp`、`/tasks/archive/`）同时为 0；两者串成单条命令，任一失败即非零",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中，未执行",
+      "waiver": null
+    },
+    {
+      "id": "ac5-nh-real-page",
+      "ac": ["AC5"],
+      "claim": "改后的技能在真实 NH gallery 页跑通生产包准备门（单一生产候选、指纹、coverage、严格环境）与首屏标题/页数/当前页断言，桌面 profile。",
+      "scope": "真实 `https://nhentai.net/g/688467/1/`（不可访问时换其他 gallery 并记录实际地址），desktop profile，bundle server + dev loader；报告与截图写入 `.tmp/`；429/Cloudflare/登录类阻塞记为 blocked",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中，未执行",
+      "waiver": null
+    },
+    {
+      "id": "ac5-eh-regression",
+      "ac": ["AC5"],
+      "claim": "改名后 EH 路径未退化：既有 EH /s/ 页仍能进入准备门并完成打开/关闭。",
+      "scope": "真实 exhentai.org `/s/` 页一次，desktop profile；复用同一 bundle 与 loader",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中，未执行",
+      "waiver": null
+    },
+    {
+      "id": "ac6-report-and-cleanup",
+      "ac": ["AC6"],
+      "claim": "报告文件按新命名生成且包含逐项结论，本轮 bundle server 已停止、PID 文件已清理、端口已释放。",
+      "scope": "`.tmp/test-reports/reader-test-<platform>-<timestamp>.md` 内容、`lsof` 端口核实输出、PID 文件不存在；`acceptance.py cleanup-browser` 资源报告",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中，未执行",
+      "waiver": null
+    }
+  ]
+}

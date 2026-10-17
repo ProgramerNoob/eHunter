@@ -1,0 +1,54 @@
+{
+  "id": "merge-eh-test-into-reader-test",
+  "name": "merge-eh-test-into-reader-test",
+  "title": "EH/NH 验收技能合并为 reader-test",
+  "description": "把 EH 专用验收技能 eh-test 扩展为按平台参数化的 reader-test，覆盖 EH 与 NH 生产包验收，并同步更新仓库内引用。",
+  "status": "planning",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-17",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "skill": [
+          ".pi/skills/reader-test/**",
+          ".pi/skills/eh-test/**"
+        ],
+        "spec": [
+          ".trellis/spec/**"
+        ],
+        "docs": [
+          "AGENTS.md"
+        ],
+        "tooling": [
+          "scripts/serve-bundle.mjs",
+          "scripts/cleanup_browser.py"
+        ],
+        "evidence": [
+          ".tmp/**"
+        ],
+        "task-evidence": [
+          ".trellis/tasks/10-17-merge-eh-test-into-reader-test/**"
+        ]
+      }
+    }
+  }
+}
