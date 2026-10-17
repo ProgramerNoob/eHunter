@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 11
+- **Total Sessions**: 12
 - **Last Active**: 2026-10-17
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~484 | Active |
+| `journal-1.md` | ~524 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 12 | 2026-10-17 | 合并 EH 验收技能为 reader-test | `1ee549d` | `master` |
 | 11 | 2026-10-17 | 文档与注释只描述当前状态 | `9915f78`, `418389f`, `68cafca` | `master` |
 | 10 | 2026-10-14 | 浏览器预检落地与两个运行阻塞修复 | `13fc961`, `4295e8e` | `feat/browser-acceptance-preflight` |
 | 9 | 2026-10-14 | Trellis ACP 工具与压缩续接修复 | `04f1365` | `fix/trellis-acp-context` |

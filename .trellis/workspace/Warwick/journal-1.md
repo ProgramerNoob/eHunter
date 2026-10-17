@@ -482,3 +482,43 @@ T024 遗留的两处可选硬化落地：通知标题超长无空格串不换行
 
 - 按 pending-work.md 的未收口项逐个建任务：下载时间戳时区、抓取并发、各组 quickstart 验收
 - 手动验证 10-16-acceptance-guardrails 任务是否继续
+
+
+## Session 12: 合并 EH 验收技能为 reader-test
+<!-- trellis-session: v=2 fp=c66df541043d2901 -->
+
+**Date**: 2026-10-17
+**Task**: 合并 EH 验收技能为 reader-test
+**Branch**: `master`
+
+### Summary
+
+把只面向 EH 的验收技能重命名为 reader-test 并按 platform: eh|nh 参数化准备门、source 与报告路径；回填 acceptance.json 并在真实 NH/EH 页面完成桌面轮验收。
+
+### Main Changes
+
+- `.pi/skills/eh-test` 重命名为 `.pi/skills/reader-test`，SKILL.md 新增平台差异表、NH source 与 EH/NH 报告路径
+- 同步 AGENTS.md、frontend spec 与三份 features quickstart、serve-bundle/cleanup_browser 注释路径
+- acceptance.json 七项检查全部 passed，含 check:docs 与 grep 门禁、NH 688467 与 EH 图页桌面轮、两次 cleanup-browser 报告
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `1ee549d` | refactor(tooling): 合并 EH 验收技能为 reader-test |
+
+### Testing
+
+- [OK] npm run check 退出码 0（type-check + 回归 + build-prod + check:docs）
+- [OK] npm run check:docs：39 md / 222 本地链接 / 0 断链
+- [OK] reader-test NH 轮（nhentai.net/g/688467/1/，18 页）：observed passed、verify-browser passed、cleanup-browser clean
+- [OK] reader-test EH 轮（exhentai.org/s/f9cb170d76/4257612-1，69 页）：observed passed、verify-browser passed
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 需要移动视口时补跑 platform: nh 的 690×1044 轮次
+- 按 pending-work.md 收口剩余的阅读器与抓取改造项
