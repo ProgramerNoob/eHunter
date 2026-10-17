@@ -44,8 +44,8 @@
       "ac": [
         "AC2"
       ],
-      "claim": "合成 fixture 验证启动前既有且未变化的 staged/unstaged/tracked/untracked 越界路径不阻断；启动后新增、删除、修改、stage/commit、staged/untracked rename 与变化的既有脏状态都被纳入匹配。",
-      "scope": "pre-start unchanged worktree excluded; post-start tracked, index, worktree and untracked changes included",
+      "claim": "合成 fixture 验证启动前既有且未变化的 staged/unstaged/tracked/untracked 越界路径不阻断；启动后新增、删除、修改、stage/commit、staged/untracked rename、`git add -N` intent-to-add 与变化的既有脏状态都被纳入匹配。",
+      "scope": "pre-start unchanged worktree excluded; post-start tracked, index, worktree, untracked and intent-to-add changes included",
       "method": "command",
       "dimension": "behavior",
       "observed": "passed",
@@ -58,12 +58,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-17T11:24:40.085007+00:00",
-        "endedAt": "2026-10-17T11:24:42.541329+00:00",
-        "log": ".tmp/acceptance/10-17-task-scope-gate/tmpjunnpyve.log"
+        "startedAt": "2026-10-17T11:34:28.738078+00:00",
+        "endedAt": "2026-10-17T11:34:31.181981+00:00",
+        "log": ".tmp/acceptance/10-17-task-scope-gate/tmpl5xapfwj.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-17-task-scope-gate/tmpjunnpyve.log"
+        ".tmp/acceptance/10-17-task-scope-gate/tmpl5xapfwj.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
