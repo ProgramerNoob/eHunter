@@ -1,4 +1,4 @@
-import test from 'node:test';
+import test, { after } from 'node:test';
 import assert from 'node:assert/strict';
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
@@ -9,6 +9,9 @@ import { withBrowserPreflight, BrowserPreflightError, classifyReaderFacts, compa
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const BASE = path.join(ROOT, '.tmp/browser-preflight/repair-final/cases');
+
+after(async () => { await fs.rm(BASE, { recursive: true, force: true }); });
+
 const EH_URL = 'https://exhentai.org/s/fixture/1-1';
 const NH_URL = 'https://nhentai.net/g/631366/1/';
 const ORIGIN = 'http://127.0.0.1:5173';
