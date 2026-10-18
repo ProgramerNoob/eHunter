@@ -36,7 +36,7 @@ BASE_FILES = {
     "package.json": '{"name": "fixture"}\n',
 }
 
-TASK_REL = ".trellis/tasks/10-17-fixture"
+NOMINAL_TASK_REL = ".trellis/tasks/10-17-fixture"
 
 
 def _sha256(data: bytes) -> str:
@@ -216,7 +216,7 @@ class ScopeGateFixture(unittest.TestCase):
 
     # -- snapshot helpers ---------------------------------------------------
 
-    def snapshot(self, task_rel: str = TASK_REL) -> dict:
+    def snapshot(self, task_rel: str = NOMINAL_TASK_REL) -> dict:
         return scope_gate.capture_snapshot(
             self.root, task_rel, scope_gate.default_scope(task_rel)
         )
@@ -297,7 +297,7 @@ class CreateScopeTests(ScopeGateFixture):
             ),
             (
                 "evidence-exact-path",
-                _scope_with(**{"task-evidence": [TASK_REL]}),
+                _scope_with(**{"task-evidence": [NOMINAL_TASK_REL]}),
                 "must cover this task's evidence directory",
             ),
             (
