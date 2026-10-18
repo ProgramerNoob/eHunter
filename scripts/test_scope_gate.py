@@ -239,9 +239,9 @@ class CreateScopeTests(ScopeGateFixture):
         self.init_repo()
         rc, out, err = self.create_task()
         self.assertEqual(rc, 0, err)
-        self.assertIn(".trellis/tasks/10-17-fixture", out)
 
         task_rel = self.task_rel()
+        self.assertIn(task_rel, out)
         data = self.task_json()
         self.assertEqual(data["scopePolicyVersion"], 1)
         scope = data["meta"]["scope"]
