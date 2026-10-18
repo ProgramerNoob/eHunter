@@ -20,7 +20,7 @@ metadata:
 /skill:reader-test mode: quick tests: first-screen, mode-switch
 ```
 
-pi 将命令后的文本作为用户指令附在技能正文之后。解析下列参数，并将 `platform` 的结果导出为环境变量 `PLATFORM`（`eh` 或 `nh`）——下文所有 bash 命令和代码模板都读这一个变量，不再重新判断平台：
+pi 将命令后的文本作为用户指令附在技能正文之后。解析下列参数，并把 `platform` 的结果作为环境变量 `PLATFORM`（`eh` 或 `nh`）。每次 `bash` 调用都是新 shell，变量不会跨调用保留：bash 块内用 `export PLATFORM="${PLATFORM:-eh}"` 传给同一次调用的子进程，`ego-browser nodejs` 每次启动都要显式加 `PLATFORM=<eh|nh>` 前缀。下文不再重新判断平台。
 
 | 参数 | 取值 | 缺省 |
 | --- | --- | --- |
@@ -51,7 +51,7 @@ pi 将命令后的文本作为用户指令附在技能正文之后。解析下�
 ### 1. 构建生产包
 
 ```bash
-PLATFORM=${PLATFORM:-eh}  # eh | nh，来自解析参数
+export PLATFORM="${PLATFORM:-eh}"  # eh | nh，来自解析参数
 mkdir -p ".tmp/reader-test-$PLATFORM"
 npm run build-prod > ".tmp/reader-test-$PLATFORM/build-prod.log" 2>&1
 ```
@@ -63,7 +63,7 @@ npm run build-prod > ".tmp/reader-test-$PLATFORM/build-prod.log" 2>&1
 本流程只使用生产 bundle server。先按通用指南核对旧服务归属（保留用户已有或归属不明的服务），再在仓库根目录后台启动：
 
 ```bash
-PLATFORM=${PLATFORM:-eh}  # eh | nh，来自解析参数
+export PLATFORM="${PLATFORM:-eh}"  # eh | nh，来自解析参数
 mkdir -p ".tmp/reader-test-$PLATFORM"
 npm run serve:bundle > ".tmp/reader-test-$PLATFORM/bundle-server.log" 2>&1 &
 echo "$!" > ".tmp/reader-test-$PLATFORM/bundle-server.pid"
@@ -71,11 +71,11 @@ echo "$!" > ".tmp/reader-test-$PLATFORM/bundle-server.pid"
 
 用 `lsof -nP -iTCP:8787 -sTCP:LISTEN`、`lsof -a -p PID -d cwd` 和 `curl --fail --silent --show-error http://127.0.0.1:8787/ehunter.iife.js` 核实监听者、目录和实际 URL；保存 npm 父进程、监听 PID 与核实输出。端口冲突时改用 `PORT=<其他端口> npm run serve:bundle`，同步 loader 的 `EHUNTER_BUNDLE_URL` 与模板的 `bundleUrl`，并核实浏览器安装副本；停止冲突进程按归属确认。
 
-server 每请求重新读盘并返回 `cache-control: no-store`，可达性只证明服务可访问，当前文档执行身份仍由准备门确认。
+默认 bundle URL 为 `http://127.0.0.1:8787/ehunter.iife.js`（`scripts/serve-bundle.mjs` 的 `HOST`/`PORT` 环境变量可改，默认端口 8787）。server 每请求重新读盘并返回 `cache-control: no-store`，可达性只证明服务可访问，当前文档执行身份仍由准备门确认。
 
 ### 3. 确认浏览器前置
 
-读取当前会话的 `ego-browser` 技能，通过 pi 的 `bash` 工具运行 `ego-browser nodejs`，按通用指南创建或复用同一任务空间；连接故障按该技能排查，缺少必需能力时报告具体阻塞项。按平台把本轮登录与安装检查依据保存到 `.tmp/reader-test-<platform>/`：仓库 loader 声明与浏览器安装副本分别核实。
+读取当前会话的 `ego-browser` 技能，按通用指南创建或复用同一任务空间；连接故障按该技能排查，缺少必需能力时报告具体阻塞项。每轮用 `PLATFORM=<eh|nh> ego-browser nodejs <<'JS'` 启动——每次 `bash` 调用都是新 shell，「构建生产包」与「启动并核实 bundle server」两段里的 `export` 不会留到下一轮，必须逐次带上平台前缀。按平台把本轮登录与安装检查依据保存到 `.tmp/reader-test-<platform>/`：仓库 loader 声明与浏览器安装副本分别核实。
 
 - `platform: eh`：确认 Ego 已登录 exhentai.org。
 - `platform: nh`：不要求登录态，`installation` 不写 `loggedIn`。
@@ -92,8 +92,10 @@ server 每请求重新读盘并返回 `cache-control: no-store`，可达性只�
 `source` 模板只有一份，平台差异由平台差异表承载：`installation` 的 `loggedIn` 只在 `eh` 出现，`kind` 与默认页按平台取。
 
 ```js
+const PLATFORM = process.env.PLATFORM; // 'eh' | 'nh'，来自 `PLATFORM=<eh|nh> ego-browser nodejs` 前缀
+if (PLATFORM !== 'eh' && PLATFORM !== 'nh') throw new Error(`PLATFORM 未设置为 eh 或 nh（实际：${PLATFORM}）`);
 const source = {
-  kind: PLATFORM, // 'eh' | 'nh'
+  kind: PLATFORM,
   bundlePath: `${root}/dist/ehunter.iife.js`,
   loaderPath: `${root}/.pi/skills/reader-test/ehunter-dev-loader.user.js`,
   bundleUrl: actualBundleUrl,
@@ -118,7 +120,7 @@ helper 对最终产物完整 UTF-8 字节与仓库 loader 留指纹，核对实�
 
 准备门即 helper 的预检：当前完整包执行证据、初始化与日志、严格环境（CSS 视口 / DPR / 移动能力、文档身份）全部通过，且必要事件已保存。通过判定标准是 helper 未 blocked，断言覆盖清单见 [指南 4.5 节](../../../.trellis/spec/frontend/browser-acceptance.md#45-预检断言覆盖清单)。
 
-blocked 时按其输出的具体差异处理——重复注入、旧包候选、权限缺项、视口不符、vite-error-overlay 或必需模块缺失各有对应修法；不以 HTTP 响应、loader 日志或挂载 DOM 降级替代，也不再用自算的身份比对绕过。必需取证能力不可用时返回规划。异常、超时与写盘失败按 [通用证据/回填流程](../../../.trellis/spec/frontend/browser-acceptance.md#4-证据、截图和失败回填) 保存并传播非零；认证问题按 Ego 接管流程处理。挂载/执行证据不等于异步平台初始化成功；打开前原站观察与打开后阅读器观察分别保存。
+blocked 时按其输出的具体差异处理——重复注入、旧包候选、权限缺项、视口不符、vite-error-overlay 或必需模块缺失各有对应修法；不以 HTTP 响应、loader 日志或挂载 DOM 降级替代，也不再用自算的身份比对绕过。必需取证能力不可用时返回规划。异常、超时与写盘失败按 [通用证据/回填流程](../../../.trellis/spec/frontend/browser-acceptance.md#4-证据截图和失败回填) 保存并传播非零；认证问题按 Ego 接管流程处理。挂载/执行证据不等于异步平台初始化成功；打开前原站观察与打开后阅读器观察分别保存。
 
 ### 6. 验证功能与视觉效果
 

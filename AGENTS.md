@@ -24,12 +24,12 @@
 - 每次测试开始前执行 [notify-complete](.pi/skills/notify-complete/SKILL.md) 的短通知；每次任务完成后执行长通知（实现、修复、排查、文档、测试、说明均适用）。只有用户明确要求静音或跳过通知时省略。
 - 调试产物（日志、截图、trace、临时导出）统一放在仓库 `.tmp/`；功能新增或修改必须完成对应功能测试，纯文档修改验证引用、格式和所述命令，未运行的验收不得报告为通过。
 - 非平台改动按[浏览器验收指南](.trellis/spec/frontend/browser-acceptance.md) 启动本地服务并用当前会话的 `ego-browser` 验收；平台改动（`src/platform/**`、注入链路、DOM 抓取、请求适配）使用 [reader-test](.pi/skills/reader-test/SKILL.md) 在 EH/NH 验证。开始调试或页面操作前必须读取对应文档。
-- 验收的分类、视口 profile、日志归因、逐项回填与收尾以浏览器验收指南为唯一依据，reader-test 只补 EH/NH 差异与功能清单；基础请求层（`TextReq`、`ReqQueue`、`MultiAsyncReq`）改动优先回归 EH 与 NH 两条链路。
+- 验收的分类、视口 profile、日志归因、逐项回填与收尾以浏览器验收指南为唯一依据，reader-test 只补 EH/NH 差异、平台特有的准备阻塞与验收节奏和功能清单；基础请求层（`TextReq`、`ReqQueue`、`MultiAsyncReq`）改动优先回归 EH 与 NH 两条链路。
 - 交付时说明已验证和未验证范围，清理本次创建且无需保留的服务和临时产物，核实进程退出与端口释放，保留交付物及用户已有资源。
 
 ## 技能分工
 
-- 开发收口和提交前验收使用 `trellis-check`（默认自检，可就地修机械问题）；用户要求对分支、PR 或指定提交范围独立审查时使用 `code-review`，或向 `trellis-check` 派发 `review-only`——该模式只读返回 findings，受审代码与测试版本当轮冻结，修复留到下一轮。
+- 开发收口和提交前验收使用 `trellis-check`（默认自检，可就地修机械问题）；用户要求对分支、PR 或指定提交范围独立审查时使用 `code-review`，或向 `trellis-check` 派发 `review-only`——该模式只读返回 findings，受审代码与测试版本当轮冻结，修复留到下一轮。审查依据优先用对应 Trellis 任务产物与 `.trellis/spec/`，范围含未提交改动时显式检查暂存区与工作区。
 - 需求澄清由 `trellis-brainstorm` 主导，压力测试或上层规则要求的追问使用 `grilling` 并回填当前 Trellis 规划；任务内研究交给 `trellis-research`，结论沉淀到 `.trellis/spec/`。Pi 子代理经 `trellis_subagent` 派发 `.pi/agents/` 中已定义的角色，零散探索、规划及独立审查由主会话完成。
 - Pi 扩展与技能屏蔽配置见 [.pi/settings.json](.pi/settings.json)：扩展按 `packages` 过滤，屏蔽全局技能须同时列出其 `SKILL.md` 路径和排除规则以覆盖全局发现。
 
