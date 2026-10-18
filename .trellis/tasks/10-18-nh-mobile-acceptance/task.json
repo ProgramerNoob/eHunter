@@ -1,0 +1,41 @@
+{
+  "id": "nh-mobile-acceptance",
+  "name": "nh-mobile-acceptance",
+  "title": "NH 移动视口验收补跑",
+  "description": "按 reader-test platform:nh 补跑移动视口验收：固定 mobile profile 严格预检轮次 + 690×1044 补充观察轮次，回填 acceptance.json 与报告",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-18",
+  "completedAt": null,
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-18-nh-mobile-acceptance/**"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "d1d7ae13ce19b5ce0a5192e78e918b844c6f14f6df57b01528897b539d911199"
+      }
+    }
+  }
+}

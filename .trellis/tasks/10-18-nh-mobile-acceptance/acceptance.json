@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "严格轮 `result.json` 为 `observed: \"passed\"`、`errors: []`，`python3 scripts/acceptance.py verify-browser <artifact-dir>` 返回 `passed`。",
+    "AC2": "690×1044 轮次记录实际视口回读、CDP 参数与截图，报告中注明不属于固定 profile 覆盖。",
+    "AC3": "功能项逐项回填 `.trellis/tasks/10-18-nh-mobile-acceptance/acceptance.json`，`failed`/`blocked`/`N/A`/`unrun` 显式区分。",
+    "AC4": "报告包含实际 URL、profile、控制台来源归因、截图路径与未验证范围。",
+    "AC5": "本轮 server 停止、端口释放、`cleanup-browser` 报告生成。"
+  },
+  "checks": [
+    {
+      "id": "nh-strict-round",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "固定 mobile profile 轮次通过准备门并执行首屏、模式切换、翻页、缩略图、设置、关闭/重开断言",
+      "scope": "nhentai.net gallery 首屏移动轮次，profile mobile（390×844、DPR 3、isMobile + hasTouch）",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/reader-test-nh/run-nh-mobile-10/result.json",
+        ".tmp/reader-test-nh/run-nh-mobile-10/nh-mobile-open.png",
+        ".tmp/reader-test-nh/run-nh-mobile-10/nh-mobile-scroll.png",
+        ".tmp/reader-test-nh/run-nh-mobile-10/nh-mobile-thumb-jump.png",
+        ".tmp/reader-test-nh/run-nh-mobile-10/nh-mobile-settings.png",
+        ".tmp/reader-test-nh/run-nh-mobile-10/nh-mobile-reopened.png"
+      ],
+      "note": "withBrowserPreflight profile=mobile 回读 390×844 DPR3 touch5；observed=passed、errors=[]。首屏 progress 1/18、顶栏仅「更多/显示隐藏顶栏/关闭eHunter」、快捷项按测量 display:none；滚动 scrollTop 0→1013（40 图）；18 个缩略图加载、点第 5 页 progress=5/18；设置弹窗 6 分类、加载页数 3P→5P；正常 UI 关闭后 top:-100%+visibility:hidden 且 viewport meta 恢复，重开 progress 6/18（区间 5–6 断言）。控制台 3 条 TextReq 429 重试后恢复，无 eHunter 归因 severe。",
+      "waiver": null
+    },
+    {
+      "id": "nh-strict-verify",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "verify-browser 对该轮产物返回 passed",
+      "scope": "严格轮完整产物目录",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "scripts/acceptance.py",
+          "verify-browser",
+          ".tmp/reader-test-nh/run-nh-mobile-10"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-18T12:24:08.109830+00:00",
+        "endedAt": "2026-10-18T12:24:08.145645+00:00",
+        "log": ".tmp/acceptance/10-18-nh-mobile-acceptance/tmpl9lit4zl.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-18-nh-mobile-acceptance/tmpl9lit4zl.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "nh-supplement-690",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "690×1044 补充轮记录下发与回读的实际视口参数，并取得首屏与阅读模式观察",
+      "scope": "nhentai.net gallery 补充轮，690×1044、isMobile + hasTouch，不走固定 profile 预检",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/reader-test-nh/nh-690-findings.json",
+        ".tmp/reader-test-nh/nh-tablet-690.mjs",
+        ".tmp/reader-test-nh/run-690/nh-690-open.png",
+        ".tmp/reader-test-nh/run-690/nh-690-settings.png",
+        ".tmp/reader-test-nh/run-690/nh-690-scroll.png",
+        ".tmp/reader-test-nh/run-690/nh-690-after.png"
+      ],
+      "note": "非固定 profile 补充轮：下发 setDeviceMetricsOverride 690×1044 DPR2 mobile:true 与 setTouchEmulationEnabled maxTouchPoints 5；回读 innerWidth/Height 690×1044、DPR 2、touch 5、visualViewport scale 1。顶栏显示「阅读模式: 滚动」「页面比例: 80%」；滚动 0→1148.5（40 图）；弹窗全屏 690×1044、6 分类、无阅读模式控件、加载页数 5P 为严格轮改动持久化；弹窗可关闭。",
+      "waiver": null
+    },
+    {
+      "id": "record-backfill",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "acceptance.json 逐项回填，failed/blocked/N/A/unrun 与实际观察一致",
+      "scope": "本任务 acceptance.json",
+      "method": "inspection",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-18-nh-mobile-acceptance/acceptance.json"
+      ],
+      "note": "六条 check 全部回填：nh-strict-round/nh-supplement-690 为 runtime，nh-strict-verify/server-cleanup 为 command（execution+log），record-backfill/report-content 为 inspection；未出现 failed/blocked/N/A/unrun，origin-img 的 N/A 与未验证范围记录在报告而非 check 项。",
+      "waiver": null
+    },
+    {
+      "id": "report-content",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "报告记录实际 URL、profile、控制台来源归因、截图路径与未验证范围",
+      "scope": "reader-test-nh 报告",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/test-reports/reader-test-nh-20261018-2020.md"
+      ],
+      "note": "报告含 gallery URL、两轮 profile/视口回读、CDP 参数、截图路径、控制台来源归因（TextReq 429、站点 CDN 拦截、SvelteKit chunk 异常）与未验证/N/A 范围。",
+      "waiver": null
+    },
+    {
+      "id": "server-cleanup",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "本轮 bundle server 停止、端口释放，cleanup-browser 报告为 clean",
+      "scope": "本轮 serve:bundle 服务与 agent-owned 页面",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "scripts/acceptance.py",
+          "cleanup-browser",
+          "10-18-nh-mobile-acceptance",
+          "--pages",
+          ".tmp/reader-test-nh/cleanup-pages.json",
+          "--servers",
+          ".tmp/reader-test-nh/cleanup-servers.json",
+          "--output",
+          ".tmp/cleanup-browser.json"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-18T12:24:18.037643+00:00",
+        "endedAt": "2026-10-18T12:24:18.113252+00:00",
+        "log": ".tmp/acceptance/10-18-nh-mobile-acceptance/tmpge7h6dns.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-18-nh-mobile-acceptance/tmpge7h6dns.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    }
+  ]
+}
