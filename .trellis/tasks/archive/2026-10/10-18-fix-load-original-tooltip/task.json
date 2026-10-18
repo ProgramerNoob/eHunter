@@ -3,7 +3,7 @@
   "name": "fix-load-original-tooltip",
   "title": "修复加载原图菜单项在支持平台的误导提示",
   "description": "启用加载原图时不再渲染“当前平台不支持”的 title，禁用时保留原因",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": null,
   "scope": "full",
   "package": null,
@@ -11,7 +11,7 @@
   "creator": "Warwick",
   "assignee": "Warwick",
   "createdAt": "2026-10-18",
-  "completedAt": null,
+  "completedAt": "2026-10-18",
   "branch": "master",
   "base_branch": "master",
   "worktree_path": null,
@@ -30,11 +30,14 @@
       "categories": {
         "task-evidence": [
           ".trellis/tasks/10-18-fix-load-original-tooltip/**"
+        ],
+        "source": [
+          "core/components/PageView.vue"
         ]
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "6411e92edbf6f1767d454bf19a53c9c7dafa5a47fc0fa188d6cf44a0019a4a84"
+        "sha256": "4db903cc15f852f0c2d29d71080fae29f8c74b3989adb275fc08316fb230ac5f"
       }
     }
   }

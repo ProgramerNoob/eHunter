@@ -5,7 +5,7 @@
   "head": "d209a6a0314e1be098879608ceeeaee3d02ad7e8",
   "indexTree": "2b0c49471f35cfa8d203b8c0ce30dbe1583a9188",
   "capturedAt": "2026-10-18T22:05:30+08:00",
-  "scopeDigest": "3c0b20f7b0f8fbab4115b1306d3ee5e0adb272c6fa4b1d086a305d39b2e4735f",
+  "scopeDigest": "c6c9531fb84becab8db380a4513b1cd8aefae918a4fc3fffb151cc37640cc325",
   "dirty": {},
   "untracked": {
     ".trellis/tasks/10-18-fix-load-original-tooltip/check.jsonl": {
@@ -28,5 +28,14 @@
       "mode": "100644",
       "sha256": "26a900e606d7b96fab4fc522f4cbc23a1ffc4be010befdddec70a80822941d00"
     }
-  }
+  },
+  "scopeExtensions": [
+    {
+      "category": "source",
+      "rules": [
+        "core/components/PageView.vue"
+      ],
+      "at": "2026-10-18T22:07:53+08:00"
+    }
+  ]
 }
