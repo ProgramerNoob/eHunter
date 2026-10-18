@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-18-pageview-magnifier-acceptance",
+  "branch": "master",
+  "head": "e0aa7e07962f2f8b1c956c6491129fdea27d154a",
+  "indexTree": "069dd06b59aeae70e92b93b3ed70b0c5391d4b33",
+  "capturedAt": "2026-10-18T21:13:04+08:00",
+  "scopeDigest": "f2e31fdbd029bb79e96c21d07910704727b42ef011cac1032581191a97803e6b",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-18-pageview-magnifier-acceptance/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-18-pageview-magnifier-acceptance/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-18-pageview-magnifier-acceptance/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "25bc2e4fd2b73b0482e7197069cc2ea9b60c55c6581639eea4f0ee108feb9a16"
+    },
+    ".trellis/tasks/10-18-pageview-magnifier-acceptance/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "ec5b07f5f725809c5cc3b18ff28b8c4a0ea436a4af15e40a217ba779e9a0832f"
+    }
+  }
+}

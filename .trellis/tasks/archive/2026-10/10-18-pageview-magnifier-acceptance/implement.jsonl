@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/features/001-add-pageview-magnifier/quickstart.md", "reason": "验收步骤与断言来源"}
+{"file": ".trellis/spec/frontend/features/001-add-pageview-magnifier/spec.md", "reason": "放大镜 US1-US3 行为契约"}
+{"file": ".trellis/spec/frontend/decisions/2026-09-18-reader-behavior.md", "reason": "尺寸倍率恢复与持久化决策"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "浏览器验收 protocol 与产物要求"}
+{"file": ".pi/skills/reader-test/SKILL.md", "reason": "EH/NH 生产包验收流程"}

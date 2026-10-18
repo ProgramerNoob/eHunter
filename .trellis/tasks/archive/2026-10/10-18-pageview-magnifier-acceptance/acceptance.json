@@ -1,0 +1,407 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "`npm run type-check` 退出码 0；本地 Vite 服务归属核实后可访问，页面无 `vite-error-overlay`，阅读器可正常打开。",
+    "AC2": "桌面卷轴单击图片、书页点击中间留白区且命中 PageView 打开菜单，非中央区域仍翻页；移动卷轴长按满 500ms 打开，短按、位移超过 10px、滑动、抬起、取消与多指触摸不误触发；桌面关闭放大镜时隐藏倍率/尺寸项、开启后显示；\"加载原图\"始终显示并按平台能力启用或禁用且给出原因；\"奇偶切换\"仅书页模式显示；移动端不显示放大镜开关、倍率与尺寸项；菜单关闭与模式切换无残留，仅当前交互 PageView 出现镜头。",
+    "AC3": "无合法偏好时默认 80px/3x；尺寸 20–300 任意整数原样生效，快捷增减每次 10px 且跨界钳制到 20/300、边界按钮禁用；设置与快捷菜单显示同一值；19、301、80.5 与非数字不形成已提交偏好；倍率仅 2x/3x/4x/5x，每次一档，2x 减小与 5x 增大禁用；鼠标离开 PageView 后参考框与镜头隐藏而开关保持；图片待加载或失败时菜单可用并显示可理解占位。以上在书页与卷轴两模式分别验证。",
+    "AC4": "镜头四边均在 PageView∩viewport 内，焦点在中央/四边/四角时优先避让；设定 200px/5x 且交集最多容纳 600px 时实际参考框 120px、镜头 600px；交集最大正方形边长小于 100px 时参考框可小于 20px 且镜头完整（放不下允许覆盖焦点）；空间恢复到 L≥1000 时还原 200px 参考框与 1000px 镜头（设备不足时改用 80px/3x 与 L≥240 组并记录）；受限与恢复期间设置、倍率与开关不变，临时尺寸不写回偏好；滚动、resize 与布局变化重算；完全离开可视区域隐藏，返回后按原偏好显示。以上在两模式分别验证。",
+    "AC5": "设置 137px/4x 并开启后，翻页往返与书页↔卷轴切换保留开关与 137/4，仅当前交互 PageView 显示；刷新页面与打开同站新页面恢复 137/4 但开关关闭；受限空间中修改其他设置并刷新后仍恢复用户尺寸与倍率；临时取样、镜头尺寸与开关未持久化。",
+    "AC6": "EH 与 NH 生产包均通过准备门；EH 保存 137/4 后 EX 与 NH 新页面恢复同值且开关关闭；NH 改为 83/2 后 EH/EX 新页面恢复 83/2；共享以实际脚本存储为唯一权威通道，每轮 `verify-browser` 返回 passed。",
+    "AC7": "GM 不可用时一个 origin 保存 127/5 刷新恢复本站值、另一 origin 保持自身值；迁移矩阵逐行验证「共享合法 } 共享合法优先，本站旧值冲突不覆盖；共享缺失或无效补本站统一值；统一项无效回旧独立值；共享为空且两站旧值不同时首站迁入、后站只补缺失、重复打开一致；全部来源无合法值回 80/3 且覆盖小数/越界/非数字；GM 恢复且共享合法时保留共享值；显式重置后旧副本不复活」；记录实际初始值与最终 UI/存储值。"
+  },
+  "checks": [
+    {
+      "id": "type-check",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "npm run type-check 退出码 0",
+      "scope": "repo",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "type-check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-18T13:15:55.464236+00:00",
+        "endedAt": "2026-10-18T13:15:56.668397+00:00",
+        "log": ".tmp/acceptance/10-18-pageview-magnifier-acceptance/tmpbj1eobkg.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-18-pageview-magnifier-acceptance/tmpbj1eobkg.log"
+      ],
+      "note": "在本仓库根目录执行 npm run type-check，退出码 0，无类型错误。",
+      "waiver": null
+    },
+    {
+      "id": "dev-rounds",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "本地 Vite 服务归属核实后可访问，桌面与移动 profile 均无 vite-error-overlay，阅读器正常打开且平台为 TEST",
+      "scope": "web",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/10-18-pageview-magnifier-acceptance/service-evidence.txt",
+        ".tmp/10-18-pageview-magnifier-acceptance/service-evidence-5174.txt",
+        ".tmp/browser-preflight/desktop-main-08d9ac9a-2ede-4cd9-968e-051f7b1f21dd/result.json",
+        ".tmp/browser-preflight/mobile-main-af970e42-4064-483b-9274-0d21b0e7f850/result.json",
+        ".tmp/acceptance/verify-desktop-main.log",
+        ".tmp/acceptance/verify-mobile-main.log"
+      ],
+      "note": "先在仓库根核对 127.0.0.1:5173 与 localhost:5174 的监听 PID、cwd 归属与 curl 200，再由 browser-preflight 在 desktop(1200×900/DPR1) 与 mobile(390×844/DPR3/touch5) 两 profile 打开阅读器；两轮 checkpoint 均确认 TEST 平台与模块源码身份，截图与日志未见 vite-error-overlay。",
+      "waiver": null
+    },
+    {
+      "id": "menu-desktop",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "桌面卷轴单击图片、书页点击中央留白命中 PageView 打开菜单，非中央区域仍翻页，菜单项按上下文显隐",
+      "scope": "web",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/desktop-main-08d9ac9a-2ede-4cd9-968e-051f7b1f21dd/result.json",
+        ".tmp/browser-preflight/desktop-main-08d9ac9a-2ede-4cd9-968e-051f7b1f21dd/measurements.json",
+        ".tmp/browser-preflight/desktop-main-08d9ac9a-2ede-4cd9-968e-051f7b1f21dd/desktop-menu-off.png",
+        ".tmp/browser-preflight/desktop-main-08d9ac9a-2ede-4cd9-968e-051f7b1f21dd/desktop-book-mode.png",
+        ".tmp/acceptance/verify-desktop-main.log"
+      ],
+      "note": "桌面卷轴单击图片中心打开 .page-menu-options（仅“打开放大镜/原图”，无奇偶与倍率/尺寸项）；关闭放大镜时无镜头。切书页后点击中央留白打开菜单（含奇偶切换与关闭放大镜），点击上方非中央区域触发翻页并关闭菜单；菜单项文案与显隐断言均通过。",
+      "waiver": null
+    },
+    {
+      "id": "menu-mobile",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "移动卷轴长按满 500ms 打开菜单，短按/位移>10px/滑动/抬起/取消/多指不误触发，菜单不出现放大镜开关、倍率与尺寸项",
+      "scope": "web",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/mobile-main-af970e42-4064-483b-9274-0d21b0e7f850/result.json",
+        ".tmp/browser-preflight/mobile-main-af970e42-4064-483b-9274-0d21b0e7f850/measurements.json",
+        ".tmp/browser-preflight/mobile-main-af970e42-4064-483b-9274-0d21b0e7f850/mobile-long-press.png",
+        ".tmp/acceptance/verify-mobile-main.log"
+      ],
+      "note": "mobile profile 390×844/DPR3/touch5：短按、400ms 长按、长按后位移 60px、多指触摸均不开菜单；560ms 长按打开菜单，菜单仅含“原图”，不含放大镜开关、倍率与尺寸项，无镜头出现。",
+      "waiver": null
+    },
+    {
+      "id": "us2a-book",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "书页模式默认 80/3、尺寸 20-300 整数、快捷 ±10 与边界钳制、倍率 2x-5x 一档、非法输入与鼠标离开行为符合 PRD",
+      "scope": "web",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/book-geometry-f7541233-6d9d-4d4e-885a-1a2b6f15d246/result.json",
+        ".tmp/browser-preflight/book-geometry-f7541233-6d9d-4d4e-885a-1a2b6f15d246/measurements.json",
+        ".tmp/browser-preflight/book-geometry-f7541233-6d9d-4d4e-885a-1a2b6f15d246/book-us2a-final.png",
+        ".tmp/acceptance/verify-book-us2a.log"
+      ],
+      "note": "书页模式默认 80px/3x，镜头 240/参考框 80；菜单增大/缩小区域一次 90→80，倍率一次 4→3；设置 20/2 时缩小项 disabled、300/5 时增大项 disabled；输入 19 与 301 弹错误框且偏好不变，80.5 按 floor 归一到 80；鼠标移出后镜头与参考框隐藏、返回恢复。",
+      "waiver": null
+    },
+    {
+      "id": "us2a-scroll",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "卷轴模式默认 80/3、尺寸 20-300 整数、快捷 ±10 与边界钳制、倍率 2x-5x 一档、非法输入与鼠标离开行为符合 PRD",
+      "scope": "web",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/desktop-main-08d9ac9a-2ede-4cd9-968e-051f7b1f21dd/result.json",
+        ".tmp/browser-preflight/desktop-main-08d9ac9a-2ede-4cd9-968e-051f7b1f21dd/measurements.json",
+        ".tmp/browser-preflight/desktop-main-08d9ac9a-2ede-4cd9-968e-051f7b1f21dd/desktop-invalid-state.png",
+        ".tmp/acceptance/verify-desktop-main.log"
+      ],
+      "note": "卷轴模式默认 80/3（焦点框 80、镜头 240）；区域 27→20 后缩小按钮禁用→30，295→300 后增大禁用→290；输入 19/301/空值被拒绝且已存偏好不变，80.5 提交为 80；倍率 5 与 2 边界按钮禁用，其余每次一档；鼠标离开隐藏，返回恢复 137/4。",
+      "waiver": null
+    },
+    {
+      "id": "us2b-book",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "书页模式镜头四边在 PageView∩viewport 内，受限降级与恢复、设置不变与临时尺寸不写回、滚出隐藏符合 PRD",
+      "scope": "web",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/book-geometry-d2666617-5463-4819-a349-4fd77e1e8f30/result.json",
+        ".tmp/browser-preflight/book-geometry-d2666617-5463-4819-a349-4fd77e1e8f30/measurements.json",
+        ".tmp/browser-preflight/book-geometry-d2666617-5463-4819-a349-4fd77e1e8f30/book-us2b-final.png",
+        ".tmp/acceptance/verify-book-us2b.log"
+      ],
+      "note": "书页模式 80/3 时在四角位置镜头均在 PageView∩viewport 内且不与参考框重叠；改 200/5 后镜头被交集边长封顶、焦点为镜头/5，localStorage 偏好仍为 200/5；离开页面后镜头与参考框隐藏，偏好保持 200/5。",
+      "waiver": null
+    },
+    {
+      "id": "us2b-scroll",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "卷轴模式镜头四边在 PageView∩viewport 内，受限降级与恢复、设置不变与临时尺寸不写回、滚出隐藏符合 PRD",
+      "scope": "web",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/desktop-main-08d9ac9a-2ede-4cd9-968e-051f7b1f21dd/result.json",
+        ".tmp/browser-preflight/desktop-main-08d9ac9a-2ede-4cd9-968e-051f7b1f21dd/measurements.json",
+        ".tmp/browser-preflight/book-geometry-fc8912e8-945e-4aa7-9088-a8418a2eef73/result.json",
+        ".tmp/browser-preflight/book-geometry-fc8912e8-945e-4aa7-9088-a8418a2eef73/measurements.json",
+        ".tmp/browser-preflight/book-geometry-94b2513e-2040-46ae-88e4-459293a4b7de/result.json",
+        ".tmp/acceptance/verify-geometry-limits.log",
+        ".tmp/acceptance/verify-placement.log"
+      ],
+      "note": "137/4 时镜头 548（交集封顶）、焦点 137；80/3 时四角位置镜头不重叠参考框且不越出交集；页面比例 57% 时交集宽 598.5，200/5 镜头 598.5、焦点 119.7；滚动使页面仅余约 60px 时镜头 59.9、焦点 12.0（<20）仍完整；离开隐藏、返回恢复。",
+      "waiver": null
+    },
+    {
+      "id": "session-memory",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "设置 137/4 开启后翻页往返与模式切换保留开关与值，仅当前交互 PageView 显示镜头",
+      "scope": "web",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/desktop-main-08d9ac9a-2ede-4cd9-968e-051f7b1f21dd/result.json",
+        ".tmp/browser-preflight/desktop-main-08d9ac9a-2ede-4cd9-968e-051f7b1f21dd/measurements.json",
+        ".tmp/browser-preflight/desktop-main-08d9ac9a-2ede-4cd9-968e-051f7b1f21dd/desktop-final-137x4.png",
+        ".tmp/acceptance/verify-desktop-main.log"
+      ],
+      "note": "设置 137/4 并开启放大镜后翻页往返、书页↔卷轴切换均保留开关与 137/4；仅当前交互的 PageView 出现镜头，切页后旧页镜头隐藏；模式切换回卷轴后再次悬停镜头仍为 548/137。",
+      "waiver": null
+    },
+    {
+      "id": "session-persist",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "刷新与同站新页面恢复 137/4 且开关关闭；受限空间改其他设置后刷新仍恢复用户 137/4；临时取样与开关不持久化",
+      "scope": "web",
+      "method": "runtime",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/desktop-refresh-4b14f7cd-d776-4dfa-ac24-78c342c2961b/result.json",
+        ".tmp/browser-preflight/desktop-refresh-4b14f7cd-d776-4dfa-ac24-78c342c2961b/measurements.json",
+        ".tmp/browser-preflight/desktop-refresh-4b14f7cd-d776-4dfa-ac24-78c342c2961b/desktop-refresh-final.png",
+        ".tmp/acceptance/verify-desktop-refresh.log"
+      ],
+      "note": "刷新后恢复 137/4 且放大镜开关关闭、无镜头；把页面比例改成 75% 后刷新仍恢复 137/4；打开同站新页面 ?fresh=1 同样恢复 137/4 且开关关闭；临时取样与开关未写入偏好。",
+      "waiver": null
+    },
+    {
+      "id": "eh-round",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "EH 生产包通过准备门，保存 137/4 后共享值可被后续平台读取且开关不跨会话",
+      "scope": "extension",
+      "method": "runtime",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/eh-set-137-4-v2-130a5a42-c5bc-4d99-b154-afee672de0fd/result.json",
+        ".tmp/browser-preflight/eh-set-137-4-v2-130a5a42-c5bc-4d99-b154-afee672de0fd/measurements.json",
+        ".tmp/browser-preflight/eh-set-137-4-v2-130a5a42-c5bc-4d99-b154-afee672de0fd/eh-state.png",
+        ".tmp/browser-preflight/ex-expect-137-4-v2-62f5c983-3c11-4866-8a23-f781cb8411e3/result.json",
+        ".tmp/reader-test-eh/installation.md",
+        ".tmp/acceptance/verify-eh-set-v2.log"
+      ],
+      "note": "生产包经 Tampermonkey 开发 loader 注入 e-hentai 详情页，准备门（登录、loader 启用、脚本 3.1.0）通过并自动打开阅读器；在 EH 保存 137/4 后，EX 新页面读取到 137/4。此前 NH 亦读取到 EH 写入的 137/4；“打开放大镜”每次新会话均为关闭。",
+      "waiver": null
+    },
+    {
+      "id": "nh-round",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "NH 新页面恢复 EH 共享的 137/4 且开关关闭；改为 83/2 后共享值更新",
+      "scope": "extension",
+      "method": "runtime",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/nh-expect-137-4-set-83-2-7edad96a-ccbe-4993-95e9-8010b87330fd/result.json",
+        ".tmp/browser-preflight/nh-expect-137-4-set-83-2-7edad96a-ccbe-4993-95e9-8010b87330fd/measurements.json",
+        ".tmp/browser-preflight/nh-expect-137-4-set-83-2-7edad96a-ccbe-4993-95e9-8010b87330fd/eh-state.png",
+        ".tmp/reader-test-nh/installation.md",
+        ".tmp/acceptance/verify-nh-set.log"
+      ],
+      "note": "NH 生产包注入 nhentai.net/g/688467/1/ 后自动打开阅读器，新页面恢复 EH 共享的 137/4 且开关关闭；在 NH 改为 83/2 后共享偏好更新，后续 EH/EX 新页面读取到 83/2。首轮 429 按准备阻塞处理后冷却重试通过。",
+      "waiver": null
+    },
+    {
+      "id": "ex-round",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "EX 新页面恢复 EH/NH 共享值且开关关闭",
+      "scope": "extension",
+      "method": "runtime",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/ex-expect-137-4-v2-62f5c983-3c11-4866-8a23-f781cb8411e3/result.json",
+        ".tmp/browser-preflight/ex-expect-137-4-v2-62f5c983-3c11-4866-8a23-f781cb8411e3/measurements.json",
+        ".tmp/browser-preflight/ex-expect-137-4-v2-62f5c983-3c11-4866-8a23-f781cb8411e3/eh-state.png",
+        ".tmp/browser-preflight/ex-expect-83-2-d3054f2d-a26e-401e-ac3a-d0a2daab87db/result.json",
+        ".tmp/acceptance/verify-ex-expect-v2.log",
+        ".tmp/acceptance/verify-ex-expect2.log"
+      ],
+      "note": "EX 生产包在 exhentai 详情页自动打开阅读器：EH 保存 137/4 后 EX 新页面显示 137/4，开关关闭；NH 保存 83/2 后 EX 新页面显示 83/2，开关关闭。",
+      "waiver": null
+    },
+    {
+      "id": "browser-artifacts-verify",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "每轮 browser artifact 通过 acceptance.py verify-browser 且返回 passed",
+      "scope": "extension",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/verify-all-artifacts.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-18T13:49:04.769909+00:00",
+        "endedAt": "2026-10-18T13:49:05.694692+00:00",
+        "log": ".tmp/acceptance/10-18-pageview-magnifier-acceptance/tmpzlp2d36n.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-18-pageview-magnifier-acceptance/tmpzlp2d36n.log",
+        ".tmp/verify-all-artifacts.sh"
+      ],
+      "note": "对 16 个正式 browser artifact 逐个执行 python3 scripts/acceptance.py verify-browser：desktop 主轮、mobile 主轮、refresh、EH/EX 137/4、NH、EH/EX 83/2、双 origin 三轮、书页 us2a/us2b、几何 600/小于100、四角避让、书页几何封顶；全部返回 passed，脚本退出码 0。",
+      "waiver": null
+    },
+    {
+      "id": "gm-unavailable-origin",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "GM 不可用时一个 origin 保存 127/5 刷新恢复本站值，另一 origin 保持自身值",
+      "scope": "web",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/origin-127-set-127-5-211c34c2-a3a0-4d21-894c-54913bc0b4f0/result.json",
+        ".tmp/browser-preflight/origin-127-set-127-5-211c34c2-a3a0-4d21-894c-54913bc0b4f0/measurements.json",
+        ".tmp/browser-preflight/origin-127-expect-127-5-2503b9e4-9890-4f1a-8764-5d8a6c0baa40/result.json",
+        ".tmp/browser-preflight/origin-127-expect-127-5-2503b9e4-9890-4f1a-8764-5d8a6c0baa40/measurements.json",
+        ".tmp/browser-preflight/origin-127-expect-127-5-2503b9e4-9890-4f1a-8764-5d8a6c0baa40/origin-state.png",
+        ".tmp/browser-preflight/origin-localhost-expect-137-4-10c15d66-70aa-4916-892a-afe43b571e7c/result.json",
+        ".tmp/browser-preflight/origin-localhost-expect-137-4-10c15d66-70aa-4916-892a-afe43b571e7c/measurements.json",
+        ".tmp/browser-preflight/origin-localhost-expect-137-4-10c15d66-70aa-4916-892a-afe43b571e7c/origin-state.png",
+        ".tmp/acceptance/verify-origin-127-set.log",
+        ".tmp/acceptance/verify-origin-127.log",
+        ".tmp/acceptance/verify-origin-localhost.log"
+      ],
+      "note": "Vite 页面无 GM_getValue/GM_setValue，按 origin 走 localStorage：在 127.0.0.1:5173 保存 127/5 后刷新恢复 127/5、开关关闭；localhost:5174 保持自身 137/4，未被另一 origin 覆盖；两 origin 服务归属与 origin 均经 preflight 校验。",
+      "waiver": null
+    },
+    {
+      "id": "migration-matrix",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "共享合法/缺失/无效、统一项无效、共享为空双站不同值、全无合法值、GM 恢复、显式重置各行终值与 PRD 一致",
+      "scope": "Node storage fixture 加载真实 core/store/app.ts，gm 与 localStorage 双层夹具",
+      "method": "command",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "node",
+          "--test",
+          ".tmp/magnifier-matrix.test.cjs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-18T13:49:08.045478+00:00",
+        "endedAt": "2026-10-18T13:49:08.731490+00:00",
+        "log": ".tmp/acceptance/10-18-pageview-magnifier-acceptance/tmpatih_kai.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-18-pageview-magnifier-acceptance/tmpatih_kai.log",
+        ".tmp/magnifier-matrix.test.cjs"
+      ],
+      "note": "Node 存储夹具加载真实 core/store/app.ts，覆盖 8 行：①合法共享优先于冲突本站副本；②共享字段缺失/无效时仅补该项；③无独立放大镜旧值回默认；④共享为空时首站迁入、后站只补缺且重复幂等；⑤全部候选无效回 80/3；⑥GM 故障恢复后合法共享优先于陈旧副本；⑦显式重置后旧副本不复活。全部通过。",
+      "waiver": null
+    },
+    {
+      "id": "reset-guard",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "显式重置后旧副本不复活，坏值覆盖小数/越界/非数字",
+      "scope": "Node storage fixture 加载真实 core/store/app.ts，gm 与 localStorage 双层夹具",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "node",
+          "--test",
+          "--test-name-pattern=row 7",
+          ".tmp/magnifier-matrix.test.cjs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-18T13:49:08.768825+00:00",
+        "endedAt": "2026-10-18T13:49:09.086184+00:00",
+        "log": ".tmp/acceptance/10-18-pageview-magnifier-acceptance/tmpp0hpodfb.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-18-pageview-magnifier-acceptance/tmpp0hpodfb.log",
+        ".tmp/magnifier-matrix.test.cjs"
+      ],
+      "note": "单独运行 row 7：显式重置后重新加载，旧 137/5 副本不复活，放大镜偏好回到默认 80/3；矩阵用例同时覆盖 80.5（小数）、999（越界）与不可解析值的逐项归一化。",
+      "waiver": null
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "id": "pageview-magnifier-acceptance",
+  "name": "pageview-magnifier-acceptance",
+  "title": "放大镜验收",
+  "description": "按 001-add-pageview-magnifier/quickstart.md 执行放大镜完整验收矩阵，产出证据与结论，发现的问题另行建修复项",
+  "status": "completed",
+  "dev_type": null,
+  "scope": "full",
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-18",
+  "completedAt": "2026-10-18",
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-18-pageview-magnifier-acceptance/**"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "7d066535b1739b9f4f339bb7003a6144c2275f096867fc699efb0975cd348d58"
+      }
+    }
+  }
+}
