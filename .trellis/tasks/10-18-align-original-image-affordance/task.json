@@ -1,0 +1,47 @@
+{
+  "id": "align-original-image-affordance",
+  "name": "align-original-image-affordance",
+  "title": "收口加载原图的能力判断与禁用语义",
+  "description": "菜单原图改用 isSupportOriginImg 判断，并加原生 disabled；验证 TEST 启用与 NH 禁用两分支",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-18",
+  "completedAt": null,
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-18-align-original-image-affordance/**"
+        ],
+        "source": [
+          "core/components/PageView.vue"
+        ],
+        "docs": [
+          ".trellis/spec/frontend/features/001-add-pageview-magnifier/**"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "89b4e58d1dc511817d276fb9c63cc4de11d4b1e96063444ea9bab523d4ddcf04"
+      }
+    }
+  }
+}

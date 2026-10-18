@@ -1,0 +1,109 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "`npm run check` 退出 0，包含 type-check、单测、生产构建与文档检查。",
+    "AC2": "TEST 桌面卷轴页打开菜单：“原图”启用、无 `title`、无原因小字；点击触发原图加载并关闭菜单。",
+    "AC3": "NH 生产包菜单：“原图”带原生 `disabled` 属性与原因提示，键盘不可聚焦，点击不触发加载。",
+    "AC4": "菜单能力判断引用 `isSupportOriginImg()`；`isSupportImgChangeSource()` 不再出现在菜单可用性判断中。"
+  },
+  "checks": [
+    {
+      "id": "check",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "npm run check 退出码 0（type-check、单测、生产构建、文档检查）",
+      "scope": "repo",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-18T14:40:14.536637+00:00",
+        "endedAt": "2026-10-18T14:40:42.608333+00:00",
+        "log": ".tmp/acceptance/10-18-align-original-image-affordance/tmpa3jr5bj9.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-18-align-original-image-affordance/tmpa3jr5bj9.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "test-menu-availability",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "TEST 桌面卷轴菜单“原图”启用、无 title/原因小字，点击后菜单关闭",
+      "scope": "web",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/10-18-align-original-image-affordance/service-evidence.txt",
+        ".tmp/browser-preflight/affordance-test-1fc8b697-ba12-46c1-ab45-0f28c9efbd68/result.json",
+        ".tmp/browser-preflight/affordance-test-1fc8b697-ba12-46c1-ab45-0f28c9efbd68/affordance-test-enabled.png",
+        ".tmp/acceptance/verify-affordance-test.log"
+      ],
+      "note": "Vite 127.0.0.1:5173（监听 PID 12387，cwd 仓库）经 browser-preflight desktop(1200×900/DPR1) 打开 TEST 阅读器；菜单“原图”receipt：disabled=false、hasTitle=false、hasSmall=false；程序化点击后 menuOpen=false，截图 affordance-test-enabled.png。",
+      "waiver": null
+    },
+    {
+      "id": "nh-disabled-menu",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "NH 生产包菜单“原图”原生 disabled、保留原因提示、不可聚焦、点击不触发加载",
+      "scope": "web",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/reader-test-nh/installation.md",
+        ".tmp/reader-test-nh/affordance-build-prod.log",
+        ".tmp/browser-preflight/nh-affordance-112dc9bf-ea84-423b-bcfb-cbbec084a061/result.json",
+        ".tmp/browser-preflight/nh-affordance-112dc9bf-ea84-423b-bcfb-cbbec084a061/nh-affordance-disabled.png",
+        ".tmp/acceptance/verify-nh-affordance.log"
+      ],
+      "note": "NH 生产包（dist/ehunter.iife.js，build exit 0）+ 开发 loader，browser-preflight desktop profile 打开 https://nhentai.net/g/688467/1/；菜单“原图”receipt：disabledProp=true、disabledAttr=true、title=当前平台不支持、small=当前平台不支持、focusable=false（activeElement 仍为 BODY）；点击后 menuOpen=true 且 img src 不变。",
+      "waiver": null
+    },
+    {
+      "id": "capability-source",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "菜单可用性判断使用 isSupportOriginImg()，isSupportImgChangeSource() 仅保留在换源刷新路径",
+      "scope": "repo",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "rg",
+          "-n",
+          "loadOriginalEnabled = computed|isSupportImgChangeSource|isSupportOriginImg",
+          "core/components/PageView.vue"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-18T14:38:43.648352+00:00",
+        "endedAt": "2026-10-18T14:38:43.667348+00:00",
+        "log": ".tmp/acceptance/10-18-align-original-image-affordance/tmph5k0b_fp.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-18-align-original-image-affordance/tmph5k0b_fp.log"
+      ],
+      "note": "rg 输出显示：topbar 原图按钮使用 isSupportOriginImg()、换源刷新路径仍使用 isSupportImgChangeSource()、菜单 loadOriginalEnabled 使用 isSupportOriginImg()；人工核对三条命中，菜单可用性判断不再引用换源能力。",
+      "waiver": null
+    }
+  ]
+}

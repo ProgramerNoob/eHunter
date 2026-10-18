@@ -72,6 +72,7 @@
                     <button
                         type="button"
                         :class="['item', { disabled: !loadOriginalEnabled }]"
+                        :disabled="!loadOriginalEnabled"
                         :title="loadOriginalEnabled ? undefined : loadOriginalDisabledReason"
                         @click="loadOriginalFromMenu">
                         <span>{{ i18n.originImg }}</span>
@@ -201,7 +202,7 @@ const showOddEvenAction = computed(() => isBookMode.value)
 const magnifierZoom = computed(() => Math.max(2, Math.min(5, Math.round(store.magnifierZoom || 3))))
 const magnifierAreaSize = computed(() => Math.max(magnifierAreaMin, Math.min(magnifierAreaMax, Math.round(store.magnifierAreaSize || 80))))
 
-const loadOriginalEnabled = computed(() => albumService.isSupportImgChangeSource())
+const loadOriginalEnabled = computed(() => albumService.isSupportOriginImg())
 const loadOriginalDisabledReason = computed(() => i18n.value.notSupportedInCurrentPlatform || i18n.value.disabled)
 
 const longPressMenuOpened = ref(false)

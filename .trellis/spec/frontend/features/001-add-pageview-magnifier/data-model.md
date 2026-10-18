@@ -9,7 +9,7 @@
   - `pageViewId` (string): 当前目标的唯一标识。
   - `readingMode` (enum): `scroll | book`。
   - `deviceType` (enum): `desktop | mobile`。
-  - `platformSupportsSourceRefresh` (boolean): 是否支持换源刷新。
+  - `platformSupportsOriginalImage` (boolean): 是否支持加载原图。
   - `isInBookCenterWhitespace` (boolean): 是否命中书页模式现有中间留白区。
   - `menuOpen` (boolean): 当前菜单是否打开。
   - `visibleBounds` (rectangle): PageView 与 viewport 相交的矩形，使用统一的 CSS px 坐标系。
@@ -59,7 +59,7 @@
   - 倍率快捷动作每次相邻一档，2x/5x 时对应减小/增大按钮禁用。
   - 尺寸快捷动作使用 `clamp(sampleSize ± 10, 20, 300)`；20/300 时对应减小/增大按钮禁用。设置可直接输入范围内任意整数，两入口使用同一偏好。
   - `toggleOddEven` 仅书页模式可见。
-  - `loadOriginal` 始终可见；不支持换源刷新时禁用且必须给出原因。
+  - `loadOriginal` 始终可见；不支持加载原图时使用原生禁用并必须给出原因。
 
 ## 5. PointerFocusIndicator
 

@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-18-align-original-image-affordance",
+  "branch": "master",
+  "head": "21540955ec3728ca994a32be45fa0d4325c08334",
+  "indexTree": "65251b9428c873678e164ffafe93bd1863532dac",
+  "capturedAt": "2026-10-18T22:36:17+08:00",
+  "scopeDigest": "1eea253d19fe3d6bd3e27ebbc5fce0b349a2ce913b776873ed64a08d31847b15",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-18-align-original-image-affordance/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "05c5f43b6f89875b812267facfb5feda60b78a8ff2c69bace090aa3e716b71d7"
+    },
+    ".trellis/tasks/10-18-align-original-image-affordance/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "4d4fc6f41161eef2c322f00b76244ddf80ea372dafa9a990754237263a821957"
+    },
+    ".trellis/tasks/10-18-align-original-image-affordance/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "f32d5f59c43a101ec01a557500f4aa141b359779303e90ae76f4e7a9727deb57"
+    },
+    ".trellis/tasks/10-18-align-original-image-affordance/scope-start.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "fc20330edc439bb24c4dfbda6e1d869ca56bce0fdd3c08e80bba142e6fc09fb7"
+    },
+    ".trellis/tasks/10-18-align-original-image-affordance/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "b35b6542d66dfb8de921a7ff3440cd9bfd90cd5de5b5624f17d82a5ae32f2e78"
+    }
+  },
+  "scopeExtensions": [
+    {
+      "category": "docs",
+      "rules": [
+        ".trellis/spec/frontend/features/001-add-pageview-magnifier/**"
+      ],
+      "at": "2026-10-18T22:39:44+08:00"
+    }
+  ]
+}
