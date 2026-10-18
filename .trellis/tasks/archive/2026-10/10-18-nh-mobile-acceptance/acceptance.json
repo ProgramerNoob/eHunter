@@ -93,7 +93,7 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-18-nh-mobile-acceptance/acceptance.json"
+        ".trellis/tasks/archive/2026-10/10-18-nh-mobile-acceptance/acceptance.json"
       ],
       "note": "六条 check 全部回填：nh-strict-round/nh-supplement-690 为 runtime，nh-strict-verify/server-cleanup 为 command（execution+log），record-backfill/report-content 为 inspection；未出现 failed/blocked/N/A/unrun，origin-img 的 N/A 与未验证范围记录在报告而非 check 项。",
       "waiver": null
