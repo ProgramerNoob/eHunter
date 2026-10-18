@@ -19,14 +19,14 @@
 
 - 路径是仓库相对 POSIX 精确路径，或末尾 `/**` 的目录前缀（匹配目录本身与全部后代）。拒绝绝对路径、`..`、空路径段和空 category。
 - `task-evidence` 类别必需，且规则必须覆盖本任务目录内的文件（通常写 `<task_rel>/**`）；只匹配目录本身的精确规则不算覆盖，因为 `start` 在快照之后还会写 `task.json`。
-- `task.py create` 默认写入 `scopePolicyVersion: 1` 和只覆盖自身任务目录的 enforce scope；`--meta scope=<JSON>` 与 `task.py set-meta <task> scope '<JSON>'` 用于显式扩展，写入前统一校验。
-- `meta.scope.snapshot` 由 `task.py start` 维护，不接受调用方传入；`set-meta` 替换 scope 时清除旧引用，需要重新 `start` 记录基线。
+- `task.py create` 默认写入 `scopePolicyVersion: 1` 和只覆盖自身任务目录的 enforce scope；`--meta scope=<JSON>`、`task.py set-meta <task> scope '<JSON>'` 或 `task.py extend-scope <task> <category> <rule>...` 可在 `start` 前声明范围，写入前统一校验。
+- `meta.scope.snapshot` 由 `task.py start` 维护，不接受调用方传入；`set-meta` 替换 scope 时清除旧引用，需要重新 `start` 记录基线。任务已经 `start` 后需要扩大范围时用 `extend-scope`：它保留原基线，只重签快照摘要。`extend-scope` 只接受 active 任务，已归档任务、没有 `scopePolicyVersion: 1` 整型 marker 的 legacy 任务会被拒绝；规则已全部声明时只打印现状，不重签快照也不写 `task.json`。
 
 首次在新版本下启动的旧 planning 任务会补写 marker；缺少 `task-evidence` 时补默认规则；已有合法 scope 保留原样。`task.py start` 之前已在执行的旧任务保持 legacy，不追加快照。
 
 ## 启动快照
 
-`task.py start` 在激活 session、改写 status 之前调用 `prepare_scope_start`，在当前任务目录写 `scope-start.json`，并在 `meta.scope.snapshot` 记录 `{ "path": "scope-start.json", "sha256": "<hex>" }`。快照包含 schema 版本、任务路径、branch、HEAD、index tree、捕获时间、scope 摘要 digest，以及启动时 tracked dirty 和 untracked 文件的类型/权限/内容摘要。
+`task.py start` 在激活 session、改写 status 之前调用 `prepare_scope_start`，在当前任务目录写 `scope-start.json`，并在 `meta.scope.snapshot` 记录 `{ "path": "scope-start.json", "sha256": "<hex>" }`。快照包含 schema 版本、任务路径、branch、HEAD、index tree、捕获时间、scope 摘要 digest，以及启动时 tracked dirty 和 untracked 文件的类型/权限/内容摘要。`task.py extend-scope` 在快照已存在时校验文件 hash 与 `scopeDigest`，通过后重算 digest、向 `scopeExtensions` 追加 `{ category, rules, at }` 记录并更新 `meta.scope.snapshot.sha256`；HEAD、index tree、dirty/untracked 基线保持不变，hash 或 digest 不符、快照缺失时拒绝写入（规则已声明时同样先校验）。`scopeExtensions` 只作审计记录，不参与 `scopeDigest`，因此重签不会放宽任何门禁。
 
 - 快照写入失败或回读失败时，`start` 返回非零，任务不激活、status 不变。
 - 重复 `start` 复用同一有效快照，不静默重置基线；scope digest 不匹配、快照缺失/损坏/hash 不符时拒绝启动。
@@ -61,4 +61,4 @@ python3 -m unittest discover -s scripts -p 'test_scope_gate.py'
 npm run test:acceptance
 ```
 
-`test_scope_gate.py` 覆盖默认 scope、旧 planning 迁移、JSON 扩展、快照前后脏状态、新增/删除/rename/stage/commit/intent-to-add、坏快照、legacy、两条归档入口与 `finish` 不触发检查。
+`test_scope_gate.py` 覆盖默认 scope、旧 planning 迁移、JSON 扩展、`extend-scope`（保留基线、幂等、多规则去重、hash/digest 不符与快照缺失拒绝、已声明规则时仍校验、写失败回滚、已归档任务、非数组/null category、不可读 task.json、缺 meta.scope、planning 任务）、快照前后脏状态、新增/删除/rename/stage/commit/intent-to-add、坏快照、legacy、两条归档入口与 `finish` 不触发检查。

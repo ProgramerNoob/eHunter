@@ -1111,6 +1111,284 @@ class ArchiveGateTests(ScopeGateFixture):
         self.assertFalse(task_dir.exists())
 
 
+class ExtendScopeTests(ScopeGateFixture):
+    def extend(
+        self,
+        category: str,
+        rules: list[str],
+        task_dir: str | None = None,
+    ) -> tuple[int, str, str]:
+        args = argparse.Namespace(
+            dir=task_dir or self.task_rel(),
+            category=category,
+            rules=rules,
+        )
+        return self.call(task_store.cmd_extend_scope, args)
+
+    def snapshot_path(self, slug: str = "fixture") -> Path:
+        return self.task_dir(slug) / scope_gate.SNAPSHOT_FILE
+
+    def test_extend_scope_allows_change_without_moving_the_baseline(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+        self.write("src/leak.txt", "leak\n")
+
+        rc, _out, err = self.archive()
+        self.assertEqual(rc, 1)
+        self.assertIn("src/leak.txt", err)
+
+        before = json.loads(self.snapshot_path().read_text(encoding="utf-8"))
+        rc, out, err = self.extend("src", ["src/**"])
+        self.assertEqual(rc, 0, err)
+        self.assertIn("src/**", out)
+
+        after = json.loads(self.snapshot_path().read_text(encoding="utf-8"))
+        for key in ("schemaVersion", "task", "branch", "head", "indexTree", "capturedAt", "dirty", "untracked"):
+            self.assertEqual(after[key], before[key], key)
+        self.assertNotEqual(after["scopeDigest"], before["scopeDigest"])
+        self.assertEqual(
+            after["scopeExtensions"],
+            [{"category": "src", "rules": ["src/**"], "at": after["scopeExtensions"][0]["at"]}],
+        )
+        data = self.task_json()
+        self.assertEqual(data["meta"]["scope"]["categories"]["src"], ["src/**"])
+        self.assertEqual(
+            data["meta"]["scope"]["snapshot"]["sha256"],
+            _sha256(self.snapshot_path().read_bytes()),
+        )
+
+        rc, _out, err = self.archive()
+        self.assertEqual(rc, 0, err)
+        self.assertIn("all allowed by meta.scope", err)
+
+    def test_extend_scope_is_idempotent(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+        rc, _out, err = self.extend("src", ["src/**"])
+        self.assertEqual(rc, 0, err)
+        snapshot_after_first = self.snapshot_path().read_bytes()
+
+        rc, out, err = self.extend("src", ["src/**"])
+        self.assertEqual(rc, 0, err)
+        self.assertIn("already declared", out)
+        self.assertEqual(self.snapshot_path().read_bytes(), snapshot_after_first)
+
+    def test_extend_scope_refuses_tampered_snapshot_without_writing(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+        task_bytes = (self.task_dir() / "task.json").read_bytes()
+        snapshot = json.loads(self.snapshot_path().read_text(encoding="utf-8"))
+        snapshot["capturedAt"] = "2020-01-01T00:00:00+00:00"
+        tampered = json.dumps(snapshot, ensure_ascii=False, indent=2).encode("utf-8")
+        self.snapshot_path().write_bytes(tampered)
+
+        rc, _out, err = self.extend("src", ["src/**"])
+        self.assertEqual(rc, 1)
+        self.assertIn("hash mismatch", err)
+        self.assertEqual((self.task_dir() / "task.json").read_bytes(), task_bytes)
+        self.assertEqual(self.snapshot_path().read_bytes(), tampered)
+
+    def test_extend_scope_refuses_scope_drift_without_writing(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+        data = self.task_json()
+        data["meta"]["scope"]["categories"]["src"] = ["src/**"]
+        self.write_task_json("fixture", data)
+        task_bytes = (self.task_dir() / "task.json").read_bytes()
+        snapshot_bytes = self.snapshot_path().read_bytes()
+
+        rc, _out, err = self.extend("docs", ["docs/**"])
+        self.assertEqual(rc, 1)
+        self.assertIn("changed after task start", err)
+        self.assertEqual((self.task_dir() / "task.json").read_bytes(), task_bytes)
+        self.assertEqual(self.snapshot_path().read_bytes(), snapshot_bytes)
+
+    def test_extend_scope_rejects_invalid_rule_without_writing(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+        task_bytes = (self.task_dir() / "task.json").read_bytes()
+        rc, _out, err = self.extend("bad", ["../outside/**"])
+        self.assertEqual(rc, 1)
+        self.assertIn("meta.scope.categories.bad[0]", err)
+        self.assertEqual((self.task_dir() / "task.json").read_bytes(), task_bytes)
+
+    def test_extend_scope_planning_task_writes_scope_only(self) -> None:
+        self.init_repo()
+        rc, _out, err = self.create_task()
+        self.assertEqual(rc, 0, err)
+
+        rc, _out, err = self.extend("tests", ["tests/**"])
+        self.assertEqual(rc, 0, err)
+        self.assertEqual(self.task_json()["meta"]["scope"]["categories"]["tests"], ["tests/**"])
+        self.assertNotIn("snapshot", self.task_json()["meta"]["scope"])
+        self.assertFalse(self.snapshot_path().is_file())
+
+    def test_extend_scope_unknown_task_fails(self) -> None:
+        self.init_repo()
+        rc, out, err = self.extend("src", ["src/**"], task_dir=".trellis/tasks/10-17-missing")
+        self.assertEqual(rc, 1)
+        self.assertIn("task.json not found", out + err)
+
+    def test_extend_scope_legacy_task_fails(self) -> None:
+        self.init_repo()
+        rc, _out, err = self.create_task()
+        self.assertEqual(rc, 0, err)
+        data = self.task_json()
+        data.pop("scopePolicyVersion")
+        self.write_task_json("fixture", data)
+
+        rc, _out, err = self.extend("src", ["src/**"])
+        self.assertEqual(rc, 1)
+        self.assertIn("no scopePolicyVersion marker", err)
+
+    def test_extend_scope_refuses_missing_snapshot_without_writing(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+        self.snapshot_path().unlink()
+        task_bytes = (self.task_dir() / "task.json").read_bytes()
+
+        rc, _out, err = self.extend("src", ["src/**"])
+        self.assertEqual(rc, 1)
+        self.assertIn("start snapshot not found", err)
+        self.assertEqual((self.task_dir() / "task.json").read_bytes(), task_bytes)
+        self.assertFalse(self.snapshot_path().exists())
+
+    def test_extend_scope_validates_snapshot_when_rule_is_already_declared(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+        rc, _out, err = self.extend("src", ["src/**"])
+        self.assertEqual(rc, 0, err)
+
+        snapshot = json.loads(self.snapshot_path().read_text(encoding="utf-8"))
+        snapshot["capturedAt"] = "2020-01-01T00:00:00+00:00"
+        tampered = json.dumps(snapshot, ensure_ascii=False, indent=2).encode("utf-8")
+        self.snapshot_path().write_bytes(tampered)
+        task_bytes = (self.task_dir() / "task.json").read_bytes()
+
+        rc, _out, err = self.extend("src", ["src/**"])
+        self.assertEqual(rc, 1)
+        self.assertIn("hash mismatch", err)
+        self.assertEqual(self.snapshot_path().read_bytes(), tampered)
+        self.assertEqual((self.task_dir() / "task.json").read_bytes(), task_bytes)
+
+    def test_extend_scope_reports_empty_rule_location_without_writing(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+        task_bytes = (self.task_dir() / "task.json").read_bytes()
+
+        rc, _out, err = self.extend("src", [""])
+        self.assertEqual(rc, 1)
+        self.assertIn("meta.scope.categories.src[0]: must be a non-empty string", err)
+        self.assertEqual((self.task_dir() / "task.json").read_bytes(), task_bytes)
+
+    def test_extend_scope_rejects_non_list_category_without_writing(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+        data = self.task_json()
+        data["meta"]["scope"]["categories"]["weird"] = "not-a-list"
+        self.write_task_json("fixture", data)
+        task_bytes = (self.task_dir() / "task.json").read_bytes()
+        snapshot_bytes = self.snapshot_path().read_bytes()
+
+        rc, _out, err = self.extend("weird", ["weird/**"])
+        self.assertEqual(rc, 1)
+        self.assertIn(
+            "meta.scope.categories.weird: must be a non-empty array of path rules", err
+        )
+        self.assertEqual((self.task_dir() / "task.json").read_bytes(), task_bytes)
+        self.assertEqual(self.snapshot_path().read_bytes(), snapshot_bytes)
+
+    def test_extend_scope_rejects_null_category_without_writing(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+        data = self.task_json()
+        data["meta"]["scope"]["categories"]["weird"] = None
+        self.write_task_json("fixture", data)
+        task_bytes = (self.task_dir() / "task.json").read_bytes()
+        snapshot_bytes = self.snapshot_path().read_bytes()
+
+        rc, _out, err = self.extend("weird", ["weird/**"])
+        self.assertEqual(rc, 1)
+        self.assertIn(
+            "meta.scope.categories.weird: must be a non-empty array of path rules", err
+        )
+        self.assertEqual((self.task_dir() / "task.json").read_bytes(), task_bytes)
+        self.assertEqual(self.snapshot_path().read_bytes(), snapshot_bytes)
+
+    def test_extend_scope_merges_multiple_rules_once(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+
+        rc, out, err = self.extend("src", ["src/**", "tests/**", "src/**"])
+        self.assertEqual(rc, 0, err)
+        self.assertIn("Added 2 rule(s)", out)
+        data = self.task_json()
+        self.assertEqual(
+            data["meta"]["scope"]["categories"]["src"], ["src/**", "tests/**"]
+        )
+        snapshot = json.loads(self.snapshot_path().read_text(encoding="utf-8"))
+        self.assertEqual(snapshot["scopeExtensions"][0]["rules"], ["src/**", "tests/**"])
+
+    def test_extend_scope_unreadable_task_json_fails(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+        self.write(f"{self.task_rel()}/task.json", "{broken\n")
+        snapshot_bytes = self.snapshot_path().read_bytes()
+
+        rc, _out, err = self.extend("src", ["src/**"])
+        self.assertEqual(rc, 1)
+        self.assertIn("not valid JSON", err)
+        self.assertEqual(self.snapshot_path().read_bytes(), snapshot_bytes)
+
+    def test_extend_scope_missing_meta_scope_fails(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+        data = self.task_json()
+        data["meta"].pop("scope")
+        self.write_task_json("fixture", data)
+        task_bytes = (self.task_dir() / "task.json").read_bytes()
+
+        rc, _out, err = self.extend("src", ["src/**"])
+        self.assertEqual(rc, 1)
+        self.assertIn("meta.scope is missing", err)
+        self.assertEqual((self.task_dir() / "task.json").read_bytes(), task_bytes)
+
+    def test_extend_scope_restores_snapshot_when_task_write_fails(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+        snapshot_bytes = self.snapshot_path().read_bytes()
+        task_bytes = (self.task_dir() / "task.json").read_bytes()
+        calls = 0
+
+        def failing_write(path: Path, data: dict) -> bool:
+            nonlocal calls
+            calls += 1
+            return False
+
+        with patch.object(scope_gate, "write_json", side_effect=failing_write):
+            rc, _out, err = self.extend("src", ["src/**"])
+        self.assertEqual(rc, 1)
+        self.assertEqual(calls, 1)
+        self.assertIn("failed to write", err)
+        self.assertEqual(self.snapshot_path().read_bytes(), snapshot_bytes)
+        self.assertEqual((self.task_dir() / "task.json").read_bytes(), task_bytes)
+
+    def test_extend_scope_rejects_archived_task(self) -> None:
+        self.init_repo()
+        self.prepared_task()
+        archived = self.root / ".trellis" / "tasks" / "archive" / "2026-10"
+        archived.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(self.task_dir()), str(archived / "10-18-fixture"))
+
+        rc, _out, err = self.extend(
+            "src",
+            ["src/**"],
+            task_dir=".trellis/tasks/archive/2026-10/10-18-fixture",
+        )
+        self.assertEqual(rc, 1)
+        self.assertIn("is archived", err)
+
+
 class FinishScopeTests(ScopeGateFixture):
     def test_finish_clears_pointer_only_with_out_of_scope_change(self) -> None:
         self.init_repo()

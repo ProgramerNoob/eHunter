@@ -62,9 +62,11 @@ from .safe_commit import (
 )
 from .scope_gate import (
     check_archive_scope,
+    extend_task_scope,
     prepare_scope_start,
     print_scope_report,
     repo_relative,
+    SCOPE_MARKER,
     SCOPE_POLICY_VERSION,
     scope_for_new_task,
     scope_from_cli_json,
@@ -2035,6 +2037,86 @@ def cmd_set_scope(args: argparse.Namespace) -> int:
     print(colored(f"✓ Scope set to: {scope}", Colors.GREEN))
     return 0
 
+
+# =============================================================================
+# Command: extend-scope
+# =============================================================================
+
+def cmd_extend_scope(args: argparse.Namespace) -> int:
+    """Merge path rules into an existing task's meta.scope."""
+    repo_root = get_repo_root()
+    target_dir = resolve_task_dir(args.dir, repo_root)
+    if target_dir is None:
+        print(colored(f"Error: Task not found: {args.dir}", Colors.RED))
+        return 1
+
+    task_json = target_dir / FILE_TASK_JSON
+    if not task_json.is_file():
+        print(colored(f"Error: task.json not found at {target_dir}", Colors.RED))
+        return 1
+
+    data, reason = read_json_checked(task_json)
+    if data is None:
+        _report_read_failure(task_json, reason)
+        return 1
+    task_rel = _repo_relative_path(target_dir, repo_root)
+    if get_tasks_dir(repo_root) / DIR_ARCHIVE in target_dir.parents:
+        print(
+            colored(
+                f"Error: {task_rel} is archived; extend-scope only applies to "
+                "active tasks.",
+                Colors.RED,
+            ),
+            file=sys.stderr,
+        )
+        return 1
+
+    marker = data.get(SCOPE_MARKER)
+    if type(marker) is not int or marker != SCOPE_POLICY_VERSION:
+        print(
+            colored(
+                "Error: this task has no scopePolicyVersion marker; its meta.scope "
+                "is not enforced, so there is nothing to extend.",
+                Colors.RED,
+            ),
+            file=sys.stderr,
+        )
+        return 1
+
+    new_scope, added, problems = extend_task_scope(
+        task_json, target_dir, task_rel, data, args.category, args.rules
+    )
+    if problems or new_scope is None:
+        for problem in problems:
+            print(colored(f"Error: {problem}", Colors.RED), file=sys.stderr)
+        return 1
+
+    if added:
+        print(
+            colored(
+                f"✓ Added {len(added)} rule(s) to '{args.category}': {', '.join(added)}",
+                Colors.GREEN,
+            )
+        )
+        if new_scope.get("snapshot") is not None:
+            print(
+                colored(
+                    "  start baseline kept; the snapshot policy digest was re-signed.",
+                    Colors.GREEN,
+                )
+            )
+    else:
+        print(
+            colored(
+                f"✓ Rules already declared in '{args.category}': {', '.join(args.rules)}",
+                Colors.GREEN,
+            )
+        )
+    categories = new_scope.get("categories")
+    if isinstance(categories, dict) and isinstance(categories.get(args.category), list):
+        for rule in categories[args.category]:
+            print(f"  {args.category}: {rule}")
+    return 0
 
 # =============================================================================
 # Command: set-meta

@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "`task.py extend-scope` 在已启动任务上新增规则后，归档检查把该路径判为 allowed，且快照的 HEAD/index/dirty 基线与扩展前逐字节一致。",
+    "AC2": "快照缺失、文件 hash 不符或 `scopeDigest` 漂移时命令返回非零，`task.json` 与快照文件均未被修改。",
+    "AC3": "非法规则、未知任务、planning 任务三种情况下行为分别符合需求 2、5、4。",
+    "AC4": "`python3 -m unittest discover -s scripts -p 'test_scope_gate.py'` 与 `npm run test:acceptance` 通过。",
+    "AC5": "`.trellis/spec/tooling/task-scope-gate.md` 描述与实际行为一致，`task.py --help` 中可见新命令。"
+  },
+  "checks": [
+    {
+      "id": "extend-scope-cases",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC3"
+      ],
+      "claim": "extend-scope 用例覆盖基线保留、归档 allowed、幂等、快照 hash 不符/缺失/digest 漂移拒绝、规则已声明仍校验、写失败回滚、已归档任务、非数组 category、非法规则定位、planning 与 legacy 任务",
+      "scope": "scripts/test_scope_gate.py 的 ExtendScopeTests 用例类",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-m",
+          "unittest",
+          "scripts.test_scope_gate.ExtendScopeTests"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-18T12:42:08.664111+00:00",
+        "endedAt": "2026-10-18T12:42:10.341268+00:00",
+        "log": ".tmp/acceptance/10-18-extend-scope-cli/tmpr7m20mfy.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-18-extend-scope-cli/tmpr7m20mfy.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "scope-gate-suite",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC3"
+      ],
+      "claim": "既有门禁用例与新增用例在同一套件内全部通过，无回归",
+      "scope": "scripts/test_scope_gate.py 全量 73 个用例",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_scope_gate.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-18T12:42:10.370126+00:00",
+        "endedAt": "2026-10-18T12:42:17.583553+00:00",
+        "log": ".tmp/acceptance/10-18-extend-scope-cli/tmp5dw480um.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-18-extend-scope-cli/tmp5dw480um.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "acceptance-suite",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "npm run test:acceptance 通过",
+      "scope": "scripts/test_acceptance.py 等验收脚本用例",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:acceptance"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-18T12:42:17.612557+00:00",
+        "endedAt": "2026-10-18T12:42:26.893686+00:00",
+        "log": ".tmp/acceptance/10-18-extend-scope-cli/tmpraw__wrz.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-18-extend-scope-cli/tmpraw__wrz.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "cli-and-spec",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "task.py --help 列出 extend-scope，spec 描述与实现一致（保留基线、scopeExtensions、拒绝条件）",
+      "scope": ".trellis/scripts/task.py help 输出与 .trellis/spec/tooling/task-scope-gate.md 相关段落",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/acceptance/10-18-extend-scope-cli/cli-and-spec.txt"
+      ],
+      "note": "task.py --help 列出 extend-scope 子命令；spec 的声明段、快照段与验证段描述保留基线、scopeExtensions 记录与 hash/digest 拒绝条件。",
+      "waiver": null
+    }
+  ]
+}

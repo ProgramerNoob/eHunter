@@ -1,0 +1,48 @@
+{
+  "id": "extend-scope-cli",
+  "name": "extend-scope-cli",
+  "title": "任务进行中扩展 scope 的 CLI 入口",
+  "description": "新增 task.py extend-scope：在保留 start 基线的前提下把路径规则并入 meta.scope 并重签快照摘要，配回归测试与 spec 更新",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-18",
+  "completedAt": null,
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-18-extend-scope-cli/**"
+        ],
+        "tooling": [
+          ".trellis/scripts/**",
+          ".trellis/spec/tooling/task-scope-gate.md"
+        ],
+        "tests": [
+          "scripts/test_scope_gate.py"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "89bb41726c234d9fce31df268e412e3e40a930fd1f0c9383baeb5f522f4673b9"
+      }
+    }
+  }
+}

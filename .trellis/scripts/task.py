@@ -14,6 +14,7 @@ Usage:
     python3 task.py set-branch <dir> <branch>   # Set git branch
     python3 task.py set-base-branch <dir> <branch>  # Set PR target branch
     python3 task.py set-scope <dir> <scope>     # Set scope for PR title
+    python3 task.py extend-scope <dir> <category> <rule>...  # Add path rules to meta.scope
     python3 task.py set-meta <dir> <key> <value>  # Set a task metadata key
     python3 task.py rename <dir> <new-slug> [--dry-run]  # Rename task + references
     python3 task.py archive <task-dir> [--skip-branch-validation]  # Archive completed task
@@ -65,6 +66,7 @@ from common.task_store import (
     cmd_set_branch,
     cmd_set_base_branch,
     cmd_set_scope,
+    cmd_extend_scope,
     cmd_set_meta,
     cmd_add_subtask,
     cmd_remove_subtask,
@@ -551,6 +553,7 @@ Usage:
   python3 task.py set-branch <dir> <branch>          Set git branch
   python3 task.py set-base-branch <dir> <branch>     Set PR target branch
   python3 task.py set-scope <dir> <scope>            Set scope for PR title
+  python3 task.py extend-scope <dir> <category> <rule>...  Add path rules to an existing meta.scope
   python3 task.py set-meta <dir> <key> <value>       Set/overwrite a task metadata key
   python3 task.py rename <dir> <new-slug>            Rename task, identity fields and references
   python3 task.py archive <task-dir>                 Archive completed task
@@ -726,6 +729,14 @@ def main() -> int:
     p_scope.add_argument("dir", help="Task directory")
     p_scope.add_argument("scope", help="Scope name")
 
+    # extend-scope
+    p_extend = subparsers.add_parser(
+        "extend-scope", help="Add path rules to an existing task's meta.scope"
+    )
+    p_extend.add_argument("dir", help="Task directory")
+    p_extend.add_argument("category", help="Scope category to extend")
+    p_extend.add_argument("rules", nargs="+", help="Repo-relative path rules")
+
     # set-meta
     p_setmeta = subparsers.add_parser("set-meta", help="Set/overwrite a task metadata key")
     p_setmeta.add_argument("dir", help="Task directory")
@@ -792,6 +803,7 @@ def main() -> int:
         "set-branch": cmd_set_branch,
         "set-base-branch": cmd_set_base_branch,
         "set-scope": cmd_set_scope,
+        "extend-scope": cmd_extend_scope,
         "set-meta": cmd_set_meta,
         "rename": cmd_rename,
         "archive": cmd_archive,

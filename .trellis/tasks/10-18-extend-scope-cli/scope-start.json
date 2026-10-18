@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-18-extend-scope-cli",
+  "branch": "master",
+  "head": "6c11454bd3d91429317a6d78432907c12935d3ff",
+  "indexTree": "336aa5f57e9ecdd20060e0b4a0de0f73a150f96b",
+  "capturedAt": "2026-10-18T20:32:22+08:00",
+  "scopeDigest": "7d08e43956d73d760a4fb546cb2778ebc59c0393526014ed973d67351ac42c59",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-18-extend-scope-cli/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "26c67826dadf1e263dbd3abdec022f0654ea71572c72838a6faf60680b263da3"
+    },
+    ".trellis/tasks/10-18-extend-scope-cli/design.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "244ede40a40c5b74b8b64efb72e652fe18a606d42823acd81ff22c5faad34294"
+    },
+    ".trellis/tasks/10-18-extend-scope-cli/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "57e88c68d3e32488ffffaf8c4dc63a091651058c65e62598e32696b0965fd57c"
+    },
+    ".trellis/tasks/10-18-extend-scope-cli/implement.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "89faf0de8febc8b7676c08e19099d496f89dcefb2f2fd037bc5082c6aec3ec57"
+    },
+    ".trellis/tasks/10-18-extend-scope-cli/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "30ca5aceb8ad214c91c50c4788b8f796e693ea691dc765c6a46345bd07492b2a"
+    },
+    ".trellis/tasks/10-18-extend-scope-cli/scope-start.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "07850c25a07cc1e46b4614931f83c184fcf16f82f7619a7bcde4edfdfa451bc7"
+    },
+    ".trellis/tasks/10-18-extend-scope-cli/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "bcd8d230f27f16d4b47f4907e5dad5f3978e285a4b07f36ee23a8bd54e331c75"
+    }
+  }
+}

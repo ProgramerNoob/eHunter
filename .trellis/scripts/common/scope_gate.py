@@ -26,7 +26,7 @@ from datetime import datetime
 from pathlib import Path
 
 from .git import run_git
-from .io import read_json_checked, write_json
+from .io import read_json_checked, write_json, write_text_atomic
 from .log import Colors, colored
 from .paths import FILE_TASK_JSON
 
@@ -35,6 +35,7 @@ SCOPE_POLICY_VERSION = 1
 SCOPE_MARKER = "scopePolicyVersion"
 SNAPSHOT_SCHEMA_VERSION = 1
 SNAPSHOT_FILE = "scope-start.json"
+SNAPSHOT_EXTENSIONS_KEY = "scopeExtensions"
 TASK_EVIDENCE_CATEGORY = "task-evidence"
 SCOPE_FIELDS = frozenset({"version", "mode", "categories", "snapshot"})
 TOOL_STATE_DIRS = (".trellis/.runtime/",)
@@ -407,6 +408,31 @@ def _snapshot_entries_problems(value: object, location: str) -> list[str]:
     return problems
 
 
+def _snapshot_extensions_problems(value: object) -> list[str]:
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        return ["start snapshot.scopeExtensions: must be a JSON array"]
+    problems: list[str] = []
+    for index, entry in enumerate(value):
+        location = f"start snapshot.scopeExtensions[{index}]"
+        if not isinstance(entry, dict):
+            problems.append(f"{location}: must be a JSON object")
+            continue
+        if not isinstance(entry.get("category"), str) or not entry.get("category"):
+            problems.append(f"{location}.category: must be a non-empty string")
+        rules = entry.get("rules")
+        if (
+            not isinstance(rules, list)
+            or not rules
+            or any(not isinstance(rule, str) or not rule for rule in rules)
+        ):
+            problems.append(f"{location}.rules: must be a non-empty array of path rules")
+        if not isinstance(entry.get("at"), str) or not entry.get("at"):
+            problems.append(f"{location}.at: must be a non-empty timestamp")
+    return problems
+
+
 def _snapshot_shape_problems(snapshot: object) -> list[str]:
     if not isinstance(snapshot, dict):
         return ["start snapshot: top level must be a JSON object"]
@@ -433,6 +459,7 @@ def _snapshot_shape_problems(snapshot: object) -> list[str]:
     problems.extend(
         _snapshot_entries_problems(snapshot.get("untracked"), "start snapshot.untracked")
     )
+    problems.extend(_snapshot_extensions_problems(snapshot.get(SNAPSHOT_EXTENSIONS_KEY)))
     return problems
 
 
@@ -508,6 +535,115 @@ def _load_task_snapshot(
             "re-run task.py start to reset the baseline deliberately)"
         ]
     return snapshot, []
+
+
+def extend_scope_category(
+    scope: dict, task_rel: str, category: str, rules: list[str]
+) -> tuple[dict | None, list[str], list[str]]:
+    """Merge path rules into one category without touching the start baseline."""
+    if not isinstance(category, str) or not category.strip():
+        return None, [], ["scope category: must be a non-empty string"]
+    if not rules:
+        return None, [], ["scope rules: at least one path rule is required"]
+    categories = scope.get("categories")
+    if not isinstance(categories, dict):
+        return None, [], ["meta.scope.categories: must be a JSON object"]
+
+    merged: dict[str, object] = {}
+    for name, values in categories.items():
+        merged[name] = list(values) if isinstance(values, list) else values
+    existing = merged.get(category)
+    if category in merged and not isinstance(existing, list):
+        return None, [], [
+            f"meta.scope.categories.{category}: must be a non-empty array of path rules"
+        ]
+    current = existing if isinstance(existing, list) else []
+    merged[category] = current
+
+    added: list[str] = []
+    for rule in rules:
+        if rule in current or rule in added:
+            continue
+        added.append(rule)
+    current.extend(added)
+
+    new_scope = dict(scope)
+    new_scope["categories"] = merged
+    problems = validate_scope(new_scope, task_rel)
+    if problems:
+        return None, [], problems
+    return new_scope, added, []
+
+
+def extend_task_scope(
+    task_json_path: Path,
+    task_dir: Path,
+    task_rel: str,
+    data: dict,
+    category: str,
+    rules: list[str],
+) -> tuple[dict | None, list[str], list[str]]:
+    """Merge rules into meta.scope, re-signing the start snapshot when present.
+
+    The snapshot baseline (HEAD, index tree, dirty and untracked state) stays
+    untouched; only its policy digest and audit trail change, so the archive
+    gate still compares against the original start state.
+    """
+    meta = data.get("meta")
+    scope = meta.get("scope") if isinstance(meta, dict) else None
+    if not isinstance(meta, dict) or not isinstance(scope, dict):
+        return None, [], ["meta.scope is missing; declare a scope before extending it"]
+
+    new_scope, added, problems = extend_scope_category(scope, task_rel, category, rules)
+    if problems or new_scope is None:
+        return None, [], problems
+
+    reference = new_scope.get("snapshot")
+    if reference is None:
+        if not added:
+            return new_scope, added, []
+        meta["scope"] = new_scope
+        if not write_json(task_json_path, data):
+            return None, [], [f"failed to write {task_json_path}"]
+        return new_scope, added, []
+
+    snapshot, problems = _load_task_snapshot(task_dir, task_rel, scope)
+    if problems or snapshot is None:
+        return None, [], problems or ["start snapshot could not be loaded"]
+    if not added:
+        return new_scope, added, []
+
+    snapshot_path = task_dir / reference["path"]
+    try:
+        previous_bytes = snapshot_path.read_bytes()
+    except OSError as exc:
+        return None, [], [f"start snapshot could not be read: {exc}"]
+
+    snapshot["scopeDigest"] = scope_digest(new_scope)
+    extensions = snapshot.get(SNAPSHOT_EXTENSIONS_KEY)
+    if not isinstance(extensions, list):
+        extensions = []
+    extensions.append({"category": category, "rules": added, "at": _timestamp()})
+    snapshot[SNAPSHOT_EXTENSIONS_KEY] = extensions
+    payload = json.dumps(snapshot, indent=2, ensure_ascii=False)
+    if not write_text_atomic(snapshot_path, payload):
+        return None, [], [f"failed to write start snapshot: {snapshot_path}"]
+    new_sha = _sha256_bytes(payload.encode("utf-8"))
+
+    new_scope = dict(new_scope)
+    new_scope["snapshot"] = {"path": reference["path"], "sha256": new_sha}
+    meta["scope"] = new_scope
+    if not write_json(task_json_path, data):
+        try:
+            snapshot_path.write_bytes(previous_bytes)
+        except OSError as exc:
+            return None, [], [
+                f"failed to write {task_json_path}; the re-signed start snapshot "
+                f"could not be restored ({exc}), so archive now reports a hash "
+                "mismatch until the snapshot is restored or task.py start re-run"
+            ]
+        return None, [], [f"failed to write {task_json_path}"]
+    return new_scope, added, []
 
 
 def _worktree_map(snapshot: dict) -> dict[str, dict]:
