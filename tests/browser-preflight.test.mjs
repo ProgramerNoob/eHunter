@@ -3,12 +3,12 @@ import assert from 'node:assert/strict';
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { withBrowserPreflight, BrowserPreflightError, classifyReaderFacts, comparePageBaseline, bootstrapReader, PROFILES } from '../scripts/browser-preflight.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const BASE = path.join(ROOT, '.tmp/browser-preflight/repair-final/cases');
+const BASE = path.join(ROOT, '.tmp/browser-preflight-tests', `${process.pid}-${randomUUID()}`);
 
 after(async () => { await fs.rm(BASE, { recursive: true, force: true }); });
 
