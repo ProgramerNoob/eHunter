@@ -522,3 +522,38 @@ T024 遗留的两处可选硬化落地：通知标题超长无空格串不换行
 
 - 需要移动视口时补跑 platform: nh 的 690×1044 轮次
 - 按 pending-work.md 收口剩余的阅读器与抓取改造项
+
+
+## Session 13: NH 移动视口验收补跑
+<!-- trellis-session: v=2 fp=ded7ded1afa40194 -->
+
+**Date**: 2026-10-18
+**Task**: NH 移动视口验收补跑
+**Branch**: `master`
+
+### Summary
+
+Session summary was not supplied.
+
+### Main Changes
+
+- 按 reader-test platform:nh 补跑严格 mobile 轮（390×844 DPR3 touch5，withBrowserPreflight）与 690×1044 补充轮；严格轮 observed=passed 且 verify-browser passed，690 轮记录 CDP 下发/回读与截图
+- acceptance.json 六条 check 全部回填 passed（2 command + 2 runtime + 2 inspection），acceptance.py summarize exit 0
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `4945d96` | chore(task): archive 10-18-nh-mobile-acceptance |
+
+### Testing
+
+- [OK] python3 scripts/acceptance.py summarize .trellis/tasks/10-18-nh-mobile-acceptance → passed；verify-browser .tmp/reader-test-nh/run-nh-mobile-10 → passed；cleanup-browser → aggregate clean（3 clean / 0 residual）
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 评估 390 宽下阅读模式切换入口（顶栏测量隐藏 + showInDialog:false + 快捷键无此项）是否需要产品调整
