@@ -559,3 +559,39 @@ T024 遗留的两处可选硬化落地：通知标题超长无空格串不换行
 ### Next Steps
 
 - 评估 390 宽下阅读模式切换入口（顶栏测量隐藏 + showInDialog:false + 快捷键无此项）是否需要产品调整
+
+
+## Session 14: 新增 task.py extend-scope
+<!-- trellis-session: v=2 fp=493d10b07e051e90 -->
+
+**Date**: 2026-10-18
+**Task**: 新增 task.py extend-scope
+**Branch**: `master`
+
+### Summary
+
+Session summary was not supplied.
+
+### Main Changes
+
+- 新增 task.py extend-scope：保留 start 基线，合并 meta.scope 规则并重签快照摘要，记录 scopeExtensions
+- 拒绝 hash/digest 不符、快照缺失、已归档与 legacy 任务；写失败回滚快照
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `7db8b73` | chore(task): archive 10-18-extend-scope-cli |
+
+### Testing
+
+- [OK] python3 -m unittest discover -s scripts -p test_scope_gate.py（73 tests OK）
+- [OK] npm run test:acceptance；npm run check:docs
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 可选：让 acceptance.py archive 的 branch 校验对直接提交到 master 的任务给出更明确的跳过提示

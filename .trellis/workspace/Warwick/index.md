@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 13
+- **Total Sessions**: 14
 - **Last Active**: 2026-10-18
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~559 | Active |
+| `journal-1.md` | ~597 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 14 | 2026-10-18 | 新增 task.py extend-scope | `7db8b73` | `master` |
 | 13 | 2026-10-18 | NH 移动视口验收补跑 | `4945d96` | `master` |
 | 12 | 2026-10-17 | 合并 EH 验收技能为 reader-test | `1ee549d` | `master` |
 | 11 | 2026-10-17 | 文档与注释只描述当前状态 | `9915f78`, `418389f`, `68cafca` | `master` |
