@@ -533,7 +533,7 @@ T024 遗留的两处可选硬化落地：通知标题超长无空格串不换行
 
 ### Summary
 
-Session summary was not supplied.
+按 reader-test platform:nh 补齐移动视口验收：严格 mobile profile 轮通过准备门与全部功能断言，`verify-browser` 返回 `passed`；690×1044 补充轮记录实际 CDP 参数、回读视口与截图。验收记录六条 check 全部 `passed`，报告落在 `.tmp/test-reports/reader-test-nh-20261018-2020.md`。副产物：发现任务 `acceptance.json` 列入 `scenarioInputs` 会让轮次在回填后变 `stale`，规则已补进浏览器验收指南。
 
 ### Main Changes
 
@@ -544,6 +544,8 @@ Session summary was not supplied.
 
 | Hash | Message |
 |------|---------|
+| `5fc3fe9` | docs(spec): scenarioInputs 排除回填后变化的任务记录文件 |
+| `5837d27` | test(reader-test): 补跑 NH 移动视口验收并回填 acceptance |
 | `4945d96` | chore(task): archive 10-18-nh-mobile-acceptance |
 
 ### Testing
