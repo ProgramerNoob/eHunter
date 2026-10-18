@@ -1147,6 +1147,9 @@ class ExtendScopeTests(ScopeGateFixture):
             self.assertEqual(after[key], before[key], key)
         self.assertNotEqual(after["scopeDigest"], before["scopeDigest"])
         self.assertEqual(
+            after["scopeDigest"], scope_gate.scope_digest(self.task_json()["meta"]["scope"])
+        )
+        self.assertEqual(
             after["scopeExtensions"],
             [{"category": "src", "rules": ["src/**"], "at": after["scopeExtensions"][0]["at"]}],
         )

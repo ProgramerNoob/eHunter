@@ -26,7 +26,7 @@
 
 ## 启动快照
 
-`task.py start` 在激活 session、改写 status 之前调用 `prepare_scope_start`，在当前任务目录写 `scope-start.json`，并在 `meta.scope.snapshot` 记录 `{ "path": "scope-start.json", "sha256": "<hex>" }`。快照包含 schema 版本、任务路径、branch、HEAD、index tree、捕获时间、scope 摘要 digest，以及启动时 tracked dirty 和 untracked 文件的类型/权限/内容摘要。`task.py extend-scope` 在快照已存在时校验文件 hash 与 `scopeDigest`，通过后重算 digest、向 `scopeExtensions` 追加 `{ category, rules, at }` 记录并更新 `meta.scope.snapshot.sha256`；HEAD、index tree、dirty/untracked 基线保持不变，hash 或 digest 不符、快照缺失时拒绝写入（规则已声明时同样先校验）。`scopeExtensions` 只作审计记录，不参与 `scopeDigest`，因此重签不会放宽任何门禁。
+`task.py start` 在激活 session、改写 status 之前调用 `prepare_scope_start`，在当前任务目录写 `scope-start.json`，并在 `meta.scope.snapshot` 记录 `{ "path": "scope-start.json", "sha256": "<hex>" }`。快照包含 schema 版本、任务路径、branch、HEAD、index tree、捕获时间、scope 摘要 digest，以及启动时 tracked dirty 和 untracked 文件的类型/权限/内容摘要。`task.py extend-scope` 在快照已存在时校验文件 hash 与 `scopeDigest`，通过后重算 digest、向 `scopeExtensions` 追加 `{ category, rules, at }` 记录并更新 `meta.scope.snapshot.sha256`；HEAD、index tree、dirty/untracked 基线保持不变，hash 或 digest 不符、快照缺失时拒绝写入（规则已声明时同样先校验）。`scopeExtensions` 只作审计记录，不参与 `scopeDigest`，因此重签不会放宽任何门禁。若快照已重签而写 `task.json` 失败，命令会原子还原快照；进程在两次写入之间中断时快照 digest 已更新、`task.json` 仍是旧 sha256，归档按 hash 不符 fail closed，恢复快照原文或重新执行 `start` 即可。
 
 - 快照写入失败或回读失败时，`start` 返回非零，任务不激活、status 不变。
 - 重复 `start` 复用同一有效快照，不静默重置基线；scope digest 不匹配、快照缺失/损坏/hash 不符时拒绝启动。

@@ -635,12 +635,17 @@ def extend_task_scope(
     meta["scope"] = new_scope
     if not write_json(task_json_path, data):
         try:
-            snapshot_path.write_bytes(previous_bytes)
-        except OSError as exc:
+            restored = write_text_atomic(snapshot_path, previous_bytes.decode("utf-8"))
+        except UnicodeDecodeError as exc:
+            restored = False
+            restore_error = str(exc)
+        else:
+            restore_error = "write failed"
+        if not restored:
             return None, [], [
                 f"failed to write {task_json_path}; the re-signed start snapshot "
-                f"could not be restored ({exc}), so archive now reports a hash "
-                "mismatch until the snapshot is restored or task.py start re-run"
+                f"could not be restored ({restore_error}), so archive now reports a "
+                "hash mismatch until the snapshot is restored or task.py start re-run"
             ]
         return None, [], [f"failed to write {task_json_path}"]
     return new_scope, added, []

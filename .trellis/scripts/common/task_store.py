@@ -61,6 +61,7 @@ from .safe_commit import (
     safe_git_add,
 )
 from .scope_gate import (
+    _is_int,
     check_archive_scope,
     extend_task_scope,
     prepare_scope_start,
@@ -2052,7 +2053,10 @@ def cmd_extend_scope(args: argparse.Namespace) -> int:
 
     task_json = target_dir / FILE_TASK_JSON
     if not task_json.is_file():
-        print(colored(f"Error: task.json not found at {target_dir}", Colors.RED))
+        print(
+            colored(f"Error: task.json not found at {target_dir}", Colors.RED),
+            file=sys.stderr,
+        )
         return 1
 
     data, reason = read_json_checked(task_json)
@@ -2060,7 +2064,11 @@ def cmd_extend_scope(args: argparse.Namespace) -> int:
         _report_read_failure(task_json, reason)
         return 1
     task_rel = _repo_relative_path(target_dir, repo_root)
-    if get_tasks_dir(repo_root) / DIR_ARCHIVE in target_dir.parents:
+    try:
+        tasks_parts = target_dir.relative_to(get_tasks_dir(repo_root)).parts
+    except ValueError:
+        tasks_parts = ()
+    if tasks_parts[:1] == (DIR_ARCHIVE,):
         print(
             colored(
                 f"Error: {task_rel} is archived; extend-scope only applies to "
@@ -2072,7 +2080,7 @@ def cmd_extend_scope(args: argparse.Namespace) -> int:
         return 1
 
     marker = data.get(SCOPE_MARKER)
-    if type(marker) is not int or marker != SCOPE_POLICY_VERSION:
+    if not _is_int(marker) or marker != SCOPE_POLICY_VERSION:
         print(
             colored(
                 "Error: this task has no scopePolicyVersion marker; its meta.scope "
