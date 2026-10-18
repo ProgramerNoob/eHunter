@@ -72,7 +72,7 @@
                     <button
                         type="button"
                         :class="['item', { disabled: !loadOriginalEnabled }]"
-                        :title="loadOriginalDisabledReason"
+                        :title="loadOriginalEnabled ? undefined : loadOriginalDisabledReason"
                         @click="loadOriginalFromMenu">
                         <span>{{ i18n.originImg }}</span>
                         <small v-if="!loadOriginalEnabled">{{ loadOriginalDisabledReason }}</small>
