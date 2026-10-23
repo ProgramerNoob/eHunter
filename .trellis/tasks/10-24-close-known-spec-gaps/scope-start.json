@@ -5,7 +5,7 @@
   "head": "b2e7da5460d94824b10b1a2dca19a5d84a312372",
   "indexTree": "390fd5bcc7e74cbc509273de1fe94fe20dc1fa7b",
   "capturedAt": "2026-10-24T02:26:15+08:00",
-  "scopeDigest": "128a843e4b7c5f9198522ea2afeb6754f686e8912d6492a29d2412002c4943b8",
+  "scopeDigest": "ea974f9869062a2524061faae7e49e9a06c331733b0890110203789224d26aa9",
   "dirty": {},
   "untracked": {
     ".trellis/tasks/10-24-close-known-spec-gaps/check.jsonl": {
@@ -63,7 +63,6 @@
         ".trellis/spec/frontend/component-guidelines.md",
         ".trellis/spec/frontend/decisions",
         ".trellis/spec/frontend/directory-structure.md",
-        ".trellis/spec/frontend/features",
         ".trellis/spec/frontend/hook-guidelines.md",
         ".trellis/spec/frontend/index.md",
         ".trellis/spec/frontend/product-goals.md",

@@ -50,7 +50,6 @@
           ".trellis/spec/frontend/component-guidelines.md",
           ".trellis/spec/frontend/decisions",
           ".trellis/spec/frontend/directory-structure.md",
-          ".trellis/spec/frontend/features",
           ".trellis/spec/frontend/hook-guidelines.md",
           ".trellis/spec/frontend/index.md",
           ".trellis/spec/frontend/product-goals.md",
@@ -62,7 +61,7 @@
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "b49eb8da104cff7fe485503e5646a444c032d579385725617770867317d280a6"
+        "sha256": "02ed944cdb7f48acd4a469523e92f180091d8065cefa00b1b92ffef7196a6d83"
       }
     }
   }

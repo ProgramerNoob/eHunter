@@ -28,12 +28,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-23T19:04:49.334854+00:00",
-        "endedAt": "2026-10-23T19:04:50.023769+00:00",
-        "log": ".tmp/acceptance/10-24-close-known-spec-gaps/tmpeeixirsm.log"
+        "startedAt": "2026-10-23T21:24:47.001779+00:00",
+        "endedAt": "2026-10-23T21:24:47.685777+00:00",
+        "log": ".tmp/acceptance/10-24-close-known-spec-gaps/tmp48_lskou.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-24-close-known-spec-gaps/tmpeeixirsm.log"
+        ".tmp/acceptance/10-24-close-known-spec-gaps/tmp48_lskou.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -56,12 +56,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-23T19:04:50.050191+00:00",
-        "endedAt": "2026-10-23T19:04:50.284740+00:00",
-        "log": ".tmp/acceptance/10-24-close-known-spec-gaps/tmpssj7et21.log"
+        "startedAt": "2026-10-23T21:24:47.716043+00:00",
+        "endedAt": "2026-10-23T21:24:47.970239+00:00",
+        "log": ".tmp/acceptance/10-24-close-known-spec-gaps/tmpd55z43z4.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-24-close-known-spec-gaps/tmpssj7et21.log"
+        ".tmp/acceptance/10-24-close-known-spec-gaps/tmpd55z43z4.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -84,12 +84,12 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-23T19:04:55.066001+00:00",
-        "endedAt": "2026-10-23T19:04:55.305414+00:00",
-        "log": ".tmp/acceptance/10-24-close-known-spec-gaps/tmpl7jqgr3b.log"
+        "startedAt": "2026-10-23T21:24:48.000708+00:00",
+        "endedAt": "2026-10-23T21:24:48.246343+00:00",
+        "log": ".tmp/acceptance/10-24-close-known-spec-gaps/tmp06mbb6x2.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-24-close-known-spec-gaps/tmpl7jqgr3b.log"
+        ".tmp/acceptance/10-24-close-known-spec-gaps/tmp06mbb6x2.log"
       ],
       "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
@@ -169,14 +169,14 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-23T19:04:55.332308+00:00",
-        "endedAt": "2026-10-23T19:05:18.786840+00:00",
-        "log": ".tmp/acceptance/10-24-close-known-spec-gaps/tmp_vog_lw6.log"
+        "startedAt": "2026-10-23T21:24:48.276784+00:00",
+        "endedAt": "2026-10-23T21:25:12.995280+00:00",
+        "log": ".tmp/acceptance/10-24-close-known-spec-gaps/tmpx5tc_q1a.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-24-close-known-spec-gaps/tmp_vog_lw6.log"
+        ".tmp/acceptance/10-24-close-known-spec-gaps/tmpx5tc_q1a.log"
       ],
-      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "note": "npm run check（type-check → test:acceptance/test:storage/test:browser-preflight/test:reader-lifecycle/test:download-time/test:download-metadata/test:initializer-timeout → build-prod → check:docs）exitCode 0；check-docs 报 39 md / 6 yaml / 221 本地链接 / 70 $ref 全 OK，build-prod 产出 443.26 kB。",
       "waiver": null
     },
     {
@@ -264,6 +264,31 @@
         ".tmp/acceptance-verify-close-gaps-nh-2673288f-a8d4-4fc6-b23f-e7f148cc3e7b.log"
       ],
       "note": "NH 生产包验收：npm run build-prod exit 0（dist/ehunter.iife.js 443.26 kB），bundle server 下发 /ehunter.iife.js，开发 loader 启用（静态 eHunter 已禁用，见 installation.md），browser-preflight desktop 打开 https://nhentai.net/g/631366/1/（45 页；原计划样本 g/688467 被站点 429 限流，改用同一样本目录中已有的 g/631366）。result.json：observed=passed、checks=executed、preparation=verified；首屏进度 1/45、47 张图全载、首图 https://t3.nhentai.net/galleries/3799533/1t.webp；模式切书页→滚动成功；侧栏缩略图可见 45/加载 45/broken 0，点第 5 项跳到 5/45；翻页 5→6→5；.page-view 内图片 src 均为 i*.nhentai.net/galleries/3799533/N.webp 且 naturalWidth=1280。主会话已查看三张截图（首屏、模式切换、缩略图跳页），布局与图片渲染正常。verify-browser 状态 passed。",
+      "waiver": null
+    },
+    {
+      "id": "eh-production-bundle-timeout-budget",
+      "ac": [
+        "AC7",
+        "AC2"
+      ],
+      "claim": "EH 生产包在 60 秒初始化阈值下正常完成初始化并可用",
+      "scope": "exhentai.org 图集 4257612 第 1 页，生产 IIFE bundle + dev loader，desktop 1200x900；验证初始化耗时落在 60 秒预算内，并覆盖缩略图、双阅读模式、翻页与页面图加载",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/close-gaps-eh-ad2f0fc0-b362-4656-858d-c780b04140c3/result.json",
+        ".tmp/browser-preflight/close-gaps-eh-ad2f0fc0-b362-4656-858d-c780b04140c3/measurements.json",
+        ".tmp/browser-preflight/close-gaps-eh-ad2f0fc0-b362-4656-858d-c780b04140c3/eh-first-screen.png",
+        ".tmp/browser-preflight/close-gaps-eh-ad2f0fc0-b362-4656-858d-c780b04140c3/eh-thumbnails.png",
+        ".tmp/browser-preflight/close-gaps-eh-ad2f0fc0-b362-4656-858d-c780b04140c3/eh-mode-switched.png",
+        ".tmp/reader-test-eh/installation.md",
+        ".tmp/reader-test-eh/build-prod.log",
+        ".tmp/reader-test-eh/server-facts.txt"
+      ],
+      "note": "npm run build-prod exit 0（dist/ehunter.iife.js 444177 B，sha256 ada789768ab85b940ae18c57bc4f74f45011b8ba078fde482ac4d91299ce914d），bundle server 127.0.0.1:8787 下发同哈希内容，dev loader 启用、静态 eHunter 3.1.0 停用。页内探针以 performance.now() 记录 #ehunter-app .progress 首次出现 'N / M' 的时刻，实测 initMs=2135（2.1 秒，远低于 60 秒阈值），total=69、current=1。缩略图 visible 50 / loaded 50 / broken 0（EH sprite sheet，按 style 中 url() 逐张探测）。模式 book-mode→scroll-mode，翻页 1/69→2/69→1/69，页面图 4 张 hath.network 源 naturalWidth 1239/1280 已加载，errors 为空。控制台仅一条可选更新检查的有界失败（GM_xhr error, 0），记为诊断。",
       "waiver": null
     }
   ]
