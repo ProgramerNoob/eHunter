@@ -3,7 +3,7 @@ export class ImgHtmlParser {
     private html: HTMLElement;
     
     constructor(html) {
-        this.htmlText = html.replace(/src=/g, 'x-src='); // avoid load assets
+        this.htmlText = html.replace(/\ssrc=/g, ' x-src='); // avoid load assets
         this.html = document.createElement('html');
         this.html.innerHTML = this.htmlText;
         return this;

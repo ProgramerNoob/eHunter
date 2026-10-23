@@ -9,7 +9,7 @@ export class IntroHtmlParser {
 
     constructor(html) {
         this.html = document.createElement('html');
-        this.html.innerHTML = html.replace(/src=/g, 'x-src='); // avoid load assets
+        this.html.innerHTML = html.replace(/\ssrc=/g, ' x-src='); // avoid load assets
         this.parseData();
     }
 
@@ -20,7 +20,7 @@ export class IntroHtmlParser {
     private parseData() {
         Array.prototype.slice.call(this.html.querySelectorAll('.gallerythumb'), 0).forEach(i => {
             const img = i.children[0]
-            const thumbSrc = img.getAttribute('data-x-src') || img.getAttribute('x-src')
+            const thumbSrc = img.getAttribute('data-src') || img.getAttribute('x-src')
             const thumbHeight = img.getAttribute('height') * 1;
             const thumbWidth = img.getAttribute('width') * 1;
             const pageUrl = i.getAttribute('href');

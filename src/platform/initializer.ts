@@ -11,7 +11,7 @@ export async function initializeWithTimeout(
   albumService: AlbumService,
   platform: Platform
 ): Promise<void> {
-  const TIMEOUT_MS = 120000 // 120 seconds
+  const TIMEOUT_MS = 60000 // 60 seconds
   const steps: InitializationStepUpdate[] = []
 
   const upsertStep = (update: InitializationStepUpdate): void => {
@@ -67,7 +67,7 @@ export async function initializeWithTimeout(
         failCurrentStep(`Timed out after ${TIMEOUT_MS / 1000} seconds`)
       }
       reject(new InitializationError(
-        'Platform initialization timed out after 120 seconds',
+        `Platform initialization timed out after ${TIMEOUT_MS / 1000} seconds`,
         platform,
         window.location.href,
         steps
