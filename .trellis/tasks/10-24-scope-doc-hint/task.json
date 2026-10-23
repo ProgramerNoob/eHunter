@@ -1,0 +1,44 @@
+{
+  "id": "scope-doc-hint",
+  "name": "scope-doc-hint",
+  "title": "范围门禁文档补充目录规则与引号写法",
+  "description": "在 task-scope-gate.md 声明节补充：目录规则必须写 dir/**，命令行参数需加引号以免 shell 展开成死规则。",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-24",
+  "completedAt": null,
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-24-scope-doc-hint/**"
+        ],
+        "spec": [
+          ".trellis/spec/tooling/task-scope-gate.md"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "010a3a9902aa0d8f90f376a2930c73557037b4e71a8d154b20cfc6f234254179"
+      }
+    }
+  }
+}

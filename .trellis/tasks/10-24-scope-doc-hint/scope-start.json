@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-24-scope-doc-hint",
+  "branch": "master",
+  "head": "75a941536986a5c78234dbf795e60aba9600c19b",
+  "indexTree": "1618c5c1d8d4f94d96f7b3221f2b5393bec26abe",
+  "capturedAt": "2026-10-24T05:48:15+08:00",
+  "scopeDigest": "b1fb929e14f7d0ef41e85d2169d6418667a2820da1a38473a9ea1739447b2a66",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-24-scope-doc-hint/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-24-scope-doc-hint/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-24-scope-doc-hint/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "5a5a18229b74888098d75398c6b00cf3d3c8441bcc2b462da06039262ae24630"
+    },
+    ".trellis/tasks/10-24-scope-doc-hint/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "38c84f629ba6b5312bb7f49be9e862593f900fa53d759fcfc53cab6829587f91"
+    }
+  },
+  "scopeExtensions": [
+    {
+      "category": "spec",
+      "rules": [
+        ".trellis/spec/tooling/task-scope-gate.md"
+      ],
+      "at": "2026-10-24T05:48:32+08:00"
+    }
+  ]
+}

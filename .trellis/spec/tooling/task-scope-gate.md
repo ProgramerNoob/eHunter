@@ -20,6 +20,8 @@
 - 路径是仓库相对 POSIX 精确路径，或末尾 `/**` 的目录前缀（匹配目录本身与全部后代）。拒绝绝对路径、`..`、空路径段和空 category。
 - `task-evidence` 类别必需，且规则必须覆盖本任务目录内的文件（通常写 `<task_rel>/**`）；只匹配目录本身的精确规则不算覆盖，因为 `start` 在快照之后还会写 `task.json`。
 - `task.py create` 默认写入 `scopePolicyVersion: 1` 和只覆盖自身任务目录的 enforce scope；`--meta scope=<JSON>`、`task.py set-meta <task> scope '<JSON>'` 或 `task.py extend-scope <task> <category> <rule>...` 可在 `start` 前声明范围，写入前统一校验。
+- 写目录时必须用末尾 `/**` 的目录前缀。只写目录名（例如 `docs`）是一条精确规则，而精确规则只与文件路径做相等比较，不会覆盖目录内的文件。
+- 命令行传规则时必须给参数加引号，例如 `extend-scope <task> spec 'docs/**'`。不加引号时由 shell 先展开：`bash` 未开启 `globstar` 时 `**` 等同于 `*`，一个目录规则会被拆成若干精确路径，其中目录项因此失效。命令本身不读文件系统，写入的就是它收到的字符串。
 - `meta.scope.snapshot` 由 `task.py start` 维护，不接受调用方传入；`set-meta` 替换 scope 时清除旧引用，需要重新 `start` 记录基线。任务已经 `start` 后需要扩大范围时用 `extend-scope`：它保留原基线，只重签快照摘要。`extend-scope` 只接受 active 任务，已归档任务、没有 `scopePolicyVersion: 1` 整型 marker 的 legacy 任务会被拒绝；规则已全部声明时只打印现状，不重签快照也不写 `task.json`。
 
 首次在新版本下启动的旧 planning 任务会补写 marker；缺少 `task-evidence` 时补默认规则；已有合法 scope 保留原样。`task.py start` 之前已在执行的旧任务保持 legacy，不追加快照。

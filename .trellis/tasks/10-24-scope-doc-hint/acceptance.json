@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "`.trellis/spec/tooling/task-scope-gate.md` 的「声明」节包含目录规则必须写 `/**` 的说明，以及命令行参数需加引号以免 shell 展开的说明。"
+  },
+  "checks": [
+    {
+      "id": "scope-gate-doc-inspection",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "声明节同时说明了目录规则需写 /** 与命令行参数需加引号",
+      "scope": ".trellis/spec/tooling/task-scope-gate.md 的「声明」小节",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/spec/tooling/task-scope-gate.md",
+        ".tmp/10-24-scope-doc-hint/check-docs.log"
+      ],
+      "note": "「声明」节新增两条：写目录必须用末尾 `/**` 的目录前缀（精确规则只与文件路径做相等比较，覆盖不到目录内的文件）；命令行传规则须加引号（未加引号时 shell 先展开，bash 无 globstar 时 `**` 等同 `*`，目录规则被拆成精确路径而失效）。用 rule_matches 实测确认 rule_matches(\"docs\",\"docs/a.md\")=False、rule_matches(\"docs/**\",\"docs/a.md\")=True。npm run check:docs 通过：39 md / 6 yaml / 221 本地链接 / 70 $ref。",
+      "waiver": null
+    }
+  ]
+}
