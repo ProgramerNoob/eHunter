@@ -56,12 +56,13 @@
           ".trellis/spec/frontend/quality-guidelines.md",
           ".trellis/spec/frontend/state-management.md",
           ".trellis/spec/frontend/type-safety.md",
-          ".trellis/spec/frontend/features/**"
+          ".trellis/spec/frontend/features/**",
+          ".trellis/spec/frontend/decisions/**"
         ]
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "02ed944cdb7f48acd4a469523e92f180091d8065cefa00b1b92ffef7196a6d83"
+        "sha256": "248d045132ac5b70c58ce8201db68f4a60e8f95b24c6735aaff1f1652643ccef"
       }
     }
   }

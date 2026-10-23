@@ -5,7 +5,7 @@
   "head": "b2e7da5460d94824b10b1a2dca19a5d84a312372",
   "indexTree": "390fd5bcc7e74cbc509273de1fe94fe20dc1fa7b",
   "capturedAt": "2026-10-24T02:26:15+08:00",
-  "scopeDigest": "ea974f9869062a2524061faae7e49e9a06c331733b0890110203789224d26aa9",
+  "scopeDigest": "2025593a61e0fdd6b6b2a206b73cb8428856026e127645ee08aa5158d2464686",
   "dirty": {},
   "untracked": {
     ".trellis/tasks/10-24-close-known-spec-gaps/check.jsonl": {
@@ -78,6 +78,13 @@
         ".trellis/spec/frontend/features/**"
       ],
       "at": "2026-10-24T03:13:48+08:00"
+    },
+    {
+      "category": "spec",
+      "rules": [
+        ".trellis/spec/frontend/decisions/**"
+      ],
+      "at": "2026-10-24T05:39:51+08:00"
     }
   ]
 }
