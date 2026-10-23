@@ -10,7 +10,7 @@
 
 沿用现有 `fflate` 生成标准 ZIP；元数据采用 JSON 单格式，不使用 YAML。当前生产者见 [GalleryDownloadService.ts](../../../../core/service/GalleryDownloadService.ts)；仓库内没有读取该元数据的消费者。
 
-**完成标准**：下载规格及验收统一检查 `metadata.json`，每包七个字段完整且分片信息正确。`downloadTime` 要求用户本地时区，当前生产者为 UTC `toISOString()`；抓取要求顺序执行，当前实现为三个并发 worker——两处差异见[功能索引](../features/index.md#已知状态差异)。
+**完成标准**：下载规格及验收统一检查 `metadata.json`，每包七个字段完整且分片信息正确。`downloadTime` 取用户本地时间并带显式偏移；抓取要求顺序执行，当前实现为三个并发 worker——该差异见[功能索引](../features/index.md#已知状态差异)。
 
 ## 2. 翻页默认值
 

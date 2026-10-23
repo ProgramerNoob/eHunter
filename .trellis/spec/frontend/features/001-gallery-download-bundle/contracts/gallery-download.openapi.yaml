@@ -233,9 +233,9 @@ components:
           type: string
           format: date-time
           description: >-
-            Timestamp captured once for the task. spec.md requires user-local time;
-            the current producer's UTC toISOString() value is a known difference
-            listed in features/index.md under 已知状态差异.
+            Timestamp captured once for the task, formatted from the local clock
+            with an explicit offset, for example 2026-10-24T20:00:00.000+08:00.
+            A zero offset stays +00:00 rather than Z.
         eHunterVersion:
           type: string
           description: eHunter version recorded for the task

@@ -137,7 +137,9 @@ compatibility.
 - For parsing/cache changes, verify title, total/current page, thumbnails and location,
   book/scroll switching, image loading, and supported original/change-source actions.
   Check Normal/Large thumbnails, cache migration and queue/retry behavior when touching
-  the EH parser path. NH parsers rewrite only a whitespace-preceded `src=` to `x-src=`, so `data-src` keeps its native name; reads take `data-src` first, then `x-src`.
+  the EH parser path. The NH intro parser rewrites only a whitespace-preceded `src=` to `x-src=`,
+  so `data-src` keeps its native name; it reads `data-src` first, then `x-src`. The NH image-page
+  parser uses the same rewrite but reads `x-src` only.
 - For UI changes, cover open/close, keyboard and pointer/touch behavior, disabled states,
   loading/error paths, and mode changes. Check accessible names, visible focus and
   keyboard operation; current widgets are not a complete accessibility baseline.

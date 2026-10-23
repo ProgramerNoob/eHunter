@@ -29,7 +29,7 @@ npm run dev
 - Extract each ZIP independently, including the later chunk by itself. Verify the root contains one UTF-8 `metadata.json`, parseable as JSON, with exactly these seven fields: `introUrl`, `galleryTitle`, `totalPages`, `downloadTime`, `eHunterVersion`, `totalChunks`, `chunkIndex`. JSON is the only metadata format.
 - Check string types for intro URL, original title, timestamp, and version; page and chunk counts/indices must be JSON integers. Include a non-ASCII gallery title to verify UTF-8 round-tripping.
 - Verify `totalChunks=1` and `chunkIndex=1` for the single ZIP; for the 300-page export verify `totalPages=300`, `totalChunks=2`, and `chunkIndex` values 1 and 2 matching the ZIPs. All task-level fields, including the captured timestamp, must agree between chunks.
-- Check title/intro URL/version against the source task, and verify the timestamp is readable and parseable. The user-local-time requirement remains in force; the current UTC producer discrepancy is listed in `../index.md#已知状态差异`.
+- Check title/intro URL/version against the source task, and verify the timestamp is readable, parseable, and carries a non-`Z` offset matching the browser's timezone.
 - Confirm the archive path in `core/service/GalleryDownloadService.ts` continues to use existing `fflate` with native JSON serialization, as required by the [2026-09-18 decision, section 1](../../decisions/2026-09-18-reader-behavior.md#1-下载格式). JSON is the sole metadata format.
 
 ### Story P2: Reusable floating status notifications
