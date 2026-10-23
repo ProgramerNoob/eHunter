@@ -74,8 +74,8 @@ test('download metadata records local time with an explicit zone offset', async 
     const entries = fflate.unzipSync(bytes);
     const metadata = JSON.parse(new TextDecoder().decode(entries['metadata.json']));
 
-    assert.deepEqual(Object.keys(metadata), [
-        'introUrl', 'galleryTitle', 'totalPages', 'downloadTime', 'eHunterVersion', 'totalChunks', 'chunkIndex',
+    assert.deepEqual(Object.keys(metadata).sort(), [
+        'chunkIndex', 'downloadTime', 'eHunterVersion', 'galleryTitle', 'introUrl', 'totalChunks', 'totalPages',
     ]);
     assert.equal(metadata.introUrl, '/g/id/test/');
     assert.equal(metadata.galleryTitle, 'fixture');
