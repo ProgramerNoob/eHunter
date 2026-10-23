@@ -5,7 +5,7 @@
   "head": "b2e7da5460d94824b10b1a2dca19a5d84a312372",
   "indexTree": "390fd5bcc7e74cbc509273de1fe94fe20dc1fa7b",
   "capturedAt": "2026-10-24T02:26:15+08:00",
-  "scopeDigest": "794aa167e22e9c924779068a92d5439b091e9b37756520bc49255a8b1144bf4a",
+  "scopeDigest": "128a843e4b7c5f9198522ea2afeb6754f686e8912d6492a29d2412002c4943b8",
   "dirty": {},
   "untracked": {
     ".trellis/tasks/10-24-close-known-spec-gaps/check.jsonl": {
@@ -28,5 +28,57 @@
       "mode": "100644",
       "sha256": "101b00dbb9e54d6bb99328c3bdd8ae4f4b70371a2481aa1f0113bd3486efa596"
     }
-  }
+  },
+  "scopeExtensions": [
+    {
+      "category": "source",
+      "rules": [
+        "core/service/GalleryDownloadService.ts",
+        "src/platform/initializer.ts",
+        "src/platform/nh/parser/IntroHtmlParser.ts",
+        "src/platform/nh/parser/ImgHtmlParser.ts"
+      ],
+      "at": "2026-10-24T03:13:31+08:00"
+    },
+    {
+      "category": "tests",
+      "rules": [
+        "tests/download-time.test.cjs",
+        "tests/download-metadata.test.cjs",
+        "tests/initializer-timeout.test.cjs"
+      ],
+      "at": "2026-10-24T03:13:31+08:00"
+    },
+    {
+      "category": "npm-scripts",
+      "rules": [
+        "package.json"
+      ],
+      "at": "2026-10-24T03:13:31+08:00"
+    },
+    {
+      "category": "spec",
+      "rules": [
+        ".trellis/spec/frontend/browser-acceptance.md",
+        ".trellis/spec/frontend/component-guidelines.md",
+        ".trellis/spec/frontend/decisions",
+        ".trellis/spec/frontend/directory-structure.md",
+        ".trellis/spec/frontend/features",
+        ".trellis/spec/frontend/hook-guidelines.md",
+        ".trellis/spec/frontend/index.md",
+        ".trellis/spec/frontend/product-goals.md",
+        ".trellis/spec/frontend/quality-guidelines.md",
+        ".trellis/spec/frontend/state-management.md",
+        ".trellis/spec/frontend/type-safety.md"
+      ],
+      "at": "2026-10-24T03:13:31+08:00"
+    },
+    {
+      "category": "spec",
+      "rules": [
+        ".trellis/spec/frontend/features/**"
+      ],
+      "at": "2026-10-24T03:13:48+08:00"
+    }
+  ]
 }

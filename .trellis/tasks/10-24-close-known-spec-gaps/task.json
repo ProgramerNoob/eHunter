@@ -30,11 +30,39 @@
       "categories": {
         "task-evidence": [
           ".trellis/tasks/10-24-close-known-spec-gaps/**"
+        ],
+        "source": [
+          "core/service/GalleryDownloadService.ts",
+          "src/platform/initializer.ts",
+          "src/platform/nh/parser/IntroHtmlParser.ts",
+          "src/platform/nh/parser/ImgHtmlParser.ts"
+        ],
+        "tests": [
+          "tests/download-time.test.cjs",
+          "tests/download-metadata.test.cjs",
+          "tests/initializer-timeout.test.cjs"
+        ],
+        "npm-scripts": [
+          "package.json"
+        ],
+        "spec": [
+          ".trellis/spec/frontend/browser-acceptance.md",
+          ".trellis/spec/frontend/component-guidelines.md",
+          ".trellis/spec/frontend/decisions",
+          ".trellis/spec/frontend/directory-structure.md",
+          ".trellis/spec/frontend/features",
+          ".trellis/spec/frontend/hook-guidelines.md",
+          ".trellis/spec/frontend/index.md",
+          ".trellis/spec/frontend/product-goals.md",
+          ".trellis/spec/frontend/quality-guidelines.md",
+          ".trellis/spec/frontend/state-management.md",
+          ".trellis/spec/frontend/type-safety.md",
+          ".trellis/spec/frontend/features/**"
         ]
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "65c06ade701727deb8d496e4aa26e737b976f847c9e37026d4fe297db6c62c45"
+        "sha256": "b49eb8da104cff7fe485503e5646a444c032d579385725617770867317d280a6"
       }
     }
   }
