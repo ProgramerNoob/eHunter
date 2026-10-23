@@ -35,6 +35,7 @@
 - [x] `npm run check`（type-check + 全部测试 + build-prod + check:docs）。
 - [x] 非平台链路按 `browser-acceptance.md` 验收（下载元信息与初始化超时）。
 - [x] 平台链路按 `.pi/skills/reader-test/SKILL.md` `platform:nh` 验收（图集缩略图、阅读页图片）。
+- [x] EH 生产包在 60 秒阈值下实测：`.tmp/browser-preflight/close-gaps-eh-ad2f0fc0-b362-4656-858d-c780b04140c3`，初始化 `initMs=2135`，69 页图集缩略图 50/50、双模式切换与翻页正常。
 - [x] 汇总已验证/未验证范围，清理临时服务与端口。
 
 ## 回滚点
