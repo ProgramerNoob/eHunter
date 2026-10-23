@@ -114,6 +114,25 @@ function sanitizeFileBaseName(raw: string): string {
     return 'gallery'
 }
 
+export function formatLocalDateTime(date: Date): string {
+    const pad = (value: number, width = 2): string => String(value).padStart(width, '0')
+    const offsetMinutes = -date.getTimezoneOffset()
+    const sign = offsetMinutes < 0 ? '-' : '+'
+    const absOffset = Math.abs(offsetMinutes)
+    const localDate = [
+        date.getFullYear(),
+        pad(date.getMonth() + 1),
+        pad(date.getDate()),
+    ].join('-')
+    const localTime = [
+        pad(date.getHours()),
+        pad(date.getMinutes()),
+        pad(date.getSeconds()),
+    ].join(':')
+    const offset = `${sign}${pad(Math.floor(absOffset / 60))}:${pad(absOffset % 60)}`
+    return `${localDate}T${localTime}.${pad(date.getMilliseconds(), 3)}${offset}`
+}
+
 function inferExtension(src: string, blobType: string): string {
     const typeMap: Record<string, string> = {
         'image/jpeg': 'jpg',
@@ -344,7 +363,7 @@ export class GalleryDownloadService {
         const chunkResults: DownloadChunkResult[] = []
         const width = Math.max(4, String(totalPages).length)
         const fileBaseName = sanitizeFileBaseName(options.galleryTitle)
-        const downloadTime = new Date().toISOString()
+        const downloadTime = formatLocalDateTime(new Date())
 
         options.onStatus({
             phase: 'queued',
