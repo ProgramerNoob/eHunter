@@ -248,8 +248,8 @@ normalization and read path in
 - The NH parsers rewrite only a bare `src=` attribute (whitespace-preceded) to `x-src=`, which
   keeps the browser from loading assets while leaving `data-src` untouched. The intro parser
   reads `data-src` first and falls back to `x-src`, so current pages (native `src` only) and
-  legacy pages (`data-src`, optionally next to a placeholder `src`) both resolve; the image-page
-  parser reads `x-src` only, and neither implementation rewrites or reads `data-src` there.
+  legacy pages (`data-src`, optionally next to a placeholder `src`) both resolve. The image-page
+  parser reads `x-src` only. Neither rewrites `data-src`.
 - The EH intro parser drops repeated intro-page requests by validating the parsed index,
   because the intro page count can overestimate the pages that carry thumbnails.
 - The page-menu long press opens the menu during the hold and consumes the synthetic click
