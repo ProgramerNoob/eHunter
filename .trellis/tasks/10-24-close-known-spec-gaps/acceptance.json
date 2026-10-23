@@ -1,0 +1,270 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "`core/service/GalleryDownloadService.ts` 产出的 `downloadTime` 带本地时区偏移；用固定时区构造的检查能证明它与 `toISOString()` 结果不同且 `Date.parse` 可解析。",
+    "AC2": "`src/platform/initializer.ts` 超时为 60000ms，超时错误文案含 `60 seconds`，`grep 120` 在初始化链路无残留。",
+    "AC3": "`src/platform/nh/parser/` 的改写在两份解析器里都是 `\\ssrc=` → ` x-src=`（词边界），`IntroHtmlParser` 读取 `data-src` 后回退 `x-src`，`ImgHtmlParser` 读取 `x-src`。",
+    "AC4": "NH 缩略图与图片页解析在真实样本 HTML 上的输出与改动前一致（同一份样本跑改动前后对比，或给出等价断言）。",
+    "AC5": "`npm run type-check`、`npm run test`、`npm run build-prod`、`npm run check:docs` 通过。",
+    "AC6": "`.trellis/spec/frontend/features/index.md` 与 `pending-work.md` 移除已完成差异，仅保留下载并发一项；`001-platform-injection/spec.md`、`data-model.md`、`quickstart.md` 与 `001-gallery-download-bundle/data-model.md` 的表述与实现一致。",
+    "AC7": "按 `browser-acceptance.md`（非平台改动）或 `reader-test` `platform:nh`（NH 解析属平台改动）给出与改动范围匹配的验收记录，明确已验证/未验证范围。"
+  },
+  "checks": [
+    {
+      "id": "download-time-format",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "formatLocalDateTime 在固定时区下产出带显式偏移的本地时间，与 toISOString() 不同且 Date.parse 可还原同一毫秒",
+      "scope": "tests/download-time.test.cjs，TZ=Asia/Shanghai 与 TZ=UTC 两个子进程",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:download-time"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-23T19:04:49.334854+00:00",
+        "endedAt": "2026-10-23T19:04:50.023769+00:00",
+        "log": ".tmp/acceptance/10-24-close-known-spec-gaps/tmpeeixirsm.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-24-close-known-spec-gaps/tmpeeixirsm.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "download-metadata-bundle",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "下载产物 metadata.json 的 downloadTime 为本地偏移格式（+08:00），七字段顺序不变，可被 Date.parse 还原",
+      "scope": "tests/download-metadata.test.cjs 解 zip 后校验 metadata.json 与条目名",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:download-metadata"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-23T19:04:50.050191+00:00",
+        "endedAt": "2026-10-23T19:04:50.284740+00:00",
+        "log": ".tmp/acceptance/10-24-close-known-spec-gaps/tmpssj7et21.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-24-close-known-spec-gaps/tmpssj7et21.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "initializer-timeout-test",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "初始化在 59999ms 仍未超时、60000ms 时以 60 秒文案失败，PNG 无 unhandled rejection",
+      "scope": "tests/initializer-timeout.test.cjs 虚拟时钟两个用例",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:initializer-timeout"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-23T19:04:55.066001+00:00",
+        "endedAt": "2026-10-23T19:04:55.305414+00:00",
+        "log": ".tmp/acceptance/10-24-close-known-spec-gaps/tmpl7jqgr3b.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-24-close-known-spec-gaps/tmpl7jqgr3b.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "initializer-threshold-inspection",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "初始化链路无 120 残留，阈值为 60000 且错误文案由 TIMEOUT_MS/1000 插值，规格侧无 120000/120 seconds 描述",
+      "scope": "src/platform/initializer.ts 与 .trellis/spec/ 的 grep 摘录",
+      "method": "inspection",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/10-24-close-known-spec-gaps/grep-ac2-timeout.txt",
+        ".trellis/spec/frontend/state-management.md",
+        ".trellis/spec/frontend/directory-structure.md"
+      ],
+      "note": "grep 摘录（grep-ac2-timeout.txt）：src/platform/initializer.ts:14 为 TIMEOUT_MS = 60000，:67 与 :70 文案均由 TIMEOUT_MS / 1000 插值；initializer.ts/init-steps.ts/factory.ts/main.ts/types.ts 中 grep \"120\" 无命中；.trellis/spec/ 内 120000/120 seconds 无残留（browser-acceptance.md:129 的 checksTimeoutMs: 120000 是验收脚本超时，与初始化无关）。人工核对：本轮同时把 .trellis/spec/frontend/directory-structure.md:53 的 \"current initializer uses 120000 ms\" 改为 60000 ms 并指向 FR-020/SC-003；state-management.md:234 已记录 TIMEOUT_MS = 60000。",
+      "waiver": null
+    },
+    {
+      "id": "nh-parser-attr-inspection",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "两份 NH 解析器的改写为 \\ssrc= → ' x-src='，IntroHtmlParser 读 data-src 后回退 x-src，ImgHtmlParser 读 x-src，EH 侧未改动",
+      "scope": "src/platform/nh/parser/IntroHtmlParser.ts 与 ImgHtmlParser.ts 的 grep 摘录",
+      "method": "inspection",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/10-24-close-known-spec-gaps/grep-ac3-nh-attrs.txt",
+        "src/platform/nh/parser/IntroHtmlParser.ts",
+        "src/platform/nh/parser/ImgHtmlParser.ts"
+      ],
+      "note": "grep 摘录（grep-ac3-nh-attrs.txt）：IntroHtmlParser.ts:12 与 ImgHtmlParser.ts:6 均为 html.replace(/\\ssrc=/g, \" x-src=\")；IntroHtmlParser.ts:23 为 img.getAttribute(\"data-src\") || img.getAttribute(\"x-src\")；ImgHtmlParser.ts:37 读 x-src；同摘录显示 src/platform/eh/parser/ 仍保留原来的 /src=/g 改写，未被本次改动波及。",
+      "waiver": null
+    },
+    {
+      "id": "nh-parser-parity",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "同一份真实 NH 样本 HTML 上，旧改写与新改写解析出完全相同的缩略图/图片页结果",
+      "scope": "真实 nhentai 图集页与图片页 HTML 样本 + 合成 data-src 样本，在浏览器 DOM 上跑新旧改写对比",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/10-24-close-known-spec-gaps/parser-parity.json",
+        ".tmp/nh-thumb-src-parser/nhentai-intro-631366.html",
+        ".tmp/nh-thumb-src-parser/nhentai-imagepage-631366-1.html"
+      ],
+      "note": "在真实浏览器 DOM（ego-browser about:blank）里用 .tmp/10-24-close-known-spec-gaps/parser-parity.mjs 对同一份 HTML 分别执行旧实现（/src=/g + data-x-src||x-src）与新实现（/\\ssrc=/g + data-src||x-src），逐字段序列化比对。图集页样本 nhentai-intro-631366.html：裸 src 102 处、data-src 0 处，两份实现均 thumbs=45、nonNull=45、首项 src=https://t3.nhentai.net/galleries/3799533/1t.webp、width=200/height=282/href=/g/631366/1/，identical=true。图片页样本 nhentai-imagepage-631366-1.html：两份实现均得 src=https://i3.nhentai.net/galleries/3799533/1.webp、width=1280/height=1808，identical=true。合成 data-src 5 项样本：两份实现均 thumbs=5、nonNull=5、首项 //t.nhentai.net/galleries/3799533/1t.webp，identical=true（旧格式回退仍生效）。",
+      "waiver": null
+    },
+    {
+      "id": "npm-check",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "npm run check（type-check + 全部测试 + build-prod + check:docs）退出 0",
+      "scope": "仓库根目录",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-23T19:04:55.332308+00:00",
+        "endedAt": "2026-10-23T19:05:18.786840+00:00",
+        "log": ".tmp/acceptance/10-24-close-known-spec-gaps/tmp_vog_lw6.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-24-close-known-spec-gaps/tmp_vog_lw6.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "spec-sync-inspection",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "index.md 与 pending-work.md 只保留下载并发差异；data-model.md 与 platform-injection 三份规格与实现一致；无 120000/双拼写/data-x-src 残留",
+      "scope": ".trellis/spec/ 下相关文件的 grep 摘录",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/10-24-close-known-spec-gaps/grep-ac6-spec-sync.txt",
+        ".trellis/spec/frontend/features/index.md",
+        ".trellis/spec/frontend/features/pending-work.md",
+        ".trellis/spec/frontend/features/001-gallery-download-bundle/data-model.md",
+        ".trellis/spec/frontend/state-management.md",
+        ".trellis/spec/frontend/quality-guidelines.md"
+      ],
+      "note": "grep 摘录（grep-ac6-spec-sync.txt）：features/index.md 的「已知状态差异」只剩下载并发与本机证据两条；pending-work.md 四个标题为下载图片抓取并发/放大镜验收未执行/其余各组的验收未执行/平台注入的验收记录未产出，R1/R2/R3 三段已删除；data-model.md:74 改为本地时钟 + 显式偏移（例 2026-10-24T20:00:00.000+08:00，零偏移保持 +00:00）；001-platform-injection 的 spec.md:94/112/126、data-model.md:282、quickstart.md:344/364/385 均为 60 秒/60s，与实现一致；全 spec 内 grep 双拼写|data-x-src|120000 ms|120 seconds 无命中。",
+      "waiver": null
+    },
+    {
+      "id": "vite-test-desktop",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "TEST 平台桌面 profile 阅读器正常初始化并打开，下载确认弹窗文案与按钮正确、点取消可关闭",
+      "scope": "Vite 127.0.0.1:5173 + browser-preflight desktop 1200×900/DPR1",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/10-24-close-known-spec-gaps/service-evidence.txt",
+        ".tmp/browser-preflight/close-known-gaps-85c6f900-cedb-48a1-8ad1-8828c4b2e6fb/result.json",
+        ".tmp/browser-preflight/close-known-gaps-85c6f900-cedb-48a1-8ad1-8828c4b2e6fb/reader-open.png",
+        ".tmp/browser-preflight/close-known-gaps-85c6f900-cedb-48a1-8ad1-8828c4b2e6fb/download-confirm.png",
+        ".tmp/acceptance-verify-close-known-gaps-85c6f900-cedb-48a1-8ad1-8828c4b2e6fb.log"
+      ],
+      "note": "Vite 127.0.0.1:5173（监听 pid 52428，证据 service-evidence.txt）经 browser-preflight desktop(1200×900/DPR1) 打开 TEST 阅读器。result.json：observed=passed、checks=executed、preparation=verified；.content className 含 book-mode、可见 .page-view 1 个、首图 /01.jpg complete=true naturalWidth=1280；打开更多菜单点「下载」后出现 .simple-modal，标题「下载确认」，正文含「是否下载该画廊的所有图片？」，按钮为「取消」「确定」，点取消后弹窗消失。主会话已查看 reader-open.png 与 download-confirm.png，布局/文案正常。verify-browser 状态 passed（见 .tmp/acceptance-verify-<artifact>.log）。",
+      "waiver": null
+    },
+    {
+      "id": "vite-test-mobile",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "TEST 平台移动 profile 阅读器正常初始化并打开，下载确认弹窗文案与按钮正确、点取消可关闭",
+      "scope": "Vite 127.0.0.1:5173 + browser-preflight mobile 390×844/DPR3",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/10-24-close-known-spec-gaps/service-evidence.txt",
+        ".tmp/browser-preflight/close-known-gaps-3f232f3e-8b58-46c4-93d5-86c805904cec/result.json",
+        ".tmp/browser-preflight/close-known-gaps-3f232f3e-8b58-46c4-93d5-86c805904cec/reader-open.png",
+        ".tmp/browser-preflight/close-known-gaps-3f232f3e-8b58-46c4-93d5-86c805904cec/download-confirm.png",
+        ".tmp/acceptance-verify-close-known-gaps-3f232f3e-8b58-46c4-93d5-86c805904cec.log"
+      ],
+      "note": "同一 Vite 服务经 browser-preflight mobile profile（实测 CSS 视口 390×844、dpr=3、touchPoints=5）跑同一场景脚本。result.json：observed=passed、checks=executed、preparation=verified；阅读器打开、首图 /01.jpg complete=true naturalWidth=1280；下载确认弹窗标题/正文/按钮与桌面一致，点取消后关闭。verify-browser 状态 passed。",
+      "waiver": null
+    },
+    {
+      "id": "nh-production-bundle",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "NH 生产包在图集页解析出 45/45 缩略图并在阅读页渲染真实图片，模式切换与翻页正常",
+      "scope": "dist/ehunter.iife.js + 开发 loader，https://nhentai.net/g/631366/1/，browser-preflight desktop",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/reader-test-nh/installation.md",
+        ".tmp/reader-test-nh/build-prod.log",
+        ".tmp/browser-preflight/close-gaps-nh-2673288f-a8d4-4fc6-b23f-e7f148cc3e7b/result.json",
+        ".tmp/browser-preflight/close-gaps-nh-2673288f-a8d4-4fc6-b23f-e7f148cc3e7b/nh-first-screen.png",
+        ".tmp/browser-preflight/close-gaps-nh-2673288f-a8d4-4fc6-b23f-e7f148cc3e7b/nh-mode-switched.png",
+        ".tmp/browser-preflight/close-gaps-nh-2673288f-a8d4-4fc6-b23f-e7f148cc3e7b/nh-thumbnails.png",
+        ".tmp/acceptance-verify-close-gaps-nh-2673288f-a8d4-4fc6-b23f-e7f148cc3e7b.log"
+      ],
+      "note": "NH 生产包验收：npm run build-prod exit 0（dist/ehunter.iife.js 443.26 kB），bundle server 下发 /ehunter.iife.js，开发 loader 启用（静态 eHunter 已禁用，见 installation.md），browser-preflight desktop 打开 https://nhentai.net/g/631366/1/（45 页；原计划样本 g/688467 被站点 429 限流，改用同一样本目录中已有的 g/631366）。result.json：observed=passed、checks=executed、preparation=verified；首屏进度 1/45、47 张图全载、首图 https://t3.nhentai.net/galleries/3799533/1t.webp；模式切书页→滚动成功；侧栏缩略图可见 45/加载 45/broken 0，点第 5 项跳到 5/45；翻页 5→6→5；.page-view 内图片 src 均为 i*.nhentai.net/galleries/3799533/N.webp 且 naturalWidth=1280。主会话已查看三张截图（首屏、模式切换、缩略图跳页），布局与图片渲染正常。verify-browser 状态 passed。",
+      "waiver": null
+    }
+  ]
+}

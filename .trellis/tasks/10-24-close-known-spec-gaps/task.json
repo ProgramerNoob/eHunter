@@ -1,0 +1,41 @@
+{
+  "id": "close-known-spec-gaps",
+  "name": "close-known-spec-gaps",
+  "title": "收口下载元信息时区、初始化超时与 NH 属性双拼写",
+  "description": "消除 pending-work.md 列出的三处 spec 与实现差异：downloadTime 改用户本地时区、平台初始化超时统一到 60s、取消 NH 属性改写并把解析统一到 data-src。同步更新 spec 与已知状态差异。",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-24",
+  "completedAt": null,
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-24-close-known-spec-gaps/**"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "65c06ade701727deb8d496e4aa26e737b976f847c9e37026d4fe297db6c62c45"
+      }
+    }
+  }
+}

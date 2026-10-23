@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/index.md", "reason": "前端 spec 总入口与分层索引"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "质量门禁与 NH 属性改写约定"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "初始化超时与平台状态契约"}
+{"file": ".trellis/spec/frontend/features/001-gallery-download-bundle/data-model.md", "reason": "downloadTime 字段契约"}
+{"file": ".trellis/spec/frontend/features/001-platform-injection/spec.md", "reason": "初始化 60s 超时要求"}
