@@ -71,7 +71,7 @@
   - `totalChunks = ceil(totalPages / effectiveChunkSize)` and `1 <= chunkIndex <= totalChunks`; the index MUST align with the actual chunk file.
   - A single-chunk export MUST carry `totalChunks=1` and `chunkIndex=1`.
   - Task-level fields, including `downloadTime`, MUST remain consistent across chunks; only `chunkIndex` changes.
-  - `downloadTime` requires user-local time. The current producer uses UTC ISO 8601 (`toISOString()`); the difference is listed in `../index.md#已知状态差异`.
+  - `downloadTime` requires user-local time. The producer formats the local clock with an explicit offset, for example `2026-10-24T20:00:00.000+08:00`; a zero offset stays `+00:00` rather than `Z`.
 
 ## 5) StatusNotification
 

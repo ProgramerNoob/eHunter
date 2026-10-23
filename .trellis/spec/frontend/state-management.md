@@ -231,9 +231,9 @@ normalization and read path in
 ## Platform request, gesture and viewport contracts
 
 - `initializeWithTimeout` in [initializer.ts](../../../src/platform/initializer.ts) races
-  `albumService.init()` against `TIMEOUT_MS = 120000`. The older platform contract states
-  60 seconds; the implementation value governs. A resolved `Error` or any thrown value
-  becomes an `InitializationError` carrying platform, URL, timestamp and step progress.
+  `albumService.init()` against `TIMEOUT_MS = 60000`, and the timeout message interpolates
+  the same value. A resolved `Error` or any thrown value becomes an `InitializationError`
+  carrying platform, URL, timestamp and step progress.
 - The base request layer ([TextReq.ts](../../../src/platform/base/request/TextReq.ts),
   [ReqQueue.ts](../../../src/platform/base/request/ReqQueue.ts),
   [MultiAsyncReq.ts](../../../src/platform/base/request/MultiAsyncReq.ts)) bounds request
@@ -245,9 +245,10 @@ normalization and read path in
 - [runtimeEnv.ts](../../../core/utils/runtimeEnv.ts) treats a coarse pointer or a common
   mobile user agent as mobile; EH mobile viewport handling and page-turn defaults share
   that predicate.
-- The NH intro parser accepts both attribute spellings: the site rewrites native `src` to
-  `x-src` and `data-src` to `data-x-src`, while pages that keep the native attributes are
-  still parsed.
+- The NH parsers rewrite only a bare `src=` attribute (whitespace-preceded) to `x-src=`,
+  which keeps the browser from loading assets while leaving `data-src` untouched. Reads
+  then take `data-src` first and `x-src` second, so current pages (native `src` only) and
+  legacy pages (`data-src`, optionally next to a placeholder `src`) both resolve.
 - The EH intro parser drops repeated intro-page requests by validating the parsed index,
   because the intro page count can overestimate the pages that carry thumbnails.
 - The page-menu long press opens the menu during the hold and consumes the synthetic click

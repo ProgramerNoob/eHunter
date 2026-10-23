@@ -187,7 +187,7 @@ try {
 ## 3.1 计数类断言与来源判定
 
 - **DOM 计数不等于可见数量**：`DockWorkspace` 的 `.thumb-panel.side` 与 `.thumb-panel.bottom` 各持一份槽位内容，45 页图集会出现 90 个 `.thumb-container`（一份可见面板 + 一份 `display:none` 的备用槽位）。断言前按可见性过滤（`getBoundingClientRect().width > 0`），别把备用槽位当成重复渲染缺陷。
-- **站点自带产物不是 eHunter 缺陷**：nhentai 图集 HTML 自带双后缀（实测 49 处 `.webp.webp`，如 `<meta itemprop="image" content="https://t3.nhentai.net/galleries/3799533/cover.webp.webp">`），`src/platform/nh/parser/IntroHtmlParser.ts` 只读取改写后的 `data-x-src`/`x-src`，`core/components/ThumbView.vue:8` 直接 `:src="thumbInfo.src"`，都不拼接后缀；遇到这类可疑串先回站点原始 HTML 复核。
+- **站点自带产物不是 eHunter 缺陷**：nhentai 图集 HTML 自带双后缀（实测 49 处 `.webp.webp`，如 `<meta itemprop="image" content="https://t3.nhentai.net/galleries/3799533/cover.webp.webp">`），`src/platform/nh/parser/IntroHtmlParser.ts` 只读取改写后的 `data-src`/`x-src`，`core/components/ThumbView.vue:8` 直接 `:src="thumbInfo.src"`，都不拼接后缀；遇到这类可疑串先回站点原始 HTML 复核。
 - **控制台报错按脚本来源归因**：NH 页面上的 `Uncaught (in promise)` 可能来自站点自身 bundle（实测 `https://nhentai.net/_app/immutable/chunks/C2ITVdkK.js`），另有广告拦截导致的 `net::ERR_BLOCKED_BY_CLIENT` 与 Cloudflare RUM 的 `net::ERR_CONNECTION_CLOSED`。结合 helper 的当前文档 scriptId/context、来源和原始事件判断；原站/第三方错误保留影响供审阅，无法归因的严重错误先 blocked，不归为产品断言失败。
 - **顶栏字段在窄视口会整体隐藏**：字段按与 `.float-content`（`float-content` 左边界）的重叠规则设 `display:none`，390 × 844 下全部字段被判重叠，属预期行为。另外 `store.showTopBar` 为 false 时 `.inner-content` 带 `.hide`，字段被 translateY 顶出视口（`getBoundingClientRect().top` 为负，点击会落空），核对顶栏前先点击 float-content 的「显示/隐藏顶栏」按钮。
 - **站点限流要计入验收节奏**：反复重载 nhentai 会触发 429（表现为 `TextReq … : 429` → `Platform initialization failed`），一轮验收尽量在单次加载会话内完成，重试前等待冷却。

@@ -23,7 +23,5 @@
 
 ## 已知状态差异
 
-- 平台契约及旧性能目标为 60 秒，`src/platform/initializer.ts` 当前为 `TIMEOUT_MS = 120000`。保留差异，改变行为前对齐，不能把旧契约当作当前实现事实。
-- 下载 `spec.md` 要求 `downloadTime` 为用户本地时区，当前生产者为 UTC `toISOString()`；同一规格要求顺序抓取，当前实现为三个并发 worker。两处行为未改。
-- NH 构造器把原生 `src` 改写为 `x-src`、`data-src` 改写为 `data-x-src`；`src/platform/nh/parser/IntroHtmlParser.ts` 的 `parseData()` 两者都接受，未改写的页面仍可解析。
+- 下载 `spec.md` 要求顺序抓取，当前实现为三个并发 worker（`core/service/GalleryDownloadService.ts` 的 `await Promise.all([runWorker(), runWorker(), runWorker()])`）。行为未改。
 - `.tmp/` 截图、日志、内存对照与下载产物是本机证据，可能不随仓库存在；缺失不补造，不声称本轮重跑。平台四份 `validation-us*.md` / `final-validation.md` 尚未产出。

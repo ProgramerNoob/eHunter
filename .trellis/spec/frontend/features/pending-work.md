@@ -2,10 +2,6 @@
 
 本页是发现入口，不是缺陷计数，也不是验收结论。列出的是当前仍与规格或验收要求不一致的地方；后续修改按 [Trellis workflow](../../../workflow.md) 建任务，不能以本页条目代替验收。
 
-## 下载元数据的时间戳时区
-
-`001-gallery-download-bundle/spec.md` 要求 `downloadTime` 以用户本地时区表示，当前实现取 `core/service/GalleryDownloadService.ts` 的 `new Date().toISOString()`，是 UTC。该差异见[功能索引的已知状态差异](index.md#已知状态差异)。
-
 ## 下载图片抓取并发
 
 同一规格要求顺序抓取，当前实现以三个并发 worker 处理（`core/service/GalleryDownloadService.ts` 的 `await Promise.all([runWorker(), runWorker(), runWorker()])`）。行为未改。
@@ -21,11 +17,3 @@
 ## 平台注入的验收记录未产出
 
 `001-platform-injection` 的 US1/US2/US3 与最终验证记录（`validation-us1.md`、`validation-us2.md`、`validation-us3.md`、`final-validation.md`）尚未产出，该组 quickstart 的验收步骤未执行。
-
-## 平台初始化超时差异
-
-平台旧契约与性能目标为 60 秒，`src/platform/initializer.ts` 当前为 `TIMEOUT_MS = 120000`。以当前实现为准，改变行为前先对齐。
-
-## NH 缩略图属性双拼写
-
-`001-platform-injection` 的 NH 构造器把原生 `src` 改写为 `x-src`、`data-src` 改写为 `data-x-src`；`src/platform/nh/parser/IntroHtmlParser.ts` 的 `parseData()` 两者都接受，未改写的页面仍可解析。

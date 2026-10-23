@@ -50,10 +50,9 @@ than renaming unrelated modules to impose a new convention.
    reading modes. Platform parsing remains behind the
    [AlbumService contract](../../../core/service/AlbumService.ts), not in templates.
 
-The current initializer uses **120000 ms**. The older
-[platform contract](./features/001-platform-injection/contracts/AlbumService.ts)
-mentions 60 seconds; do not copy that value into new implementation guidance or
-silently change the current timeout while doing unrelated work.
+The current initializer uses **60000 ms**, matching the
+[platform contract](./features/001-platform-injection/spec.md) FR-020 and SC-003, and
+its timeout message interpolates `TIMEOUT_MS / 1000`.
 
 ## Path conventions
 
