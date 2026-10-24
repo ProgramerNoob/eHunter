@@ -6,10 +6,6 @@
 
 同一规格要求顺序抓取，当前实现以三个并发 worker 处理（`core/service/GalleryDownloadService.ts` 的 `await Promise.all([runWorker(), runWorker(), runWorker()])`）。行为未改。
 
-## 放大镜验收未执行
-
-`001-add-pageview-magnifier/quickstart.md` 的验收步骤尚未执行，覆盖桌面设置与快捷菜单的尺寸/倍率边界、尺寸与倍率的共享/降级/迁移/重置证据、两种阅读模式下镜头完整处于 `PageView ∩ viewport` 的几何关系、焦点避让与重算不改偏好，以及桌面/移动回归。已勾选的记录不构成本轮结果。
-
 ## 其余各组的验收未执行
 
 `001-add-pageflip-toggle`（首次系统/设备矩阵、共享与重置防复活矩阵）、`001-dockable-panel-layout`、`001-thumb-expand-modal`、`002-more-settings-modal`（真实脚本环境的共享/补缺/降级/重置矩阵、翻页初始化与放大镜持久化的桌面与移动回归）的 quickstart 步骤仍未执行。`001-gallery-download-bundle` 的分片校验（`metadata.json` 七字段解压校验、分片计数与 `chunkIndex` 对应、`fflate` 与 JSON 单格式确认）同样未执行。
