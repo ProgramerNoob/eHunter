@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "acceptance.json 结构与 summarize 要求"}
+{"file": ".trellis/spec/frontend/features/001-gallery-download-bundle/spec.md", "reason": "FR-009/FR-011 是否与新实现一致"}
+{"file": ".trellis/spec/frontend/product-goals.md", "reason": "重试预算口径"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "浏览器轮次收尾"}

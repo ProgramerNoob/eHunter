@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-25-fix-review-findings",
+  "branch": "docs/download-concurrency-spec",
+  "head": "8b168f6072c61bfb05975059b3878465e43d12fd",
+  "indexTree": "426f26f66fcdb58e2da1c60e7bb63d18e7ff6ec6",
+  "capturedAt": "2026-10-25T03:10:29+08:00",
+  "scopeDigest": "85dfacc25187b446e9dad5586fe3468557f033395d70ed6792d1f8c70a6760f8",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-25-fix-review-findings/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-fix-review-findings/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-fix-review-findings/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "08f2c942766b8e8f4d97b8347e89946991c29e358918a33abdb6a848b07936aa"
+    },
+    ".trellis/tasks/10-25-fix-review-findings/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "42e0f7d005a661df28c957403079919a01fd39eed30cf6d3b20c033aed0862b2"
+    }
+  },
+  "scopeExtensions": [
+    {
+      "category": "core-loader",
+      "rules": [
+        "core/components/composables/usePageImageLoader.ts"
+      ],
+      "at": "2026-10-25T03:22:35+08:00"
+    },
+    {
+      "category": "core-download",
+      "rules": [
+        "core/service/GalleryDownloadService.ts",
+        "core/service/imageRetryPolicy.ts"
+      ],
+      "at": "2026-10-25T03:22:35+08:00"
+    },
+    {
+      "category": "tests",
+      "rules": [
+        "tests/use-page-image-loader.test.cjs",
+        "tests/image-retry-policy.test.cjs",
+        "tests/download-metadata.test.cjs"
+      ],
+      "at": "2026-10-25T03:22:35+08:00"
+    },
+    {
+      "category": "archive-records",
+      "rules": [
+        ".trellis/tasks/archive/2026-10/10-24-download-concurrency-spec-alignment/**",
+        ".trellis/tasks/archive/2026-10/10-25-fix-image-retry-exhaustion/**"
+      ],
+      "at": "2026-10-25T03:22:35+08:00"
+    }
+  ]
+}
