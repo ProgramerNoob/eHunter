@@ -95,17 +95,19 @@ export function usePageImageLoader(options: UsePageImageLoaderOptions) {
                     return
                 }
             }
-            isAutoRetryExhausted.value = true
         } finally {
             isAutoRetryRunning.value = false
+            if (autoRetryQueue.value.length === 0) {
+                isAutoRetryExhausted.value = true
+            }
         }
     }
 
     async function getNewImgSrc(mode: ImgSrcMode, isAutoRetry = false): Promise<boolean> {
         if (!isAutoRetry) {
             autoRetryQueue.value = []
+            isAutoRetryExhausted.value = false
         }
-        isAutoRetryExhausted.value = false
         reloadTimes.value++
         message.value = ''
         storeAction.setImgPageInfoSrc(index, '')

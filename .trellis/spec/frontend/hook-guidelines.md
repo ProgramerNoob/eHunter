@@ -10,7 +10,7 @@ Here, “hooks” means Vue composables. The current `use*` modules live in
 | --- | --- | --- |
 | [usePageMenu](../../../core/components/composables/usePageMenu.ts) | Open state, anchor geometry, document click/menu coordination | Element ref, owner ID, optional click filter |
 | [useMagnifier](../../../core/components/composables/useMagnifier.ts) | Lens geometry, source warming, visibility, DOM observers | Element refs, computed image/settings, session synchronization callback |
-| [usePageImageLoader](../../../core/components/composables/usePageImageLoader.ts) | Load status, retry sequence, error text | Album service, page identity/info, magnifier warming callback |
+| [usePageImageLoader](../../../core/components/composables/usePageImageLoader.ts) | Load status, retry budget and sequence, error text | Album service, page identity/info, magnifier warming callback |
 | [useTouchLongPress](../../../core/components/composables/useTouchLongPress.ts) | Touch movement tracking and timer | Timing/tolerance constants, current eligibility callback, activation callback |
 
 Use a named options interface and return an object of refs/computed values and named
@@ -60,6 +60,32 @@ also updates precise image geometry.
 Preserve `Default`/`Fast`/`Origin`/`ChangeSource` distinctions and check platform
 capabilities before offering actions. Loading status belongs to the loader; shared
 image data is updated through store actions.
+
+The retry budget is the remaining `autoRetryQueue` itself; do not track a separate
+counter. Reset the budget only on entries the user or the component initiates
+(`loadImgSrc`, and `getNewImgSrc` when `isAutoRetry === false`), and seal it in the
+`finally` of `runAutoRetryQueue`, where both the drained queue and the early
+successful return are covered:
+
+```ts
+try {
+    while (autoRetryQueue.value.length > 0) {
+        const loaded = await getNewImgSrc(mode, true)
+        if (loaded) return
+    }
+} finally {
+    isAutoRetryRunning.value = false
+    if (autoRetryQueue.value.length === 0) {
+        isAutoRetryExhausted.value = true
+    }
+}
+```
+
+Resetting or sealing outside those points turns the `<img>` `error` path into an
+unbounded loop: `failLoad` refills the queue whenever it is empty and the exhausted
+flag is clear. `tests/use-page-image-loader.test.cjs` pins the per-platform budget
+(NH `Default` three times, EH `Default`/`ChangeSource`/`Origin` twice each) and the
+reset behaviour after a successful load or a manual refresh.
 
 ## Own and release side effects
 
