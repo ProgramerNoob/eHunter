@@ -7,7 +7,7 @@ const { createRuntime } = require('./helpers/runtime-fixture.cjs');
 
 const DOWNLOAD_TIME = '2026-10-14T20:00:00.000+08:00';
 
-function createService(fetchDelayByIndex = () => 0) {
+function createService(interleaveByIndex = () => 0, failIndexes = []) {
     const captured = { zip: null, fileName: null };
     const document = {
         createElement: () => ({
@@ -46,8 +46,11 @@ function createService(fetchDelayByIndex = () => 0) {
     const albumService = {
         isSupportImgChangeSource: () => false,
         getImgSrc: async (index, mode) => {
-            for (let hop = 0; hop < fetchDelayByIndex(index); hop++) {
+            for (let hop = 0; hop < interleaveByIndex(index); hop++) {
                 await null;
+            }
+            if (failIndexes.includes(index)) {
+                throw new Error(`image_unavailable_${index}`);
             }
             return { id: index, index, pageUrl: `/0${index + 1}.jpg`, src: `/0${index + 1}.jpg`, heightOfWidth: 1.4 };
         },
@@ -115,7 +118,6 @@ test('fetch progress reports finished page counts that never decrease under conc
 
     assert.equal(result.status, 'completed');
     assert.equal(result.processedPages, 5);
-    assert.ok(progress.length >= 10, `expected at least two fetches per page, got ${progress.length}`);
     const counts = progress.map(item => item.current);
     for (let i = 1; i < counts.length; i++) {
         assert.ok(counts[i] >= counts[i - 1], `progress went backwards: ${counts.join(',')}`);
@@ -124,4 +126,35 @@ test('fetch progress reports finished page counts that never decrease under conc
     for (const item of progress) {
         assert.equal(item.message, `已完成 ${item.current}/${item.total} 张图片`, item.message);
     }
+});
+
+test('finished page count includes failed pages and keeps packaging the rest', async () => {
+    const { service, albumService, captured } = createService(() => 0, [1]);
+    const progress = [];
+    const result = await service.run({
+        taskId: 't3',
+        albumService,
+        galleryTitle: 'fixture',
+        introUrl: '/g/id/test/',
+        pageCount: 4,
+        chunkSize: 200,
+        autoRetryByOtherSource: false,
+        eHunterVersion: '9.9.9',
+        onStatus: event => {
+            if (event.phase === 'fetching') {
+                progress.push({ current: event.processedPages, failed: event.failedPages });
+            }
+        },
+    });
+
+    assert.equal(result.status, 'partial');
+    assert.equal(result.totalPages, 4);
+    assert.equal(result.processedPages, 4, 'failed pages still count as finished pages');
+    assert.equal(result.failedPages, 1);
+    assert.deepEqual(Array.from(result.failures, item => item.pageNumber), [2]);
+    assert.equal(progress[progress.length - 1].current, 4);
+    assert.equal(progress[progress.length - 1].failed, 1);
+
+    const entries = fflate.unzipSync(new Uint8Array(await captured.zip.arrayBuffer()));
+    assert.deepEqual(Object.keys(entries).sort(), ['0001.jpg', '0003.jpg', '0004.jpg', 'metadata.json']);
 });

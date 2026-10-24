@@ -24,7 +24,7 @@
       "evidence": [
         ".tmp/acceptance/10-24-download-concurrency-spec-alignment/spec-grep.log"
       ],
-      "note": "grep 逐张/按页顺序/顺序/currentPage 全量复核。spec.md:75 FR-001 改为固定三个并发 worker 抓取、写入压缩包前按页码排序；spec.md:27 场景 1 与 spec.md:83 FR-009 同口径；spec.md:28 与 spec.md:76 的零填充示例与最小宽度一并由 3 位改为 4 位（实现为 GalleryDownloadService.ts:364 的 Math.max(4, String(totalPages).length)）；data-model.md:15/22 说明 currentPage 为已完成页数且并发下仍单调不减；contracts/gallery-download.openapi.yaml:167 processedPages 补 description；quickstart.md:26 改为按页码打包+并发乱序说明；decisions/2026-09-18-reader-behavior.md:13 完成标准改为三并发 worker + 打包前排序；pending-work.md 删除「下载图片抓取并发」整节；features/index.md 删除「已知状态差异」中的并发条目。残留的 `顺序` 命中均为合法表述（spec.md:79 分片按顺序下载、spec.md:86 FR-012 换源顺序、features/index.md:5 阅读顺序与权威）。",
+      "note": "grep 逐张/按页顺序/顺序/currentPage 全量复核。spec.md:75 FR-001 改为固定三个并发 worker 抓取、写入压缩包前按页码排序；spec.md:27 场景 1 与 spec.md:83 FR-009 同口径；spec.md:28 与 spec.md:76 的零填充示例与最小宽度一并由 3 位改为 4 位（实现为 GalleryDownloadService.ts:364 的 Math.max(4, String(totalPages).length)）；data-model.md:15/22 说明 currentPage 为已完成页数且并发下仍单调不减；contracts/gallery-download.openapi.yaml:167 processedPages 补 description；quickstart.md:26 改为按页码打包+并发乱序说明；decisions/2026-09-18-reader-behavior.md:13 完成标准改为三并发 worker + 打包前排序；pending-work.md 删除「下载图片抓取并发」整节；features/index.md 删除「已知状态差异」中的并发条目。残留的 `顺序` 命中均为合法表述（spec.md:79 分片按顺序下载、spec.md:86 FR-012 换源顺序、features/index.md:5 阅读顺序与权威）。另：data-model.md 的 DownloadTask 字段 currentPage 已改名 processedPages（与 openapi.yaml 与实现一致），校验规则补「失败页也计入已完成，processedPages 最终达到 totalPages」；ImageDownloadItem 的 fileStem 最小宽度同步为 4 位；spec.md FR-009 补「失败页也计入已完成」。",
       "waiver": null
     },
     {
@@ -49,7 +49,7 @@
       "ac": [
         "AC3"
       ],
-      "claim": "下载抓取的进度数字在并发乱序完成时单调不减，且消息文案为已完成计数",
+      "claim": "下载抓取的进度数字在并发乱序完成时单调不减，消息文案为已完成计数，且失败页也计入已完成",
       "scope": "tests/download-metadata.test.cjs 新增用例 `fetch progress reports finished page counts that never decrease under concurrency`",
       "method": "command",
       "dimension": "behavior",
@@ -62,8 +62,8 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-24T16:53:10Z",
-        "endedAt": "2026-10-24T16:53:11Z",
+        "startedAt": "2026-10-25T01:12:00Z",
+        "endedAt": "2026-10-25T01:12:01Z",
         "log": ".tmp/acceptance/10-24-download-concurrency-spec-alignment/test-download-metadata.log"
       },
       "evidence": [
@@ -71,7 +71,7 @@
         "tests/download-metadata.test.cjs",
         "core/service/GalleryDownloadService.ts"
       ],
-      "note": "用例用 `slowFirstPage = index => index === 0 ? 20 : 0` 的微任务 hop 制造乱序完成（不用真实计时器），pageCount 5、chunkSize 3；断言 fetching 事件 >= 10 条、processedPages 序列单调不减、末值为 5、每条 message 等于 `已完成 ${current}/${total} 张图片`。把 GalleryDownloadService.ts:496 的 current 临时改回 pageNumber 后该用例失败，恢复后通过，证明断言能抓住回归。同次运行另一条用例 `download metadata records local time with an explicit zone offset` 也通过（2 passed / 0 failed）。",
+      "note": "用例用 `interleaveByIndex = index => index === 0 ? 20 : 0` 的微任务 hop 制造乱序完成（不用真实计时器），pageCount 5；断言 processedPages 序列单调不减、末值为 5、每条 message 等于 `已完成 ${current}/${total} 张图片`。同类第二页用例 `finished page count includes failed pages and keeps packaging the rest`：pageCount 4、第 2 页失败，断言 status 为 partial、processedPages 仍为 4、failedPages 为 1、ZIP 条目为 0001/0003/0004/metadata.json。变异验证：把 processedPages 自增移进成功分支后该用例失败，恢复后通过。把 GalleryDownloadService.ts:496 的 current 临时改回 pageNumber 时并发用例同样失败，证明断言能抓住回归。本次 `npm run test:download-metadata` 3 passed / 0 failed。",
       "waiver": null
     },
     {

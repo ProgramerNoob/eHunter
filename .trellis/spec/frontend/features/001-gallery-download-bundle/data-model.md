@@ -12,14 +12,15 @@
   - `totalPages` (number, required): Total gallery page count.
   - `chunkSize` (number, required): Effective chunk size after validation.
   - `totalChunks` (number, required): Computed from `totalPages/chunkSize`.
-  - `currentPage` (number, required): 1-based count of finished pages (succeeded plus failed).
+  - `processedPages` (number, required): Count of finished pages (succeeded plus failed); a failed page still counts as finished.
   - `status` (enum, required): `queued|fetching|compressing|completed|failed|partial`.
   - `failedCount` (number, required): Number of pages that failed all attempts.
   - `createdAt` (datetime string, required): Task start timestamp.
   - `completedAt` (datetime string, optional): End timestamp.
 - Validation rules:
   - `chunkSize` MUST be positive; fallback to default `200` when invalid.
-  - `currentPage` counts finished pages and MUST never decrease, even though the three workers finish pages out of page order.
+  - `processedPages` counts finished pages and MUST never decrease, even though the three workers finish pages out of page order.
+  - `processedPages` reaches `totalPages` even when some pages fail; `failedCount` reports those separately and `status` becomes `partial` or `failed`.
   - `status=completed` requires `failedCount=0`; otherwise `partial` or `failed`.
 
 ## 2) DownloadChunk
@@ -45,7 +46,7 @@
 - Fields:
   - `pageNumber` (number, required): 1-based page number.
   - `pageIndex` (number, required): 0-based index used by album service.
-  - `fileStem` (string, required): Zero-padded number (minimum width 3).
+  - `fileStem` (string, required): Zero-padded number (minimum width 4).
   - `extension` (string, optional): Source-derived extension (`jpg|jpeg|png|webp|gif|bmp|avif` etc.).
   - `modeSequence` (enum[], required): Retrieval stage sequence; either `[Default/Origin]` or `[ChangeSource, Origin]`.
   - `attemptsUsed` (number, required): Total attempts consumed for final stage result.
