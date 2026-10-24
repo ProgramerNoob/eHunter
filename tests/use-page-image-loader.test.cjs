@@ -4,30 +4,32 @@ const { createRuntime } = require('./helpers/runtime-fixture.cjs');
 
 const LOADER = 'core/components/composables/usePageImageLoader.ts';
 
+function loadI18nDict() {
+    const runtime = createRuntime({ realModules: ['core/assets/i18n.ts'] });
+    const loaded = runtime.load('core/assets/i18n.ts');
+    const table = loaded.default === undefined ? loaded : loaded.default;
+    const dict = {};
+    for (const key of Object.keys(table)) {
+        if (table[key] && typeof table[key].cn === 'string') {
+            dict[key] = table[key].cn;
+        }
+    }
+    return dict;
+}
+
 function createHarness({ supportChangeSource, autoRetryByOtherSource }) {
     const page = { src: '', preciseHeightOfWidth: 0 };
     const store = { autoRetryByOtherSource };
     const srcWrites = [];
     const logs = [];
+    const dict = loadI18nDict();
     const stubs = new Map([
         ['vue', {
             ref: value => ({ value }),
             computed: fn => ({ get value() { return fn(); } }),
             nextTick: async () => {},
         }],
-        ['../../store/i18n', {
-            i18n: {
-                value: {
-                    reload: '重载',
-                    waiting: '等待中..',
-                    loadingImg: '加载图片中...',
-                    loadingImgFailed: '加载图片失败, 请刷新',
-                    imgLoaded: '图片已加载',
-                    loadingFailed: '加载失败',
-                    noOriginalImg: '没有原图',
-                },
-            },
-        }],
+        ['../../store/i18n', { i18n: { value: dict } }],
         ['../../store/app', {
             store,
             storeAction: {
@@ -64,7 +66,7 @@ function createHarness({ supportChangeSource, autoRetryByOtherSource }) {
         imgPageInfo: { get value() { return page; } },
         warmMagnifierSource: async () => {},
     });
-    return { runtime, loader, ImgSrcMode, ImgLoadStatus: loaderModule.ImgLoadStatus, calls, page, logs };
+    return { runtime, loader, ImgSrcMode, ImgLoadStatus: loaderModule.ImgLoadStatus, calls, page, logs, dict };
 }
 
 const imageErrorEvent = { preventDefault() {} };
@@ -88,7 +90,7 @@ test('nh page retries the default source three times and then stops', async () =
 
     assert.deepEqual(Array.from(harness.calls), [ImgSrcMode.Default, ImgSrcMode.Default, ImgSrcMode.Default]);
     assert.equal(harness.loader.curLoadStatus.value, ImgLoadStatus.Error);
-    assert.ok(harness.loader.loadingInfo.value.includes('加载图片失败'), harness.loader.loadingInfo.value);
+    assert.ok(harness.loader.loadingInfo.value.includes(harness.dict.loadingImgFailed), harness.loader.loadingInfo.value);
 });
 
 test('eh page walks the source fallback stages once and then stops', async () => {
