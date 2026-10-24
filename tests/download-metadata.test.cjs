@@ -17,6 +17,7 @@ function loadI18nTable() {
             dict[key] = table[key].cn;
         }
     }
+    assert.ok(dict.downloadFetching, 'core/assets/i18n.ts must define downloadFetching.cn');
     return { table, dict };
 }
 
@@ -121,7 +122,8 @@ test('download progress template keeps both placeholders in every language', () 
 test('fetch progress reports finished page counts that never decrease under concurrency', async () => {
     const slowFirstPage = index => index === 0 ? 20 : 0;
     const { dict } = loadI18nTable();
-    const { service, albumService } = createService(slowFirstPage, [], dict);
+    const sentinel = '__sentinel_fetching__ {{current}} {{total}}';
+    const { service, albumService } = createService(slowFirstPage, [], { ...dict, downloadFetching: sentinel });
     const progress = [];
     const result = await service.run({
         taskId: 't2',
@@ -148,7 +150,7 @@ test('fetch progress reports finished page counts that never decrease under conc
     }
     assert.equal(counts[counts.length - 1], 5);
     for (const item of progress) {
-        const expected = dict.downloadFetching
+        const expected = sentinel
             .replace(/{{current}}/g, String(item.current))
             .replace(/{{total}}/g, String(item.total));
         assert.equal(item.message, expected, item.message);

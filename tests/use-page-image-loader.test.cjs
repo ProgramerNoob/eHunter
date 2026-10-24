@@ -3,6 +3,7 @@ const assert = require('node:assert/strict');
 const { createRuntime } = require('./helpers/runtime-fixture.cjs');
 
 const LOADER = 'core/components/composables/usePageImageLoader.ts';
+const SENTINEL_LOADING_FAILED = '__sentinel_loading_failed__';
 
 function loadI18nDict() {
     const runtime = createRuntime({ realModules: ['core/assets/i18n.ts'] });
@@ -14,6 +15,8 @@ function loadI18nDict() {
             dict[key] = table[key].cn;
         }
     }
+    assert.ok(dict.loadingImgFailed, 'core/assets/i18n.ts must define loadingImgFailed.cn');
+    dict.loadingImgFailed = SENTINEL_LOADING_FAILED;
     return dict;
 }
 
@@ -90,7 +93,7 @@ test('nh page retries the default source three times and then stops', async () =
 
     assert.deepEqual(Array.from(harness.calls), [ImgSrcMode.Default, ImgSrcMode.Default, ImgSrcMode.Default]);
     assert.equal(harness.loader.curLoadStatus.value, ImgLoadStatus.Error);
-    assert.ok(harness.loader.loadingInfo.value.includes(harness.dict.loadingImgFailed), harness.loader.loadingInfo.value);
+    assert.ok(harness.loader.loadingInfo.value.includes(SENTINEL_LOADING_FAILED), harness.loader.loadingInfo.value);
 });
 
 test('eh page walks the source fallback stages once and then stops', async () => {
