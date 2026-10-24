@@ -1,0 +1,52 @@
+{
+  "id": "fix-image-retry-exhaustion",
+  "name": "fix-image-retry-exhaustion",
+  "title": "修复图片加载失败时的无限重试",
+  "description": "图片 error 事件触发的自动重试无上限：isAutoRetryExhausted 被 getNewImgSrc 中途重置且队列耗尽时未置位，导致 in-flight 失败路径无限重试并重复请求，同时永不进入错误态。修复状态机使每阶段尝试次数与 imageRetryPolicy 声明的上限一致。",
+  "status": "completed",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-25",
+  "completedAt": "2026-10-25",
+  "branch": "docs/download-concurrency-spec",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-25-fix-image-retry-exhaustion/**"
+        ],
+        "core-loader": [
+          "core/components/composables/usePageImageLoader.ts"
+        ],
+        "tests": [
+          "tests/use-page-image-loader.test.cjs",
+          "tests/image-retry-policy.test.cjs",
+          "package.json"
+        ],
+        "spec": [
+          ".trellis/spec/frontend/hook-guidelines.md"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "e320a77da635d2ee3c82f88f206ea2ccd71ad1dfe7ba2030b0e41c65139eb0c0"
+      }
+    }
+  }
+}

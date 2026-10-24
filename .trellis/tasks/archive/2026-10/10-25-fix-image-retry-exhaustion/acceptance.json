@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "图片加载失败时 `getImgSrc` 调用总次数等于策略预算（NH 单段 = 3，EH 三段 = 6），不再无限增长。",
+    "AC2": "预算耗尽后 `curLoadStatus` 为 `ImgLoadStatus.Error`，`loadingInfo` 显示失败文案，且不再发起新的加载请求。",
+    "AC3": "成功加载一次后再次失败，预算重新从满额开始（3/6 次）。",
+    "AC4": "用户点击「刷新」「换源刷新」「原图」按钮后预算重置。",
+    "AC5": "`npm run type-check`、`npm run test:image-retry-policy`、新增的加载器单测通过。",
+    "AC6": "`npm run check` 全绿（含 `build-prod` 与 `check:docs`）。"
+  },
+  "checks": [
+    {
+      "id": "retry-policy-stages",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "策略层按平台能力给出阶段次数：单段配置为 Default×3，三段配置为 Default2 + ChangeSource2 + Origin2",
+      "scope": "tests/image-retry-policy.test.cjs 覆盖 getImageRetryStages 的四种开关组合与 buildRetryQueueAfterFailure 的各起点",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:image-retry-policy"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-24T18:12:24Z",
+        "endedAt": "2026-10-24T18:12:24Z",
+        "log": ".tmp/acceptance/10-25-fix-image-retry-exhaustion/test-image-retry-policy.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-25-fix-image-retry-exhaustion/test-image-retry-policy.log",
+        "tests/image-retry-policy.test.cjs"
+      ],
+      "note": "2 passed / 0 failed。仅 `{autoRetryByOtherSource: true, supportChangeSource: true}` 返回三段 `[[Default,2],[ChangeSource,2],[Origin,2]]`，其余三种组合均为 `[[Default,3]]`；`buildRetryQueueAfterFailure` 在 `Default` 起点产出 `[Default, ChangeSource, ChangeSource, Origin, Origin]`。本任务不改策略层，该用例用于固定预算口径。",
+      "waiver": null
+    },
+    {
+      "id": "loader-budget-unit",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC3",
+        "AC4"
+      ],
+      "claim": "图片元素报错驱动的重试在预算用尽后停止，状态停在 Error 并显示失败文案；成功加载或用户主动刷新后预算复位",
+      "scope": "tests/use-page-image-loader.test.cjs 驱动真实 core/components/composables/usePageImageLoader.ts（NH 单段、EH 三段、复位三条用例）",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:use-page-image-loader"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-24T18:12:24Z",
+        "endedAt": "2026-10-24T18:12:24Z",
+        "log": ".tmp/acceptance/10-25-fix-image-retry-exhaustion/test-use-page-image-loader.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-25-fix-image-retry-exhaustion/test-use-page-image-loader.log",
+        "tests/use-page-image-loader.test.cjs"
+      ],
+      "note": "3 passed / 0 failed：`nh page retries the default source three times and then stops`（calls 恰为 Default×3、`curLoadStatus === ImgLoadStatus.Error`、`loadingInfo` 含 `加载图片失败`）、`eh page walks the source fallback stages once and then stops`（calls 为 Default,Default,ChangeSource,ChangeSource,Origin,Origin）、`a successful load or a manual refresh restores the full retry budget`（耗尽 3 次后 `loaded()` 再失败累计 5 次、`getNewImgSrc` 后累计 8 次、无入口时不再增长）。回归有效性已核对：还原修复前实现时三条全部失败。",
+      "waiver": null
+    },
+    {
+      "id": "nh-retry-budget-runtime",
+      "ac": [
+        "AC1",
+        "AC2"
+      ],
+      "claim": "NH 生产包拦截整图后，请求在首次预算用尽即冻结，界面进入可刷新的失败态且不再发新请求",
+      "scope": "NH https://nhentai.net/g/688467/1/，desktop profile，Network.setBlockedURLs(['*://i*.nhentai.net/galleries/*'])，artifact .tmp/browser-preflight/retry-budget-nh-2f585184-2c3c-4729-9a15-3fff14970c59",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/reader-test-nh/installation.md",
+        ".tmp/reader-test-nh/build-prod.log",
+        ".tmp/browser-preflight/retry-budget-nh-2f585184-2c3c-4729-9a15-3fff14970c59/result.json",
+        ".tmp/browser-preflight/retry-budget-nh-2f585184-2c3c-4729-9a15-3fff14970c59/nh-first-screen.png",
+        ".tmp/browser-preflight/retry-budget-nh-2f585184-2c3c-4729-9a15-3fff14970c59/nh-retry-exhausted.png",
+        ".tmp/reader-test-nh/nh-source-retry-probe.json",
+        ".tmp/acceptance-verify-retry-budget-nh-2f585184-2c3c-4729-9a15-3fff14970c59.log",
+        ".tmp/test-reports/reader-test-nh-20261025-0205.md",
+        ".tmp/cleanup-browser-retry.json"
+      ],
+      "note": "bundle server 127.0.0.1:8787 已停止，产物 `result.json` 为 observed=passed / checks=executed / preparation=verified / errors=[]，`verify-browser` 状态 passed（见 `.tmp/acceptance-verify-retry-budget-nh-2f585184-2c3c-4729-9a15-3fff14970c59.log`）。实测：`retry-budget-exhausted` 在 20.1 s 内稳定，整图请求总量 26、`counts {1:8, 2:4, 3:4, 4:4, 5:3, 6:3}`、6 个可见面板全部为 `[重载-2] 加载图片失败, 请刷新`、按钮集合仅 `['刷新']`（NH 无换源/原图按钮，属既有平台能力）；`retries-stopped` 再过 15 s 总量与逐页计数完全不变、计数器仍为 2；`manual-refresh-resets-budget` 点刷新后新增恰好 3 次请求、`counters: [5, 2]`。与修复前 `.tmp/reader-test-nh/nh-source-retry-probe.json` 的 10/20/30/45 s = 30/56/82/121 次线性增长对照。主会话已查看 `nh-retry-exhausted.png` 与 `nh-first-screen.png`。 清理：`await task.finish({ keep: [] })` 关闭 space 8 的 p1（`closedManagedLabels: [\"p1\"]`），`acceptance.py cleanup-browser` 报告 aggregate clean（1 clean / 0 residual / 0 unknown，见 `.tmp/cleanup-browser-retry.json`）；8787 端口已释放。reader-test 报告 `.tmp/test-reports/reader-test-nh-20261025-0205.md`。",
+      "waiver": null
+    },
+    {
+      "id": "type-check",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "TypeScript 类型检查通过",
+      "scope": "全仓库 vue-tsc --noEmit",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "type-check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-24T18:12:22Z",
+        "endedAt": "2026-10-24T18:12:24Z",
+        "log": ".tmp/acceptance/10-25-fix-image-retry-exhaustion/type-check.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-25-fix-image-retry-exhaustion/type-check.log"
+      ],
+      "note": "`vue-tsc --noEmit` 无输出、退出码 0；改动涉及 `core/components/composables/usePageImageLoader.ts`。",
+      "waiver": null
+    },
+    {
+      "id": "npm-check",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "全量检查通过：类型、全部 node --test 套件、Python 脚本单测、生产构建与文档链接",
+      "scope": "npm run check",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-24T18:13:55Z",
+        "endedAt": "2026-10-24T18:14:20Z",
+        "log": ".tmp/acceptance/10-25-fix-image-retry-exhaustion/npm-check.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-25-fix-image-retry-exhaustion/npm-check.log"
+      ],
+      "note": "退出码 0；日志末尾为 `dist/ehunter.iife.js  443.27 kB │ gzip: 143.39 kB`、`check-docs: 39 md, 6 yaml, 220 本地链接, 0 外链(仅记录), 70 $ref` / `check-docs: OK`。首轮曾因 8787 端口被上一轮 bundle server 占用导致 `test_cleanup_browser.py` 的 `test_cli_dispatch` 失败（`port-occupied`），停止该服务后重跑通过。",
+      "waiver": null
+    }
+  ]
+}

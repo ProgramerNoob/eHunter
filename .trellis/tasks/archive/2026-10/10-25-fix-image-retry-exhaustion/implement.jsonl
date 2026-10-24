@@ -1,0 +1,7 @@
+{"file": "core/components/composables/usePageImageLoader.ts", "reason": "缺陷所在：isAutoRetryExhausted 的复位与封账时机是本任务唯一改动点"}
+{"file": "core/service/imageRetryPolicy.ts", "reason": "预算来源（阶段 × attempts），确认不改其定义、理解队列推进语义"}
+{"file": "core/components/PageView.vue", "reason": "调用入口与 loading-info-panel 模板：确认 active/onMounted/watch 触发 loadImgSrc 的时机与按钮绑定"}
+{"file": "tests/helpers/runtime-fixture.cjs", "reason": "写 usePageImageLoader 单测需要其 createRuntime/stubs/realModules 契约与定时器推进语义"}
+{"file": "tests/image-retry-policy.test.cjs", "reason": "既有测试写法范式与本任务前置产出"}
+{"file": ".trellis/spec/frontend/product-goals.md", "reason": "加载失败策略（同源 3 次、再换源/原图）与验收要求是本次修复的规格依据"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "验收协议、acceptance.json 结构与命令口径"}

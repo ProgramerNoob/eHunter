@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-25-fix-image-retry-exhaustion",
+  "branch": "docs/download-concurrency-spec",
+  "head": "b375de8117a2697ca56a0263d0313f07d3313dfb",
+  "indexTree": "75e3876a654e284889760fb0fc0c3a731559ef76",
+  "capturedAt": "2026-10-25T01:57:00+08:00",
+  "scopeDigest": "c9927035ffdeddfa718ceb581814ec477935004aea63c249e0cc45ff5d8d326a",
+  "dirty": {
+    "package.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "0971d28d5ee6f96bebc62f040ddb00bc600ccf9a632257f628fab6692c3c0209"
+    }
+  },
+  "untracked": {
+    ".trellis/tasks/10-25-fix-image-retry-exhaustion/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "bfae106abba0e292e282402ed76b8c83624a3288da519cb3cbf3c4450f1b7c1a"
+    },
+    ".trellis/tasks/10-25-fix-image-retry-exhaustion/design.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "f2dc9fcd9ad99a55a30a431678dc8513d960cee0ba7ac9ffe3121de17280c692"
+    },
+    ".trellis/tasks/10-25-fix-image-retry-exhaustion/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "299aa7f581bffdc483781613ff6788c3ec6bfe4c7c98507a5475dca5a3c287f7"
+    },
+    ".trellis/tasks/10-25-fix-image-retry-exhaustion/implement.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "948a00ac9e50206695fd5133b99ecea822c5b70a5fbe84e8ef5e34f3a6912353"
+    },
+    ".trellis/tasks/10-25-fix-image-retry-exhaustion/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "8712ff9f59aa995242b871d677039e1928cabb8f195334cbe7e2cec662c8db41"
+    },
+    ".trellis/tasks/10-25-fix-image-retry-exhaustion/scope-start.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "97319eebff8cf9c277763a1e85c061059b5d303ea338759a6fbd7ef58e6cd207"
+    },
+    ".trellis/tasks/10-25-fix-image-retry-exhaustion/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "bba414f5f9aeb7ee49f7b957614c1523cab8976cbea87692a9b4a295d87e3110"
+    },
+    "tests/image-retry-policy.test.cjs": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "ea4d3862a7a5afc9a0a45c4df80b6f567ef861f2c54c869da19c712478c73e1f"
+    }
+  },
+  "scopeExtensions": [
+    {
+      "category": "spec",
+      "rules": [
+        ".trellis/spec/frontend/hook-guidelines.md"
+      ],
+      "at": "2026-10-25T02:19:49+08:00"
+    }
+  ]
+}

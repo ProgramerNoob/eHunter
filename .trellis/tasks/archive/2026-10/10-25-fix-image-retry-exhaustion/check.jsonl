@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/product-goals.md", "reason": "核对修复后行为与「同源 3 次、再换源/原图」表述一致，确认无需改规格"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "核对验收协议：acceptance.json 结构、check 字段与命令口径"}
+{"file": ".trellis/spec/frontend/features/index.md", "reason": "核对是否需要在功能索引登记本条重试预算收口"}
+{"file": ".trellis/tasks/10-25-fix-image-retry-exhaustion/prd.md", "reason": "逐条核对 AC1–AC6 是否有对应证据"}
