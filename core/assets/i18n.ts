@@ -520,9 +520,9 @@ export default <any>{
         jp: 'ダウンロード対象ページなし'
     },
     downloadFetching: {
-        cn: '正在处理第{{current}}/{{total}}张图片',
-        en: 'Processing image {{current}} / {{total}}',
-        jp: '{{current}} / {{total}} 枚目を処理中'
+        cn: '已完成 {{current}}/{{total}} 张图片',
+        en: 'Completed {{current}} / {{total}} images',
+        jp: '{{current}} / {{total}} 枚完了'
     },
     downloadCompressing: {
         cn: '正在压缩第{{chunk}}/{{totalChunks}}个分片',

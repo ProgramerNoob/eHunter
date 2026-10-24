@@ -493,7 +493,7 @@ export class GalleryDownloadService {
                     options.onStatus({
                         phase: 'fetching',
                         severity: 'info',
-                        message: t('downloadFetching', { current: pageNumber, total: totalPages }),
+                        message: t('downloadFetching', { current: processedPages, total: totalPages }),
                         processedPages,
                         totalPages,
                         failedPages: failures.length,

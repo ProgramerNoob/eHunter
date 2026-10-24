@@ -7,7 +7,7 @@ const { createRuntime } = require('./helpers/runtime-fixture.cjs');
 
 const DOWNLOAD_TIME = '2026-10-14T20:00:00.000+08:00';
 
-function createService() {
+function createService(fetchDelayByIndex = () => 0) {
     const captured = { zip: null, fileName: null };
     const document = {
         createElement: () => ({
@@ -36,7 +36,7 @@ function createService() {
         },
         stubs: new Map([
             ['fflate', fflate],
-            ['../store/i18n', { i18n: { value: {} } }],
+            ['../store/i18n', { i18n: { value: { downloadFetching: '已完成 {{current}}/{{total}} 张图片' } } }],
             ['./imageRetryPolicy', { getImageRetryStages: () => [{ mode: 0, attempts: 1 }] }],
             ['../utils/runtimeEnv', { isTestEnvironment: () => true }],
         ]),
@@ -45,7 +45,12 @@ function createService() {
     const { GalleryDownloadService } = runtime.load('core/service/GalleryDownloadService.ts');
     const albumService = {
         isSupportImgChangeSource: () => false,
-        getImgSrc: async (index, mode) => ({ id: index, index, pageUrl: `/0${index + 1}.jpg`, src: `/0${index + 1}.jpg`, heightOfWidth: 1.4 }),
+        getImgSrc: async (index, mode) => {
+            for (let hop = 0; hop < fetchDelayByIndex(index); hop++) {
+                await null;
+            }
+            return { id: index, index, pageUrl: `/0${index + 1}.jpg`, src: `/0${index + 1}.jpg`, heightOfWidth: 1.4 };
+        },
     };
     return { service: new GalleryDownloadService(), albumService, captured, runtime };
 }
@@ -86,4 +91,37 @@ test('download metadata records local time with an explicit zone offset', async 
     assert.equal(metadata.downloadTime, DOWNLOAD_TIME, metadata.downloadTime);
     assert.equal(Date.parse(metadata.downloadTime), Date.parse('2026-10-14T12:00:00.000Z'));
     assert.deepEqual(Object.keys(entries).sort(), ['0001.jpg', '0002.jpg', '0003.jpg', 'metadata.json']);
+});
+
+test('fetch progress reports finished page counts that never decrease under concurrency', async () => {
+    const slowFirstPage = index => index === 0 ? 20 : 0;
+    const { service, albumService } = createService(slowFirstPage);
+    const progress = [];
+    const result = await service.run({
+        taskId: 't2',
+        albumService,
+        galleryTitle: 'fixture',
+        introUrl: '/g/id/test/',
+        pageCount: 5,
+        chunkSize: 200,
+        autoRetryByOtherSource: false,
+        eHunterVersion: '9.9.9',
+        onStatus: event => {
+            if (event.phase === 'fetching') {
+                progress.push({ current: event.processedPages, total: event.totalPages, message: event.message });
+            }
+        },
+    });
+
+    assert.equal(result.status, 'completed');
+    assert.equal(result.processedPages, 5);
+    assert.ok(progress.length >= 10, `expected at least two fetches per page, got ${progress.length}`);
+    const counts = progress.map(item => item.current);
+    for (let i = 1; i < counts.length; i++) {
+        assert.ok(counts[i] >= counts[i - 1], `progress went backwards: ${counts.join(',')}`);
+    }
+    assert.equal(counts[counts.length - 1], 5);
+    for (const item of progress) {
+        assert.equal(item.message, `已完成 ${item.current}/${item.total} 张图片`, item.message);
+    }
 });
