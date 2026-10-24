@@ -41,9 +41,9 @@ npm run dev
 
 ### Story P3: Robustness and retry behavior
 
-- Simulate intermittent image request failures and verify per-request policy is initial attempt + 2 retries.
-- With `autoRetryByOtherSource` enabled, verify stage order is `ChangeSource` then `Origin`.
-- With `autoRetryByOtherSource` disabled, verify only default/origin chain is used.
+- Simulate intermittent image request failures and verify the default-only policy allows 3 attempts on a single stage.
+- With `autoRetryByOtherSource` enabled, verify stage order is `Default`, then `ChangeSource`, then `Origin`, with 2 attempts per stage.
+- With `autoRetryByOtherSource` disabled, verify only the `Default` stage is used.
 - Verify partial failures do not abort entire task and final notification reports failure count.
 
 ## Responsive Verification

@@ -48,12 +48,12 @@
   - `pageIndex` (number, required): 0-based index used by album service.
   - `fileStem` (string, required): Zero-padded number (minimum width 4).
   - `extension` (string, optional): Source-derived extension (`jpg|jpeg|png|webp|gif|bmp|avif` etc.).
-  - `modeSequence` (enum[], required): Retrieval stage sequence; either `[Default/Origin]` or `[ChangeSource, Origin]`.
+  - `modeSequence` (enum[], required): Retrieval stage sequence; `[Default]` when source fallback is off, `[Default, ChangeSource, Origin]` when it is on.
   - `attemptsUsed` (number, required): Total attempts consumed for final stage result.
   - `result` (enum, required): `success|failed`.
   - `failureReason` (string, optional): Error summary for reporting.
 - Validation rules:
-  - Each stage allows maximum 3 attempts (initial + 2 retries).
+  - Each stage allows maximum 3 attempts when source fallback is off and 2 attempts per stage when it is on, matching `core/service/imageRetryPolicy.ts`.
   - `result=success` requires non-empty `extension` and resolved source URL.
 
 ## 4) GalleryMetadataJson
