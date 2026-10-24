@@ -56,3 +56,8 @@ phase receipts：
 - EH 的「原图」「换源刷新」按钮本轮只确认存在且平台开关正确，未单独验证二者的实际取图路径。
 - 运行时未单独统计「单个 loader 实例的 `getImgSrc` 调用次数」——页面同页存在多个 `<img>` 渲染位，网络层请求数不等于单实例预算；精确预算由 `tests/use-page-image-loader.test.cjs` 断言（NH 3 次、EH 6 次）。
 - 移动视口未重跑：本次修复只涉及状态机记账，与视口无关。
+
+## 证据口径
+
+- 本文档引用的证据都在 `.tmp/` 下，该目录被 `.gitignore` 忽略（见 `.trellis/spec/frontend/features/index.md` 的免责说明），因此归档记录无法脱离本机复现；需要重跑时按 `## 浏览器验收` 两节的步骤重建环境。
+- `package.json` 新增 `test:image-retry-policy` 与 `test:use-page-image-loader` 两个脚本并接入 `npm test` 链：AC5 与 AC6 要求新增单测被跑到，不注册脚本则 `npm run check` 不会调用它们，属必要范围蔓延。

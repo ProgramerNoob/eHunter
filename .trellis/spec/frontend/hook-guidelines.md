@@ -76,16 +76,22 @@ try {
 } finally {
     isAutoRetryRunning.value = false
     if (autoRetryQueue.value.length === 0) {
-        isAutoRetryExhausted.value = true
+        isRetryBudgetClosed.value = true
     }
 }
 ```
 
 Resetting or sealing outside those points turns the `<img>` `error` path into an
-unbounded loop: `failLoad` refills the queue whenever it is empty and the exhausted
+unbounded loop: `failLoad` refills the queue whenever it is empty and the closed
 flag is clear. `tests/use-page-image-loader.test.cjs` pins the per-platform budget
 (NH `Default` three times, EH `Default`/`ChangeSource`/`Origin` twice each) and the
 reset behaviour after a successful load or a manual refresh.
+
+`loaded()` only unseals the budget, it does not top it up: the next failing `<img>`
+consumes the first attempt of the restored budget itself and the queue supplies the
+remaining `attempts - 1`. Budgets are counted in attempts, so a source with
+`attempts: 3` means three loads of that source in total, not three retries after the
+failing one.
 
 ## Own and release side effects
 

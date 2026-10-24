@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "验收产物与 acceptance.json 字段要求"}
+{"file": ".trellis/spec/frontend/product-goals.md", "reason": "加载失败策略的预算口径"}
+{"file": ".trellis/spec/frontend/features/001-gallery-download-bundle/spec.md", "reason": "FR-009 进度语义、FR-011/012 重试阶段"}
+{"file": ".trellis/spec/frontend/features/001-gallery-download-bundle/data-model.md", "reason": "processedPages 与 currentPage 的字段口径"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "浏览器轮次与 verify-browser 流程"}

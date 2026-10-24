@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "加载器三条单测的名称与断言一致，第三条用例以「尝试次数」表达「成功后预算恢复满额」，且三条全部通过。",
+    "AC2": "下载单测使用真实 i18n 词条模块；把 `downloadFetching` 的 `{{current}}` 占位符删掉会让测试失败。",
+    "AC3": "`GalleryDownloadService` 每页只推送一条 fetching 事件，下载单测的进度断言与浏览器验收同时通过。",
+    "AC4": "`getImageRetryStages` 返回副本：修改返回值后再调用，策略表内容不变；`tests/image-retry-policy.test.cjs` 通过。",
+    "AC5": "预算标志更名后三条加载器单测仍通过，行为与更名前一致。",
+    "AC6": "归档任务 `10-24-download-concurrency-spec-alignment` 的 AC3 措辞与实现一致，`acceptance.json` 记录了字段改名的偏离原因，`acceptance.py summarize` 仍为 passed。",
+    "AC7": "归档任务 `10-25-fix-image-retry-exhaustion` 的 AC3 按尝试次数改写，`verification.md` 含脚本范围蔓延与 `.tmp` 证据说明，`acceptance.py summarize` 仍为 passed。",
+    "AC8": "`npm run check` 全绿（type-check、全部单测、build-prod、check:docs）。"
+  },
+  "checks": [
+    {
+      "id": "loader-budget-unit",
+      "ac": [
+        "AC1",
+        "AC5"
+      ],
+      "claim": "加载器单测名称与断言一致，预算以尝试次数表达，且预算标志改名后三条用例仍通过",
+      "scope": "tests/use-page-image-loader.test.cjs 驱动真实 core/components/composables/usePageImageLoader.ts",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:use-page-image-loader"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-24T19:20:54Z",
+        "endedAt": "2026-10-24T19:20:54Z",
+        "log": ".tmp/acceptance/10-25-fix-review-findings/test-use-page-image-loader.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-25-fix-review-findings/test-use-page-image-loader.log",
+        "tests/use-page-image-loader.test.cjs",
+        "core/components/composables/usePageImageLoader.ts"
+      ],
+      "note": "3 passed / 0 failed。第三条用例 `a successful load restores the full retry budget, and a manual refresh restores it again` 以尝试次数断言：耗尽 3 次后 `loaded()` 再失败只补 budget - 1 = 2 次，`getNewImgSrc` 后再补 2 次，耗尽后不再增长——名称与断言一致。同一轮同时验证 `isAutoRetryExhausted` → `isRetryBudgetClosed` 改名后行为不变。",
+      "waiver": null
+    },
+    {
+      "id": "download-i18n-template",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "下载单测读取真实 i18n 词条，占位符在三语中缺失会让测试失败",
+      "scope": "tests/download-metadata.test.cjs + core/assets/i18n.ts",
+      "method": "command",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:download-metadata"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-24T19:20:54Z",
+        "endedAt": "2026-10-24T19:20:54Z",
+        "log": ".tmp/acceptance/10-25-fix-review-findings/test-download-metadata.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-25-fix-review-findings/test-download-metadata.log",
+        "tests/download-metadata.test.cjs",
+        "core/assets/i18n.ts"
+      ],
+      "note": "4 passed / 0 failed。`loadI18nTable()` 从真实 `core/assets/i18n.ts` 取 cn 词条注入 stub，不再写死中文串；新用例 `download progress template keeps both placeholders in every language` 校验 cn/en/jp 三个模板都含 `{{current}}` 与 `{{total}}`。负向验证：把 cn 模板改成 `已完成 {{done}}/{{total}} 张图片` 后该用例失败并报 `cn template lost {{current}}`，还原后恢复 4 passed。",
+      "waiver": null
+    },
+    {
+      "id": "download-progress-single-push",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "每页只推送一条 fetching 事件，进度仍单调不减，浏览器两轮验收通过",
+      "scope": "core/service/GalleryDownloadService.ts + .tmp/browser-preflight 两轮产物",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/download-concurrency-desktop-cb853ae2-291a-4f43-882a-7b8adab8028f/result.json",
+        ".tmp/browser-preflight/download-concurrency-desktop-cb853ae2-291a-4f43-882a-7b8adab8028f/download-notification.png",
+        ".tmp/browser-preflight/download-concurrency-mobile-18eca3a5-97a3-4482-8205-fcd6098337f1/result.json",
+        ".tmp/browser-preflight/download-concurrency-mobile-18eca3a5-97a3-4482-8205-fcd6098337f1/zip-verify.json",
+        ".tmp/acceptance/10-25-fix-review-findings/npm-check.log",
+        ".tmp/vite-service-evidence.json"
+      ],
+      "note": "Vite 服务 PID 78659（npm wrapper 78641），desktop 1200x900 与 mobile 390x844 两轮 `withBrowserPreflight` 均 observed=passed / preparation=verified / checks=executed，`verify-browser` 两轮 exit 0 passed。progress-monotonic receipt：desktop sampleCount 275、fetchingSamples 103、distinctCounts [1,2,3,4,5]、lastCount 5、maxInflight 3、fetchedOrder [2,3,1,4,5,6]、finalCounter `6 / 6`；mobile fetchingSamples 104、同 distinctCounts 与 fetchedOrder。fetchingSamples 从上一轮 188（同一消息每页推送两次）降到 103/104，即每页一条事件。ZIP 两轮一致：719429 B [metadata.json,0001.jpg,0002.jpg,0003.jpg] + 620420 B [metadata.json,0004.jpg,0005.jpg,0006.jpg]，六张 jpegMagic 全 true。主会话已看 download-notification.png（`下载完成` / `6 / 6` / 满格进度条）。verify-browser 状态 passed（见 .tmp/acceptance-verify-download-concurrency-desktop-cb853ae2-291a-4f43-882a-7b8adab8028f.log 与 ...-mobile-18eca3a5-97a3-4482-8205-fcd6098337f1.log）。",
+      "waiver": null
+    },
+    {
+      "id": "retry-stages-copy",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "策略表以副本返回，外部修改不污染后续调用，死防御已移除且语义不变",
+      "scope": "core/service/imageRetryPolicy.ts + tests/image-retry-policy.test.cjs",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:image-retry-policy"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-24T19:20:53Z",
+        "endedAt": "2026-10-24T19:20:54Z",
+        "log": ".tmp/acceptance/10-25-fix-review-findings/test-image-retry-policy.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-25-fix-review-findings/test-image-retry-policy.log",
+        "tests/image-retry-policy.test.cjs",
+        "core/service/imageRetryPolicy.ts"
+      ],
+      "note": "3 passed / 0 failed。新用例 `retry stages are copies, so mutating a returned stage cannot change later reads` 修改返回数组的 attempts 并 push 一项后，再次调用仍得到 [[Default,2],[ChangeSource,2],[Origin,2]]；原有两条覆盖四种开关组合与各起点队列，证明 `Math.max(..., 0)` 移除后语义不变。",
+      "waiver": null
+    },
+    {
+      "id": "archive-records-alignment",
+      "ac": [
+        "AC6",
+        "AC7"
+      ],
+      "claim": "两个归档任务的验收口径与实现一致，改名按偏离决策记录，summarize 仍 passed",
+      "scope": ".trellis/tasks/archive/2026-10/10-24-download-concurrency-spec-alignment/、.trellis/tasks/archive/2026-10/10-25-fix-image-retry-exhaustion/",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/acceptance/10-25-fix-review-findings/summarize-10-24.log",
+        ".tmp/acceptance/10-25-fix-review-findings/summarize-10-25.log",
+        ".tmp/acceptance/10-25-fix-review-findings/diff-stat.log",
+        ".trellis/tasks/archive/2026-10/10-24-download-concurrency-spec-alignment/prd.md",
+        ".trellis/tasks/archive/2026-10/10-24-download-concurrency-spec-alignment/acceptance.json",
+        ".trellis/tasks/archive/2026-10/10-25-fix-image-retry-exhaustion/prd.md",
+        ".trellis/tasks/archive/2026-10/10-25-fix-image-retry-exhaustion/verification.md",
+        ".trellis/tasks/archive/2026-10/10-25-fix-image-retry-exhaustion/acceptance.json"
+      ],
+      "note": "10-24：`## Out of Scope Risk` → `## 偏离原决策`，记录 currentPage → processedPages 改名发生在 4d5b898 及理由（契约与实现早已统一用 processedPages）；AC3 改为「失败页也计入已完成，最终值等于总页数」；acceptance.json 的 criteria.AC3 同步（否则报 criteria.AC3: text differs from prd.md）。10-25：AC3 改为尝试次数口径；verification.md 新增 `## 证据口径`（.tmp 不可复现、package.json 脚本属必要范围蔓延）。summarize 两轮均 valid: true，10-24 passed 8 / 10-25 passed 6。",
+      "waiver": null
+    },
+    {
+      "id": "npm-check",
+      "ac": [
+        "AC8"
+      ],
+      "claim": "全量检查通过：type-check、全部单测、build-prod 与文档链接检查",
+      "scope": "仓库根目录",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-24T19:20:09Z",
+        "endedAt": "2026-10-24T19:20:36Z",
+        "log": ".tmp/acceptance/10-25-fix-review-findings/npm-check.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-25-fix-review-findings/npm-check.log",
+        ".tmp/acceptance/10-25-fix-review-findings/type-check.log"
+      ],
+      "note": "exit 0。type-check 无输出；`dist/ehunter.iife.js 443.13 kB │ gzip 143.37 kB`；`check-docs: 39 md, 6 yaml, 220 本地链接, 0 外链(仅记录), 70 $ref` / OK。首轮曾因 8787 端口被上一次 reader-test 的 bundle server 占用导致 `scripts/test_cleanup_browser.py` 的 test_cli_dispatch 失败，停掉该服务后全绿。",
+      "waiver": null
+    }
+  ]
+}

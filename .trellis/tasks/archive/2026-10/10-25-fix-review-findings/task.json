@@ -1,0 +1,57 @@
+{
+  "id": "fix-review-findings",
+  "name": "fix-review-findings",
+  "title": "收口分支审查发现",
+  "description": "修复 docs/download-concurrency-spec 分支独立审查提出的 8 条发现：用例名与断言不符、i18n stub 写死中文、重复的进度推送、imageRetryPolicy 返回常量引用、AC3 措辞与实现不符、PRD 决策越界未记录、归档证据 .tmp 路径、test 脚本范围蔓延记录",
+  "status": "completed",
+  "dev_type": null,
+  "scope": "{\"mode\":\"enforce\",\"categories\":{\"task-evidence\":[\".trellis/tasks/10-25-fix-review-findings/**\"],\"core-loader\":[\"core/components/composables/usePageImageLoader.ts\"],\"core-download\":[\"core/service/GalleryDownloadService.ts\",\"core/service/imageRetryPolicy.ts\"],\"tests\":[\"tests/use-page-image-loader.test.cjs\",\"tests/image-retry-policy.test.cjs\",\"tests/download-metadata.test.cjs\"],\"archive-records\":[\".trellis/tasks/archive/2026-10/10-24-download-concurrency-spec-alignment/**\",\".trellis/tasks/archive/2026-10/10-25-fix-image-retry-exhaustion/**\"]}}",
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-25",
+  "completedAt": "2026-10-25",
+  "branch": "fix/review-findings",
+  "base_branch": "docs/download-concurrency-spec",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-25-fix-review-findings/**"
+        ],
+        "core-loader": [
+          "core/components/composables/usePageImageLoader.ts"
+        ],
+        "core-download": [
+          "core/service/GalleryDownloadService.ts",
+          "core/service/imageRetryPolicy.ts"
+        ],
+        "tests": [
+          "tests/use-page-image-loader.test.cjs",
+          "tests/image-retry-policy.test.cjs",
+          "tests/download-metadata.test.cjs"
+        ],
+        "archive-records": [
+          ".trellis/tasks/archive/2026-10/10-24-download-concurrency-spec-alignment/**",
+          ".trellis/tasks/archive/2026-10/10-25-fix-image-retry-exhaustion/**"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "748d62b8c5e2315c9239484a2a64780b6a2213938e16afdb318329f9eab0971e"
+      }
+    }
+  }
+}

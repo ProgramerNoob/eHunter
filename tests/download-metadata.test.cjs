@@ -7,7 +7,21 @@ const { createRuntime } = require('./helpers/runtime-fixture.cjs');
 
 const DOWNLOAD_TIME = '2026-10-14T20:00:00.000+08:00';
 
-function createService(interleaveByIndex = () => 0, failIndexes = []) {
+function loadI18nTable() {
+    const runtime = createRuntime({ realModules: ['core/assets/i18n.ts'] });
+    const loaded = runtime.load('core/assets/i18n.ts');
+    const table = loaded.default === undefined ? loaded : loaded.default;
+    const dict = {};
+    for (const key of Object.keys(table)) {
+        if (table[key] && typeof table[key].cn === 'string') {
+            dict[key] = table[key].cn;
+        }
+    }
+    assert.ok(dict.downloadFetching, 'core/assets/i18n.ts must define downloadFetching.cn');
+    return { table, dict };
+}
+
+function createService(interleaveByIndex = () => 0, failIndexes = [], dict = loadI18nTable().dict) {
     const captured = { zip: null, fileName: null };
     const document = {
         createElement: () => ({
@@ -36,7 +50,7 @@ function createService(interleaveByIndex = () => 0, failIndexes = []) {
         },
         stubs: new Map([
             ['fflate', fflate],
-            ['../store/i18n', { i18n: { value: { downloadFetching: '已完成 {{current}}/{{total}} 张图片' } } }],
+            ['../store/i18n', { i18n: { value: dict } }],
             ['./imageRetryPolicy', { getImageRetryStages: () => [{ mode: 0, attempts: 1 }] }],
             ['../utils/runtimeEnv', { isTestEnvironment: () => true }],
         ]),
@@ -96,9 +110,20 @@ test('download metadata records local time with an explicit zone offset', async 
     assert.deepEqual(Object.keys(entries).sort(), ['0001.jpg', '0002.jpg', '0003.jpg', 'metadata.json']);
 });
 
+test('download progress template keeps both placeholders in every language', () => {
+    const { table } = loadI18nTable();
+    for (const lang of ['cn', 'en', 'jp']) {
+        const template = table.downloadFetching[lang];
+        assert.ok(template.includes('{{current}}'), `${lang} template lost {{current}}: ${template}`);
+        assert.ok(template.includes('{{total}}'), `${lang} template lost {{total}}: ${template}`);
+    }
+});
+
 test('fetch progress reports finished page counts that never decrease under concurrency', async () => {
     const slowFirstPage = index => index === 0 ? 20 : 0;
-    const { service, albumService } = createService(slowFirstPage);
+    const { dict } = loadI18nTable();
+    const sentinel = '__sentinel_fetching__ {{current}} {{total}}';
+    const { service, albumService } = createService(slowFirstPage, [], { ...dict, downloadFetching: sentinel });
     const progress = [];
     const result = await service.run({
         taskId: 't2',
@@ -119,12 +144,16 @@ test('fetch progress reports finished page counts that never decrease under conc
     assert.equal(result.status, 'completed');
     assert.equal(result.processedPages, 5);
     const counts = progress.map(item => item.current);
+    assert.equal(counts.length, 5, 'each finished page pushes exactly one fetching event');
     for (let i = 1; i < counts.length; i++) {
-        assert.ok(counts[i] >= counts[i - 1], `progress went backwards: ${counts.join(',')}`);
+        assert.ok(counts[i] > counts[i - 1], `progress repeated or went backwards: ${counts.join(',')}`);
     }
     assert.equal(counts[counts.length - 1], 5);
     for (const item of progress) {
-        assert.equal(item.message, `已完成 ${item.current}/${item.total} 张图片`, item.message);
+        const expected = sentinel
+            .replace(/{{current}}/g, String(item.current))
+            .replace(/{{total}}/g, String(item.total));
+        assert.equal(item.message, expected, item.message);
     }
 });
 

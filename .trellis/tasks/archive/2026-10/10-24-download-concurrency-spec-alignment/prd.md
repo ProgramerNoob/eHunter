@@ -54,12 +54,12 @@
 
 - [AC1] `spec.md`、`data-model.md`、`decisions`、`pending-work.md`、`index.md` 五处不再出现"按页顺序逐张处理""currentPage 单调""已知差异：3 并发"这类与实现相反的表述；grep `顺序` / `逐张` / `currentPage` 的结果均与并发实现一致。
 - [AC2] `downloadFetching` 的 cn/en/jp 文案均为已完成计数口径，三语语义一致，占位符仍为 `{{current}}` / `{{total}}`。
-- [AC3] 运行一次下载，抓取阶段推送的进度数字序列单调不减（不出现先大后小），最终值等于总页数减去不可恢复失败页数后的完成数口径与文案自洽。
+- [AC3] 运行一次下载，抓取阶段的进度数字单调不减（不出现先大后小），失败页也计入已完成，最终值等于总页数。
 - [AC4] `npm run type-check` 退出码 0。
 - [AC5] `npm run test:download-metadata` 与 `npm run test:download-time` 通过。
 - [AC6] `npm run check:docs` 通过（39+ md、本地链接 0 断链）。
 - [AC7] 浏览器验收：本地 Vite 或生产包中触发一次多分片下载，通知显示已完成计数且数字不回退，压缩包内图片仍按页码顺序命名；书页与卷轴模式入口一致。
 
-## Out of Scope Risk
+## 偏离原决策
 
-`data-model.md` 的 `currentPage` 字段名本身保留；本次只改语义描述与校验规则，不重命名字段，避免契约文件大面积改动。
+`data-model.md` 与 `contracts/gallery-download.openapi.yaml` 的进度字段在实施中由 `currentPage` 改名为 `processedPages`（`4d5b898`）。原计划是保留字段名只改语义，但实现与契约早已统一使用 `processedPages`（`core/store/app.ts:2032` `task.processedPages = event.processedPages`、`:2046` `progressCurrent: event.processedPages`），保留旧名字会让规格与契约自相矛盾。语义不变：已完成页数（含失败页），单调不减。

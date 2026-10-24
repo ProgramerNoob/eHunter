@@ -3,7 +3,7 @@
   "criteria": {
     "AC1": "`spec.md`、`data-model.md`、`decisions`、`pending-work.md`、`index.md` 五处不再出现\"按页顺序逐张处理\"\"currentPage 单调\"\"已知差异：3 并发\"这类与实现相反的表述；grep `顺序` / `逐张` / `currentPage` 的结果均与并发实现一致。",
     "AC2": "`downloadFetching` 的 cn/en/jp 文案均为已完成计数口径，三语语义一致，占位符仍为 `{{current}}` / `{{total}}`。",
-    "AC3": "运行一次下载，抓取阶段推送的进度数字序列单调不减（不出现先大后小），最终值等于总页数减去不可恢复失败页数后的完成数口径与文案自洽。",
+    "AC3": "运行一次下载，抓取阶段的进度数字单调不减（不出现先大后小），失败页也计入已完成，最终值等于总页数。",
     "AC4": "`npm run type-check` 退出码 0。",
     "AC5": "`npm run test:download-metadata` 与 `npm run test:download-time` 通过。",
     "AC6": "`npm run check:docs` 通过（39+ md、本地链接 0 断链）。",
@@ -24,7 +24,7 @@
       "evidence": [
         ".tmp/acceptance/10-24-download-concurrency-spec-alignment/spec-grep.log"
       ],
-      "note": "grep 逐张/按页顺序/顺序/currentPage 全量复核。spec.md:75 FR-001 改为固定三个并发 worker 抓取、写入压缩包前按页码排序；spec.md:27 场景 1 与 spec.md:83 FR-009 同口径；spec.md:28 与 spec.md:76 的零填充示例与最小宽度一并由 3 位改为 4 位（实现为 GalleryDownloadService.ts:364 的 Math.max(4, String(totalPages).length)）；data-model.md:15/22 说明 currentPage 为已完成页数且并发下仍单调不减；contracts/gallery-download.openapi.yaml:167 processedPages 补 description；quickstart.md:26 改为按页码打包+并发乱序说明；decisions/2026-09-18-reader-behavior.md:13 完成标准改为三并发 worker + 打包前排序；pending-work.md 删除「下载图片抓取并发」整节；features/index.md 删除「已知状态差异」中的并发条目。残留的 `顺序` 命中均为合法表述（spec.md:79 分片按顺序下载、spec.md:86 FR-012 换源顺序、features/index.md:5 阅读顺序与权威）。另：data-model.md 的 DownloadTask 字段 currentPage 已改名 processedPages（与 openapi.yaml 与实现一致），校验规则补「失败页也计入已完成，processedPages 最终达到 totalPages」；ImageDownloadItem 的 fileStem 最小宽度同步为 4 位；spec.md FR-009 补「失败页也计入已完成」。",
+      "note": "grep 逐张/按页顺序/顺序/currentPage 全量复核。spec.md:75 FR-001 改为固定三个并发 worker 抓取、写入压缩包前按页码排序；spec.md:27 场景 1 与 spec.md:83 FR-009 同口径；spec.md:28 与 spec.md:76 的零填充示例与最小宽度一并由 3 位改为 4 位（实现为 GalleryDownloadService.ts:364 的 Math.max(4, String(totalPages).length)）；data-model.md:15/22 说明 currentPage 为已完成页数且并发下仍单调不减；contracts/gallery-download.openapi.yaml:167 processedPages 补 description；quickstart.md:26 改为按页码打包+并发乱序说明；decisions/2026-09-18-reader-behavior.md:13 完成标准改为三并发 worker + 打包前排序；pending-work.md 删除「下载图片抓取并发」整节；features/index.md 删除「已知状态差异」中的并发条目。残留的 `顺序` 命中均为合法表述（spec.md:79 分片按顺序下载、spec.md:86 FR-012 换源顺序、features/index.md:5 阅读顺序与权威）。另：data-model.md 的 DownloadTask 字段 currentPage 已改名 processedPages（与 openapi.yaml 与实现一致），校验规则补「失败页也计入已完成，processedPages 最终达到 totalPages」；ImageDownloadItem 的 fileStem 最小宽度同步为 4 位；spec.md FR-009 补「失败页也计入已完成」。 偏离原决策：PRD 原「Out of Scope Risk」写明只改语义、不重命名 currentPage，实际在 4d5b898 改名为 processedPages——理由是契约 contracts/gallery-download.openapi.yaml 与实现（core/store/app.ts:2032/2046）早已统一使用 processedPages，保留旧名会让规格与契约自相矛盾；语义不变（已完成页数，含失败页，单调不减）。",
       "waiver": null
     },
     {
