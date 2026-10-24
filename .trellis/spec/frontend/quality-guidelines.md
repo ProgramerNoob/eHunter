@@ -8,6 +8,16 @@ feature specification/contracts and quickstart before changing behavior. The
 older conflicting requirements for download metadata, preferences, page-turn defaults,
 and magnifier behavior; old task checkmarks are not evidence for a new change.
 
+## Tests must fail when the production path changes
+
+A unit test that reads its expected value from the same source the production code reads
+proves nothing: hardcoding the production string leaves both sides equal and the test
+stays green. Assert against a value the fixture injects, not against the shipped table.
+Load the real i18n module to keep the key names honest, then overwrite the asserted
+entries with sentinels (`__sentinel_<key>__`) and require them in the output; entries no
+assertion observes can keep their real values. When a sentinel starts covering a branch,
+mutate that production line once and confirm the suite turns red before restoring it.
+
 ## Documentation boundaries
 
 Documentation and code comments describe the current state only. Do not record AI
