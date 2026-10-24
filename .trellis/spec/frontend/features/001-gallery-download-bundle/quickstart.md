@@ -23,7 +23,8 @@ npm run dev
 ### Story P1: Confirm-to-download and chunked export
 
 - Open `DownloadConfirmDialog`, click confirm, and verify task starts immediately.
-- Validate images are processed in page order and file names use zero-padded numbering (`001`, `002`, ...).
+- Validate images are packaged in page order with zero-padded file names (`0001`, `0002`, ...) even though the three concurrent workers fetch pages out of order.
+- Verify the status notification reports finished page counts (`已完成 N/总数`) that never decrease while fetching.
 - For a 20–50-page gallery under the default chunk size, verify one standard ZIP downloads and opens successfully.
 - For a 300-page gallery with chunk size 200, verify two standard ZIP downloads open successfully and contain their corresponding page ranges.
 - Extract each ZIP independently, including the later chunk by itself. Verify the root contains one UTF-8 `metadata.json`, parseable as JSON, with exactly these seven fields: `introUrl`, `galleryTitle`, `totalPages`, `downloadTime`, `eHunterVersion`, `totalChunks`, `chunkIndex`. JSON is the only metadata format.

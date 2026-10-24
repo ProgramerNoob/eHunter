@@ -23,5 +23,4 @@
 
 ## 已知状态差异
 
-- 下载 `spec.md` 要求顺序抓取，当前实现为三个并发 worker（`core/service/GalleryDownloadService.ts` 的 `await Promise.all([runWorker(), runWorker(), runWorker()])`）。行为未改。
 - `.tmp/` 截图、日志、内存对照与下载产物是本机证据，可能不随仓库存在；缺失不补造，不声称本轮重跑。平台四份 `validation-us*.md` / `final-validation.md` 尚未产出。

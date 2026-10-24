@@ -12,19 +12,19 @@
   - `totalPages` (number, required): Total gallery page count.
   - `chunkSize` (number, required): Effective chunk size after validation.
   - `totalChunks` (number, required): Computed from `totalPages/chunkSize`.
-  - `currentPage` (number, required): 1-based progress pointer.
+  - `currentPage` (number, required): 1-based count of finished pages (succeeded plus failed).
   - `status` (enum, required): `queued|fetching|compressing|completed|failed|partial`.
   - `failedCount` (number, required): Number of pages that failed all attempts.
   - `createdAt` (datetime string, required): Task start timestamp.
   - `completedAt` (datetime string, optional): End timestamp.
 - Validation rules:
   - `chunkSize` MUST be positive; fallback to default `200` when invalid.
-  - `currentPage` MUST never decrease during normal processing.
+  - `currentPage` counts finished pages and MUST never decrease, even though the three workers finish pages out of page order.
   - `status=completed` requires `failedCount=0`; otherwise `partial` or `failed`.
 
 ## 2) DownloadChunk
 
-- Description: A bounded archive unit produced from sequential pages.
+- Description: A bounded archive unit produced from a contiguous page range, with images sorted by page number before packaging.
 - Fields:
   - `chunkIndex` (number, required): 1-based chunk index.
   - `totalChunks` (number, required): Total chunk count.

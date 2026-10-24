@@ -164,6 +164,7 @@ components:
         processedPages:
           type: integer
           minimum: 0
+          description: Count of finished pages (succeeded plus failed); never decreases while three workers fetch concurrently
         failedPages:
           type: integer
           minimum: 0
