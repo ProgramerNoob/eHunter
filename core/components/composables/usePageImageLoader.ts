@@ -30,7 +30,7 @@ export function usePageImageLoader(options: UsePageImageLoaderOptions) {
     const lastLoadMode = ref(ImgSrcMode.Default)
     const autoRetryQueue = ref<ImgSrcMode[]>([])
     const isAutoRetryRunning = ref(false)
-    const isAutoRetryExhausted = ref(false)
+    const isRetryBudgetClosed = ref(false)
 
     const loadingInfo = computed(() => {
         const reloadInfo = reloadTimes.value ? `[${i18n.value.reload}-${reloadTimes.value}] ` : ''
@@ -62,7 +62,7 @@ export function usePageImageLoader(options: UsePageImageLoaderOptions) {
 
     async function loadImgSrc(mode: ImgSrcMode) {
         lastLoadMode.value = mode
-        isAutoRetryExhausted.value = false
+        isRetryBudgetClosed.value = false
         const resp = await albumService.getImgSrc(index, mode)
         if (resp instanceof Error) {
             if (mode === ImgSrcMode.Default) {
@@ -98,7 +98,7 @@ export function usePageImageLoader(options: UsePageImageLoaderOptions) {
         } finally {
             isAutoRetryRunning.value = false
             if (autoRetryQueue.value.length === 0) {
-                isAutoRetryExhausted.value = true
+                isRetryBudgetClosed.value = true
             }
         }
     }
@@ -106,7 +106,7 @@ export function usePageImageLoader(options: UsePageImageLoaderOptions) {
     async function getNewImgSrc(mode: ImgSrcMode, isAutoRetry = false): Promise<boolean> {
         if (!isAutoRetry) {
             autoRetryQueue.value = []
-            isAutoRetryExhausted.value = false
+            isRetryBudgetClosed.value = false
         }
         reloadTimes.value++
         message.value = ''
@@ -145,7 +145,7 @@ export function usePageImageLoader(options: UsePageImageLoaderOptions) {
         if (imgPageInfo.value.src) {
             curLoadStatus.value = ImgLoadStatus.Error
             Logger.logText('LOADING', 'loading image failed')
-            if (!isAutoRetryExhausted.value && autoRetryQueue.value.length === 0) {
+            if (!isRetryBudgetClosed.value && autoRetryQueue.value.length === 0) {
                 autoRetryQueue.value = buildRetryQueueAfterFailure(lastLoadMode.value)
             }
             if (autoRetryQueue.value.length > 0) {
@@ -158,7 +158,7 @@ export function usePageImageLoader(options: UsePageImageLoaderOptions) {
     function loaded() {
         curLoadStatus.value = ImgLoadStatus.Loaded
         autoRetryQueue.value = []
-        isAutoRetryExhausted.value = false
+        isRetryBudgetClosed.value = false
         if (imgPageInfo.value.src) {
             void warmMagnifierSource(imgPageInfo.value.src)
         }

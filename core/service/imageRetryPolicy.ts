@@ -21,10 +21,10 @@ const sourceFallbackRetryStages: ImageRetryStage[] = [
 ]
 
 export function getImageRetryStages(options: ImageRetryPolicyOptions): ImageRetryStage[] {
-    if (options.autoRetryByOtherSource && options.supportChangeSource) {
-        return sourceFallbackRetryStages
-    }
-    return defaultOnlyRetryStages
+    const stages = options.autoRetryByOtherSource && options.supportChangeSource
+        ? sourceFallbackRetryStages
+        : defaultOnlyRetryStages
+    return stages.map(stage => ({ ...stage }))
 }
 
 export function buildRetryQueueAfterFailure(
@@ -39,7 +39,7 @@ export function buildRetryQueueAfterFailure(
 
     const queue: ImgSrcMode[] = []
     const failedStage = stages[failedStageIndex]
-    const retriesForCurrentStage = Math.max(failedStage.attempts - 1, 0)
+    const retriesForCurrentStage = failedStage.attempts - 1
     for (let i = 0; i < retriesForCurrentStage; i++) {
         queue.push(failedStage.mode)
     }

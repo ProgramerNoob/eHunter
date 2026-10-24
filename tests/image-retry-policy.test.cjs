@@ -39,6 +39,21 @@ test('retry stages are a single default stage unless both the switch and the pla
     ]);
 });
 
+test('retry stages are copies, so mutating a returned stage cannot change later reads', () => {
+    const { getImageRetryStages, ImgSrcMode } = loadPolicy();
+    const options = { autoRetryByOtherSource: true, supportChangeSource: true };
+
+    const first = getImageRetryStages(options);
+    first[0].attempts = 99;
+    first.push({ mode: ImgSrcMode.Origin, attempts: 99 });
+
+    assert.deepEqual(stagePairs(getImageRetryStages(options)), [
+        [ImgSrcMode.Default, 2],
+        [ImgSrcMode.ChangeSource, 2],
+        [ImgSrcMode.Origin, 2],
+    ]);
+});
+
 test('retry queue after a failure keeps remaining attempts of the current stage and then later stages', () => {
     const { buildRetryQueueAfterFailure, ImgSrcMode } = loadPolicy();
     const fallback = { autoRetryByOtherSource: true, supportChangeSource: true };

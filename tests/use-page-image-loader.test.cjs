@@ -110,24 +110,28 @@ test('eh page walks the source fallback stages once and then stops', async () =>
     assert.equal(harness.loader.curLoadStatus.value, ImgLoadStatus.Error);
 });
 
-test('a successful load or a manual refresh restores the full retry budget', async () => {
+test('a successful load restores the full retry budget, and a manual refresh restores it again', async () => {
     const harness = createHarness({ supportChangeSource: false, autoRetryByOtherSource: true });
     const { ImgSrcMode } = harness;
+    const budget = 3;
 
     await harness.loader.loadImgSrc(ImgSrcMode.Default);
     await harness.runtime.flush();
     await driveFailures(harness, 10);
-    assert.equal(harness.calls.length, 3);
+    assert.equal(harness.calls.length, budget);
 
     harness.loader.loaded();
+    const afterLoaded = harness.calls.length;
     await driveFailures(harness, 10);
-    assert.equal(harness.calls.length, 5);
+    assert.equal(harness.calls.length - afterLoaded, budget - 1, 'the failing load is the first attempt of the restored budget');
 
     await harness.loader.getNewImgSrc(ImgSrcMode.Default);
     await harness.runtime.flush();
+    const afterManualRefresh = harness.calls.length;
     await driveFailures(harness, 10);
-    assert.equal(harness.calls.length, 8);
+    assert.equal(harness.calls.length - afterManualRefresh, budget - 1);
 
+    const exhausted = harness.calls.length;
     await driveFailures(harness, 10);
-    assert.equal(harness.calls.length, 8);
+    assert.equal(harness.calls.length, exhausted);
 });

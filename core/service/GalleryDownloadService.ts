@@ -490,14 +490,6 @@ export class GalleryDownloadService {
                     if (!pageNumber) {
                         return
                     }
-                    options.onStatus({
-                        phase: 'fetching',
-                        severity: 'info',
-                        message: t('downloadFetching', { current: processedPages, total: totalPages }),
-                        processedPages,
-                        totalPages,
-                        failedPages: failures.length,
-                    })
 
                     const pageIndex = pageNumber - 1
                     try {
