@@ -33,7 +33,7 @@
 
 - [AC1] 图片加载失败时 `getImgSrc` 调用总次数等于策略预算（NH 单段 = 3，EH 三段 = 6），不再无限增长。
 - [AC2] 预算耗尽后 `curLoadStatus` 为 `ImgLoadStatus.Error`，`loadingInfo` 显示失败文案，且不再发起新的加载请求。
-- [AC3] 成功加载一次后再次失败，预算重新从满额开始（3/6 次）。
+- [AC3] 成功加载一次后再次失败，预算重新从满额开始：以尝试次数计，失败的那次加载本身算新预算的第 1 次，随后重试预算 - 1 次（NH 共 3 次、EH 共 6 次）。
 - [AC4] 用户点击「刷新」「换源刷新」「原图」按钮后预算重置。
 - [AC5] `npm run type-check`、`npm run test:image-retry-policy`、新增的加载器单测通过。
 - [AC6] `npm run check` 全绿（含 `build-prod` 与 `check:docs`）。
