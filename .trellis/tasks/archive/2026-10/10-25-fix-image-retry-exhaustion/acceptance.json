@@ -97,6 +97,31 @@
       "waiver": null
     },
     {
+      "id": "eh-retry-budget-runtime",
+      "ac": [
+        "AC1",
+        "AC2"
+      ],
+      "claim": "EH 生产包拦截整图后，请求在首次三段预算用尽即冻结，界面进入可刷新的失败态且不再发新请求",
+      "scope": "EH https://exhentai.org/s/f9cb170d76/4257612-1，desktop profile，Network.setBlockedURLs(['*hath.network*'])，artifact .tmp/browser-preflight/retry-budget-eh-a0d17df5-74fd-46ab-ac6f-d21175bee9cf",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/reader-test-eh/installation.md",
+        ".tmp/reader-test-eh/build-prod.log",
+        ".tmp/browser-preflight/retry-budget-eh-a0d17df5-74fd-46ab-ac6f-d21175bee9cf/result.json",
+        ".tmp/browser-preflight/retry-budget-eh-a0d17df5-74fd-46ab-ac6f-d21175bee9cf/eh-first-screen.png",
+        ".tmp/browser-preflight/retry-budget-eh-a0d17df5-74fd-46ab-ac6f-d21175bee9cf/eh-retry-exhausted.png",
+        ".tmp/acceptance-verify-retry-budget-eh-a0d17df5-74fd-46ab-ac6f-d21175bee9cf.log",
+        ".tmp/test-reports/reader-test-eh-retry-budget.md",
+        ".tmp/cleanup-browser-eh-retry-budget.json"
+      ],
+      "note": "bundle server 127.0.0.1:8787 已停止，产物 `result.json` 为 observed=passed / checks=executed / preparation=verified / errors=[]，`verify-browser` 状态 passed（见 `.tmp/acceptance-verify-retry-budget-eh-a0d17df5-74fd-46ab-ac6f-d21175bee9cf.log`）。实测：`retry-budget-exhausted` 在 20.1 s 内稳定，整图请求总量 26、`counts {1:6, 2:4, 3:4, 4:4, 5:4, 6:4}`、6 个可见面板全部为 `[重载-5] 加载图片失败, 请刷新`、按钮集合为 `['原图','刷新','换源刷新']`（EH 支持换源与原图）；`retries-stopped` 再过 15 s 总量与逐页计数完全不变、计数器仍为 5；`manual-refresh-resets-budget` 点刷新后计数器由 `['5']` 变为 `[11,5,5,5,5,5]`（一整份三段预算 6 次），图片请求仅 +2（EH 阶段可在发出图片请求前失败），刷新后再等 15 s 账目与计数器不变。与 NH 轮同属 `[重载-5]` 三段口径对照 `[重载-2]` 单段口径。主会话已查看 `eh-retry-exhausted.png` 与 `eh-first-screen.png`。 清理：`await task.finish({ keep: [] })` 关闭 space 9 的 p1（`closedManagedLabels: [\"p1\"]`），`acceptance.py cleanup-browser` 报告 aggregate clean（2 clean / 0 residual / 0 unknown，见 `.tmp/cleanup-browser-eh-retry-budget.json`）；8787 端口已释放。reader-test 报告 `.tmp/test-reports/reader-test-eh-retry-budget.md`。",
+      "waiver": null
+    },
+    {
       "id": "type-check",
       "ac": [
         "AC5"
