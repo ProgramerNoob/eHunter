@@ -18,6 +18,12 @@ entries with sentinels (`__sentinel_<key>__`) and require them in the output; en
 assertion observes can keep their real values. When a sentinel starts covering a branch,
 mutate that production line once and confirm the suite turns red before restoring it.
 
+Cross-realm fixtures need the same care as same-source expectations. A stub that throws
+the host realm's `Error` never satisfies an `instanceof Error` check running inside the
+fixture's `vm` context, so the branch under test is skipped silently and the assertions
+pass for the wrong reason. Inject the host constructors the production code tests
+against (`globals: { Error }`) and re-check that the failure path actually ran.
+
 ## Documentation boundaries
 
 Documentation and code comments describe the current state only. Do not record AI

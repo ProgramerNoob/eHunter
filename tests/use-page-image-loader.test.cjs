@@ -3,7 +3,6 @@ const assert = require('node:assert/strict');
 const { createRuntime } = require('./helpers/runtime-fixture.cjs');
 
 const LOADER = 'core/components/composables/usePageImageLoader.ts';
-const SENTINEL_LOADING_FAILED = '__sentinel_loading_failed__';
 const LOADER_I18N_KEYS = ['reload', 'loadingImgFailed', 'imgLoaded', 'waiting', 'loadingImg', 'noOriginalImg', 'loadingFailed'];
 
 function sentinelFor(key) {
@@ -92,10 +91,6 @@ async function driveFailures(harness, rounds) {
     }
 }
 
-function failAllImageSources(harness) {
-    harness.albumService.getImgSrc = async () => new Error('IMG_FAILED');
-}
-
 function rejectAllImageSources(harness, message) {
     harness.albumService.getImgSrc = async () => new Error(message);
 }
@@ -181,6 +176,25 @@ test('loading info prefixes the reload counter with the reload i18n entry', asyn
         harness.loader.loadingInfo.value.startsWith(`[${sentinelFor('reload')}-`),
         harness.loader.loadingInfo.value,
     );
+});
+
+test('a pending error message wins over the status branch in loading info', async () => {
+    const harness = createHarness({ supportChangeSource: false, autoRetryByOtherSource: true });
+    const { ImgSrcMode, ImgLoadStatus } = harness;
+
+    await harness.loader.getNewImgSrc(ImgSrcMode.Default);
+    await harness.runtime.flush();
+    assert.ok(harness.page.src, 'the fixture needs a loaded source before failLoad has an effect');
+
+    rejectAllImageSources(harness, 'ERROR_OTHER');
+    await harness.loader.getNewImgSrc(ImgSrcMode.Default);
+    await harness.runtime.flush();
+
+    harness.page.src = 'https://img.example/stale.jpg';
+    harness.loader.failLoad(imageErrorEvent);
+    assert.equal(harness.loader.curLoadStatus.value, ImgLoadStatus.Error);
+    assert.ok(harness.loader.loadingInfo.value.includes(sentinelFor('loadingFailed')), harness.loader.loadingInfo.value);
+    assert.ok(!harness.loader.loadingInfo.value.includes(sentinelFor('loadingImgFailed')), harness.loader.loadingInfo.value);
 });
 
 test('a successful load restores the full retry budget, and a manual refresh restores it again', async () => {
