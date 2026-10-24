@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "`spec.md`、`data-model.md`、`decisions`、`pending-work.md`、`index.md` 五处不再出现\"按页顺序逐张处理\"\"currentPage 单调\"\"已知差异：3 并发\"这类与实现相反的表述；grep `顺序` / `逐张` / `currentPage` 的结果均与并发实现一致。",
+    "AC2": "`downloadFetching` 的 cn/en/jp 文案均为已完成计数口径，三语语义一致，占位符仍为 `{{current}}` / `{{total}}`。",
+    "AC3": "运行一次下载，抓取阶段推送的进度数字序列单调不减（不出现先大后小），最终值等于总页数减去不可恢复失败页数后的完成数口径与文案自洽。",
+    "AC4": "`npm run type-check` 退出码 0。",
+    "AC5": "`npm run test:download-metadata` 与 `npm run test:download-time` 通过。",
+    "AC6": "`npm run check:docs` 通过（39+ md、本地链接 0 断链）。",
+    "AC7": "浏览器验收：本地 Vite 或生产包中触发一次多分片下载，通知显示已完成计数且数字不回退，压缩包内图片仍按页码顺序命名；书页与卷轴模式入口一致。"
+  },
+  "checks": [
+    {
+      "id": "spec-concurrency-wording",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "下载特性文档、决策与 pending-work 的表述已与三并发 worker 实现一致，不再包含顺序逐张处理或 currentPage 单调的旧口径",
+      "scope": ".trellis/spec/frontend/features/001-gallery-download-bundle/、features/index.md、features/pending-work.md、decisions/2026-09-18-reader-behavior.md",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/acceptance/10-24-download-concurrency-spec-alignment/spec-grep.log"
+      ],
+      "note": "grep 逐张/按页顺序/顺序/currentPage 全量复核。spec.md:75 FR-001 改为固定三个并发 worker 抓取、写入压缩包前按页码排序；spec.md:27 场景 1 与 spec.md:83 FR-009 同口径；spec.md:28 与 spec.md:76 的零填充示例与最小宽度一并由 3 位改为 4 位（实现为 GalleryDownloadService.ts:364 的 Math.max(4, String(totalPages).length)）；data-model.md:15/22 说明 currentPage 为已完成页数且并发下仍单调不减；contracts/gallery-download.openapi.yaml:167 processedPages 补 description；quickstart.md:26 改为按页码打包+并发乱序说明；decisions/2026-09-18-reader-behavior.md:13 完成标准改为三并发 worker + 打包前排序；pending-work.md 删除「下载图片抓取并发」整节；features/index.md 删除「已知状态差异」中的并发条目。残留的 `顺序` 命中均为合法表述（spec.md:79 分片按顺序下载、spec.md:86 FR-012 换源顺序、features/index.md:5 阅读顺序与权威）。",
+      "waiver": null
+    },
+    {
+      "id": "i18n-finished-count-wording",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "downloadFetching 的 cn/en/jp 均为已完成计数口径，占位符保持 {{current}} / {{total}}",
+      "scope": "core/assets/i18n.ts:522-526 与 core/service/GalleryDownloadService.ts:496/523 的 current 取值",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/acceptance/10-24-download-concurrency-spec-alignment/i18n-grep.log"
+      ],
+      "note": "i18n.ts:523 cn `已完成 {{current}}/{{total}} 张图片`、:524 en `Completed {{current}} / {{total}} images`、:525 jp `{{current}} / {{total}} 枚完了`；GalleryDownloadService.ts:496（抓取前推送）与 :523（抓取后推送）的 current 均取 `processedPages`，与该文案的「已完成」语义一致。",
+      "waiver": null
+    },
+    {
+      "id": "download-progress-monotonic-test",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "下载抓取的进度数字在并发乱序完成时单调不减，且消息文案为已完成计数",
+      "scope": "tests/download-metadata.test.cjs 新增用例 `fetch progress reports finished page counts that never decrease under concurrency`",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:download-metadata"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-24T16:53:10Z",
+        "endedAt": "2026-10-24T16:53:11Z",
+        "log": ".tmp/acceptance/10-24-download-concurrency-spec-alignment/test-download-metadata.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-24-download-concurrency-spec-alignment/test-download-metadata.log",
+        "tests/download-metadata.test.cjs",
+        "core/service/GalleryDownloadService.ts"
+      ],
+      "note": "用例用 `slowFirstPage = index => index === 0 ? 20 : 0` 的微任务 hop 制造乱序完成（不用真实计时器），pageCount 5、chunkSize 3；断言 fetching 事件 >= 10 条、processedPages 序列单调不减、末值为 5、每条 message 等于 `已完成 ${current}/${total} 张图片`。把 GalleryDownloadService.ts:496 的 current 临时改回 pageNumber 后该用例失败，恢复后通过，证明断言能抓住回归。同次运行另一条用例 `download metadata records local time with an explicit zone offset` 也通过（2 passed / 0 failed）。",
+      "waiver": null
+    },
+    {
+      "id": "type-check",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "TypeScript 类型检查通过",
+      "scope": "全仓库 vue-tsc --noEmit",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "type-check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-24T16:53:09Z",
+        "endedAt": "2026-10-24T16:53:10Z",
+        "log": ".tmp/acceptance/10-24-download-concurrency-spec-alignment/type-check.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-24-download-concurrency-spec-alignment/type-check.log"
+      ],
+      "note": "`vue-tsc --noEmit` 无输出、退出码 0；改动涉及 core/service/GalleryDownloadService.ts 与 core/assets/i18n.ts。",
+      "waiver": null
+    },
+    {
+      "id": "download-time-test",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "downloadTime 本地时区格式化用例通过",
+      "scope": "tests/download-time.test.cjs",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:download-time"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-24T16:53:11Z",
+        "endedAt": "2026-10-24T16:53:11Z",
+        "log": ".tmp/acceptance/10-24-download-concurrency-spec-alignment/test-download-time.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-24-download-concurrency-spec-alignment/test-download-time.log",
+        "tests/download-time.test.cjs"
+      ],
+      "note": "3 passed / 0 failed，确认本次未影响 metadata 的时间格式化路径。",
+      "waiver": null
+    },
+    {
+      "id": "docs-links",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "文档链接与引用全部有效",
+      "scope": "scripts/check-docs.mjs 全量检查",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check:docs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-24T16:54:28Z",
+        "endedAt": "2026-10-24T16:54:28Z",
+        "log": ".tmp/acceptance/10-24-download-concurrency-spec-alignment/check-docs.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-24-download-concurrency-spec-alignment/check-docs.log"
+      ],
+      "note": "`check-docs: 39 md, 6 yaml, 220 本地链接, 0 外链(仅记录), 70 $ref` 后输出 OK。",
+      "waiver": null
+    },
+    {
+      "id": "vite-download-desktop",
+      "ac": [
+        "AC3",
+        "AC7"
+      ],
+      "claim": "desktop 1200x900 下本地 Vite 页面触发一次两分片真实下载：进度计数单调不减并显示已完成口径，压缩包内图片按页码命名，滚动与书页模式入口一致",
+      "scope": "本地 Vite http://127.0.0.1:5173/?pageTotal=6（TEST 平台），chrome desktop profile，artifact .tmp/browser-preflight/download-concurrency-desktop-2470e50d-50d6-41ce-b0f1-76f331b5a948",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/vite-service-evidence.json",
+        ".tmp/browser-preflight/download-concurrency-desktop-2470e50d-50d6-41ce-b0f1-76f331b5a948/result.json",
+        ".tmp/browser-preflight/download-concurrency-desktop-2470e50d-50d6-41ce-b0f1-76f331b5a948/zip-verify.json",
+        ".tmp/browser-preflight/download-concurrency-desktop-2470e50d-50d6-41ce-b0f1-76f331b5a948/reader-open-scroll.png",
+        ".tmp/browser-preflight/download-concurrency-desktop-2470e50d-50d6-41ce-b0f1-76f331b5a948/download-confirm-scroll.png",
+        ".tmp/browser-preflight/download-concurrency-desktop-2470e50d-50d6-41ce-b0f1-76f331b5a948/download-notification.png",
+        ".tmp/browser-preflight/download-concurrency-desktop-2470e50d-50d6-41ce-b0f1-76f331b5a948/book-mode-entry.png",
+        ".tmp/acceptance-verify-download-concurrency-desktop-2470e50d-50d6-41ce-b0f1-76f331b5a948.log"
+      ],
+      "note": "服务：`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，node PID 81584（wrapper 81564），验收后已 kill 并确认 5173 释放。preflight result.json observed=passed / preparation=verified / checks=executed，11 个 phase 全部 executed。验收夹具：用 Page.addScriptToEvaluateOnNewDocument 之外的页面内 `window.GM_xmlhttpRequest` shim（包装真实 fetch 返回 ArrayBuffer）满足 TestAlbumService 的抓图路径，并给 1/4/5/6 页加 120–940ms 延迟制造乱序完成；分片大小通过 patch 既有 unified-settings 记录（保留 resetId）改为 3。实测：GM 调用 6 次、startOrder [1,2,3,4,5,6]、fetchedOrder [2,3,1,4,5,6]（乱序完成）、maxInflight=3；fetching 采样 188 条、distinctCounts [0,1,2,3,4,5,6]、lastCount=6、finalCounter `6 / 6`、finalClass `status-notification-item phase-completed severity-success`、finalMessage `下载完成`。ZIP 校验：`title_part-01-of-02.zip`(719429B) 条目 [metadata.json,0001.jpg,0002.jpg,0003.jpg]、`title_part-02-of-02.zip`(620420B) 条目 [metadata.json,0004.jpg,0005.jpg,0006.jpg]，六张图 JPEG magic 均为 true，metadata 七字段（introUrl /g/id/test/、galleryTitle title、totalPages 6、downloadTime 2026-10-25T00:48:21.984+08:00、eHunterVersion 3.1.0、totalChunks 2、chunkIndex 1/2）。入口一致性：scroll 与 book 模式下更多菜单均为 [更多设置,快速预览,下载]，下载确认弹窗标题 `下载确认`、按钮 [取消,确定]。主会话已查看 reader-open-scroll.png / download-confirm-scroll.png / download-notification.png / book-mode-entry.png。verify-browser 状态 passed。",
+      "waiver": null
+    },
+    {
+      "id": "vite-download-mobile",
+      "ac": [
+        "AC3",
+        "AC7"
+      ],
+      "claim": "mobile 390x844 下同一链路触发两分片下载，进度与压缩包结果一致，书页模式入口可用",
+      "scope": "本地 Vite http://127.0.0.1:5173/?pageTotal=6（TEST 平台），chrome mobile profile，artifact .tmp/browser-preflight/download-concurrency-mobile-c417b624-dc57-4c14-bcb7-aae0303d0361",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/vite-service-evidence.json",
+        ".tmp/browser-preflight/download-concurrency-mobile-c417b624-dc57-4c14-bcb7-aae0303d0361/result.json",
+        ".tmp/browser-preflight/download-concurrency-mobile-c417b624-dc57-4c14-bcb7-aae0303d0361/zip-verify.json",
+        ".tmp/browser-preflight/download-concurrency-mobile-c417b624-dc57-4c14-bcb7-aae0303d0361/reader-open-book.png",
+        ".tmp/browser-preflight/download-concurrency-mobile-c417b624-dc57-4c14-bcb7-aae0303d0361/download-confirm-book.png",
+        ".tmp/browser-preflight/download-concurrency-mobile-c417b624-dc57-4c14-bcb7-aae0303d0361/download-notification.png",
+        ".tmp/acceptance-verify-download-concurrency-mobile-c417b624-dc57-4c14-bcb7-aae0303d0361.log"
+      ],
+      "note": "同一服务实例（PID 81584）。预置方式的差异：390x844 下顶栏字段按重叠规则全部隐藏，无法点击阅读模式切换，因此本轮在 navigate 里 patch readingMode=1 后重新加载文档进入书页模式（prepareReader 只做正常挂载等待），这属于验收夹具差异，不是产品行为差异。result.json observed=passed / preparation=verified / checks=executed。实测：distinctCounts [0,1,2,3,4,5]、lastCount=5、finalCounter `6 / 6`、maxInflight=3、fetchedOrder [2,3,1,4,5,6]；ZIP 产物与 desktop 完全一致（同条目、同字节数、metadata 除 downloadTime 为 2026-10-25T00:48:04.890+08:00 外相同）。书页模式入口：更多菜单 [更多设置,快速预览,下载]，确认弹窗标题 `下载确认`、按钮 [取消,确定]。主会话已查看 reader-open-book.png / download-confirm-book.png / download-notification.png（通知被版本更新弹窗局部遮挡，`下载完成` 与 `6 / 6` 仍可见）。verify-browser 状态 passed。",
+      "waiver": null
+    }
+  ]
+}

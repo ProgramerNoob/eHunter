@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "自检项与质量约定"}
+{"file": ".trellis/spec/frontend/features/001-gallery-download-bundle/spec.md", "reason": "核对改写后的需求是否自洽、FR 编号未丢"}
+{"file": ".trellis/spec/frontend/features/001-gallery-download-bundle/data-model.md", "reason": "核对进度语义与校验规则一致"}
+{"file": ".trellis/spec/frontend/decisions/2026-09-18-reader-behavior.md", "reason": "确认决策条款与规格不冲突"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "核对证据、逐项回填与收尾是否按指南执行"}

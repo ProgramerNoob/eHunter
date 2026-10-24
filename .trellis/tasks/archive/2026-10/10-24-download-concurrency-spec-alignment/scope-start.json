@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-24-download-concurrency-spec-alignment",
+  "branch": "master",
+  "head": "c0cae525596d422fd22122eacf378160d292f5ee",
+  "indexTree": "08bbb6cf9baaf6107e9a1f522b573ce90a48df7b",
+  "capturedAt": "2026-10-24T23:41:38+08:00",
+  "scopeDigest": "cca71aded61a3707c0d963ff716b9c40f5e36c2ee2f90d167c06ba8445b52b2d",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-24-download-concurrency-spec-alignment/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "bddfc4abd9a5f5e35853f897edda608163404398b0c6ff8d46096bdd91ddf068"
+    },
+    ".trellis/tasks/10-24-download-concurrency-spec-alignment/design.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "f53f99b6a70a6e4251b257f54b5930eb173d5623f7fbf1e76f7cb4404abc796d"
+    },
+    ".trellis/tasks/10-24-download-concurrency-spec-alignment/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "97a86506d5afa50376e356f99fbcd79a5fcf30374e80d322c58b9316af6fe5c9"
+    },
+    ".trellis/tasks/10-24-download-concurrency-spec-alignment/implement.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e8016770ca4addadd1096ada626fcc36cac2d8e06970a5287186be9289d4ae1a"
+    },
+    ".trellis/tasks/10-24-download-concurrency-spec-alignment/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "451303336596d75b50a63fb1b31ce7d2a29cb0e275a24e626a6dc91578116f66"
+    },
+    ".trellis/tasks/10-24-download-concurrency-spec-alignment/scope-start.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "8ef277cea3397cadda98fb1739bc6b24df68b1e543cce245f5de82b934cad024"
+    },
+    ".trellis/tasks/10-24-download-concurrency-spec-alignment/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "d42cc552f46dd88a8e985d13c9a1ae087b1c7245cff77e7d3ffaea423910777b"
+    }
+  }
+}

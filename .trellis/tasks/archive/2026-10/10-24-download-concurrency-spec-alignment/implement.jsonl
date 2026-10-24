@@ -1,0 +1,7 @@
+{"file": ".trellis/spec/frontend/features/001-gallery-download-bundle/spec.md", "reason": "下载功能需求与 FR-001 是本任务要改写的对象，需先知其当前措辞与上下文"}
+{"file": ".trellis/spec/frontend/features/001-gallery-download-bundle/data-model.md", "reason": "currentPage 字段与校验规则需要按已完成计数改写"}
+{"file": ".trellis/spec/frontend/features/001-gallery-download-bundle/contracts/gallery-download.openapi.yaml", "reason": "processedPages 契约需补语义说明，确认字段集合不变"}
+{"file": ".trellis/spec/frontend/decisions/2026-09-18-reader-behavior.md", "reason": "第 1 节下载格式条款含旧的顺序抓取表述，需同步为并发口径"}
+{"file": ".trellis/spec/frontend/features/pending-work.md", "reason": "未收口项清单，任务完成后需删除并发一节"}
+{"file": ".trellis/spec/frontend/features/index.md", "reason": "已知状态差异条目需随本轮收口删除"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "行为验收的分类、视口、证据与收尾规则以此为准"}

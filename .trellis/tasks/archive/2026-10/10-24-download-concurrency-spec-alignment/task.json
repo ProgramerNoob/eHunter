@@ -1,0 +1,58 @@
+{
+  "id": "download-concurrency-spec-alignment",
+  "name": "download-concurrency-spec-alignment",
+  "title": "下载抓取并发对齐规格与进度语义",
+  "description": "承认画廊下载使用三个并发 worker，改写相关规格与决策，并让抓取进度只按已完成计数单调推进",
+  "status": "completed",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-24",
+  "completedAt": "2026-10-25",
+  "branch": "docs/download-concurrency-spec",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-24-download-concurrency-spec-alignment/**"
+        ],
+        "spec": [
+          ".trellis/spec/frontend/features/001-gallery-download-bundle/**",
+          ".trellis/spec/frontend/features/pending-work.md",
+          ".trellis/spec/frontend/features/index.md",
+          ".trellis/spec/frontend/decisions/2026-09-18-reader-behavior.md"
+        ],
+        "i18n": [
+          "core/assets/i18n.ts"
+        ],
+        "service": [
+          "core/service/GalleryDownloadService.ts"
+        ],
+        "tests": [
+          "tests/download-metadata.test.cjs",
+          "tests/download-time.test.cjs"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "ee01bdaefeeb58a4ef20cc2acaeafd6445954ad03abccaf5516dd50ad8d97983"
+      }
+    },
+    "commit": "5b09b25"
+  }
+}
