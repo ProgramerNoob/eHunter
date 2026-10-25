@@ -28,6 +28,7 @@ function createRuntime({ globals = {}, stubs = new Map(), realModules = [] } = {
     };
     const context = vm.createContext({
         URL, URLSearchParams, ...globals, window, Date: ClockDate,
+        Error, TypeError, RangeError,
         setTimeout, clearTimeout,
         console: Object.fromEntries(['error', 'warn', 'log', 'info', 'debug'].map(level =>
             [level, (...args) => (logs[level] || logs.log).push(args)])),

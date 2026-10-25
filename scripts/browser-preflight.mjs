@@ -13,6 +13,16 @@ const EVENT_DRAIN_GRACE_MS = 1000;
 const INPUTS = ['src', 'core', 'index.html', 'vite.config.ts', 'vite.config.prod.ts', 'package.json', 'package-lock.json'];
 const sha = value => createHash('sha256').update(value).digest('hex');
 const identity = value => ({ sha256: sha(value), bytes: Buffer.byteLength(value), length: value.toString().length });
+const firstDivergence = (expected, actual) => {
+  const limit = Math.min(expected.length, actual.length);
+  let offset = 0;
+  while (offset < limit && expected.charCodeAt(offset) === actual.charCodeAt(offset)) offset += 1;
+  const lineStart = expected.lastIndexOf('\n', offset - 1) + 1;
+  const lineEnd = expected.indexOf('\n', offset);
+  const lineAt = value => value.slice(lineStart, lineEnd === -1 ? value.length : lineEnd).trim().slice(0, 200);
+  return { offset, line: expected.slice(0, offset).split('\n').length,
+    expectedLine: lineAt(expected), actualLine: lineAt(actual), lengthDelta: actual.length - expected.length };
+};
 const errorRecord = error => ({ name: error?.name ?? 'Error', message: error?.message ?? String(error), stack: error?.stack, code: error?.code, details: error?.details });
 const inside = (root, file) => file !== root && !path.relative(root, file).startsWith(`..${path.sep}`) && path.relative(root, file) !== '..' && !path.isAbsolute(path.relative(root, file));
 
@@ -768,7 +778,8 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
       const topLevel = recordedTop?.ranges[0]?.endOffset === actual.length ? recordedTop : undefined;
       const row = { scriptId: script.scriptId, url: script.url, context: contexts.get(script.executionContextId),
         frameId: frame.id, loaderId: frame.loaderId, expected: identity(expectedSource), actual: identity(actual),
-        exact: expectedSource === actual, topLevel, http,
+        exact: expectedSource === actual, difference: expectedSource === actual ? undefined : firstDivergence(expectedSource, actual),
+        topLevel, http,
         fullBundleCandidate: userscript && isProductionBundle(actual, bundle, result.permissions.production.name),
         verified: expectedSource === actual && !!topLevel };
       rows.push(row);

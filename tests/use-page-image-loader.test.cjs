@@ -53,9 +53,6 @@ function createHarness({ supportChangeSource, autoRetryByOtherSource }) {
         ['../../utils/logger', { logText: (tag, text) => logs.push([tag, text]) }],
     ]);
     const runtime = createRuntime({
-        // The page realm and the fixture must share one Error identity: prod code
-        // checks `resp instanceof Error` on values produced by the same realm.
-        globals: { Error },
         stubs,
         realModules: [LOADER, 'core/service/imageRetryPolicy.ts', 'core/model/model.ts'],
     });

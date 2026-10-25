@@ -204,6 +204,19 @@ test('same version and same length different bundle is blocked before UI or chec
   assert.equal(f.page.openCount, 0);
 });
 
+test('mismatched source reports where the two texts diverge', async t => {
+  const f = await fixture(t);
+  const old = BUNDLE.replace('中文😀A', '中文😀B');
+  f.page.onNavigate = () => f.page.addScript('bundle', '', old);
+  const error = await blocked(f, /Exact source/);
+  const { difference } = error.result.identity[0];
+  assert.equal(difference.lengthDelta, 0);
+  assert.equal(difference.offset, BUNDLE.indexOf('中文😀A') + '中文😀'.length);
+  assert.match(difference.expectedLine, /中文😀A/);
+  assert.match(difference.actualLine, /中文😀B/);
+  assert.ok(difference.line >= 1);
+});
+
 for (const [name, second] of [
   ['current and same-length stale EH bundles coexist', BUNDLE.replace('中文😀A', '中文😀B')],
   ['duplicate current EH bundles coexist', BUNDLE],

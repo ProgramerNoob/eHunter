@@ -16,6 +16,16 @@ import cleanup_browser as cleanup
 TASK_SPACE = "10-17-resource-cleanup-check"
 
 
+def _unused_test_port() -> int:
+    """Port that is free right now, so a developer's dev server cannot flake the run."""
+    with socket.socket() as probe:
+        probe.bind(("127.0.0.1", 0))
+        return probe.getsockname()[1]
+
+
+TEST_PORT = _unused_test_port()
+
+
 class FakeProbe:
     """Read-only probe surface; anything else is a contract violation."""
 
@@ -75,7 +85,7 @@ class CleanupTests(unittest.TestCase):
 
     def server(self, label="s1", **overrides):
         data = {
-            "label": label, "pid": 4242, "pidFile": ".tmp/service.pid", "port": 8787,
+            "label": label, "pid": 4242, "pidFile": ".tmp/service.pid", "port": TEST_PORT,
             "expectedCwd": ".", "expectedCommand": "node scripts/serve-bundle.mjs",
             "processStartToken": "4242@Fri Oct 17 10:00:00 2026",
             "owner": "agent", "createdByTask": TASK_SPACE,
@@ -266,7 +276,7 @@ class CleanupTests(unittest.TestCase):
             with self.subTest(label=label):
                 self.setUp()
                 self.live()
-                self.probe.listeners_by_port[8787] = setup["listeners"]
+                self.probe.listeners_by_port[TEST_PORT] = setup["listeners"]
                 if setup["pid_file"]:
                     self.probe.pid_files[self.root / ".tmp/service.pid"] = {
                         "present": True, "content": "4242\n"}
@@ -296,7 +306,7 @@ class CleanupTests(unittest.TestCase):
             with self.subTest(label=label):
                 self.setUp()
                 self.live(**overrides)
-                self.probe.listeners_by_port[8787] = [4242]
+                self.probe.listeners_by_port[TEST_PORT] = [4242]
                 code, report = self.run_cleanup(servers=[self.server()])
                 entry = self.server_report(report)
                 self.assertEqual((code, entry["classification"]), (1, "unknown"))
@@ -312,7 +322,7 @@ class CleanupTests(unittest.TestCase):
                 self.setUp()
                 if label.startswith("alive"):
                     self.live()
-                self.probe.listeners_by_port[8787] = listeners
+                self.probe.listeners_by_port[TEST_PORT] = listeners
                 code, report = self.run_cleanup(servers=[self.server()])
                 entry = self.server_report(report)
                 self.assertEqual((code, entry["classification"]), (1, "unknown"))
@@ -518,7 +528,7 @@ class CleanupTests(unittest.TestCase):
 
     def test_no_destructive_calls(self):
         self.live()
-        self.probe.listeners_by_port[8787] = [4242]
+        self.probe.listeners_by_port[TEST_PORT] = [4242]
         with patch.object(cleanup.subprocess, "run",
                           side_effect=AssertionError("unexpected shell probe")), \
                 patch.object(os, "kill") as kill:
@@ -598,15 +608,15 @@ class SystemProbeTests(unittest.TestCase):
         probe = cleanup.SystemProbe()
         warning = cleanup.subprocess.CompletedProcess([], 0, "p4242\n", "lsof: WARNING: can't stat() fuse")
         with patch.object(cleanup.subprocess, "run", return_value=warning):
-            self.assertEqual(probe.listeners(8787), [4242])
+            self.assertEqual(probe.listeners(TEST_PORT), [4242])
         denied = cleanup.subprocess.CompletedProcess([], 1, "", "lsof: permission denied")
         with patch.object(cleanup.subprocess, "run", return_value=denied):
             with self.assertRaises(cleanup.ProbeError):
-                probe.listeners(8787)
+                probe.listeners(TEST_PORT)
         failed = cleanup.subprocess.CompletedProcess([], 2, "", "")
         with patch.object(cleanup.subprocess, "run", return_value=failed):
             with self.assertRaises(cleanup.ProbeError):
-                probe.listeners(8787)
+                probe.listeners(TEST_PORT)
 
     def test_live_process_with_unreadable_cwd_is_not_reported_as_exited(self):
         probe = cleanup.SystemProbe()

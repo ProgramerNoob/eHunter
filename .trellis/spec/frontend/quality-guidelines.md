@@ -21,8 +21,10 @@ mutate that production line once and confirm the suite turns red before restorin
 Cross-realm fixtures need the same care as same-source expectations. A stub that throws
 the host realm's `Error` never satisfies an `instanceof Error` check running inside the
 fixture's `vm` context, so the branch under test is skipped silently and the assertions
-pass for the wrong reason. Inject the host constructors the production code tests
-against (`globals: { Error }`) and re-check that the failure path actually ran.
+pass for the wrong reason. `tests/helpers/runtime-fixture.cjs` injects the host
+`Error`/`TypeError`/`RangeError` constructors by default for this reason; do not remove
+them or shadow them from a test-local `globals`. Re-check that the failure path actually
+ran and turns red when the fixture stops injecting them.
 
 ## Documentation boundaries
 

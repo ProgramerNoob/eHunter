@@ -136,6 +136,16 @@ blocked 时按其输出的具体差异处理——重复注入、旧包候选、
 
 UI 改动分别用通用指南的 desktop / mobile 固定 profile 运行预检、关键交互和截图；`mode: quick` 同样通过准备门，只缩小功能范围。响应式断点、截图读取和 NH 基础请求层回归按通用指南与仓库要求执行，实际覆盖范围据实记录。NH 页面自带的 `Uncaught (in promise)`、广告拦截或 Cloudflare RUM 错误按脚本来源归因，不上升为产品失败；无法归因的严重错误先记 blocked。
 
+### 6.1 制造失败与等待状态
+
+以下是平台验收常用的三种手法，都必须在 `withBrowserPreflight` 的 `navigate` 内、`page.goto` 之前完成设置，否则已有文档不受影响：
+
+- **拦截图片请求**：`await page.cdp('Network.enable', {}); await page.cdp('Network.setBlockedURLs', { urls: [...] })`。EH 整图域为 `*.hath.network`（含带端口的主机，用 `*hath.network*` 匹配）；NH 整图域为 `i<n>.nhentai.net`（用 `*://i*.nhentai.net/galleries/*`，不要连带缩略图的 `t<n>` 域，否则阅读器起不来）。被拦截的请求在 `Network.loadingFailed` 里 `errorText` 为空、`blockedReason` 为 `inspector`。
+- **统计抓取次数**：用 `performance.getEntriesByType('resource')` 按 URL 形状分组，不要用 CDP 事件条数。EH 形如 `/(\d{3})\.(?:webp|jpg|png|gif)/`，NH 形如 `/^https:\/\/i\d\.nhentai\.net\/galleries\/\d+\/(\d+)\./`；断言的数字是**图片请求数**，不等于 `getImgSrc` 调用次数——阶段可以在拿到新图地址前就失败，所以 `gained` 只做区间断言，用界面上的重试计数（`[重载-N]`）做精确口径。
+- **等状态收敛**：不要在 phase 里用长 `page.waitForTimeout`，也不要 `page.cdp('Runtime.evaluate', { awaitPromise: true })` 等一个长 Promise——`page.events timed out` 与 `CdpRequestTimeoutError` 都会让整轮 blocked。改用短间隔轮询：连续多次采样结果完全一致且已过最小等待时间才返回，并用 `page.waitForFunction` 等具体 DOM 条件。轮询的总预算必须小于本轮 `options.timeoutMs`（上限 60000），否则同样超时。
+
+单页可有多个 `<img>` 渲染位（卷轴模式下 `core/components/AlbumScrollView.vue` 的 `.preload` 区会预渲染下一页），所以运行时请求数不等于单个 `PageView` 实例的预算；按单页统计时用同一页 URL 的分组计数。
+
 ### 7. 输出报告与收尾
 
 报告写入 `.tmp/test-reports/reader-test-<platform>-<timestamp>.md`，包含：时间、实际测试 URL、平台、测试模式和范围；构建/服务/安装前提依据、helper 产物目录、当前文档身份、初始化、控制台来源及影响；各项实际 passed、failed、blocked 或 unrun（失败附复现步骤，阻塞列明准备条件与下游未执行范围）；桌面端、移动端及相关断点的截图路径；阻塞项与可执行的下一步，明确区分已验证和未验证部分。

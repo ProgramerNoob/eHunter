@@ -81,6 +81,18 @@ helper 比对当前文档**全部已加载项目模块**：Node 从已确认 ori
 
 `inventory` 分列已加载、必需但缺失、未加载输入、非项目脚本及锁文件关联。第三方预构建脚本不属于项目源码比对；独立 CSS/图片/字体记录响应、本地同源 body 和页面应用观察，视觉检查仍由验收者完成。范围仅覆盖清单中的当前文档 JS，未触发分支、整个工作树和独立资源的视觉新鲜度须另列未验证。
 
+源码 identity 报 `Exact source or full-length top-level execution evidence missing` 时，先看 details 里 `exact: false` 项的 `difference` 字段：它给出首个不等字符的 `offset`、所在 `line`、两边该行内容（`expectedLine` / `actualLine`）和 `lengthDelta`。如果两边只差一行已删的注释或几字节，通常不是陈旧产物（bundle）而是 Vite 浏览器缓存——浏览器保留了旧 transform 结果，而 `fetch` 走新 transform，两边全文因此不等。在 `navigate` 里先清缓存再导航：
+
+```js
+navigate: async () => {
+  await page.cdp('Network.clearBrowserCache', {});
+  await page.cdp('Network.setCacheDisabled', { cacheDisabled: true });
+  await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+},
+```
+
+不要用改源码、重启 dev server 或换 origin 来绕过：这些都会改变本轮输入的指纹或归属记录。
+
 ### 当前页面 bootstrap
 
 需要以页面真实初始状态（persisted 阅读模式、非起始页、已自动打开的 reader）验收时，用 `bootstrapReader` 作为功能断言前的准备步骤，不通过清 storage、改设置或注入脚本制造状态。它在本轮 `withBrowserPreflight` 内、`prepareReader` 之后调用，复用同一 `page`、`taskSpace` 和本轮 `artifactDir`；`page.events()` 仍只由 `withBrowserPreflight` 消费。
@@ -243,9 +255,10 @@ python3 scripts/acceptance.py cleanup-browser <task-space> --pages <pages.json> 
 
 未覆盖（各自归属场景，非预检职责）：
 
-- **真实下载冒烟**：小画廊下载后解 ZIP 校验图片条目与内容，防"仅 metadata 的 ZIP 伪绿"。涉及 GM 下载链路与真实 EH 登录环境，属 `reader-test` 的 EH 场景；后续独立任务候选，不混入工具链改动。
 - **物理设备矩阵**：真机 DPR/触摸/UA 组合；预检只保证 CDP 仿真回执一致。
-- **Node/Python 版本矩阵**：CI 声明 Node 20 / Python 3.11，本机实际跑 Node 22 / Python 3.12；跨版本一致性由各自 CI 覆盖，预检不重复断言。
+- **Node/Python 版本矩阵**：`.github/workflows/check.yml` 与本地都跑 Node 22 / Python 3.12，跨版本一致性由 CI 覆盖，预检不重复断言。
+
+真实下载冒烟已由归档任务 `10-24-download-concurrency-spec-alignment` 用两轮 Vite preflight 落实：ZIP 内条目按页码命名、`metadata.json` 七字段、`jpegMagic` 逐张核对，产物见该任务 `acceptance.json` 的两条 runtime check；`reader-test` 仍需覆盖 EH/NH 生产包下的同类检查。
 
 测试对照：`tests/browser-preflight.test.mjs`（`npm run test:browser-preflight`）逐条覆盖上述已覆盖项的阻断行为（仿真拒绝、旧包变体、身份排除、日志归因、健康条件、meta 恢复等），新增断言须同步加测试与本清单。
 
