@@ -1,0 +1,44 @@
+{
+  "id": "mobile-reading-mode-entry",
+  "name": "mobile-reading-mode-entry",
+  "title": "移动端阅读模式切换入口",
+  "description": "390 宽下顶栏快捷设置被重叠规则整体隐藏，更多菜单与快捷键都没有阅读模式切换入口，移动端无法在书页/卷轴模式之间切换。补齐一个在窄视口可达的切换入口，并回归两个平台的两种模式。",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-25",
+  "completedAt": null,
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-25-mobile-reading-mode-entry/**"
+        ],
+        "spec": [
+          ".trellis/spec/**"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "e8eb3667644ac34c04ee81307ab3e7fe2dcdc1a0ed9f8caeb8b65928de67c6fe"
+      }
+    }
+  }
+}

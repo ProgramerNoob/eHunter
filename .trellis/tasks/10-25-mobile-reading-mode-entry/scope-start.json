@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-25-mobile-reading-mode-entry",
+  "branch": "master",
+  "head": "fd7259a2d0b918b900b8e4fb946d684c9fcf61f0",
+  "indexTree": "46deefba9928ddee55c27a79ce51d583519db998",
+  "capturedAt": "2026-10-25T15:32:42+08:00",
+  "scopeDigest": "3703700fb7f0bf85c3667427df98804c6bee120be1fed51585c2b5c721f9089e",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-25-mobile-reading-mode-entry/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-mobile-reading-mode-entry/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-mobile-reading-mode-entry/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "01d381c58805f5a135a407b8b931eac5db1a555ac21239c172dfe7357ab4d58f"
+    },
+    ".trellis/tasks/10-25-mobile-reading-mode-entry/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "7f34731d6e8a29f7186c02b6f71fe24a276e470e76f88f101aedeba69bb8b98a"
+    }
+  },
+  "scopeExtensions": [
+    {
+      "category": "spec",
+      "rules": [
+        ".trellis/spec/**"
+      ],
+      "at": "2026-10-25T18:43:53+08:00"
+    }
+  ]
+}

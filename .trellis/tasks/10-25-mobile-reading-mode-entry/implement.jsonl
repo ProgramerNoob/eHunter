@@ -1,0 +1,4 @@
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"Vue 组件的 props/events、控件位置与样式约定，本次新增菜单项须遵循"}
+{"file":".trellis/spec/frontend/state-management.md","reason":"阅读模式切换须走 storeAction.setReadingMode，确认共享状态与持久化边界"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"单测有效性要求（哨兵值、真实 i18n 模块）与验收口径"}
+{"file":".trellis/spec/frontend/browser-acceptance.md","reason":"TEST 平台桌面/移动两轮验收流程与证据格式，含 390 宽顶栏重叠规则"}

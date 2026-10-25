@@ -1,0 +1,5 @@
+{"file":".trellis/spec/frontend/component-guidelines.md","reason":"检查组件契约与 UI 约定是否被遵守"}
+{"file":".trellis/spec/frontend/state-management.md","reason":"检查是否复用既有状态路径、未新增并行状态"}
+{"file":".trellis/spec/frontend/quality-guidelines.md","reason":"检查单测是否会在生产代码变更时变红、验收记录是否完整"}
+{"file":".trellis/spec/frontend/browser-acceptance.md","reason":"检查两轮浏览器证据与视口 profile 是否齐备"}
+{"file":".pi/skills/reader-test/SKILL.md","reason":"EH/NH 生产包验收流程与平台差异"}

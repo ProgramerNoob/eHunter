@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "`core/store/app.ts` 的 `readingMode` 字段进入「更多设置」弹窗的通用分类（`showInDialog: true`、`dialogCategory: 'general'`），且控件为下拉、选项为滚动/书页；单测覆盖该定义与下拉列表值。",
+    "AC2": "下拉选项与标签文案来自 `core/assets/i18n.ts` 的 `readingMode` / `readingModeTip` / `scrollMode` / `bookMode` 词条，缺词条或写死文案会让单测失败。",
+    "AC3": "选择下拉值经 `setFieldValue('readingMode', ...)` 走 `storeAction.setReadingMode`，`store.readingMode` 随之为新值；单测覆盖双向切换。",
+    "AC4": "浏览器验收：TEST 平台桌面（1200 × 900）与移动（390 × 844）各一轮，在「更多设置 → 通用」切换后 `store.readingMode` 为切换值、阅读容器随模式变化，`verify-browser` 通过。",
+    "AC5": "平台验收：EH 与 NH 生产包各至少一轮，确认弹窗内该项可操作且切换后阅读容器随模式变化。",
+    "AC6": "`npm run check` 全绿（type-check、全部单测、build-prod、check:docs）。"
+  },
+  "checks": [
+    {
+      "id": "settings-row-unit",
+      "ac": [
+        "AC1",
+        "AC2",
+        "AC3"
+      ],
+      "claim": "readingMode 字段进入通用分类的下拉行，选项为滚动/书页，标签与选项文案取自 i18n，选择值经 storeAction.setReadingMode 写回并双向切换",
+      "scope": "tests/settings-reading-mode-row.test.cjs 通过 storage-fixture 加载真实 core/store/app.ts 校验字段定义与下拉值，通过 runtime-fixture 加载真实 core/store/settingFieldRuntime.ts 校验 getDropList/getFieldValue/setFieldValue，i18n 用哨兵值覆盖被断言词条",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:settings-reading-mode-row"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T11:14:53.326899+00:00",
+        "endedAt": "2026-10-25T11:14:53.666174+00:00",
+        "log": ".tmp/acceptance/10-25-mobile-reading-mode-entry/tmpu614urdv.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-25-mobile-reading-mode-entry/tmpu614urdv.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "test-desktop-round",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "TEST 平台桌面 1200×900 打开「更多设置 → 通用」，下拉切换到书页后 readingMode 为 1、阅读容器切到 book，再切回滚动恢复 scroll",
+      "scope": "TEST 平台 desktop profile，Vite dev origin，模式往返各一次",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/settings-mode-desktop-4322cb5e-6148-4733-854d-f98882020163/result.json",
+        ".tmp/browser-preflight/settings-mode-desktop-4322cb5e-6148-4733-854d-f98882020163/measurements.json",
+        ".tmp/browser-preflight/settings-mode-desktop-4322cb5e-6148-4733-854d-f98882020163/settings-dialog-desktop.png",
+        ".tmp/browser-preflight/settings-mode-desktop-4322cb5e-6148-4733-854d-f98882020163/settings-mode-book-desktop.png",
+        ".tmp/browser-preflight/settings-mode-desktop-4322cb5e-6148-4733-854d-f98882020163/settings-mode-restored-desktop.png"
+      ],
+      "note": "TEST 平台 1200x900 DPR1 一轮通过，verify-browser status=passed。实测：更多菜单 3 项（更多设置/快速预览/下载）→ 更多设置弹窗 general 分组首行「阅读模式 / 设置阅读模式」，下拉显示当前值「滚动」；下拉展开两项 [滚动, 书页]；点「书页」后 dropText=书页，.content 由 album-scroll-view content scroll-mode 变为 album-book-view mode-realistic content book-mode，bookVisible=true / scrollVisible=false；再点「滚动」回到 scroll 容器。截图人工核对：通用首行即阅读模式行，切换后弹窗保持打开、背景容器随模式变化。",
+      "waiver": null
+    },
+    {
+      "id": "test-mobile-round",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "TEST 平台移动 390×844 从「更多设置 → 通用」切换阅读模式成功，顶栏字段虽被重叠规则隐藏但弹窗入口可达",
+      "scope": "TEST 平台 mobile profile，先点 .float-content 的显示/隐藏顶栏按钮再核对",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/settings-mode-mobile-ed585613-200c-4ef7-8201-471166b8fa94/result.json",
+        ".tmp/browser-preflight/settings-mode-mobile-ed585613-200c-4ef7-8201-471166b8fa94/measurements.json",
+        ".tmp/browser-preflight/settings-mode-mobile-ed585613-200c-4ef7-8201-471166b8fa94/settings-dialog-mobile.png",
+        ".tmp/browser-preflight/settings-mode-mobile-ed585613-200c-4ef7-8201-471166b8fa94/settings-mode-book-mobile.png",
+        ".tmp/browser-preflight/settings-mode-mobile-ed585613-200c-4ef7-8201-471166b8fa94/settings-mode-restored-mobile.png"
+      ],
+      "note": "TEST 平台 390x844 DPR3 一轮通过，verify-browser status=passed。实测：更多按钮 rect {x:273,y:7,width:26,height:26} 可见且在视口内；弹窗打开后通用首行即「阅读模式 / 设置阅读模式 / 滚动」，下拉展开 [滚动, 书页]，切换到书页与切回滚动均只显示对应容器。截图人工核对：390 宽下阅读模式行与下拉完整可见，未被重叠规则隐藏。",
+      "waiver": null
+    },
+    {
+      "id": "eh-production-round",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "EH 生产包中「更多设置 → 通用」阅读模式下拉可操作，切换后阅读容器随模式变化",
+      "scope": "exhentai.org 生产包 + Tampermonkey 开发加载器，desktop profile",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/reader-test-eh/run-settings-mode-124f0992/result.json",
+        ".tmp/reader-test-eh/run-settings-mode-124f0992/measurements.json",
+        ".tmp/reader-test-eh/run-settings-mode-124f0992/eh-settings-dialog.png",
+        ".tmp/reader-test-eh/run-settings-mode-124f0992/eh-settings-mode-book.png",
+        ".tmp/reader-test-eh/run-settings-mode-124f0992/eh-settings-mode-restored.png",
+        ".tmp/reader-test-eh/build-prod.log",
+        ".tmp/reader-test-eh/installation.md"
+      ],
+      "note": "EH 生产包（dist/ehunter.iife.js 443864 bytes sha256 7ed6c671d8ff8db0a51415a34f74fd3c029a902ad64f8f185143451a894a9453 + 开发加载器 1.0.2，https://exhentai.org/s/80813c92df/3482416-1）desktop 一轮通过，verify-browser status=passed。实测：更多菜单 3 项；弹窗 general 行序 [阅读模式, 语言, 加载页数, 下载分片大小, 自动换源重试, 放大镜倍率, 放大镜区域]；下拉 [滚动, 书页]；切换到书页后 contentClass=album-book-view mode-realistic content book-mode、bookVisible=true、progress 保持 1 / 136；切回滚动后 contentClass=album-scroll-view content scroll-mode。截图人工核对通过。",
+      "waiver": null
+    },
+    {
+      "id": "nh-production-round",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "NH 生产包中「更多设置 → 通用」阅读模式下拉可操作，切换后阅读容器随模式变化",
+      "scope": "nhentai.net 生产包 + Tampermonkey 开发加载器，desktop profile",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/reader-test-nh/run-settings-mode-ec8c68cd/result.json",
+        ".tmp/reader-test-nh/run-settings-mode-ec8c68cd/measurements.json",
+        ".tmp/reader-test-nh/run-settings-mode-ec8c68cd/nh-settings-dialog.png",
+        ".tmp/reader-test-nh/run-settings-mode-ec8c68cd/nh-settings-mode-book.png",
+        ".tmp/reader-test-nh/run-settings-mode-ec8c68cd/nh-settings-mode-restored.png",
+        ".tmp/reader-test-eh/build-prod.log",
+        ".tmp/reader-test-nh/installation.md"
+      ],
+      "note": "NH 生产包（同一 bundle，https://nhentai.net/g/688467/1/）desktop 一轮通过，verify-browser status=passed。实测：弹窗 general 首行「阅读模式 / 设置阅读模式 / 滚动」，下拉 [滚动, 书页]，切换到书页后 contentClass=album-book-view mode-realistic content book-mode、bookVisible=true、progress 1 / 18，切回 scroll。NH 首次导航时阅读器已自动打开、helper 的 closeReader 需要原站基线，故改用页面内关闭按钮 + #ehunter-switch 重开，并断言重开后仍为 scroll 容器；首轮因此报 PreflightBlocked 的记录已在 failure 产物之外删除，最终产物为通过轮。",
+      "waiver": null
+    },
+    {
+      "id": "npm-check",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "type-check、全部单测、build-prod 与 check:docs 全部通过",
+      "scope": "仓库根目录 npm run check",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T11:14:23.077676+00:00",
+        "endedAt": "2026-10-25T11:14:48.574472+00:00",
+        "log": ".tmp/acceptance/10-25-mobile-reading-mode-entry/tmp_n1i68q3.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-25-mobile-reading-mode-entry/tmp_n1i68q3.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    }
+  ]
+}
