@@ -352,7 +352,8 @@ export const settingFieldDefinitions: SettingFieldDefinition[] = [
         tipI18nKey: 'readingModeTip',
         modeScope: 'both',
         showInTopBar: true,
-        showInDialog: false,
+        showInDialog: true,
+        dialogCategory: 'general',
         dropKey: 'readingModeList',
     },
     {
