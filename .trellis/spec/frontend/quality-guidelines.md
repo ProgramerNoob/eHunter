@@ -67,7 +67,7 @@ Run from the repository root. [package.json](../../../package.json) is authorita
 | `npm run test:browser-preflight` | Runs Node's built-in test runner against controlled browser-preflight fixtures |
 | `npm run test:reader-lifecycle` | Runs Node regressions for optional update notices and entry viewport restoration |
 | `npm run test:initializer-timeout` | Runs Node regressions for platform-initialization timeouts |
-| `npm run test:settings-reading-mode-row` | Runs the Node regression that loads the real store, setting-field runtime and i18n dictionary and asserts the reading-mode row's category, dropdown options and store-action routing |
+| `npm run test:settings-reading-mode-row` | Runs the Node regression that loads the real store and setting-field runtime, mounts the real `DropOption.vue`, and asserts the reading-mode row's category, dropdown options, i18n labels and store-action routing |
 | `npm test` | Runs the acceptance Python suites plus every `test:*` Node regression, in `package.json` order |
 | `npm run check` | Runs type-check, `npm test`, the production build and the documentation check; stops at the first failure |
 | `npm run build` | Runs normal `vite build` |
@@ -125,6 +125,31 @@ boundaries are explicit substitutes. Passing VMs do **not** prove userscript gra
 sandbox/serialization behavior, actual EH/EX/NH sharing, browser scheduling, desktop
 or mobile UI, parsing, image loading or downloads. Product/storage changes still
 need the applicable real-platform acceptance below.
+
+## Widget rendering tests without a DOM library
+
+`package.json` ships no `jsdom`, `happy-dom` or `@vue/test-utils`, and this section keeps it
+that way. [`settings-reading-mode-row.test.cjs`](../../../tests/settings-reading-mode-row.test.cjs)
+shows the supported shape for proving rendered text:
+
+- compile the real `.vue` file with `@vue/compiler-sfc` (`parse`, then
+  `compileScript(descriptor, { id, inlineTemplate: true })`) and transpile it with the
+  `typescript` package, instead of hand-copying template strings;
+- mount through `vue.createRenderer` with a host that implements `patchProp`,
+  `insert`/`remove`, `createElement`/`createText`, `setElementText`, `parentNode`,
+  `nextSibling`, `querySelector` and `insertStaticContent`. Element props land on the
+  node's `props`, so a raw `onClick` handler is reached as `node.onClick`;
+- resolve every relative import through an explicit module table, so a new import in the
+  component fails loudly rather than silently stubbing the change under test;
+- build child-component stubs with a `render` function, not a `template` string: there is
+  no compiler wired into the runtime, and a `template` stub renders nothing;
+- inject the i18n module as `vue.computed(() => dict)`, mirroring
+  [`core/store/i18n.ts`](../../../core/store/i18n.ts); a plain `{ value }` object breaks
+  reactivity and empty strings slip into the assertions.
+
+These tests prove rendered text and emitted events only. They do **not** prove CSS,
+layout, focus order, touch behavior or the real popover placement; UI changes still need
+the browser routes below.
 
 ## Acceptance routing
 

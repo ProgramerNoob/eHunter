@@ -1,0 +1,50 @@
+{
+  "id": "review-fix-settings-row-tests",
+  "name": "review-fix-settings-row-tests",
+  "title": "阅读模式设置行：单测改用真模块并补渲染层验证",
+  "description": "修复 10-25-mobile-reading-mode-entry 审查发现：settings-reading-mode-row 单测的 test 2/3 用桩自证，改为加载真实 store 模块；新增挂载 DropOption.vue 的渲染层用例证明下拉文案来自 i18n；同步修正 quality-guidelines 与 acceptance 记录中失真表述，并为移动端失败轮补说明。",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-25",
+  "completedAt": null,
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-25-review-fix-settings-row-tests/**"
+        ],
+        "tests": [
+          "tests/**"
+        ],
+        "spec": [
+          ".trellis/spec/**"
+        ],
+        "config": [
+          "package.json"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "a88358f7860fb340b5fb2a14997851a0a15e601d41df6383e6eb9851d0760488"
+      }
+    }
+  }
+}

@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "test 2/3 不再包含 `core/store/app.ts` 的 `stubs` 条目，直接使用 `createPage({}).app` 的真实导出；删除 `settingConf.readingModeList` 或把 `dialogCategory` 改成其他值，至少一条用例变红。",
+    "AC2": "新增的渲染层用例挂载真实 `DropOption.vue`，断言下拉文本为 `__sentinel_<key>__`；把模板文案写死后该用例变红。",
+    "AC3": "`.trellis/spec/frontend/quality-guidelines.md` 对该测试的描述与实现一致，`npm run check:docs` 通过。",
+    "AC4": "移动端失败轮的性质与复核结论（首轮下拉展开时序未达，同一脚本改为等待 popover 可见后重跑通过；四轮 `verify-browser` 于复核时重跑均 passed）写入本任务记录。",
+    "AC5": "`npm run check` 全绿。"
+  },
+  "checks": [
+    {
+      "id": "store-driven-unit",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "test 2/3 从真实 core/store/app.ts 导出取得字段定义与下拉列表，删除列表项或改动 dialogCategory 会让用例变红",
+      "scope": "tests/settings-reading-mode-row.test.cjs 的 test 2/3，配合三次变异（删 readingModeList、dialogCategory 改值、setFieldValue 绕过 storeAction）",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:settings-reading-mode-row"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T11:49:26.557350+00:00",
+        "endedAt": "2026-10-25T11:49:27.034783+00:00",
+        "log": ".tmp/acceptance/10-25-review-fix-settings-row-tests/tmp46p9gjx5.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-25-review-fix-settings-row-tests/tmp46p9gjx5.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "dropdown-render-unit",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "挂载真实 DropOption.vue 时下拉当前值与展开项文本来自 i18n 哨兵字典，模板写死文案会让用例变红",
+      "scope": "tests/settings-reading-mode-row.test.cjs 新增渲染层用例，i18n 用 __sentinel_<key>__ 覆盖 scrollMode/bookMode",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/10-25-review-fix-settings-row-tests/run-render-subset.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T11:50:29.280043+00:00",
+        "endedAt": "2026-10-25T11:50:29.555597+00:00",
+        "log": ".tmp/acceptance/10-25-review-fix-settings-row-tests/tmpp7yhaot9.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-25-review-fix-settings-row-tests/tmpp7yhaot9.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "spec-and-docs",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "quality-guidelines 对该测试的描述覆盖真实 store 模块与组件渲染两层，文档检查通过",
+      "scope": "npm run check:docs",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check:docs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T11:50:33.745756+00:00",
+        "endedAt": "2026-10-25T11:50:33.850601+00:00",
+        "log": ".tmp/acceptance/10-25-review-fix-settings-row-tests/tmposwgbatv.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-25-review-fix-settings-row-tests/tmposwgbatv.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "failed-round-record",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "移动端失败轮的性质、原因与四轮 verify-browser 复核结论写入任务记录",
+      "scope": ".trellis/tasks/10-25-review-fix-settings-row-tests 下的说明文档与结果记录",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-25-review-fix-settings-row-tests/failed-round-review.md",
+        ".tmp/10-25-review-fix-settings-row-tests/verify-browser.json",
+        ".tmp/browser-preflight/settings-mode-mobile-dfa4f63b-a807-4870-a118-df102f00aec3/result.json",
+        ".tmp/browser-preflight/settings-mode-mobile-dfa4f63b-a807-4870-a118-df102f00aec3/events.jsonl",
+        ".tmp/browser-preflight/settings-mode-mobile-dfa4f63b-a807-4870-a118-df102f00aec3/settings-dialog-mobile.png",
+        ".tmp/browser-preflight/settings-mode-mobile-ed585613-200c-4ef7-8201-471166b8fa94/result.json"
+      ],
+      "note": "失败轮 settings-mode-mobile-dfa4f63b 的 result.json 记 observed: failed、checks: failed、preparation: verified，3 条 ProductAssertion「下拉选项应展开」details {\"options\": [], \"open\": false}，phase open-mode-dropdown:after；events.jsonl 显示 before → after 仅 0.4 秒、只有 4 次 waiting，没有等待可见性的循环；round-05-settings-mobile.mjs mtime 19:09:37+0800（=11:09:37Z）晚于失败轮结束 11:09:20Z、早于通过轮开始 11:09:37.180Z，两次运行之间的改动即第 244-256 行等待 .popover 满足 display!==none && opacity>0 && width>0 的 page.waitForFunction。复核时重跑 verify-browser 五份产物：4 份 passed（desktop 4322cb5e、mobile ed585613、EH 124f0992、NH ec8c68cd），失败轮 dfa4f63b 仍 blocked（errors 记录 3 条失败）。失败轮产物原样保留作反证，未删除、未改写。",
+      "waiver": null
+    },
+    {
+      "id": "npm-check",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "type-check、全部单测、build-prod 与 check:docs 全部通过",
+      "scope": "仓库根目录 npm run check",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T11:50:38.347454+00:00",
+        "endedAt": "2026-10-25T11:51:02.825335+00:00",
+        "log": ".tmp/acceptance/10-25-review-fix-settings-row-tests/tmpa4pos9r_.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-25-review-fix-settings-row-tests/tmpa4pos9r_.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    }
+  ]
+}

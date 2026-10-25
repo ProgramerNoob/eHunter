@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-25-review-fix-settings-row-tests",
+  "branch": "master",
+  "head": "480d42c4349834e8f96150695176b7d10badf819",
+  "indexTree": "cfb8a9ce02e590648725795097467beb11ca56c6",
+  "capturedAt": "2026-10-25T19:43:52+08:00",
+  "scopeDigest": "eb9368b44a13542fa343995159c948c92f413a13cc19a0eb7001e22d33263365",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-25-review-fix-settings-row-tests/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-review-fix-settings-row-tests/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-review-fix-settings-row-tests/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "5eebb027cb967f2caeb1d44a20cc7b3276ea3cc9421b4c5b5305c677bce1734f"
+    },
+    ".trellis/tasks/10-25-review-fix-settings-row-tests/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "7fb41e8c2aa9e1593e69d86c0f7e234bcf1d82c8792dd264f08aa5f5138226fc"
+    }
+  },
+  "scopeExtensions": [
+    {
+      "category": "tests",
+      "rules": [
+        "tests/**"
+      ],
+      "at": "2026-10-25T19:45:09+08:00"
+    },
+    {
+      "category": "spec",
+      "rules": [
+        ".trellis/spec/**"
+      ],
+      "at": "2026-10-25T19:45:09+08:00"
+    },
+    {
+      "category": "config",
+      "rules": [
+        "package.json"
+      ],
+      "at": "2026-10-25T19:45:09+08:00"
+    }
+  ]
+}

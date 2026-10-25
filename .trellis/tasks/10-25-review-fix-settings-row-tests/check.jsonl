@@ -1,0 +1,4 @@
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "核对断言是否与生产同源、变异是否真的变红、命令表描述是否准确"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "核对渲染层用例是否覆盖文案来源与事件契约"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "核对写入路径仍经 storeAction 而非直接赋值"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "核对失败轮说明与 verify-browser 复核结论的记录口径"}

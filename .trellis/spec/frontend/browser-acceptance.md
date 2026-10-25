@@ -238,6 +238,8 @@ python3 scripts/acceptance.py cleanup-browser <task-space> --pages <pages.json> 
 
 主会话依 [逐项验收协议](./quality-guidelines.md#acceptance-record-schemaversion-1) 唯一回填 `acceptance.json`。准备或必要取证/保存失败记 runtime/blocked，下游未执行功能与截图记 unrun；进入功能后的明确 `check.assert` 失败记 failed。若产品失败与 finally 保存失败并存，保留产品 failed 项及证据 blocked 项，不能互相覆盖。`result.observed` 只代表本次 helper 调用；`checks: 'executed'` 表示回调执行完，具体产品结果和视觉项仍据实回填。
 
+同一场景跑过多轮时，回填只登记通过轮并不够：说明里要写清失败轮的存在、它的 `phase` 与错误文本、两次运行之间脚本的改动内容、以及失败轮产物是否保留。失败的 `check.assert` 轮要原样留在 `.tmp/browser-preflight/` 下作为反证——它证明断言真的会在产品出错时变红，删除后就只剩“一直绿”的断言。
+
 失败抛出的 `BrowserPreflightError.result` 保留分项事实，外层保存调用日志并传播 `error.exitCode` 非零。`acceptance.py run` 会把普通非零命令记为 failed，不能自动映射浏览器准备 blocked；浏览器项由主会话读取真实结果回填，工具自测/静态断言可走 command。最后运行既有 summarize，由其计算结果，不手写整体 passed。
 
 ## 4.5 预检断言覆盖清单
