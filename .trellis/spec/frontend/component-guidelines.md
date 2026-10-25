@@ -88,8 +88,8 @@ Grep the key name, then walk the indirection points that name keys from data:
 `i18n[...]` in [MoreSettingsDialog.vue](../../../core/components/MoreSettingsDialog.vue:17)
 and [TopBar.vue](../../../core/components/TopBar.vue:25), and the `i18nKey` / `labelI18nKey` /
 `tipI18nKey` / `abbrI18nKey` / `dropKey` fields inside `settingFieldDefinitions`
-([core/store/app.ts](../../../core/store/app.ts:354)), `settingConf` (`:1625`), `quickSettingOptions`
-(`:228`) and `settingsCategories` (`:249`). A key with no literal hit is still live when a data
+([core/store/app.ts](../../../core/store/app.ts:347)), `settingConf` (`:1531`), `quickSettingOptions`
+(`:221`) and `settingsCategories` (`:242`). A key with no literal hit is still live when a data
 entry names it, so remove the data entry and the key together. Keys left behind by a removed
 UI (for example the old second-row settings) usually have neither kind of consumer and are
 safe to delete once both passes come back empty.
