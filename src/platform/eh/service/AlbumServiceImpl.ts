@@ -3,7 +3,6 @@ import type { AlbumService } from '../../../../core/service/AlbumService'
 import type { ImgPageInfo, ThumbInfo, PreviewThumbnailStyle } from '../../../../core/model/model'
 import { ThumbMode, ImgSrcMode } from '../../../../core/model/model'
 import { ImgHtmlParser } from '../parser/ImgHtmlParser'
-import { IntroHtmlParser } from '../parser/IntroHtmlParser'
 import { ImgUrlListParser } from '../parser/ImgUrlListParser'
 import { TextReq } from '../../base/request/TextReq'
 import type { InitializationStepUpdate } from '../../types'
@@ -34,7 +33,6 @@ export class EHAlbumServiceImpl implements AlbumService {
   private albumId: string = ''
   private curPageIndex: number = 0
   private title: string = ''
-  private isInitialized: boolean = false
   private reportInitializationStep: (step: InitializationStepUpdate) => void = () => {}
   private initializationStepStatus: Record<string, InitializationStepUpdate['status']> = {}
   private readonly initializationStepOrder = EH_INITIALIZATION_STEPS.map(step => step.id)
@@ -162,7 +160,6 @@ export class EHAlbumServiceImpl implements AlbumService {
         )
       )
 
-      this.isInitialized = true
       console.log('EH Platform initialized successfully', {
         title: this.title,
         pageCount: this.pageCount,

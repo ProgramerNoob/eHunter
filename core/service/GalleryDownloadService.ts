@@ -64,15 +64,6 @@ function delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms))
 }
 
-async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, code: string): Promise<T> {
-    return await Promise.race([
-        promise,
-        new Promise<T>((_, reject) => {
-            window.setTimeout(() => reject(new Error(code)), timeoutMs)
-        }),
-    ])
-}
-
 function normalizeChunkSize(raw: number): number {
     if (!Number.isFinite(raw) || raw <= 0) {
         return defaultChunkSize

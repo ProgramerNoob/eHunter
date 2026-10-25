@@ -1,4 +1,4 @@
-import { computed, nextTick, ref, type ComputedRef, type Ref } from 'vue'
+import { computed, nextTick, ref, type ComputedRef } from 'vue'
 import type { AlbumService } from '../../service/AlbumService'
 import { ImgSrcMode } from '../../model/model'
 import { i18n } from '../../store/i18n'

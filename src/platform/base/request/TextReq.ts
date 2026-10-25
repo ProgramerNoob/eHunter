@@ -8,7 +8,6 @@ export class TextReq {
     private timeoutTime = 15; // secs
     private curRetryTimes = 0;
     private retryInterval = 3; // secs
-    private enabledLog = true;
     private fetchSetting = null;
     private noCache = false;
     private rejectError = true;

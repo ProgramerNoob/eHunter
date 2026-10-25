@@ -28,7 +28,7 @@ import AwesomeScrollView from './widget/AwesomeScrollView.vue'
 import Pagination from './widget/Pagination.vue'
 import PageView from './PageView.vue'
 import { store, storeAction, computedVolIndex, computedVolFirstIndex, computedVolPageIndexList, computedVolumeSum, computedCurVolNo, computedVolPreloadPageIndexList } from '../store/app'
-import { ref, computed, watch, inject, onMounted, nextTick, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 
 const updater = 'album_scroll_view'
 const animationTime = 800

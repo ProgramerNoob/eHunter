@@ -77,8 +77,6 @@ const bottomThumbStyle = computed(() => {
     return { height }
 })
 
-let dragPointerId = -1
-let resizePointerId = -1
 let dragStartX = 0
 let dragStartY = 0
 let hasDragMoved = false
@@ -129,8 +127,6 @@ function startDockDrag(payload: GestureStartPayload) {
     dragStartX = payload.clientX
     dragStartY = payload.clientY
     previewSlot.value = detectPreviewSlot(payload.clientX, payload.clientY)
-    const source = payload.sourceEvent as PointerEvent
-    dragPointerId = Number.isFinite(source.pointerId) ? source.pointerId : -1
     window.addEventListener('pointermove', onDragMove)
     window.addEventListener('pointerup', onDragEnd)
     window.addEventListener('pointercancel', onDragCancel)
@@ -153,7 +149,6 @@ function cleanupDrag() {
     window.removeEventListener('pointermove', onDragMove)
     window.removeEventListener('pointerup', onDragEnd)
     window.removeEventListener('pointercancel', onDragCancel)
-    dragPointerId = -1
 }
 
 function onDragEnd(event: PointerEvent) {
@@ -180,8 +175,6 @@ function forceStopDrag() {
 function startResize(payload: GestureStartPayload) {
     isResizing.value = true
     document.body.style.userSelect = 'none'
-    const source = payload.sourceEvent as PointerEvent
-    resizePointerId = Number.isFinite(source.pointerId) ? source.pointerId : -1
     window.addEventListener('pointermove', onResizeMove)
     window.addEventListener('pointerup', onResizeEnd)
     window.addEventListener('pointercancel', onResizeEnd)
@@ -206,7 +199,6 @@ function onResizeMove(event: PointerEvent) {
 function onResizeEnd() {
     isResizing.value = false
     document.body.style.userSelect = ''
-    resizePointerId = -1
     window.removeEventListener('pointermove', onResizeMove)
     window.removeEventListener('pointerup', onResizeEnd)
     window.removeEventListener('pointercancel', onResizeEnd)

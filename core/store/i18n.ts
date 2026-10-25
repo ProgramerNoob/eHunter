@@ -1,4 +1,4 @@
-import { reactive, ref, computed } from 'vue'
+import { ref, computed } from 'vue'
 import i18nText from '../assets/i18n'
 
 const langMap: any = {cn: {}, en: {}, jp: {}}

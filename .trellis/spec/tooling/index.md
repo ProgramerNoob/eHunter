@@ -8,4 +8,14 @@
 | [任务改动范围门禁](task-scope-gate.md) | 修改任务 scope、start 快照、archive 检查或排查越界/legacy 诊断 |
 | [验收资源清理检查](../frontend/browser-acceptance.md#资源清理检查) | 修改 `cleanup-browser` 输入、分类或退出码，或核对浏览器收尾资源 |
 
+## 本地提交门禁
+
+`.github/workflows/check.yml` 在 push 与 PR 上跑 `npm run check`；本地默认没有任何 hook，提交前是否跑检查全靠人记。仓库内提供 `.githooks/pre-commit`（调用同一个 `npm run check`，约 25 秒），每个 clone 需手动启用一次：
+
+```bash
+git config core.hooksPath .githooks
+```
+
+`git commit --no-verify` 仍可绕过；只改文档或任务产物时可改跑 `npm run check:docs` 并跳过 hook。hook 失败时先修，不用 `--no-verify` 掩盖类型、测试、构建或链接问题。
+
 开发前核对实际角色声明与启动器。质量检查按上述规范验证工具暴露、调用结果、交付及退出状态；只改工具文本时无需产品浏览器或构建。验收记录遵循 [验收协议](../frontend/quality-guidelines.md#acceptance-record-schemaversion-1)。

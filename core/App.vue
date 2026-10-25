@@ -4,81 +4,14 @@
             <ReaderView />
             <StatusNotificationStack />
         </div>
-        <!-- <LoadingView style="width: 100%; height: 500px;"/>
-        <AwesomeScrollView>
-            <div>aaa</div>
-            <div>aaa</div>
-            <div>aaa</div>
-            <div>aaa</div>
-            <div>aaa</div>
-            <div>aaa</div>
-            <div>bbb</div>
-            <div>bbb</div>
-            <div>bbb</div>
-            <div>ccc</div>
-        </AwesomeScrollView>
-        <div style="margin-top: 100px;">
-            <CircleIconButton icon-type="close" :rotate="store.rotate" @click="store.rotate = !store.rotate" />
-            <CircleIconButton icon-type="expand" :rotate="store.rotate" @click="store.rotate = !store.rotate" />
-            <CircleIconButton icon-type="menu" :rotate="store.rotate" @click="store.rotate = !store.rotate" />
-            <DropOption :list="settingConf.readingModeList" :cur-val="store.readingMode" :format-cur-val-by-list="true"
-                @change="(val) => storeAction.setReadingMode(val)" />
-            <FlatButton label="test" @click="lang = 'jp'" />
-            <Pagination :page-sum="store.pageSum" :cur-index="store.pageCurIndex" @change="(n) => store.pageCurIndex = n" />
-            <NumDropOption 
-                    :quick-options="settingConf.widthScale.list"
-                    :cur-val="store.widthScale"
-                    suffix="%"
-                    :min="30"
-                    :max="100"
-                    :is-float="true"
-                    @change="(val) => storeAction.setWidthScale(val)" />
-            <SimpleSwitch :active="store.switchActive" @change="val => store.switchActive = val" />
-            <NumDropOption 
-                    :quick-options="settingConf.loadNum.list"
-                    :cur-val="store.loadNum"
-                    :suffix="settingConf.loadNum.suffix"
-                    :min="1"
-                    :max="100"
-                    @change="(val) => storeAction.setLoadNum(val)" />
-            <SimpleSwitch
-                :active="store.showThumbView"
-                @change="() => storeAction.toggleShowThumbView()" />
-            <NumDropOption 
-                :quick-options="settingConf.pagesPerScreen.list"
-                :cur-val="store.pagesPerScreen"
-                :suffix="settingConf.pagesPerScreen.suffix"
-                :min="1"
-                :max="10"
-                @change="(val) => storeAction.setPagesPerScreen(val)" />
-            <DropOption 
-                :list="settingConf.bookDirection.list"
-                :cur-val="store.bookDirection"
-                :format-cur-val-by-list="true"
-                :use-abbr-name="true"
-                @change="(val) => storeAction.setBookDirection(val)" />
-        </div> -->
     </div>
 </template>
 
 <script setup lang="ts">
 /// <reference types="vite-svg-loader" />
-import { store, settingConf, storeAction, init } from './store/app'
-import { lang } from './store/i18n'
-import CircleIconButton from './components/widget/CircleIconButton.vue'
-import DropOption from './components/widget/DropOption.vue'
-import FlatButton from './components/widget/FlatButton.vue'
-import Pagination from './components/widget/Pagination.vue'
-import NumDropOption from './components/widget/NumDropOption.vue'
-import SimpleSwitch from './components/widget/SimpleSwitch.vue'
-import TopBar from './components/TopBar.vue'
-import LoadingView from './components/LoadingView.vue'
-import AwesomeScrollView from './components/widget/AwesomeScrollView.vue'
-import AlbumScrollView from './components/AlbumScrollView.vue'
-import AlbumBookView from './components/AlbumBookView.vue'
+import { init } from './store/app'
 import ReaderView from './components/ReaderView.vue'
 import StatusNotificationStack from './components/status/StatusNotificationStack.vue'
-import PageView from './components/PageView.vue'
 import { inject, onMounted, ref } from 'vue'
 import { NameAlbumService } from './service/AlbumService'
 import type { AlbumService } from './service/AlbumService'

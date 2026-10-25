@@ -1,7 +1,6 @@
 import { computed, reactive, watch } from 'vue'
 import { i18n, lang } from './i18n'
 import type { AlbumService } from '../service/AlbumService'
-import { NameAlbumService } from '../service/AlbumService'
 import type { ImgPageInfo, ThumbInfo } from 'core/model/model'
 import { initViewportSizeUpdater, initKeyboardListener, resetAutoFlipTimer, checkInstructions, openWelcomeInstructionDialog, checkVersion } from './event'
 import PlatformService from '../../src/platform/base/service/PlatformService.js'
