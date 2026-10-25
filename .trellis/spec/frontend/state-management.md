@@ -133,7 +133,7 @@ which is the same path the pinned top-bar control uses.
 
 The runtime routing table and the settings definitions must stay in sync. Before deleting a store
 field, check [settingFieldRuntime.ts](../../../core/store/settingFieldRuntime.ts) as well as
-`settingFieldDefinitions` ([core/store/app.ts](../../../core/store/app.ts:347)): a route that outlives its
+`settingFieldDefinitions` ([core/store/app.ts](../../../core/store/app.ts)): a route that outlives its
 definition is a dead branch, while a field kept only for that route still participates in
 persistence and normalization. Delete both sides together, or keep the field and document why.
 The two tables are isomorphic — 21 field ids each, with an empty difference in

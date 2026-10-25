@@ -38,6 +38,10 @@ except for `/// <reference types="...">` directives, SCSS section comments insid
 express. Current-state facts belong in the specs, not in comments; unclosed differences
 between spec and implementation are listed in [pending work](./features/pending-work.md).
 
+Cite code by symbol, not by line number. Link the file (`[core/store/app.ts](../../../core/store/app.ts)`)
+and name the symbol in the sentence; `check-docs` only proves the file and anchor exist, so a
+line number silently rots into the neighbouring field after the next insertion.
+
 ## Delivery boundaries
 
 Keep each user story independently implementable and testable, with its own acceptance
