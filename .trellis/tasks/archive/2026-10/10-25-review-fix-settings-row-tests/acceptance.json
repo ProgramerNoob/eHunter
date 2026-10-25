@@ -103,7 +103,7 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-25-review-fix-settings-row-tests/failed-round-review.md",
+        ".trellis/tasks/archive/2026-10/10-25-review-fix-settings-row-tests/failed-round-review.md",
         ".tmp/10-25-review-fix-settings-row-tests/verify-browser.json",
         ".tmp/browser-preflight/settings-mode-mobile-dfa4f63b-a807-4870-a118-df102f00aec3/result.json",
         ".tmp/browser-preflight/settings-mode-mobile-dfa4f63b-a807-4870-a118-df102f00aec3/events.jsonl",
