@@ -66,8 +66,10 @@ Run from the repository root. [package.json](../../../package.json) is authorita
 | `npm run test:storage` | Runs Node's built-in test runner against the real storage modules in isolated VMs |
 | `npm run test:browser-preflight` | Runs Node's built-in test runner against controlled browser-preflight fixtures |
 | `npm run test:reader-lifecycle` | Runs Node regressions for optional update notices and entry viewport restoration |
-| `npm test` | Runs all acceptance Python suites plus the storage, browser-preflight and reader-lifecycle regressions |
-| `npm run check` | Runs type-check, all four regression suites, then the production build; stops at the first failure |
+| `npm run test:initializer-timeout` | Runs Node regressions for platform-initialization timeouts |
+| `npm run test:settings-reading-mode-row` | Runs the Node regression that loads the real store, setting-field runtime and i18n dictionary and asserts the reading-mode row's category, dropdown options and store-action routing |
+| `npm test` | Runs the acceptance Python suites plus every `test:*` Node regression, in `package.json` order |
+| `npm run check` | Runs type-check, `npm test`, the production build and the documentation check; stops at the first failure |
 | `npm run build` | Runs normal `vite build` |
 | `npm run build-only` / `npm run build-dev` | Same normal Vite build; neither adds type-checking |
 | `npm run build-prod` | Builds the IIFE userscript with the production config |

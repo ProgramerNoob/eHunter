@@ -119,8 +119,17 @@ Trace the entire path in `app.ts` and
    any quick control use the same value and bounds.
 
 A UI control alone does not create a persisted setting. `readingMode` is pinned in
-quick settings; unknown field IDs and invalid stored values are filtered during
+quick settings and also appears as a dropdown in the dialog's General category
+(`showInDialog: true`, `dialogCategory: 'general'`, `dropKey: 'readingModeList'`);
+unknown field IDs and invalid stored values are filtered during
 normalization. Retain those rules when extending settings.
+
+A second entry point for an existing setting renders the store-owned value, requests a
+transition, and leaves persistence, layout switching, auto-flip reset and instruction
+checks to the existing action — do not duplicate that work in the component. The
+reading-mode dropdown passes the chosen `0`/`1` to `storeAction.setReadingMode` through
+`setFieldValue` in [settingFieldRuntime.ts](../../../core/store/settingFieldRuntime.ts),
+which is the same path the pinned top-bar control uses.
 
 The runtime routing table and the settings definitions must stay in sync. Before deleting a store
 field, check [settingFieldRuntime.ts](../../../core/store/settingFieldRuntime.ts) as well as
