@@ -10,7 +10,7 @@
 
 ## 本地提交门禁
 
-`.github/workflows/check.yml` 在 push 与 PR 上跑 `npm run check`；本地默认没有任何 hook，提交前是否跑检查全靠人记。仓库内提供 `.githooks/pre-commit`（调用同一个 `npm run check`，约 25 秒），每个 clone 需手动启用一次：
+`.github/workflows/check.yml` 在 push 与 PR 上跑 `npm run check`；本地默认没有任何 hook，提交前是否跑检查全靠人记。仓库内提供 `.githooks/pre-commit`（调用同一个 `npm run check`），每个 clone 需手动启用一次：
 
 ```bash
 git config core.hooksPath .githooks

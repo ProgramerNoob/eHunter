@@ -22,9 +22,10 @@ Cross-realm fixtures need the same care as same-source expectations. A stub that
 the host realm's `Error` never satisfies an `instanceof Error` check running inside the
 fixture's `vm` context, so the branch under test is skipped silently and the assertions
 pass for the wrong reason. `tests/helpers/runtime-fixture.cjs` injects the host
-`Error`/`TypeError`/`RangeError` constructors by default for this reason; do not remove
-them or shadow them from a test-local `globals`. Re-check that the failure path actually
-ran and turns red when the fixture stops injecting them.
+`Error`/`TypeError`/`RangeError` constructors by default and rejects any of them passed
+through `globals`; pass host objects and functions instead of shadowing the constructors.
+Re-check that the failure path actually ran and turns red when the fixture stops
+injecting them.
 
 ## Documentation boundaries
 

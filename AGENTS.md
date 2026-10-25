@@ -39,6 +39,7 @@
 - 代码是唯一证据；不写注释，文字说明放在文档里。
 - 本文件由人工审阅维护，只保留项目边界、稳定约束和按需读取入口：具体功能约定归 `.trellis/spec/frontend/features/`，版本与依赖归配置文件，操作步骤归上面的专项指南，验收记录留在功能资料或任务内。
 - `reset --hard`、强制推送等破坏性 Git 操作仅在用户明确要求时执行。
+- 提交前跑 `npm run check`；仓库提供 `.githooks/pre-commit` 自动执行同一命令，新 clone 需要先 `git config core.hooksPath .githooks` 启用（说明见 [工具规范](.trellis/spec/tooling/index.md#本地提交门禁)）。
 - 提交信息建议标注作用域，例如 `refactor(core)`、`feat(src)`、`fix(platform-eh)`、`fix(platform-base)`、`fix(parser)`；迁移说明注明来源目录、目标目录和原因。
 <!-- TRELLIS:START -->
 # Trellis Instructions

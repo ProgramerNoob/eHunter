@@ -256,9 +256,9 @@ python3 scripts/acceptance.py cleanup-browser <task-space> --pages <pages.json> 
 未覆盖（各自归属场景，非预检职责）：
 
 - **物理设备矩阵**：真机 DPR/触摸/UA 组合；预检只保证 CDP 仿真回执一致。
-- **Node/Python 版本矩阵**：`.github/workflows/check.yml` 与本地都跑 Node 22 / Python 3.12，跨版本一致性由 CI 覆盖，预检不重复断言。
+- **Node/Python 版本矩阵**：CI 固定 Node 22 / Python 3.12（`.github/workflows/check.yml`），跨版本一致性由 CI 覆盖，预检不重复断言；本机解释器版本随开发者环境变化，不写进本规范。
 
-真实下载冒烟已由归档任务 `10-24-download-concurrency-spec-alignment` 用两轮 Vite preflight 落实：ZIP 内条目按页码命名、`metadata.json` 七字段、`jpegMagic` 逐张核对，产物见该任务 `acceptance.json` 的两条 runtime check；`reader-test` 仍需覆盖 EH/NH 生产包下的同类检查。
+真实下载冒烟已具备闭环验证路径：多分片下载后解压校验片内条目按页码命名、`metadata.json` 七字段与 `jpegMagic`，验收步骤与判定标准见 [001-gallery-download-bundle/quickstart.md](features/001-gallery-download-bundle/quickstart.md)，归档任务 `10-24-download-concurrency-spec-alignment` 已按该步骤执行过一次；`reader-test` 仍需覆盖 EH/NH 生产包下的同类检查。
 
 测试对照：`tests/browser-preflight.test.mjs`（`npm run test:browser-preflight`）逐条覆盖上述已覆盖项的阻断行为（仿真拒绝、旧包变体、身份排除、日志归因、健康条件、meta 恢复等），新增断言须同步加测试与本清单。
 

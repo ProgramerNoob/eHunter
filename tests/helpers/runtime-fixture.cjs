@@ -10,6 +10,9 @@ const startTime = Date.parse('2026-10-14T12:00:00Z');
 // Same checkout/transpile/isolated-VM pattern as storage-fixture. This fixture
 // exposes only clock and module boundaries; it contains no product behavior.
 function createRuntime({ globals = {}, stubs = new Map(), realModules = [] } = {}) {
+    for (const ctor of ['Error', 'TypeError', 'RangeError']) {
+        assert.ok(!(ctor in globals), `runtime fixture injects ${ctor} itself; drop it from globals`);
+    }
     let now = startTime, nextId = 0;
     const timers = new Map(), rejectedJobs = [], logs = { error: [], warn: [], log: [] };
     const setTimeout = (fn, ms = 0, ...args) => {
