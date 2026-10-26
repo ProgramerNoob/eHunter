@@ -5,7 +5,7 @@
   "head": "e6842e0bd897eb1e88b08668f871daa85c4b1b97",
   "indexTree": "b40058dc72d2793b4404964c29c29fe1835326b6",
   "capturedAt": "2026-10-26T22:16:55+08:00",
-  "scopeDigest": "b57c64ea96b1fe65941213faf7cbf12972ec3f84c6a1891d0029df2983905903",
+  "scopeDigest": "ef00a8849536b5b140d700e500283f06c72498ac0b87b8ba5abdf9bf3f24f197",
   "dirty": {},
   "untracked": {
     ".trellis/tasks/10-26-fix-review-findings/check.jsonl": {
@@ -28,5 +28,35 @@
       "mode": "100644",
       "sha256": "6b4460a4be34ad2ed268b1ce10ee66de0089f066634ce1ee436de53ac18dfa65"
     }
-  }
+  },
+  "scopeExtensions": [
+    {
+      "category": "core",
+      "rules": [
+        "core/**"
+      ],
+      "at": "2026-10-26T23:34:45+08:00"
+    },
+    {
+      "category": "spec",
+      "rules": [
+        ".trellis/spec/**"
+      ],
+      "at": "2026-10-26T23:34:46+08:00"
+    },
+    {
+      "category": "tests",
+      "rules": [
+        "tests/**"
+      ],
+      "at": "2026-10-26T23:34:46+08:00"
+    },
+    {
+      "category": "tooling",
+      "rules": [
+        "package.json"
+      ],
+      "at": "2026-10-26T23:34:46+08:00"
+    }
+  ]
 }

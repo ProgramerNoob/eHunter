@@ -3,7 +3,7 @@
   "name": "fix-review-findings",
   "title": "修复复核发现的注册表接线、网格间隙与视口兜底问题",
   "description": "修复 aedd80f 复核中确认的三组问题：弹层网格 .distributed 间隙回归、layoutBlockRegistry 只接一半、视口变化不重钳制与极端视口主区被反压；并补齐 layout 纯函数测试与 design/validation 文档口径。",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -11,7 +11,7 @@
   "creator": "Warwick",
   "assignee": "Warwick",
   "createdAt": "2026-10-26",
-  "completedAt": null,
+  "completedAt": "2026-10-26",
   "branch": "master",
   "base_branch": "master",
   "worktree_path": null,
@@ -30,11 +30,23 @@
       "categories": {
         "task-evidence": [
           ".trellis/tasks/10-26-fix-review-findings/**"
+        ],
+        "core": [
+          "core/**"
+        ],
+        "spec": [
+          ".trellis/spec/**"
+        ],
+        "tests": [
+          "tests/**"
+        ],
+        "tooling": [
+          "package.json"
         ]
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "762f1703ceca571679feef1d8a1443125cc6ddb5ced9d95ccffdd4b8ac2ea388"
+        "sha256": "ad664f32259baa6439c2f9c0c7f0154f44c5371619a4231f06f07278b77596ee"
       }
     }
   }
