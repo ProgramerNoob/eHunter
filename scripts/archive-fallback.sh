@@ -51,7 +51,7 @@ while [ "$#" -gt 0 ]; do
       ;;
     *)
       if [ -n "$slug" ]; then
-        echo "重复的任务 slug: $1（已有 $slug）" >&2
+        echo "重复的任务 slug: $1（已有 ${slug}）" >&2
         exit 2
       fi
       slug="$1"
@@ -118,13 +118,13 @@ PY
 fi
 
 if [ "${#paths[@]}" -eq 0 ]; then
-  echo "找不到归档目录 $archive_dir 或源目录 .trellis/tasks/$slug，也没有声明路径" >&2
+  echo "找不到归档目录 ${archive_dir} 或源目录 .trellis/tasks/${slug}，也没有声明路径" >&2
   exit 1
 fi
 
-echo "仓库根: $repo_root"
-echo "归档目录: $archive_dir"
-echo "提交信息: $message"
+echo "仓库根: ${repo_root}"
+echo "归档目录: ${archive_dir}"
+echo "提交信息: ${message}"
 echo "提交路径:"
 for path in "${paths[@]}"; do
   echo "  - $path"
@@ -155,7 +155,7 @@ git add -- "${paths[@]}" || {
 git commit -m "$message" -- "${paths[@]}"
 rc=$?
 if [ "$rc" -ne 0 ]; then
-  echo "git commit 失败（exit $rc）" >&2
+  echo "git commit 失败（exit ${rc}）" >&2
   exit "$rc"
 fi
 echo "归档提交完成: $message"

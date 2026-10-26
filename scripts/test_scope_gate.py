@@ -47,6 +47,22 @@ class ScopeGateFixture(unittest.TestCase):
     """Temporary git repository plus helpers for task lifecycle calls."""
 
     def setUp(self) -> None:
+        # Git exports GIT_INDEX_FILE (and friends) to pre-commit hooks. When
+        # this suite runs from that hook the inherited value points at the
+        # checkout's real index, and the fixture repositories below would then
+        # stage their own files into it — leaving the outer repo with entries
+        # whose blobs do not exist and breaking every later `git commit`.
+        # Drop the whole GIT_* family before any fixture repository exists.
+        inherited_git_env = {
+            name: os.environ.pop(name)
+            for name in [key for key in os.environ if key.startswith("GIT_")]
+        }
+
+        def restore_git_env() -> None:
+            os.environ.update(inherited_git_env)
+
+        self.addCleanup(restore_git_env)
+
         temp_parent = REPO_ROOT / ".tmp" / "scope-gate"
         temp_parent.mkdir(parents=True, exist_ok=True)
         self._temp = tempfile.TemporaryDirectory(dir=temp_parent, prefix="case-")
@@ -1451,6 +1467,80 @@ class AcceptanceArchiveTests(ScopeGateFixture):
             active_task.resolve_active_task(self.root).task_path,
             self.task_rel("blocked"),
         )
+
+
+class InheritedGitEnvironmentTests(unittest.TestCase):
+    """Regression: a pre-commit hook must not leak its index into the fixtures."""
+
+    def test_fixture_stages_into_its_own_index_when_hook_exports_one(self) -> None:
+        base_env = {
+            key: value for key, value in os.environ.items() if not key.startswith("GIT_")
+        }
+        base_env.update(
+            {
+                "GIT_AUTHOR_NAME": "Scope Gate",
+                "GIT_AUTHOR_EMAIL": "scope-gate@example.com",
+                "GIT_COMMITTER_NAME": "Scope Gate",
+                "GIT_COMMITTER_EMAIL": "scope-gate@example.com",
+                "GIT_CONFIG_GLOBAL": os.devnull,
+                "GIT_CONFIG_SYSTEM": os.devnull,
+            }
+        )
+
+        fixture = ScopeGateFixture(methodName="runTest")
+        # Simulate the hook: GIT_INDEX_FILE points at an index outside the repo.
+        hook_index = REPO_ROOT / ".tmp" / "scope-gate" / "hook-index"
+        hook_env = dict(base_env, GIT_INDEX_FILE=str(hook_index))
+
+        with patch.dict(os.environ, hook_env, clear=True):
+            fixture.setUp()
+            try:
+                self.assertNotIn("GIT_INDEX_FILE", os.environ)
+
+                def git(*args: str, env: dict[str, str]) -> str:
+                    completed = subprocess.run(
+                        ["git", *args],
+                        cwd=fixture.root,
+                        capture_output=True,
+                        text=True,
+                        env=env,
+                    )
+                    self.assertEqual(completed.returncode, 0, completed.stderr)
+                    return completed.stdout
+
+                git("init", "-q", "-b", "main", ".", env=base_env)
+                (fixture.root / "fixture.txt").write_text("fixture\n", encoding="utf-8")
+                git("add", "fixture.txt", env=hook_env)
+                hook_entries = git("ls-files", "--stage", env=hook_env)
+                self.assertIn("fixture.txt", hook_entries)
+
+                # The fixture must resolve its own index, not the hook's file.
+                fixture.git("add", "fixture.txt")
+                self.assertIn("fixture.txt", fixture.git("ls-files", "--stage"))
+                self.assertEqual(
+                    git("ls-files", "--stage", env=hook_env),
+                    hook_entries,
+                    "the hook's index file must not gain fixture entries",
+                )
+            finally:
+                fixture.doCleanups()
+
+    def test_inherited_git_environment_is_restored_after_teardown(self) -> None:
+        sentinel = {
+            "GIT_INDEX_FILE": "/tmp/does-not-matter-index",
+            "GIT_DIR": "/tmp/does-not-matter-dir",
+            "GIT_WORK_TREE": "/tmp/does-not-matter-tree",
+        }
+        fixture = ScopeGateFixture(methodName="runTest")
+        with patch.dict(os.environ, sentinel, clear=False):
+            fixture.setUp()
+            try:
+                for key in sentinel:
+                    self.assertNotIn(key, os.environ)
+            finally:
+                fixture.doCleanups()
+            for key, value in sentinel.items():
+                self.assertEqual(os.environ.get(key), value)
 
 
 if __name__ == "__main__":
