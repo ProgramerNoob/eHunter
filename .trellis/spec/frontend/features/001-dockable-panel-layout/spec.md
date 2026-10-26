@@ -81,6 +81,7 @@ As a product maintainer, I can apply the same docking and resizing behavior to o
 - User drags a panel but releases outside any valid docking target; layout returns to the prior stable position.
 - User attempts to resize below minimum visible size; system clamps size and keeps both panels interactable.
 - Viewport becomes too small to honor preferred sizes; system preserves panel order and applies safe fallback proportions.
+- Viewport narrows and then widens again; the docked block stays at the narrowed size instead of returning to the earlier preferred size, and the stored preference still holds the original value so a reload on the wider viewport restores it.
 - Fast repeated drag and resize actions occur; interface remains responsive and does not enter an inconsistent state.
 - User starts drag or resize while content is loading; interaction feedback remains visible and final layout remains valid.
 - On touch devices, brief taps on the handle must not trigger drag; only the defined long-press gesture can start docking or resizing.

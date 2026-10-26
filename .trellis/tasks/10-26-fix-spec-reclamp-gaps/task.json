@@ -1,0 +1,41 @@
+{
+  "id": "fix-spec-reclamp-gaps",
+  "name": "fix-spec-reclamp-gaps",
+  "title": "补齐重钳制单向性、网格留白与跳转锁的规范记述",
+  "description": "把上一轮复核留下的三条判断项写成当前状态：尺寸重钳制只收不放（含存储仍保留意图值）、弹层 120px 固定轨道下的左对齐留白、scrollLockUntil 的选项取舍与释放边界；不改产品代码，先浏览器核实重钳制单向性再落笔",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-26",
+  "completedAt": null,
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-26-fix-spec-reclamp-gaps/**"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "8c0944848aa6c61857136acb0234aa25560b2359aaf87bc2ce55890cfa5a1460"
+      }
+    }
+  }
+}

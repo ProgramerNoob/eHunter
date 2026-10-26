@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-26-fix-spec-reclamp-gaps",
+  "branch": "master",
+  "head": "bc41308e6b208f1c2e0c28641e7d800c41312e92",
+  "indexTree": "f18d8d61afd8d695d9ab238523dfe47b2e5fcce3",
+  "capturedAt": "2026-10-26T23:50:02+08:00",
+  "scopeDigest": "0a6ac4b05896f5cfa379ee0da37e8becc4abfa896b14a42908367e6d755f2078",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-26-fix-spec-reclamp-gaps/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-26-fix-spec-reclamp-gaps/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-26-fix-spec-reclamp-gaps/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "0bfe2aaedfd8756c32ed4c85885cb9e4837382edf58aa7388ee64d9cfc3bf348"
+    },
+    ".trellis/tasks/10-26-fix-spec-reclamp-gaps/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "7734c918c9fa69833a55def697fbceb595ae7c8f0f2bb145920d48ad81b0ce33"
+    }
+  }
+}

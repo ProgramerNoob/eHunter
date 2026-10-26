@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "`001-dockable-panel-layout/data-model.md` 写明重钳制单向性、持久化值与重新加载行为。",
+    "AC2": "`001-thumb-expand-modal/spec.md` 写明固定轨道宽度上限与左对齐留白形态。",
+    "AC3": "决策文档记录 `scrollLockUntil` 的目的、备选方案、释放条件与已知不释放路径。",
+    "AC4": "浏览器实测覆盖 1200→390→1200 全程，验证期与重载后两种状态均有证据。",
+    "AC5": "`npm run check:docs` 通过，且 `git status` 显示未改动 `core/`、`src/`、`tests/`。"
+  },
+  "checks": [
+    {
+      "id": "spec-reclamp-semantics",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "规范写明重钳制只收不放、持久化保留意图值、重载按当时视口再钳制",
+      "scope": "`001-dockable-panel-layout/data-model.md` 的 SplitBoundary 校验规则段",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/spec/frontend/features/001-dockable-panel-layout/data-model.md",
+        ".trellis/tasks/10-26-fix-spec-reclamp-gaps/validation.md"
+      ],
+      "note": "SplitBoundary 校验规则补「重钳制单向」与「重钳制不写回持久化」两条，措辞与实测一致：390 视口侧栏 156、放宽回 1200 仍 156、存储保持 520、重载后回到 520。",
+      "waiver": null
+    },
+    {
+      "id": "spec-grid-track-wording",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "规范写明固定轨道宽度上限与左对齐留白形态",
+      "scope": "`001-thumb-expand-modal/spec.md` 的 FR-004/FR-005 与 Assumptions 段",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/spec/frontend/features/001-thumb-expand-modal/spec.md",
+        ".trellis/tasks/10-26-fix-spec-reclamp-gaps/validation.md"
+      ],
+      "note": "FR-004 补 120px 上限轨道与左对齐留白；Assumptions 补「靠左固定网格不是自适应铺满，右侧留白属预期」；check:docs 通过。",
+      "waiver": null
+    },
+    {
+      "id": "decision-scroll-lock",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "决策文档记录跳转锁的目的、备选方案、释放条件与已知不释放路径",
+      "scope": "`.trellis/spec/frontend/decisions/` 下的决策文档",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/spec/frontend/decisions/2026-10-26-jump-scroll-lock.md",
+        ".trellis/spec/frontend/features/001-thumb-expand-modal/spec.md"
+      ],
+      "note": "新决策文档含问题、三个备选方案与取舍、触发与释放条件（wheel/touchstart）、已知不释放路径（键盘翻页、滚动条、程序化 scrollBy）；spec Assumptions 已链接该文档。",
+      "waiver": null
+    },
+    {
+      "id": "browser-reclamp-evidence",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "1200→390→1200 全程实测，运行期与重载后状态均有产物证据",
+      "scope": "本地 Vite preflight 轮，拖侧栏到 520 后收窄再放宽并重载",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-26-fix-spec-reclamp-gaps/validation.md",
+        ".tmp/browser-preflight/reclamp-cycle-8f43bbd2-9c4c-49c5-bc08-835bebcda74d/measurements.json",
+        ".tmp/browser-preflight/reclamp-cycle-8f43bbd2-9c4c-49c5-bc08-835bebcda74d/widened-back-1200.png",
+        ".tmp/browser-preflight/reclamp-cycle-8f43bbd2-9c4c-49c5-bc08-835bebcda74d/after-reload-1200.png"
+      ],
+      "note": "verify-browser status passed（runId c58759a9-15b6-4d19-a835-91042d873667）。全流程：520/680 → 390 视口 156/234 → 回 1200 仍 156/1044 → 重载 520/680；存储始终 520；两张截图已人工复核。",
+      "waiver": null
+    },
+    {
+      "id": "docs-and-scope-check",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "check:docs 通过且未改动产品代码",
+      "scope": "仓库根执行 npm run check:docs 与 git status --short",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check:docs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T00:32:00+08:00",
+        "endedAt": "2026-10-27T00:32:09+08:00",
+        "log": ".tmp/spec-reclamp-docs-check.log"
+      },
+      "evidence": [
+        ".tmp/spec-reclamp-docs-check.log",
+        ".trellis/tasks/10-26-fix-spec-reclamp-gaps/validation.md"
+      ],
+      "note": "check:docs OK（40 md / 227 本地链接 / 0 问题）；git status --porcelain core src tests 输出 0 行。",
+      "waiver": null
+    }
+  ]
+}

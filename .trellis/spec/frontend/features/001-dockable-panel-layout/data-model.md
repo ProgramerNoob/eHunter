@@ -44,6 +44,8 @@
   - Effective `maxSizePx` MUST leave the main block at least `min(320, viewport × 0.6)` on the split axis; the ratio degrades the floor on narrow viewports so the main content area stays visible.
   - When the viewport is narrow enough that the docked block's minimum conflicts with the main floor (viewport below roughly `min(320, viewport × 0.6) + thumbMinSizePx`), the docked block yields: both its bounds collapse to `viewport − mainFloor` so the main block keeps its floor.
   - Clamps MUST be re-applied whenever `viewportWidth`/`viewportHeight` change, not only on dock or resize interactions.
+  - Re-clamping is one-way: narrowing the viewport shrinks a docked block to fit, but widening it back does not restore the previous size. The block stays at the clamped value for the rest of the session; only a new user resize or a reload (which re-applies the stored value against the new viewport) changes it again. This deliberately favors a trustworthy current size over replaying past intent.
+  - Re-clamping MUST NOT write the clamped value back to the persisted layout preference. The stored `thumbSizePx` keeps the user's requested size, so a reload on a wider viewport restores it.
   - Boundary MUST exist only when both `betweenBlocks` are visible.
 
 ## 4) ModeLayoutConfiguration

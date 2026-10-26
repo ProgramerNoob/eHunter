@@ -1,0 +1,4 @@
+{"file":".trellis/spec/frontend/features/001-dockable-panel-layout/data-model.md","reason":"LayoutBlock/SplitBoundary 的尺寸范围与钳制规则，R1 落点"}
+{"file":".trellis/spec/frontend/features/001-dockable-panel-layout/spec.md","reason":"停靠与缩放的验收口径，判断重钳制描述该放哪一层"}
+{"file":".trellis/spec/frontend/features/001-thumb-expand-modal/spec.md","reason":"FR-004/FR-005 列数规则与 Assumptions，R2 落点"}
+{"file":".trellis/spec/frontend/decisions/2026-09-18-reader-behavior.md","reason":"现有决策文档的结构与粒度，R3 新决策的写法参照"}
