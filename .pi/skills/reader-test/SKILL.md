@@ -118,7 +118,7 @@ helper 对最终产物完整 UTF-8 字节与仓库 loader 留指纹，核对实�
 
 ### 5. 通过准备门
 
-准备门即 helper 的预检：当前完整包执行证据、初始化与日志、严格环境（CSS 视口 / DPR / 移动能力、文档身份）全部通过，且必要事件已保存。通过判定标准是 helper 未 blocked，断言覆盖清单见 [指南 4.5 节](../../../.trellis/spec/frontend/browser-acceptance.md#45-预检断言覆盖清单)。
+准备门即 helper 的预检：当前完整包执行证据、初始化与日志、严格环境（CSS 视口 / DPR / 移动能力、文档身份）全部通过，且必要事件已保存。通过判定标准是 helper 未 blocked，断言覆盖清单见 [指南 4.5 节](../../../.trellis/spec/frontend/browser-acceptance/preflight-assertions.md#预检断言覆盖清单)。
 
 blocked 时按其输出的具体差异处理——重复注入、旧包候选、权限缺项、视口不符、vite-error-overlay 或必需模块缺失各有对应修法；不以 HTTP 响应、loader 日志或挂载 DOM 降级替代，也不再用自算的身份比对绕过。必需取证能力不可用时返回规划。异常、超时与写盘失败按 [通用证据/回填流程](../../../.trellis/spec/frontend/browser-acceptance.md#4-证据截图和失败回填) 保存并传播非零；认证问题按 Ego 接管流程处理。挂载/执行证据不等于异步平台初始化成功；打开前原站观察与打开后阅读器观察分别保存。
 

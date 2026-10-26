@@ -1,11 +1,18 @@
 # 未收口项
 
-本页是发现入口，不是缺陷计数，也不是验收结论。列出的是当前仍与规格或验收要求不一致的地方；后续修改按 [Trellis workflow](../../../workflow.md) 建任务，不能以本页条目代替验收。
+本页只是发现入口：登记哪些验收还没做，以及去哪里看。具体验收项、证据与结论留在任务产物和功能 spec 里，不在此重复记账。后续修改按 [Trellis workflow](../../../workflow.md) 建任务，不能用本页条目代替验收。
 
-## 其余各组的验收未执行
+## 仍在排队的验收
 
-`001-add-pageflip-toggle`（首次系统/设备矩阵、共享与重置防复活矩阵）、`002-more-settings-modal`（真实脚本环境的共享/补缺/降级/重置矩阵、翻页初始化与放大镜持久化的桌面与移动回归）的 quickstart 步骤仍未执行。`001-gallery-download-bundle` 的分片校验（`metadata.json` 七字段解压校验、分片计数与 `chunkIndex` 对应、`fflate` 与 JSON 单格式确认）同样未执行。`001-dockable-panel-layout` 与 `001-thumb-expand-modal` 的本地 quickstart 验收已执行完毕，其发现的 7 个缺陷已修复并回归（见 `.trellis/tasks/10-26-fix-acceptance-defects/`）。
+| 功能 | 任务 / 规格 |
+| --- | --- |
+| `001-add-pageflip-toggle` | 任务 `.trellis/tasks/10-25-pageflip-toggle-acceptance/`；规格 [features/001-add-pageflip-toggle](./001-add-pageflip-toggle/) |
+| `002-more-settings-modal` | 任务 `.trellis/tasks/10-25-more-settings-modal-acceptance/`；规格 [features/002-more-settings-modal](./002-more-settings-modal/) |
+| `001-gallery-download-bundle` | 规格 [features/001-gallery-download-bundle](./001-gallery-download-bundle/) |
+| `001-platform-injection` | 规格 [features/001-platform-injection](./001-platform-injection/) |
 
-## 平台注入的验收记录未产出
+各组的未执行项以对应 quickstart 与任务 `prd.md` 为准。
 
-`001-platform-injection` 的 US1/US2/US3 与最终验证记录（`validation-us1.md`、`validation-us2.md`、`validation-us3.md`、`final-validation.md`）尚未产出，该组 quickstart 的验收步骤未执行。
+## 已收口的验收
+
+`001-dockable-panel-layout` 与 `001-thumb-expand-modal` 的本地 quickstart 验收已执行完毕，发现的缺陷已修复并回归；结论与证据见 `.trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md` 与 `10-26-fix-review-findings/validation.md`。

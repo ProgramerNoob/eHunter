@@ -1,0 +1,54 @@
+{
+  "id": "env-retro-followups",
+  "name": "env-retro-followups",
+  "title": "补齐会话复盘提出的环境改进",
+  "description": "把复盘里 7 条环境改进落成代码：browser-preflight 交互 helper、.tmp 体积守卫、验收记录静态校验、acceptance.md 拆文件、Sass 警告去噪、pending-work 收口、归档提交回退",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-27",
+  "completedAt": null,
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-27-env-retro-followups/**"
+        ],
+        "tooling": [
+          "package.json",
+          "scripts/**",
+          "vite.config.ts",
+          "vite.config.prod.ts",
+          "tests/**"
+        ],
+        "spec": [
+          ".trellis/spec/**"
+        ],
+        "pi": [
+          ".pi/skills/**"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "ed2a55411a76fb1d7bce3d3d80020c2230e7d4fe96ab1d16c42c81fccad3d840"
+      }
+    }
+  }
+}

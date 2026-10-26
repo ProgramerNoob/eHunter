@@ -72,6 +72,13 @@ export default defineConfig({
     'process.env.NODE_ENV': JSON.stringify('production'),
     __EHUNTER_VERSION__: JSON.stringify(pkg.version)
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        silenceDeprecations: ['color-functions', 'global-builtin', 'import']
+      }
+    }
+  },
   appType: 'custom',
   server: {
     host: true,

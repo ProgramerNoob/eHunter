@@ -627,10 +627,23 @@ def verify_browser(root, artifact_arg):
         return browser_report(report, "invalid", [f"artifact: {exc}"])
 
 
+def validate_record(task, data):
+    """Report the record's own consistency without executing or rewriting it."""
+    summary = summarize(data)
+    return {
+        "valid": True,
+        "task": str(task),
+        "checks": len(data["checks"]),
+        "criteria": len(data["criteria"]),
+        "counts": summary["counts"],
+        "observedStatus": summary["observedStatus"],
+    }, 0
+
+
 def main(argv=None, root=None):
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
-    for name in ("summarize", "archive", "run"):
+    for name in ("summarize", "validate", "archive", "run"):
         command = commands.add_parser(name)
         command.add_argument("task", help="explicit repository-relative or absolute task directory")
         if name == "run":
@@ -659,6 +672,8 @@ def main(argv=None, root=None):
             if args.command == "run":
                 command_argv = args.argv[1:] if args.argv[:1] == ["--"] else args.argv
                 result, exit_code = run_check(root, task, data, args.check_id, command_argv)
+            elif args.command == "validate":
+                result, exit_code = validate_record(task, data)
             else:
                 result = summarize(data)
                 if args.command == "archive":

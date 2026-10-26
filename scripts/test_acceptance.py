@@ -334,6 +334,22 @@ class AcceptanceTests(unittest.TestCase):
                 if expected != 2:
                     self.assertEqual(report["status"], "waived" if waived else state)
 
+    def test_cli_validate_reports_consistency_without_writing(self):
+        before = (self.task / "acceptance.json").read_bytes()
+        code, result, _ = self.invoke("validate", str(self.task))
+        self.assertEqual(code, 0)
+        self.assertTrue(result["valid"])
+        self.assertEqual(result["checks"], 1)
+        self.assertEqual(result["counts"]["passed"], 1)
+        self.assertEqual((self.task / "acceptance.json").read_bytes(), before)
+
+        self.data["criteria"]["AC2"] = "Second requirement"
+        self.write()
+        code, result, _ = self.invoke("validate", str(self.task))
+        self.assertEqual(code, 2)
+        self.assertFalse(result["valid"])
+        self.assertIn("must exactly match PRD identifiers", " ".join(result["errors"]))
+
     def test_cli_run_captures_actual_exit_2_and_both_streams(self):
         self.data["checks"] = [self.check(method="command", observed="unrun")]
         self.write()

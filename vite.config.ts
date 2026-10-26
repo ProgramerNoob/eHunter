@@ -20,6 +20,13 @@ export default defineConfig({
   define: {
     __EHUNTER_VERSION__: JSON.stringify(pkg.version)
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        silenceDeprecations: ['color-functions', 'global-builtin', 'import']
+      }
+    }
+  },
   server: {
     host: true,
   }

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-27-env-retro-followups",
+  "branch": "master",
+  "head": "527861ace755c53060c7d38cc04fd221980eecc6",
+  "indexTree": "a1c8d9f74e7da07b608910177a9cda67cc0e9a5e",
+  "capturedAt": "2026-10-27T00:57:45+08:00",
+  "scopeDigest": "e8f64f7a40a4b610f892abdfab7adedd02485f08803ea8740da54a983ffafa21",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-27-env-retro-followups/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-27-env-retro-followups/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-27-env-retro-followups/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "8dbac4cce2dcdec28d28f0e346ea2ceed5fcec47e93079bea798963b4a8369f8"
+    },
+    ".trellis/tasks/10-27-env-retro-followups/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "0bc517d7629ec774e37e22381d0aa6cf63d2c82b3c3f88730421a3a0886d7500"
+    }
+  },
+  "scopeExtensions": [
+    {
+      "category": "tooling",
+      "rules": [
+        "package.json",
+        "scripts/**",
+        "vite.config.ts",
+        "vite.config.prod.ts",
+        "tests/**"
+      ],
+      "at": "2026-10-27T01:37:22+08:00"
+    },
+    {
+      "category": "spec",
+      "rules": [
+        ".trellis/spec/**"
+      ],
+      "at": "2026-10-27T01:37:22+08:00"
+    },
+    {
+      "category": "pi",
+      "rules": [
+        ".pi/skills/**"
+      ],
+      "at": "2026-10-27T01:37:22+08:00"
+    }
+  ]
+}

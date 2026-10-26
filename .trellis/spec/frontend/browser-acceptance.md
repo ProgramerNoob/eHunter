@@ -198,15 +198,7 @@ try {
 
 ## 3.1 计数类断言与来源判定
 
-- **DOM 计数不等于可见数量**：`DockWorkspace` 的 `.thumb-panel.side` 与 `.thumb-panel.bottom` 各持一份槽位内容，45 页图集会出现 90 个 `.thumb-container`（一份可见面板 + 一份 `display:none` 的备用槽位）。断言前按可见性过滤（`getBoundingClientRect().width > 0`），别把备用槽位当成重复渲染缺陷。
-- **站点自带产物不是 eHunter 缺陷**：nhentai 图集 HTML 自带双后缀（实测 49 处 `.webp.webp`，如 `<meta itemprop="image" content="https://t3.nhentai.net/galleries/3799533/cover.webp.webp">`），`src/platform/nh/parser/IntroHtmlParser.ts` 读未改写的 `data-src` 或改写后的 `x-src`，`core/components/ThumbView.vue` 直接 `:src="thumbInfo.src"`，都不拼接后缀；遇到这类可疑串先回站点原始 HTML 复核。
-- **控制台报错按脚本来源归因**：NH 页面上的 `Uncaught (in promise)` 可能来自站点自身 bundle（实测 `https://nhentai.net/_app/immutable/chunks/C2ITVdkK.js`），另有广告拦截导致的 `net::ERR_BLOCKED_BY_CLIENT` 与 Cloudflare RUM 的 `net::ERR_CONNECTION_CLOSED`。结合 helper 的当前文档 scriptId/context、来源和原始事件判断；原站/第三方错误保留影响供审阅，无法归因的严重错误先 blocked，不归为产品断言失败。
-- **顶栏字段在窄视口会整体隐藏**：字段按与 `.float-content`（`float-content` 左边界）的重叠规则设 `display:none`，390 × 844 下全部字段被判重叠，属预期行为。另外 `store.showTopBar` 为 false 时 `.inner-content` 带 `.hide`，字段被 translateY 顶出视口（`getBoundingClientRect().top` 为负，点击会落空），核对顶栏前先点击 float-content 的「显示/隐藏顶栏」按钮。
-- **首开弹窗先关掉再断言**：版本更新说明（`core/store/event.ts` 的 `checkNewVersionNotice`，`store.lastSeenVersionNotice !== appVersion` 时以 `isCompulsive` 打开）会盖住阅读器。可用选择器是 `.simple-modal .flat-button.operation > a`（`FlatButton.vue` 的点击落在内层 `<a>`）；点外层 `.operation`/`.flat-button` 或对 `body` 发 Enter 都无效。
-- **过渡动画期间不算可见**：`Popover` 用 `slide-fade`、阅读器用 `slow-horizontal-fade`，刚触发时 `opacity` 仍为 0。可见性判定要求 `opacity > 0` 且矩形非零，模式切换还要同时要求目标容器存在、另一模式容器不存在。
-- **菜单点选后菜单会关闭**：断言菜单项文案要取点击前快照，或重新打开菜单再读。
-- **站点限流要计入验收节奏**：反复重载 nhentai 会触发 429（表现为 `TextReq … : 429` → `Platform initialization failed`），一轮验收尽量在单次加载会话内完成，重试前等待冷却。
-- **可重试 TextReq 日志**：当前文档内 eHunter 日志只有同时包含 `TextReq: request error`、`retry:`，以及 `timed out` 或 `: 429` 的记录才可标为 `retryableTextReqError` 并保留给调用方审阅、不阻断准备；其他 eHunter severe 日志仍阻断。豁免不是网络长期健康通过，报告须保留实际重试次数、URL 和后续未验证范围。
+DOM 计数、站点自带产物、日志归因、窄视口与过渡动画等容易误判的场景见[计数类断言与来源判定](./browser-acceptance/counting-assertions.md)。
 
 ## 4. 证据、截图和失败回填
 
@@ -220,22 +212,6 @@ helper 是本轮唯一 `page.events()` 消费者。所有捕获的原始事件�
 
 截图用 `check.screenshot(...)` 保存，再用当前会话图片读取工具检查布局、颜色、间距、阴影、圆角、弹窗和可见状态；helper 的 `visualReview` 仍为 unrun，主会话记录实际视觉检查。PNG 使用 CSS scale，像素宽度不能推导 DPR。UI 改动完成桌面与移动两种固定 profile 的关键交互与截图；涉及断点时补测边界。helper 只支持两个固定 profile，其他断点须另记实际配置与证据，严格预检覆盖范围保持明确。
 
-### 资源清理检查
-
-收尾时用显式声明核对本任务创建的页面、服务、端口和 PID 文件。命令只读检查并写报告，不关闭页面、不发送 `kill`、不删除 PID 文件或已有证据；实际清理由验收者确认归属后执行。
-
-```bash
-python3 scripts/acceptance.py cleanup-browser <task-space> --pages <pages.json> --servers <servers.json> --output <repo>/.tmp/cleanup-browser.json
-```
-
-- `<task-space>` 是本轮 Trellis 任务标识（任务名），两份输入的 `taskSpace` 必须与它相同。页面 `spaceId` 是 Ego 数字 space id，与任务名无关；agent-owned 项的 `createdByTask` 必须等于 `<task-space>`。
-- pages 输入：`{schemaVersion:1, taskSpace, pages:[{label, spaceId, pageId, owner, createdByTask, state, observedAt, evidence}]}`。agent-owned 页面要求 0–300 秒内、带显式时区的 RFC3339 `observedAt`；有效 `closed` 为 clean、`open` 为 residual。`owner:user` 始终 preserved，不校验其逐项字段。
-- servers 输入：`{schemaVersion:1, taskSpace, servers:[{label, pid, pidFile, port, expectedCwd, expectedCommand, processStartToken, owner, createdByTask, evidence}]}`；`processStartToken` 形如 `<pid>@<ps -o lstart=>`，`evidence` 每条都要能解析到可读文件。
-- 分类：agent-owned 且进程已退出、端口释放、PID 文件已由调用方清理、启动身份与 evidence 相符为 clean；进程仍存活/监听或 PID 文件残留为 residual；PID 复用、cwd/命令/启动标识/端口不符、owner 或 createdByTask 缺失、evidence 缺失或不可读为 unknown。user-owned 为 preserved；逐项未知不是命令级输入错误。
-- 退出码：`0` 全为 clean/preserved（空列表也是 clean），`1` 含 residual/unknown，`2` 输入或输出错误。输出固定 `schemaVersion:1`，含 `checkedAt`、`aggregate`、逐项 `classification`/`reasons`/`evidence`；只写仓库 `.tmp/`，拒绝覆盖已有文件。
-- 报告只描述声明资源的收尾状态，不证明功能通过。residual/unknown 需人工核对归属并保留证据，不得把分类当作清理动作或功能结论。
-
-
 主会话依 [逐项验收协议](./quality-guidelines.md#acceptance-record-schemaversion-1) 唯一回填 `acceptance.json`。准备或必要取证/保存失败记 runtime/blocked，下游未执行功能与截图记 unrun；进入功能后的明确 `check.assert` 失败记 failed。若产品失败与 finally 保存失败并存，保留产品 failed 项及证据 blocked 项，不能互相覆盖。`result.observed` 只代表本次 helper 调用；`checks: 'executed'` 表示回调执行完，具体产品结果和视觉项仍据实回填。
 
 同一场景跑过多轮时，回填只登记通过轮并不够：说明里要写清失败轮的存在、它的 `phase` 与错误文本、两次运行之间脚本的改动内容、以及失败轮产物是否保留。失败的 `check.assert` 轮要原样留在 `.tmp/browser-preflight/` 下作为反证——它证明断言真的会在产品出错时变红，删除后就只剩“一直绿”的断言。
@@ -244,28 +220,11 @@ python3 scripts/acceptance.py cleanup-browser <task-space> --pages <pages.json> 
 
 ## 4.5 预检断言覆盖清单
 
-`withBrowserPreflight` 的所有环境断言走 `requireCondition`，失败即抛 `PreflightBlocked`：结果记 blocked，不进入功能 checks（按断言名对照 `scripts/browser-preflight.mjs`；行号会随改动漂移，不复用历史行号）。
+`withBrowserPreflight` 的环境断言、已覆盖项与未覆盖项的完整清单见[预检断言覆盖清单](./browser-acceptance/preflight-assertions.md)。新增或移除预检断言时同步更新该清单与 `tests/browser-preflight.test.mjs`。
 
-已覆盖（交互前强制）：
+### 资源清理检查
 
-- **CSS 视口 / DPR / 移动能力**：DPR 精确匹配（L328）、touchPoints/coarse 匹配（L329）、严格模式 CSS 视口宽高匹配（L330）；`profile` 固定 desktop/mobile，不接受调用方传入宽高或 mobile 目标（L605）。
-- **CDP Emulation 回执**：每条仿真命令核对回执参数与下发一致（L326）；被 page 拒绝的命令（含 `Emulation.setDeviceMetricsOverride` / `setTouchEmulationEnabled` / `Debugger.enable` / `Profiler.startPreciseCoverage`）视为准备阻断。
-- **产物身份与旧包防呆**：源码输入指纹（`fingerprint`）与轮次内不变性（L354）；EH 场景要求恰好一个当前生产 bundle 候选且有精确源码或全长执行证据（L449-452），同长度不同内容、不同长度陈旧 bundle、loader 元数据歧义均 blocked；Vite 场景核对必需模块清单完整（L454）。
-- **grant/connect 等价**：userscript 元数据缺 `==UserScript==` 块或 grant/connect 为空直接 blocked（L71-74），本地地址覆盖并入等价判断（`permissions()`）。
-- **运行时健康**：当前文档内 eHunter 归因 severe 日志 blocked（L345）、未归因 severe 需排查 blocked（L346）；历史文档的日志保留但不污染当前轮。
-- **Vite 编译失效**：vite-error-overlay 存在即 blocked（L500/L512）；预期源码请求失败 blocked（L411）。
-- **文档身份**：导航/取证期间 document loaderId 变化即 blocked（L369-372、L456），防止断言打到旧文档。
-- **原站 viewport meta 恢复**：关闭阅读器时核对 meta 与本轮基线一致（L583-591）。
-- **截图与动作防护**：受保护动作必须串行 await（L556）；截图前后复查环境且文件非空（L572-576）；阅读器未 mounted/open 或 overlay 存在时不进入功能（L516/L534）。
-
-未覆盖（各自归属场景，非预检职责）：
-
-- **物理设备矩阵**：真机 DPR/触摸/UA 组合；预检只保证 CDP 仿真回执一致。
-- **Node/Python 版本矩阵**：CI 固定 Node 22 / Python 3.12（`.github/workflows/check.yml`），跨版本一致性由 CI 覆盖，预检不重复断言；本机解释器版本随开发者环境变化，不写进本规范。
-
-真实下载冒烟已具备闭环验证路径：多分片下载后解压校验片内条目按页码命名、`metadata.json` 七字段与 `jpegMagic`，验收步骤与判定标准见 [001-gallery-download-bundle/quickstart.md](features/001-gallery-download-bundle/quickstart.md)，归档任务 `10-24-download-concurrency-spec-alignment` 已按该步骤执行过一次；`reader-test` 仍需覆盖 EH/NH 生产包下的同类检查。
-
-测试对照：`tests/browser-preflight.test.mjs`（`npm run test:browser-preflight`）逐条覆盖上述已覆盖项的阻断行为（仿真拒绝、旧包变体、身份排除、日志归因、健康条件、meta 恢复等），新增断言须同步加测试与本清单。
+收尾资源声明、`cleanup-browser` 输入字段与分类口径见[资源清理检查](./browser-acceptance/resource-cleanup.md)。
 
 ## 5. 收尾或交还用户
 

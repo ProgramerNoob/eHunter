@@ -6,7 +6,9 @@
 | --- | --- |
 | [Pi 子代理上下文与压缩](pi-context.md) | 修改工具 schema/提示、技能文本、角色白名单、上下文注入、压缩续接或对应验收 |
 | [任务改动范围门禁](task-scope-gate.md) | 修改任务 scope、start 快照、archive 检查或排查越界/legacy 诊断 |
-| [验收资源清理检查](../frontend/browser-acceptance.md#资源清理检查) | 修改 `cleanup-browser` 输入、分类或退出码，或核对浏览器收尾资源 |
+| [验收资源清理检查](../frontend/browser-acceptance/resource-cleanup.md#资源清理检查) | 修改 `cleanup-browser` 输入、分类或退出码，或核对浏览器收尾资源 |
+| [临时产物体积报告](tmp-hygiene.md) | 检查 `.tmp/` 占用、核对哪些轮次产物仍被 `acceptance.json` 引用 |
+| [归档提交兜底](archive-fallback.md) | `task.py archive` 内部 git 提交失败、需要手工补齐归档提交 |
 
 ## 本地提交门禁
 

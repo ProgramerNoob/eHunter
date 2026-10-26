@@ -1177,3 +1177,152 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
   if (result.observed !== 'passed') throw new BrowserPreflightError(result, originalError ?? stickyError);
   return result;
 }
+
+// --- Interaction primitives -------------------------------------------------
+//
+// These are exported on their own (NOT behind `guarded`) because scenario code
+// calls them from inside `check.phase()` callbacks. Going through `guarded`
+// would immediately trip 'Protected browser actions must be awaited
+// sequentially'. Each helper only issues CDP input commands, never navigates.
+//
+// `page.mouse.*` is deliberately avoided: in the Ego page model
+// `page.mouse.move({ steps })` takes roughly one second per step, which alone
+// exhausts the round's 60s timeout budget. `Input.dispatchMouseEvent` is
+// millisecond-scale.
+
+const CLICK_SETTLE_MS = 80;
+
+/** Dispatch one CDP mouse event, filling wire fields `page.mouse.*` would add. */
+export async function dispatchMouse(page, { type, x, y, button = 'left', buttons, clickCount = 1 } = {}) {
+  const pressed = type === 'mousePressed';
+  const released = type === 'mouseReleased';
+  return page.cdp('Input.dispatchMouseEvent', {
+    type,
+    x: Math.round(x),
+    y: Math.round(y),
+    button: pressed || released ? button : 'none',
+    buttons: buttons ?? (pressed ? 1 : 0),
+    clickCount: pressed || released ? clickCount : 0,
+  });
+}
+
+/** Move, settle, press, release at viewport coordinates. Real clicks only. */
+export async function clickAt(page, x, y, { settleMs = CLICK_SETTLE_MS, button = 'left' } = {}) {
+  await dispatchMouse(page, { type: 'mouseMoved', x, y });
+  await page.waitForTimeout(settleMs);
+  await dispatchMouse(page, { type: 'mousePressed', x, y, button });
+  await page.waitForTimeout(settleMs);
+  await dispatchMouse(page, { type: 'mouseReleased', x, y, button });
+}
+
+/**
+ * Scroll the element into view, then click its centre with real mouse events.
+ * Synthetic `element.click()` is useless when a dialog overlays the target, and
+ * an off-screen element's rect is outside the viewport, so both steps matter.
+ * Returns the coordinates used, or null when the element is absent.
+ */
+export async function clickElement(page, selector, { settleMs = CLICK_SETTLE_MS, scrollWaitMs = 300 } = {}) {
+  const point = await page.evaluate((sel) => {
+    const el = document.querySelector(sel);
+    if (!el) return null;
+    el.scrollIntoView({ block: 'center', inline: 'center' });
+    return { found: true };
+  }, selector);
+  if (!point) return null;
+  await page.waitForTimeout(scrollWaitMs);
+  const centre = await page.evaluate((sel) => {
+    const el = document.querySelector(sel);
+    if (!el) return null;
+    const rect = el.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return null;
+    return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+  }, selector);
+  if (!centre) return null;
+  await clickAt(page, centre.x, centre.y, { settleMs });
+  return centre;
+}
+
+/**
+ * Press at `from`, move through `steps` intermediate points, release at `to`.
+ * Used for dock dragging and split-handle resizing, both of which need a real
+ * pointer path (a single jump does not arm the gesture).
+ */
+export async function dragBy(page, { from, to, steps = 8, settleMs = 40, holdMs = 0 } = {}) {
+  await dispatchMouse(page, { type: 'mouseMoved', x: from.x, y: from.y });
+  await page.waitForTimeout(settleMs);
+  await dispatchMouse(page, { type: 'mousePressed', x: from.x, y: from.y });
+  if (holdMs > 0) await page.waitForTimeout(holdMs);
+  for (let step = 1; step <= steps; step += 1) {
+    const ratio = step / steps;
+    await dispatchMouse(page, {
+      type: 'mouseMoved',
+      x: from.x + (to.x - from.x) * ratio,
+      y: from.y + (to.y - from.y) * ratio,
+      buttons: 1,
+    });
+    await page.waitForTimeout(settleMs);
+  }
+  await dispatchMouse(page, { type: 'mouseReleased', x: to.x, y: to.y });
+}
+
+/**
+ * Close every `.simple-dialog` (version notice, about box) with real clicks on
+ * the trailing action anchor. Returns how many dialogs remain; 0 means clean.
+ * The dialogs reappear after a reload, so call this before any assertion that
+ * needs an unobstructed page and again before screenshots.
+ */
+export async function dismissSimpleDialog(page, { maxRounds = 20, settleMs = 200 } = {}) {
+  const remaining = async () => page.evaluate(() => document.querySelectorAll('.simple-dialog').length);
+  let count = await remaining();
+  for (let round = 0; round < maxRounds && count > 0; round += 1) {
+    const target = await page.evaluate(() => {
+      const dialogs = [...document.querySelectorAll('.simple-dialog')];
+      const dialog = dialogs[dialogs.length - 1];
+      if (!dialog) return null;
+      const buttons = dialog.querySelectorAll('.operation-bar a, .operation-bar .flat-button');
+      const button = buttons[buttons.length - 1];
+      if (!button) return null;
+      const rect = button.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return null;
+      return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+    });
+    if (!target) return count;
+    await clickAt(page, target.x, target.y, { settleMs });
+    await page.waitForTimeout(settleMs);
+    count = await remaining();
+  }
+  return count;
+}
+
+/** Reveal the top bar when `store.showTopBar` left `.inner-content` hidden. */
+export async function ensureTopBar(page, { toggleIndex = 1, settleMs = 600 } = {}) {
+  const hidden = await page.evaluate(() => document.querySelector('.inner-content')?.classList.contains('hide') ?? true);
+  if (!hidden) return false;
+  const point = await page.evaluate((index) => {
+    const button = document.querySelectorAll('.float-content .button')[index];
+    if (!button) return null;
+    const rect = button.getBoundingClientRect();
+    return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+  }, toggleIndex);
+  if (!point) return false;
+  await clickAt(page, point.x, point.y);
+  await page.waitForTimeout(settleMs);
+  return true;
+}
+
+/**
+ * Make the thumbnail panel visible. Mobile profiles hide it by default
+ * (`showThumbView: !isMobile`), and a collapsed panel puts its floating
+ * expand trigger outside the viewport.
+ */
+export async function ensureThumbPanel(page, { settleMs = 600 } = {}) {
+  const state = await page.evaluate(() => {
+    const visible = [...document.querySelectorAll('.thumb-panel')]
+      .some(panel => panel.getBoundingClientRect().width > 0);
+    return { visible };
+  });
+  if (state.visible) return false;
+  await page.evaluate(() => document.dispatchEvent(new KeyboardEvent('keydown', { key: 't', bubbles: true })));
+  await page.waitForTimeout(settleMs);
+  return true;
+}
