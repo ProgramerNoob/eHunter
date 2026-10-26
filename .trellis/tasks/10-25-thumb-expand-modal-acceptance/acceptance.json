@@ -1,0 +1,252 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "P1：侧边吸附与底部吸附两种布局下，滚动缩略图列表任意位置后展开入口仍固定在可视区域右缘/下缘，点击均能打开弹层。",
+    "AC2": "P2：弹层无标题，每项含图片与底边页码；宽视口 5 列且首屏可见至少 4 行，窄视口 3 列；视觉风格与现有设置弹窗一致并有截图复核。",
+    "AC3": "P3：分页器按 100 页分段；当前阅读页位于非首段时弹层默认定位到该分段；点击缩略图后弹层关闭且阅读器跳转到目标页。",
+    "AC4": "边界与回归：≤100 页仍显示单分段分页器；缩略图加载失败时保留页码与跳转能力；末行不完整时网格对齐无重复页码；跳转后两模式阅读正常，依赖中无第三方 UI 组件库。",
+    "AC5": "桌面与移动两轮均产出通过 `verify-browser` 校验的预检产物，`acceptance.json` 有对应 runtime/inspection 记录与证据路径，`summarize` 实际执行。"
+  },
+  "checks": [
+    {
+      "id": "entry-anchored-side-dock",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "缩略图面板吸附右侧时，滚动列表到任意位置后展开入口仍固定在可视区域右缘并可点击打开弹层",
+      "scope": "本地 Vite，desktop profile，侧边吸附下游标滚动列表前后入口矩形对比与点击打开",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/result.json",
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/measurements.json",
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/modal-wide.png",
+        ".trellis/tasks/10-25-thumb-expand-modal-acceptance/validation.md"
+      ],
+      "note": "侧边吸附：panel {x1050,w150}，trigger {x1109,y860,w32,h32}；列表滚动 scrollTop 0→8515 后入口位置不变，点击打开弹层（桌面轮 entry-side）。",
+      "waiver": null
+    },
+    {
+      "id": "entry-anchored-bottom-dock",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "缩略图面板吸附底部时，滚动列表到任意位置后展开入口仍固定在可视区域下缘并可点击打开弹层",
+      "scope": "本地 Vite，desktop 与 mobile 各一轮，底部吸附下滚动前后入口矩形对比与点击打开",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/result.json",
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/measurements.json",
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/modal-wide.png",
+        ".trellis/tasks/10-25-thumb-expand-modal-acceptance/validation.md",
+        ".tmp/browser-preflight/thumb-expand-mobile-88102891-bf95-43ca-97af-4caf0d0c559f/mobile-bottom-dock.png"
+      ],
+      "note": "底部吸附：桌面 panel {x0,y750,w1200,h150}、trigger {x1160,y809}、triggerClass thumb-expand-trigger dock-bottom、scrollW 11740/clientW 1200；窄屏 panel {x0,y694,w390,h150}、trigger {x350,y753}。",
+      "waiver": null
+    },
+    {
+      "id": "modal-grid-density",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "弹层无标题，每项含图片与位于底边区域的页码；宽视口 5 列且首屏至少 4 行，窄视口 3 列",
+      "scope": "本地 Vite，desktop 1200×900 与 mobile 390×844 两轮，列数与首屏可见行数实测",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "failed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/result.json",
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/measurements.json",
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/modal-wide.png",
+        ".trellis/tasks/10-25-thumb-expand-modal-acceptance/validation.md",
+        ".tmp/browser-preflight/thumb-expand-mobile-88102891-bf95-43ca-97af-4caf0d0c559f/mobile-modal.png"
+      ],
+      "note": "无标题与底边页码、首屏 4 行、窄屏 3 列均达成（headings []、labelsOnBottom true、rowsVisible 4、390 宽 columns 3）；但宽视口每行 8 列（1200 宽 template \"120px ×8\"），逐档扫描 1600→10、1440→8、1280→8、1200→8、1024→7、900→6、768→5、640→4、480→3、390→3，违反 FR-004「宽屏每行最多 5 项」与 FR-005。缺陷 D4。",
+      "waiver": null
+    },
+    {
+      "id": "modal-visual-style",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "弹层外壳的色彩层级、圆角、边框/阴影与间距和现有设置弹窗一致",
+      "scope": "两种 profile 的截图与现有设置弹窗截图对比复核",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/result.json",
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/measurements.json",
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/modal-wide.png",
+        ".trellis/tasks/10-25-thumb-expand-modal-acceptance/validation.md",
+        ".tmp/browser-preflight/thumb-expand-mobile-88102891-bf95-43ca-97af-4caf0d0c559f/mobile-modal.png",
+        ".tmp/browser-preflight/thumb-expand-single-913cf1d7-3179-448a-a390-56bcf80c0393/single-segment.png"
+      ],
+      "note": "人工读图复核：宽屏白色圆角面板 + 20px 圆角 + 柔和阴影 + 浅色缩略图卡片 + 绿色选中态页码，与现有设置弹窗风格一致；窄屏全屏铺满、圆角 0、无外边距，分页器固定在底边；单分段轮截图同款风格。",
+      "waiver": null
+    },
+    {
+      "id": "segment-pagination-and-jump",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "分页器按 100 页分段，当前阅读页在非首段时弹层默认聚焦该分段，点击缩略图后弹层关闭并跳转到目标页",
+      "scope": "本地 Vite，页数超过 100 的图集，分段切换、默认分段定位与点击跳转后的页码核对",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "failed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/result.json",
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/measurements.json",
+        ".trellis/tasks/10-25-thumb-expand-modal-acceptance/validation.md",
+        ".tmp/browser-preflight/thumb-expand-mobile-88102891-bf95-43ca-97af-4caf0d0c559f/mobile-modal.png"
+      ],
+      "note": "分段与默认定位正确（第三卷 201/250 打开得 itemCount 50、firstLabel 201、lastLabel 250、pagerActive [\"2\"]、activePage 201），但分段大小为 200 页而非规范写的 100 页（缺陷 D5）；点击页码 204 后弹层关闭却落到 247/250（缺陷 D6，pageContainers 数组切卷后倒序取到镜像元素 247）；窄屏点 3 落到 4/250（同类偏差 1 页）。",
+      "waiver": null
+    },
+    {
+      "id": "edge-single-segment",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "总页数 ≤100 时弹层底部分页器仍可见且只有单个可用分段",
+      "scope": "本地 Vite，页数不超过 100 的图集打开弹层核对分页器",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/thumb-expand-single-913cf1d7-3179-448a-a390-56bcf80c0393/result.json",
+        ".tmp/browser-preflight/thumb-expand-single-913cf1d7-3179-448a-a390-56bcf80c0393/measurements.json",
+        ".tmp/browser-preflight/thumb-expand-single-913cf1d7-3179-448a-a390-56bcf80c0393/single-segment.png",
+        ".trellis/tasks/10-25-thumb-expand-modal-acceptance/validation.md"
+      ],
+      "note": "?pageTotal=80 单分段轮：itemCount 80、firstLabel 1、lastLabel 80、pagerVisible true、pagerItems [\"1\"]、pagerActive [\"1\"]；左右箭头为 item disable（cursor not-allowed），点击唯一分段后分段与页码不变。",
+      "waiver": null
+    },
+    {
+      "id": "edge-thumb-load-failure",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "缩略图图片加载失败时该项仍显示页码并可点击跳转",
+      "scope": "本地 Vite，通过请求拦截使缩略图失败，核对占位、页码与跳转",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/thumb-expand-loadfail-ac73170e-5ec8-43b6-a5ea-7b905fb09501/result.json",
+        ".tmp/browser-preflight/thumb-expand-loadfail-ac73170e-5ec8-43b6-a5ea-7b905fb09501/measurements.json",
+        ".tmp/browser-preflight/thumb-expand-loadfail-ac73170e-5ec8-43b6-a5ea-7b905fb09501/broken-thumbnails.png",
+        ".trellis/tasks/10-25-thumb-expand-modal-acceptance/validation.md"
+      ],
+      "note": "Network.setBlockedURLs 拦截 *2195608-0*.jpg* 与 *2195608-1*.jpg* 后重载：123 个 jpg 请求全部 transferSize 0，弹层仍打开、120 项全部保留页码，点击第 5 项弹层关闭并落到 5/120。",
+      "waiver": null
+    },
+    {
+      "id": "edge-partial-last-row",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "末行不满一整行时网格保持对齐，不出现重复或错误页码",
+      "scope": "本地 Vite，页数不能被列数整除的图集，核对末行布局与页码序列",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/result.json",
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/measurements.json",
+        ".trellis/tasks/10-25-thumb-expand-modal-acceptance/validation.md"
+      ],
+      "note": "第二段 50 项：rowsVisibleCounts [8,8,8,2]，末行 2 项 lastRowLefts [41,184] 与首行左边界 [41,184,326,…] 对齐；labelsContiguous true、duplicateLabels false。",
+      "waiver": null
+    },
+    {
+      "id": "reading-modes-after-jump",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "从弹层跳转后书页与卷轴两种模式的阅读行为保持正常",
+      "scope": "本地 Vite，跳转后切到卷轴模式再切回书页模式的翻页与滚动核对",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/result.json",
+        ".tmp/browser-preflight/thumb-expand-desktop-ed8dd46c-7bdd-4168-86c7-136cde405880/measurements.json",
+        ".trellis/tasks/10-25-thumb-expand-modal-acceptance/validation.md",
+        ".tmp/browser-preflight/thumb-expand-mobile-88102891-bf95-43ca-97af-4caf0d0c559f/mobile-bottom-dock.png"
+      ],
+      "note": "桌面：滚动 249/250 → 切书页 249/250 且有图 → 点击翻页 250/250 → 回滚动仍 250/250（mode album-scroll-view content scroll-mode）。窄屏：触摸滚动 1/250→3/250，弹层打开后 activePage 3，关闭后仍 3/250。",
+      "waiver": null
+    },
+    {
+      "id": "no-third-party-ui-library",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "依赖中没有新增第三方 UI 组件库",
+      "scope": "`package.json` 依赖清单",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/dockable-deps-check.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T00:20:00+08:00",
+        "endedAt": "2026-10-25T00:28:00+08:00",
+        "log": ".tmp/thumb-expand-deps-check.log"
+      },
+      "evidence": [
+        ".tmp/thumb-expand-deps-check.log",
+        ".tmp/dockable-deps-check.py",
+        ".trellis/tasks/10-25-thumb-expand-modal-acceptance/validation.md"
+      ],
+      "note": "package.json dependencies 仅 fflate、markdown-it、vite-plugin-css-injected-by-js、vue；特征词匹配 ui_library_matches: []，exit 0。",
+      "waiver": null
+    },
+    {
+      "id": "browser-artifact-verified",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "桌面与移动两轮预检产物通过 `verify-browser` 校验",
+      "scope": "跨浏览器操作流程的证据完整性，不替代功能断言",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/thumb-expand-verify-browser.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-25T00:20:00+08:00",
+        "endedAt": "2026-10-25T00:28:00+08:00",
+        "log": ".tmp/thumb-expand-verify-browser.log"
+      },
+      "evidence": [
+        ".tmp/thumb-expand-verify-browser.log",
+        ".trellis/tasks/10-25-thumb-expand-modal-acceptance/validation.md"
+      ],
+      "note": "四份产物（桌面、移动、单分段、加载失败）逐个 verify-browser 输出 status passed，脚本 exit 0；type-check 另见 .tmp/thumb-expand-type-check.log（exit 0）。",
+      "waiver": null
+    }
+  ]
+}

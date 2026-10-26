@@ -1,5 +1,5 @@
 <template>
-    <div class="album-scroll-view">
+    <div class="album-scroll-view" @wheel.passive="releaseScrollLock" @touchstart.passive="releaseScrollLock">
         <div class="preload">
             <div class="preload-item" v-for="i of computedVolPreloadPageIndexList">
                 <PageView :active="true" :index="i" />
@@ -35,6 +35,11 @@ const animationTime = 800
 const scrollPosition = ref(0)
 const scrollView: any = ref(null)
 const pageContainers: any = ref(null)
+let scrollLockUntil = 0
+
+function releaseScrollLock() {
+    scrollLockUntil = 0
+}
 
 function onScrollStopped(position: number) {
     scrollPosition.value = position
@@ -44,7 +49,10 @@ watch(scrollPosition, () => {
     if (!pageContainers.value) {
         return
     }
-    let cons = pageContainers.value.sort((a, b) => a.offsetTop - b.offsetTop)
+    if (Date.now() < scrollLockUntil) {
+        return
+    }
+    const cons = [...pageContainers.value].sort((a, b) => a.offsetTop - b.offsetTop)
     let index
     if (cons) {
         if (scrollPosition.value !== 0) {
@@ -68,11 +76,13 @@ async function scrollToCurIndex() {
     if (!pageContainers.value) {
         return
     }
+    scrollLockUntil = Date.now() + animationTime + 200
     if (computedVolIndex.value == 0) {
         scrollView.value!.scrollTo(0, animationTime)
         return
     }
-    const target = pageContainers.value[computedVolIndex.value]
+    const sorted = [...pageContainers.value].sort((a, b) => a.offsetTop - b.offsetTop)
+    const target = sorted[computedVolIndex.value]
     if (!target) {
         scrollView.value.scrollTo(0, animationTime)
         return

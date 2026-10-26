@@ -133,7 +133,6 @@ function onSelectPage(pageNumber: number) {
 </script>
 
 <style lang="scss" scoped>
-@import '../../style/_responsive';
 @import '../../style/_variables';
 
 .thumb-expand-modal {
@@ -157,10 +156,6 @@ function onSelectPage(pageNumber: number) {
         max-height: min(90vh, 900px);
         min-height: min(80vh, 760px);
         border-radius: 20px;
-
-        @include responsive($breakpoint-xxl) {
-            width: min(1400px, 100%);
-        }
 
         background: linear-gradient(165deg, #ffffff 0%, #f5f8fc 48%, #eef3fa 100%);
         box-shadow:
@@ -212,7 +207,7 @@ function onSelectPage(pageNumber: number) {
             overflow: auto;
             padding: 48px 16px 12px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 120px));
+            grid-template-columns: repeat(5, minmax(0, 120px));
             gap: 12px;
             justify-content: start;
             align-content: start;
@@ -332,6 +327,7 @@ function onSelectPage(pageNumber: number) {
             > .grid-wrap {
                 padding: 44px 14px 12px;
                 gap: 10px;
+                grid-template-columns: repeat(3, minmax(0, 120px));
             }
         }
     }
@@ -343,9 +339,10 @@ function onSelectPage(pageNumber: number) {
 
         > .panel {
             width: 100%;
-            height: 100%;
-            max-height: none;
+            height: auto;
+            max-height: 100%;
             min-height: 100%;
+            box-sizing: border-box;
             border-radius: 0;
 
             > .grid-wrap {

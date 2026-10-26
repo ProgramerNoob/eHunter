@@ -3,7 +3,7 @@ info:
   title: Thumb Expand Modal Contract
   version: 1.0.0
   description: >-
-    Contract for opening full-thumbnail modal, paginating by 100-page segments,
+    Contract for opening full-thumbnail modal, paginating by 200-page segments,
     and jumping to a selected page.
     This is a logical contract for local reader UI behavior; example servers and paths do not represent deployed HTTP endpoints.
 servers:
@@ -35,7 +35,7 @@ paths:
 
   /reader/thumb-expand/segments/{segmentIndex}:
     get:
-      summary: Get thumbnails in one 100-page segment
+      summary: Get thumbnails in one 200-page segment
       operationId: getThumbSegment
       parameters:
         - name: segmentIndex
@@ -142,7 +142,7 @@ components:
           minimum: 1
         items:
           type: array
-          maxItems: 100
+          maxItems: 200
           items:
             $ref: '#/components/schemas/ThumbnailItem'
 
@@ -168,7 +168,7 @@ components:
           minimum: 0
         segmentSize:
           type: integer
-          enum: [100]
+          enum: [200]
         highlightedPage:
           type: integer
           minimum: 1

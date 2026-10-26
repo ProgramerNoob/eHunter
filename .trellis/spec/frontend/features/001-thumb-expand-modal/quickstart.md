@@ -34,13 +34,13 @@ npm run dev
 
 ### Story P3: Segmented pagination and jump
 
-- Use bottom `Pagination` to switch 100-page segments.
+- Use bottom `Pagination` to switch 200-page segments.
 - Open modal when current reading page is in a non-first segment and verify default segment focus is correct.
 - Click a thumbnail item and verify modal closes and reader jumps to target page.
 
 ## Edge & Regression Checks
 
-- Total pages <= 100: pagination remains visible with single segment state.
+- Total pages <= 200: pagination remains visible with single segment state.
 - Thumbnail load failure: item still displays page number and remains jumpable.
 - Last row incomplete: grid alignment remains stable, no duplicate/invalid page labels.
 - Scroll mode and book mode both preserve existing reading behavior after jump.

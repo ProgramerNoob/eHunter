@@ -4,7 +4,7 @@
 
 ## 其余各组的验收未执行
 
-`001-add-pageflip-toggle`（首次系统/设备矩阵、共享与重置防复活矩阵）、`001-dockable-panel-layout`、`001-thumb-expand-modal`、`002-more-settings-modal`（真实脚本环境的共享/补缺/降级/重置矩阵、翻页初始化与放大镜持久化的桌面与移动回归）的 quickstart 步骤仍未执行。`001-gallery-download-bundle` 的分片校验（`metadata.json` 七字段解压校验、分片计数与 `chunkIndex` 对应、`fflate` 与 JSON 单格式确认）同样未执行。
+`001-add-pageflip-toggle`（首次系统/设备矩阵、共享与重置防复活矩阵）、`002-more-settings-modal`（真实脚本环境的共享/补缺/降级/重置矩阵、翻页初始化与放大镜持久化的桌面与移动回归）的 quickstart 步骤仍未执行。`001-gallery-download-bundle` 的分片校验（`metadata.json` 七字段解压校验、分片计数与 `chunkIndex` 对应、`fflate` 与 JSON 单格式确认）同样未执行。`001-dockable-panel-layout` 与 `001-thumb-expand-modal` 的本地 quickstart 验收已执行完毕，其发现的 7 个缺陷已修复并回归（见 `.trellis/tasks/10-26-fix-acceptance-defects/`）。
 
 ## 平台注入的验收记录未产出
 

@@ -16,6 +16,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { createGestureActivator, type GestureStartPayload } from '../../utils/layoutGesture'
+import { getDockLongPressMs } from '../../model/layout'
 
 const props = withDefaults(defineProps<{
     label?: string
@@ -24,7 +25,7 @@ const props = withDefaults(defineProps<{
 }>(), {
     label: 'EHUNTER',
     ariaLabel: 'Dock handle',
-    longPressMs: 500,
+    longPressMs: getDockLongPressMs(),
 })
 
 const emit = defineEmits<{
@@ -72,6 +73,7 @@ function onPointerCancel() {
   width: 100%;
   height: 100%;
   min-height: 40px;
+  touch-action: none;
   font-weight: 700;
   letter-spacing: 0.08em;
   cursor: grab;

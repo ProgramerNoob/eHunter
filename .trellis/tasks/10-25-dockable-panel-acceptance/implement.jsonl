@@ -1,0 +1,5 @@
+{"file":".trellis/spec/frontend/features/001-dockable-panel-layout/quickstart.md","reason":"验收步骤与 Validation Checklist 来源"}
+{"file":".trellis/spec/frontend/features/001-dockable-panel-layout/spec.md","reason":"用户故事、功能需求与边界条件定义通过标准"}
+{"file":".trellis/spec/frontend/features/001-dockable-panel-layout/data-model.md","reason":"布局块、槽位与偏好数据模型，判定断言字段"}
+{"file":".trellis/spec/frontend/browser-acceptance.md","reason":"本地 Vite、预检 profile、证据与收尾流程"}
+{"file":".trellis/spec/frontend/features/pending-work.md","reason":"该组未收口项的当前描述"}

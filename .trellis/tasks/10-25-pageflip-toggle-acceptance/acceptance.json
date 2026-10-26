@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "首次初始化矩阵四种环境的结果与 quickstart 表格一致（桌面关/拟真、移动关/平移、两者开/无动效），且记录实际模拟 reduced-motion 的手段。",
+    "AC2": "初始化后稳定性成立：切换系统偏好不改当前动效；保存其他设置后刷新与重开画集仍用已保存结果；预置三种合法偏好（含旧默认拟真）保留；缺失/坏值按本站合法旧值优先补齐；重置后重新初始化不复活旧值。",
+    "AC3": "三档动效生效且点击、滚轮、键盘、自动翻页一致使用当前设置；首页/末页不越界；加载中与快速连续输入无页码错乱或长时间空白；卷轴模式滚动不受影响，返回书页沿用已确定偏好。",
+    "AC4": "共享/迁移/重置矩阵在 GM 可用的 EH/EX/NH 环境下跑通（合法共享优先、统一旧值优先于独立旧值、空共享首次迁入、后续站点只补缺、坏值修复、重复迁移、重置防复活），GM 不可用场景体现 origin 隔离。",
+    "AC5": "本地两 profile 与平台轮均产出通过 `verify-browser` 校验的预检产物，`acceptance.json` 有对应 runtime/inspection 记录与证据路径，`summarize` 实际执行。"
+  },
+  "checks": [
+    {
+      "id": "init-matrix",
+      "ac": ["AC1"],
+      "claim": "首次初始化矩阵在桌面/移动 × 减少动态效果开关四种环境下分别得到拟真、平移、无动效、无动效",
+      "scope": "本地 Vite，desktop 与 mobile 两 profile，CDP 模拟 prefers-reduced-motion 前后各一轮，无合法共享与本站旧偏好的初始状态",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中；未执行",
+      "waiver": null
+    },
+    {
+      "id": "stability-after-init",
+      "ac": ["AC2"],
+      "claim": "初始化后切换系统偏好、保存其他设置并刷新或重开画集，动效设置不意外变化",
+      "scope": "本地 Vite，desktop 与 mobile，初始化后切换 reduced-motion、保存语言、刷新页面、重开读器四种动作后的动效值核对",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中；未执行",
+      "waiver": null
+    },
+    {
+      "id": "legacy-and-bad-value",
+      "ac": ["AC2"],
+      "claim": "三种合法旧偏好（含恰等于旧默认拟真）被保留；缺失或坏值先由本站合法旧值补齐，全部无合法值才使用矩阵",
+      "scope": "本地 Vite，预置合法旧值与缺失/坏值记录的初始化结果核对",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中；未执行",
+      "waiver": null
+    },
+    {
+      "id": "reset-no-revival",
+      "ac": ["AC2"],
+      "claim": "执行明确重置后重新初始化不会重新导入被重置的旧值",
+      "scope": "本地 Vite，重置后重开阅读器与刷新页面各一次，核对动效值",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中；未执行",
+      "waiver": null
+    },
+    {
+      "id": "three-effects-and-inputs",
+      "ac": ["AC3"],
+      "claim": "书页模式下三档动效设置下一次翻页即生效，且点击、滚轮、键盘、自动翻页均使用同一有效设置",
+      "scope": "本地 Vite，desktop 与 mobile，三档动效分别配四种翻页输入",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中；未执行",
+      "waiver": null
+    },
+    {
+      "id": "page-boundary-and-rapid-input",
+      "ac": ["AC3"],
+      "claim": "首页向前与末页向后不越界，加载未完成与快速连续输入不产生页码错乱、积压或长时间空白",
+      "scope": "本地 Vite，desktop 与 mobile，首末页边界与快速连续翻页输入",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中；未执行",
+      "waiver": null
+    },
+    {
+      "id": "scroll-mode-unaffected",
+      "ac": ["AC3"],
+      "claim": "切换卷轴模式后原滚动行为保持，返回书页模式仍使用已确定的动效偏好",
+      "scope": "本地 Vite，book → scroll → book 切换后的滚动与翻页动效核对",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中；未执行",
+      "waiver": null
+    },
+    {
+      "id": "sharing-migration-matrix",
+      "ac": ["AC4"],
+      "claim": "共享与迁移矩阵在 GM 可用的 EH/EX/NH 环境下逐行成立：合法共享优先、统一旧值先迁入后续站点不覆盖、逐项补缺、坏值修复、重复迁移结果相同、重置防复活",
+      "scope": "真实油猴脚本环境，GM 可用，EH/EX/NH 跨站重开阅读器，动效为被测字段并覆盖语言等其他字段",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中；未执行。依赖 GM 可用的 EH/EX/NH 登录环境，开工前需确认可用性",
+      "waiver": null
+    },
+    {
+      "id": "gm-unavailable-origin-isolation",
+      "ac": ["AC4"],
+      "claim": "GM 不可用时多个 origin 的本地偏好互不影响，无跨站共享假象",
+      "scope": "不加载 GM 能力的环境，多个 origin 分别修改并重开阅读器",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中；未执行。需先确定 GM 不可用环境的准备方式",
+      "waiver": null
+    },
+    {
+      "id": "browser-artifact-verified",
+      "ac": ["AC5"],
+      "claim": "本地两 profile 与平台轮预检产物通过 `verify-browser` 校验",
+      "scope": "跨浏览器操作流程的证据完整性，不替代功能断言",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中；未执行",
+      "waiver": null
+    }
+  ]
+}

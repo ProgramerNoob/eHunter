@@ -1331,14 +1331,18 @@ function syncThumbVisualMetrics(sizePx: number) {
     store.thumbItemHeight = Math.max(64, Math.round(store.thumbItemWidth * (160 / 150)))
 }
 
+function viewportSizeFor(slot: DockSlotId): number {
+    return slot === 'bottom' ? store.viewportHeight : store.viewportWidth
+}
+
 function applyCurrentModeLayoutPreference() {
     const key = getLayoutModeKey(store.readingMode)
     const modeLayout = readerLayoutPreference.layouts[key]
     const slot = normalizeDockSlot(modeLayout.thumbSlot)
     store.thumbDockSlot = slot
-    const clampedSize = clampThumbSize(slot, modeLayout.thumbSizePx)
+    const clampedSize = clampThumbSize(slot, modeLayout.thumbSizePx, viewportSizeFor(slot))
     store.thumbViewWidth = clampedSize
-    store.thumbViewHeight = clampThumbSize('bottom', modeLayout.thumbSizePx)
+    store.thumbViewHeight = clampThumbSize('bottom', modeLayout.thumbSizePx, store.viewportHeight)
     syncThumbVisualMetrics(clampedSize)
 }
 
@@ -1349,7 +1353,7 @@ function persistCurrentModeLayoutPreference() {
     const resetId = currentResetIdentity()
     readerLayoutPreference.layouts[key] = {
         thumbSlot: slot,
-        thumbSizePx: clampThumbSize(slot, size),
+        thumbSizePx: clampThumbSize(slot, size, viewportSizeFor(slot)),
         updatedAt: new Date().toISOString(),
         ...(resetId ? { resetId } : {}),
     }
@@ -1674,22 +1678,23 @@ export const storeAction = {
     setThumbDockSlot: (slot: DockSlotId) => {
         const normalized = normalizeDockSlot(slot)
         const previous = store.thumbDockSlot
+        const viewportSize = viewportSizeFor(normalized)
         store.thumbDockSlot = normalized
         if (normalized === 'bottom') {
-            store.thumbViewHeight = clampThumbSize('bottom', previous === 'bottom' ? store.thumbViewHeight : store.thumbViewWidth)
+            store.thumbViewHeight = clampThumbSize('bottom', previous === 'bottom' ? store.thumbViewHeight : store.thumbViewWidth, viewportSize)
             syncThumbVisualMetrics(store.thumbViewHeight)
         } else {
-            store.thumbViewWidth = clampThumbSize(normalized, previous === 'bottom' ? store.thumbViewHeight : store.thumbViewWidth)
+            store.thumbViewWidth = clampThumbSize(normalized, previous === 'bottom' ? store.thumbViewHeight : store.thumbViewWidth, viewportSize)
             syncThumbVisualMetrics(store.thumbViewWidth)
         }
         persistCurrentModeLayoutPreference()
     },
     setThumbPanelSize: (val: number) => {
         if (store.thumbDockSlot === 'bottom') {
-            store.thumbViewHeight = clampThumbSize('bottom', val)
+            store.thumbViewHeight = clampThumbSize('bottom', val, store.viewportHeight)
             syncThumbVisualMetrics(store.thumbViewHeight)
         } else {
-            store.thumbViewWidth = clampThumbSize(store.thumbDockSlot, val)
+            store.thumbViewWidth = clampThumbSize(store.thumbDockSlot, val, store.viewportWidth)
             syncThumbVisualMetrics(store.thumbViewWidth)
         }
         persistCurrentModeLayoutPreference()

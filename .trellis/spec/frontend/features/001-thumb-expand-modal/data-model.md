@@ -19,11 +19,11 @@
   - `isOpen` (boolean, required): 弹层开关状态。
   - `layoutMode` (enum, required): `five-column|three-column`。
   - `activeSegmentIndex` (number, required): 当前分页分段索引（从 0 开始）。
-  - `segmentSize` (number, required): 固定值 `100`。
+  - `segmentSize` (number, required): 固定值 `200`。
   - `highlightedPage` (number, required): 当前阅读页（1-based，用于高亮）。
   - `styleProfile` (enum, required): `settings-dialog`，表示风格基线。
 - Validation rules:
-  - `segmentSize` 必须恒等于 `100`。
+  - `segmentSize` 必须恒等于 `200`。
   - `activeSegmentIndex` 必须落在有效分段范围。
   - `highlightedPage` 必须在 `[1, totalPages]` 范围。
 
@@ -42,7 +42,7 @@
 
 ## 4) ThumbnailSegment
 
-- Description: 按每 100 页切分的缩略图分段。
+- Description: 按每 200 页切分的缩略图分段。
 - Fields:
   - `segmentIndex` (number, required): 分段索引（0-based）。
   - `startPage` (number, required): 分段起始页（1-based）。
@@ -50,7 +50,7 @@
   - `items` (ThumbnailItem[], required): 当前分段缩略图集合。
 - Validation rules:
   - `startPage <= endPage`。
-  - `items.length <= 100`。
+  - `items.length <= 200`。
   - `items.pageNumber` 必须在 `[startPage, endPage]` 范围。
 
 ## Relationships

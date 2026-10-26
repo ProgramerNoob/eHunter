@@ -1,0 +1,41 @@
+{
+  "id": "dockable-panel-acceptance",
+  "name": "dockable-panel-acceptance",
+  "title": "验收 001-dockable-panel-layout",
+  "description": "执行 001-dockable-panel-layout quickstart 的 P1 吸附、P2 缩放、P3 模式隔离持久化与回归检查，产出可核验验收记录。",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-25",
+  "completedAt": null,
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": "10-25-close-feature-quickstart-acceptance",
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-25-dockable-panel-acceptance/**"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "632d7fea40cc7aeee3820024dc705262b4293398331a6359f4fcc2d32feb38ff"
+      }
+    }
+  }
+}

@@ -40,6 +40,7 @@
   - `maxSizePx` (number, required): Effective max clamp.
 - Validation rules:
   - `currentSizePx` MUST remain clamped in `[minSizePx, maxSizePx]`.
+  - Effective `maxSizePx` MUST leave the main block at least `min(320, viewport × 0.6)` on the split axis; the ratio degrades the floor on narrow viewports so the main content area stays visible.
   - Boundary MUST exist only when both `betweenBlocks` are visible.
 
 ## 4) ModeLayoutConfiguration

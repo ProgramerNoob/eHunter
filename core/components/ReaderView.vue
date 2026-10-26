@@ -5,7 +5,6 @@
         :thumb-slot="store.thumbDockSlot"
         :thumb-size-px="store.thumbDockSlot === 'bottom' ? store.thumbViewHeight : store.thumbViewWidth"
         :show-thumb="showThumb"
-        :long-press-ms="500"
         @request-dock="(slot) => storeAction.setThumbDockSlot(slot)"
         @request-resize="(size) => storeAction.setThumbPanelSize(size)">
         <template #thumb>

@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "四个 child 任务各自的 `python3 scripts/acceptance.py summarize <task-dir>` 均被实际执行，结论按其返回 JSON 记录；存在非 passed 项时在任务记录中列出未通过项、失败轮 `phase` 与错误文本。",
+    "AC2": "每组验收记录含环境信息（浏览器与 profile、本地 Vite 或生产包版本/提交、执行日期）、截图与日志路径，以及实际执行了哪些 quickstart 步骤。",
+    "AC3": "失败轮产物保留在 `.tmp/browser-preflight/` 下作为反证，不被删除或覆盖。",
+    "AC4": "`pending-work.md` 中四组对应条目按实际结论更新：已执行的删除或改写为剩余缺口，未执行/失败项保持可见。"
+  },
+  "checks": [
+    {
+      "id": "child-summaries-recorded",
+      "ac": ["AC1"],
+      "claim": "四个 child 任务的 acceptance.json 均可被 summarize 解析并返回合法结论，结论已记入本任务",
+      "scope": "四个 child 任务的 acceptance.json 有效性与 summarize 退出码（0 passed / 1 未通过但合法）",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中；未执行",
+      "waiver": null
+    },
+    {
+      "id": "per-group-evidence",
+      "ac": ["AC2"],
+      "claim": "每组验收记录包含环境信息、截图与日志路径，以及实际执行的 quickstart 步骤清单",
+      "scope": "四个 child 任务的 prd/记录文档与 acceptance.json 的 note/evidence 字段",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中；未执行",
+      "waiver": null
+    },
+    {
+      "id": "failed-rounds-preserved",
+      "ac": ["AC3"],
+      "claim": "记录中提及的失败轮产物仍在 `.tmp/browser-preflight/` 下存在且未被覆盖",
+      "scope": "各 child 记录引用的失败轮 artifactDir 与磁盘实际目录对照",
+      "method": "inspection",
+      "dimension": "structure",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中；未执行",
+      "waiver": null
+    },
+    {
+      "id": "pending-work-updated",
+      "ac": ["AC4"],
+      "claim": "`pending-work.md` 按四组实际结论更新，已执行项改写、未执行或失败项保持可见",
+      "scope": "`.trellis/spec/frontend/features/pending-work.md` 的当前状态描述与四组验收结论一致",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "unrun",
+      "execution": null,
+      "evidence": [],
+      "note": "计划中；未执行",
+      "waiver": null
+    }
+  ]
+}

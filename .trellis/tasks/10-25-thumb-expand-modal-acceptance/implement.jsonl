@@ -1,0 +1,5 @@
+{"file":".trellis/spec/frontend/features/001-thumb-expand-modal/quickstart.md","reason":"验收步骤与 Validation Checklist 来源"}
+{"file":".trellis/spec/frontend/features/001-thumb-expand-modal/spec.md","reason":"入口锚定、网格密度、分页跳转需求与边界"}
+{"file":".trellis/spec/frontend/features/001-thumb-expand-modal/data-model.md","reason":"入口、缩略图项与分段的数据结构"}
+{"file":".trellis/spec/frontend/browser-acceptance.md","reason":"本地 Vite、预检 profile、计数类断言口径与收尾流程"}
+{"file":".trellis/spec/frontend/features/pending-work.md","reason":"该组未收口项的当前描述"}

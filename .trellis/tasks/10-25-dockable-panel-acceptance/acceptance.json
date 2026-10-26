@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "P1 吸附：左侧→右侧、→底部两种目标均成功，拖到无效目标释放后布局回到上一稳定状态，且内容面板不重叠。",
+    "AC2": "P2 缩放：hover 边界出现 resize affordance；水平/垂直拖拽实时更新并在最小/最大限制处钳制，主内容区始终可见；touch 短按不触发、500ms 长按激活拖拽或缩放。",
+    "AC3": "P3 持久化：布局按模式独立保存，`book ↔ scroll` 切换自动应用目标模式布局，刷新后各模式恢复自身布局。",
+    "AC4": "回归：吸附/缩放后卷轴模式内容可读可交互、书页模式翻页与分页正常，依赖中无第三方 UI 组件库。",
+    "AC5": "桌面与移动两轮均产出通过 `verify-browser` 校验的预检产物，`acceptance.json` 有对应 runtime/inspection 记录与证据路径，`summarize` 实际执行。"
+  },
+  "checks": [
+    {
+      "id": "dock-desktop-pointer",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "桌面 1200×900 下拖拽缩略图面板头部可吸附到右侧与底部，拖到无效目标释放后回到上一稳定布局，且主内容区不重叠",
+      "scope": "本地 Vite，desktop profile，鼠标拖拽 `EHUNTER` 头部，左→右、→底部、拖到无效区域释放三种动作",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/dockable-desktop-83ce4a3b-473d-4209-9e7c-18c284b9b172/result.json",
+        ".tmp/browser-preflight/dockable-desktop-83ce4a3b-473d-4209-9e7c-18c284b9b172/measurements.json",
+        ".tmp/browser-preflight/dockable-desktop-83ce4a3b-473d-4209-9e7c-18c284b9b172/dock-right.png",
+        ".tmp/browser-preflight/dockable-desktop-83ce4a3b-473d-4209-9e7c-18c284b9b172/dock-bottom.png",
+        ".trellis/tasks/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "desktop profile 1200×900 DPR1 单轮：拖 EHUNTER 头部左→右得到 slot-right、主面板 x=0 无重叠并写入 scroll.thumbSlot=right；右侧→底部得到 slot-bottom、面板贴底全宽、主面板高度=900-60；拖到视口中心释放时唯一 active drop zone 仍指向当前槽位，thumbSlot/thumbSizePx 未变（仅 updatedAt 刷新）。截图 dock-right.png / dock-bottom.png 已人工确认布局与缩略图渲染正常。",
+      "waiver": null
+    },
+    {
+      "id": "dock-mobile-touch",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "移动 390×844 下长按 500ms 头部可激活拖拽并完成吸附，短按不改变布局",
+      "scope": "本地 Vite，mobile profile（DPR3 / touch 5 / coarse），缩略图头部短按与长按对比",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "failed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/dockable-mobile-final-6fdc7598-57a8-420e-9c95-47aeb77273e5/result.json",
+        ".tmp/browser-preflight/dockable-mobile-final-6fdc7598-57a8-420e-9c95-47aeb77273e5/measurements.json",
+        ".tmp/browser-preflight/dockable-touch-dock-23feb3b7-a759-4a60-b574-2be577c3bc77/result.json",
+        ".tmp/browser-preflight/dockable-touch-dock-23feb3b7-a759-4a60-b574-2be577c3bc77/measurements.json",
+        ".trellis/tasks/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "未达成「长按后完成吸附」：mobile profile 390×844 DPR3 touch5 coarse 下短按不改变布局（初版轮已验证），长按 800ms 能进入 armed 并显示 drop overlay，但第一个 touchMove 即触发 pointercancel（事件序列 pointerdown→pointermove→pointercancel），overlay 立即消失、拖拽不提交、槽位与存储均不变。根因取证：`.dock-handle` 的 computed `touch-action` 为 `auto`（core/components/layout/DockHandle.vue 未声明 touch-action），浏览器把触摸判为滚动手势；同文件 SplitHandle.vue 已声明 touch-action:none，故触摸缩放正常。注入内联 touch-action:none 后同一手势可成功吸附到右侧，确认归因。",
+      "waiver": null
+    },
+    {
+      "id": "resize-desktop",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "桌面 hover 分界线出现 resize affordance，水平与垂直拖拽实时改变尺寸并在最小/最大限制处钳制，主内容区保持可见",
+      "scope": "本地 Vite，desktop profile，侧边吸附与底部吸附两种边界的 hover、拖拽到上下限、越界拖拽",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/dockable-desktop-83ce4a3b-473d-4209-9e7c-18c284b9b172/result.json",
+        ".tmp/browser-preflight/dockable-desktop-83ce4a3b-473d-4209-9e7c-18c284b9b172/measurements.json",
+        ".tmp/browser-preflight/dockable-desktop-83ce4a3b-473d-4209-9e7c-18c284b9b172/resize-hover.png",
+        ".tmp/browser-preflight/dockable-desktop-83ce4a3b-473d-4209-9e7c-18c284b9b172/resize-min.png",
+        ".tmp/browser-preflight/dockable-desktop-83ce4a3b-473d-4209-9e7c-18c284b9b172/resize-bottom.png",
+        ".trellis/tasks/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "desktop profile：hover 分界线时 grip 背景变 rgba(46,204,113,0.16) 且 .main-panel 加 resizing class，离开后恢复 rgba(0,0,0,0)；侧边拖拽 150→320 期间宽度随之更新，继续拖到视口右缘钳制 520（主面板 680），拖到左缘钳制 60（主面板 1140），主内容区始终 >0；底边拖拽高度 60→200 并钳制到上限 420（主面板 480）与下限 60。截图 resize-hover.png / resize-min.png / resize-bottom.png 已人工确认。",
+      "waiver": null
+    },
+    {
+      "id": "resize-touch-longpress",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "移动端短按分界线不触发缩放，500ms 长按后拖动可改变尺寸并受钳制",
+      "scope": "本地 Vite，mobile profile，触摸短按与长按分界线的对比与钳制边界",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "partial",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/dockable-mobile-final-6fdc7598-57a8-420e-9c95-47aeb77273e5/result.json",
+        ".tmp/browser-preflight/dockable-mobile-final-6fdc7598-57a8-420e-9c95-47aeb77273e5/measurements.json",
+        ".tmp/browser-preflight/dockable-mobile-final-6fdc7598-57a8-420e-9c95-47aeb77273e5/touch-min-clamp.png",
+        ".tmp/browser-preflight/dockable-mobile-maxdrag-fb1a48bd-d753-4d43-88e1-c0538479cc1f/result.json",
+        ".tmp/browser-preflight/dockable-mobile-maxdrag-fb1a48bd-d753-4d43-88e1-c0538479cc1f/measurements.json",
+        ".trellis/tasks/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "已达成：触摸短按分界线 120ms 不改变宽度；长按 750–780ms 后 .split-handle 进入 active，拖动使侧栏 150→60 并在下限钳制，主面板 240→330，存储写入 thumbSizePx=60（截图 touch-min-clamp.png）。未达成：sideMaxSizePx=520 大于 390 视口，移动端无法触达上限；拖到视口右缘（x=389）时侧栏 389、主面板被压到 1px，未满足 AC2「主内容区始终可见」，独立取证轮 dockable-mobile-maxdrag 记录该失败。",
+      "waiver": null
+    },
+    {
+      "id": "layout-persistence-mode",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "布局按阅读模式独立保存：在书页模式设置布局后切到卷轴模式应用该模式自身布局，刷新后两种模式各自恢复上次布局",
+      "scope": "本地 Vite，desktop profile，book → scroll → book 切换与页面刷新前后的吸附位置和尺寸",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/dockable-refresh-73c06150-8ade-4ec1-ba07-c43e2b0236fc/result.json",
+        ".tmp/browser-preflight/dockable-refresh-73c06150-8ade-4ec1-ba07-c43e2b0236fc/measurements.json",
+        ".tmp/browser-preflight/dockable-refresh-73c06150-8ade-4ec1-ba07-c43e2b0236fc/refresh-restored.png",
+        ".trellis/tasks/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "desktop profile 单轮：清空 mode-layout 后 scroll 吸附底部并 resize 到 h=222（存储 scroll bottom/222），切书页后槽位独立为 left，吸附右侧并 resize 到 w=333（存储 book right/333，scroll 保持 bottom/222）；刷新后直接落在书页模式 right/333，切回滚动得到 bottom/222、切回书页得到 right/333。截图 refresh-restored.png 已人工确认。",
+      "waiver": null
+    },
+    {
+      "id": "layout-block-registry",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "核心吸附/缩放行为由 block registry 元数据驱动，没有针对缩略图面板的硬编码分支",
+      "scope": "`core/model/layout.ts` 的块元数据与 `DockWorkspace` 交互入口的静态核对",
+      "method": "inspection",
+      "dimension": "structure",
+      "observed": "failed",
+      "execution": null,
+      "evidence": [
+        "core/model/layout.ts",
+        "core/components/layout/DockWorkspace.vue",
+        "core/components/ReaderView.vue",
+        ".trellis/spec/frontend/features/001-dockable-panel-layout/quickstart.md",
+        ".trellis/tasks/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "未达成「行为由 block registry 元数据驱动」。core/model/layout.ts 只导出 layoutBlockRegistry（thumb/main 两条），全仓库无任何消费方；DockWorkspace 的探测/停靠逻辑没有读取 allowedSlots/minSizePx/maxSizePx，尺寸钳制实际由 clampThumbSize 中的硬编码常量 sideMinSizePx/sideMaxSizePx/bottomMinSizePx/bottomMaxSizePx 完成，长按阈值由 ReaderView 写死 `:long-press-ms=\"500\"` 传入而非读 registry。",
+      "waiver": null
+    },
+    {
+      "id": "reader-regression-after-layout",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "吸附与缩放后卷轴模式内容可读可交互，书页模式翻页与分页仍正常",
+      "scope": "本地 Vite，desktop 与 mobile 各一轮，改变布局后切换两种模式并翻页、滚动",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/dockable-desktop-83ce4a3b-473d-4209-9e7c-18c284b9b172/result.json",
+        ".tmp/browser-preflight/dockable-desktop-83ce4a3b-473d-4209-9e7c-18c284b9b172/measurements.json",
+        ".tmp/browser-preflight/dockable-desktop-83ce4a3b-473d-4209-9e7c-18c284b9b172/scroll-regression.png",
+        ".tmp/browser-preflight/dockable-desktop-83ce4a3b-473d-4209-9e7c-18c284b9b172/book-regression.png",
+        ".tmp/browser-preflight/dockable-mobile-final-6fdc7598-57a8-420e-9c95-47aeb77273e5/result.json",
+        ".tmp/browser-preflight/dockable-mobile-final-6fdc7598-57a8-420e-9c95-47aeb77273e5/measurements.json",
+        ".tmp/browser-preflight/dockable-mobile-final-6fdc7598-57a8-420e-9c95-47aeb77273e5/mobile-book-tap.png",
+        ".trellis/tasks/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "desktop：底部吸附后滚轮使 scrollTop 0→900 并加载图片；切书页后点击进度推进且分页控件可见，截图 book-regression.png 显示双页并排与页码条。mobile：触摸上滑 scrollTop 0→188、图片 4→6；触摸点击书页使 progress 1/120→4/120，截图 mobile-book-tap.png 显示单页铺满。两种模式下布局改变后阅读交互均正常。",
+      "waiver": null
+    },
+    {
+      "id": "no-third-party-ui-library",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "依赖中没有新增第三方 UI 组件库",
+      "scope": "`package.json` 依赖清单",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/dockable-deps-check.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-26T00:12:24+08:00",
+        "endedAt": "2026-10-26T00:12:26+08:00",
+        "log": ".tmp/dockable-deps-check.log"
+      },
+      "evidence": [
+        ".tmp/dockable-deps-check.log",
+        "package.json",
+        ".trellis/tasks/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "python3 脚本读取 package.json，dependencies 为 fflate/markdown-it/vite-plugin-css-injected-by-js/vue，devDependencies 为构建与类型工具，按 UI 组件库特征词（element/vuetify/ant-design/naive-ui/bootstrap/tailwind 等）匹配 0 项，退出码 0。",
+      "waiver": null
+    },
+    {
+      "id": "browser-artifact-verified",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "桌面与移动两轮预检产物通过 `verify-browser` 校验",
+      "scope": "跨浏览器操作流程的证据完整性，不替代功能断言",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/dockable-verify-browser.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-26T00:12:20+08:00",
+        "endedAt": "2026-10-26T00:12:26+08:00",
+        "log": ".tmp/dockable-verify-browser.log"
+      },
+      "evidence": [
+        ".tmp/dockable-verify-browser.log",
+        ".tmp/browser-preflight/dockable-desktop-83ce4a3b-473d-4209-9e7c-18c284b9b172/result.json",
+        ".tmp/browser-preflight/dockable-mobile-final-6fdc7598-57a8-420e-9c95-47aeb77273e5/result.json",
+        ".tmp/browser-preflight/dockable-refresh-73c06150-8ade-4ec1-ba07-c43e2b0236fc/result.json",
+        ".trellis/tasks/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "acceptance.py verify-browser 依次校验 desktop / mobile / refresh 三份产物，均返回 valid:true status:passed，脚本退出码 0；失败轮 dockable-touch-dock 与 dockable-mobile-maxdrag 保留在 .tmp/browser-preflight 下作为缺陷证据，不参与本项通过判定。",
+      "waiver": null
+    }
+  ]
+}

@@ -16,12 +16,13 @@
 <script setup lang="ts">
 import { onUnmounted, ref } from 'vue'
 import { createGestureActivator, type GestureStartPayload } from '../../utils/layoutGesture'
+import { getDockLongPressMs } from '../../model/layout'
 
 const props = withDefaults(defineProps<{
     orientation: 'vertical' | 'horizontal'
     longPressMs?: number
 }>(), {
-    longPressMs: 500,
+    longPressMs: getDockLongPressMs(),
 })
 
 const emit = defineEmits<{

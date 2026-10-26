@@ -40,6 +40,7 @@
 import { computed, onUnmounted, ref } from 'vue'
 import SplitHandle from './SplitHandle.vue'
 import { i18n } from '../../store/i18n'
+import { getDockAllowedSlots, getDockLongPressMs } from '../../model/layout'
 import type { DockSlotId } from '../../model/layout'
 import type { GestureStartPayload } from '../../utils/layoutGesture'
 
@@ -49,7 +50,7 @@ const props = withDefaults(defineProps<{
     showThumb: boolean
     longPressMs?: number
 }>(), {
-    longPressMs: 500,
+    longPressMs: getDockLongPressMs(),
 })
 
 const emit = defineEmits<{
@@ -87,19 +88,20 @@ function detectPreviewSlot(clientX: number, clientY: number): DockSlotId {
         return props.thumbSlot
     }
     const rect = rootRef.value.getBoundingClientRect()
+    const allowedSlots = getDockAllowedSlots()
     const leftDistance = clientX - rect.left
     const rightDistance = rect.right - clientX
     const bottomDistance = rect.bottom - clientY
     const horizontalThreshold = Math.max(120, rect.width * 0.24)
     const bottomThreshold = Math.max(120, rect.height * 0.24)
     const candidates: Array<{ slot: DockSlotId; score: number }> = []
-    if (leftDistance <= horizontalThreshold) {
+    if (allowedSlots.includes('left') && leftDistance <= horizontalThreshold) {
         candidates.push({ slot: 'left', score: leftDistance / horizontalThreshold })
     }
-    if (rightDistance <= horizontalThreshold) {
+    if (allowedSlots.includes('right') && rightDistance <= horizontalThreshold) {
         candidates.push({ slot: 'right', score: rightDistance / horizontalThreshold })
     }
-    if (bottomDistance <= bottomThreshold) {
+    if (allowedSlots.includes('bottom') && bottomDistance <= bottomThreshold) {
         candidates.push({ slot: 'bottom', score: bottomDistance / bottomThreshold })
     }
     if (candidates.length > 0) {
@@ -160,7 +162,9 @@ function onDragEnd(event: PointerEvent) {
         return
     }
     const nextSlot = detectPreviewSlot(event.clientX, event.clientY)
-    emit('request-dock', nextSlot)
+    if (getDockAllowedSlots().includes(nextSlot)) {
+        emit('request-dock', nextSlot)
+    }
     cleanupDrag()
 }
 
@@ -185,7 +189,7 @@ function onResizeMove(event: PointerEvent) {
         return
     }
     const rect = rootRef.value.getBoundingClientRect()
-    let next = props.thumbSizePx
+    let next: number
     if (props.thumbSlot === 'left') {
         next = event.clientX - rect.left
     } else if (props.thumbSlot === 'right') {

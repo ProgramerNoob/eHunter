@@ -54,14 +54,31 @@ export const thumbExpandItemPadding = 8
 
 const now = () => new Date().toISOString()
 
-export function clampThumbSize(slot: DockSlotId, size: number): number {
+const mainSizeFloorRatio = 0.6
+
+export function computeMainMinSizePx(viewportPx: number): number {
+    const main = getLayoutBlock('main')
+    const minSize = main ? main.minSizePx : 0
+    return Math.min(minSize, Math.round(Math.max(0, viewportPx) * mainSizeFloorRatio))
+}
+
+export function getThumbSizeRange(slot: DockSlotId, viewportPx?: number): { min: number; max: number } {
+    const block = getLayoutBlock('thumb')
+    const min = slot === 'bottom' ? bottomMinSizePx : (block ? block.minSizePx : sideMinSizePx)
+    const baseMax = slot === 'bottom' ? bottomMaxSizePx : (block ? block.maxSizePx : sideMaxSizePx)
+    if (viewportPx === undefined || viewportPx <= 0) {
+        return { min, max: baseMax }
+    }
+    const ceiling = Math.min(baseMax, viewportPx - computeMainMinSizePx(viewportPx))
+    return { min, max: Math.max(min, ceiling) }
+}
+
+export function clampThumbSize(slot: DockSlotId, size: number, viewportPx?: number): number {
     if (!Number.isFinite(size)) {
         return slot === 'bottom' ? 200 : 150
     }
-    if (slot === 'bottom') {
-        return Math.min(bottomMaxSizePx, Math.max(bottomMinSizePx, Math.round(size)))
-    }
-    return Math.min(sideMaxSizePx, Math.max(sideMinSizePx, Math.round(size)))
+    const range = getThumbSizeRange(slot, viewportPx)
+    return Math.min(range.max, Math.max(range.min, Math.round(size)))
 }
 
 export function normalizeDockSlot(slot: any): DockSlotId {
@@ -122,6 +139,20 @@ export function createDefaultLayoutPreference(): ReaderModeLayoutPreference {
             book: createDefaultModeLayout('book'),
         },
     }
+}
+
+export function getLayoutBlock(blockId: LayoutBlockId): LayoutBlockRegistration | undefined {
+    return layoutBlockRegistry.find(block => block.blockId === blockId)
+}
+
+export function getDockAllowedSlots(): DockSlotId[] {
+    const thumb = getLayoutBlock('thumb')
+    return thumb ? [...thumb.allowedSlots] : []
+}
+
+export function getDockLongPressMs(): number {
+    const thumb = getLayoutBlock('thumb')
+    return thumb ? thumb.touchLongPressMs : touchLongPressMs
 }
 
 export const layoutBlockRegistry: LayoutBlockRegistration[] = [

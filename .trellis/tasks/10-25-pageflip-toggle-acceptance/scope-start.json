@@ -1,0 +1,117 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-25-pageflip-toggle-acceptance",
+  "branch": "master",
+  "head": "01938b19217e31f9e8a342170208cfcf410889eb",
+  "indexTree": "b0c3f12ac303ef5b893aefe2bfe8f75ba26bf28f",
+  "capturedAt": "2026-10-25T23:20:54+08:00",
+  "scopeDigest": "8595b4c81484a76d5f88867067e6e553487476ad758bfed5aee2b734bc99a38f",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-25-close-feature-quickstart-acceptance/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-close-feature-quickstart-acceptance/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-close-feature-quickstart-acceptance/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "62526368bd8c9bd90afe8a819f3f822c0e98c32668d22cf2f793b3b5f6b9ab3d"
+    },
+    ".trellis/tasks/10-25-close-feature-quickstart-acceptance/scope-start.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "a4244415aa61ae20f449a59645dd27af17db0d1fa304fcb74045394c6522d3f5"
+    },
+    ".trellis/tasks/10-25-close-feature-quickstart-acceptance/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "3cc30840f4fa0f77f6f752de4911742d09e3c22db525684982d3904f71beee6e"
+    },
+    ".trellis/tasks/10-25-dockable-panel-acceptance/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-dockable-panel-acceptance/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-dockable-panel-acceptance/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "68b4433e556a92a0faf841f1858820f112208f7e1c47c04243b0beae423e294d"
+    },
+    ".trellis/tasks/10-25-dockable-panel-acceptance/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "92bdb0a35c242011878d3f45a4a72a22a8ebac34baf5b055349788a1c3b6aa2a"
+    },
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "29b949f35d3d52a00bf19e2f4e37de8aceb44576534c80935c5c9e20ecc2df66"
+    },
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "4b01c5e57964081c0a2fa1426e323d3e3f4cf9093cff1efbb7009619f1edde5c"
+    },
+    ".trellis/tasks/10-25-pageflip-toggle-acceptance/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-pageflip-toggle-acceptance/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-pageflip-toggle-acceptance/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "d50e714e371f9436fd6ac80c48c3421936b0537355e8f90ed8d884c825a672f0"
+    },
+    ".trellis/tasks/10-25-pageflip-toggle-acceptance/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "cd054db1c6661dbad8f2fe94a615124a76202b7b5c0396946aafd94fc32a2807"
+    },
+    ".trellis/tasks/10-25-thumb-expand-modal-acceptance/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-thumb-expand-modal-acceptance/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-25-thumb-expand-modal-acceptance/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "f48cd28c78b23a94a140dd2a0d6d2da890b65233bbe55c75819a68c4555011af"
+    },
+    ".trellis/tasks/10-25-thumb-expand-modal-acceptance/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "5c23d015e146572387ce4c860e377e43b0d0481689543155bf5f800684bf005f"
+    }
+  }
+}

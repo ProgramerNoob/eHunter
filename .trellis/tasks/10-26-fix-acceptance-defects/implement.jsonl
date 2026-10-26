@@ -1,0 +1,8 @@
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "验收记录协议与检查口径"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "浏览器验收分类、profile、日志归因与收尾要求"}
+{"file": ".trellis/spec/frontend/features/001-dockable-panel-layout/spec.md", "reason": "D1/D2/D3 的规范来源：FR-007 尺寸约束、FR-008 注册表、FR-011 触摸 500ms"}
+{"file": ".trellis/spec/frontend/features/001-dockable-panel-layout/data-model.md", "reason": "LayoutBlock 字段与校验规则"}
+{"file": ".trellis/spec/frontend/features/001-thumb-expand-modal/spec.md", "reason": "D4/D5/D6 的规范来源：FR-004/FR-005 列数、FR-007 分段"}
+{"file": ".trellis/spec/frontend/features/001-thumb-expand-modal/data-model.md", "reason": "ThumbnailSegment 的 segmentSize 定义"}
+{"file": ".trellis/tasks/10-25-dockable-panel-acceptance/validation.md", "reason": "D1/D2/D3 取证与实测数值"}
+{"file": ".trellis/tasks/10-25-thumb-expand-modal-acceptance/validation.md", "reason": "D4/D5/D6/D7 取证与实测数值"}
