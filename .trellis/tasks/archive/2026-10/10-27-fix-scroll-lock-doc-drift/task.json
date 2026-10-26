@@ -3,7 +3,7 @@
   "name": "fix-scroll-lock-doc-drift",
   "title": "去掉跳转锁文档的时长硬编码并补重钳制不写存储的守卫",
   "description": "决策文档里 800ms/50ms/约1s 三处数字会随代码腐烂，改为按符号表述；data-model.md 的「重钳制不写持久化」是 MUST 但无守卫，补一条 reclampThumbSizes 函数体级 grep 断言并挂进 test:layout-model",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -11,7 +11,7 @@
   "creator": "Warwick",
   "assignee": "Warwick",
   "createdAt": "2026-10-27",
-  "completedAt": null,
+  "completedAt": "2026-10-27",
   "branch": "master",
   "base_branch": "master",
   "worktree_path": null,
@@ -30,11 +30,17 @@
       "categories": {
         "task-evidence": [
           ".trellis/tasks/10-27-fix-scroll-lock-doc-drift/**"
+        ],
+        "spec": [
+          ".trellis/spec/**"
+        ],
+        "tests": [
+          "tests/**"
         ]
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "c47e57b995a754332e7141dfe1d2134354350bf2f503c52c0e4cc4ec5e522fea"
+        "sha256": "c5760ec7d3d6cc3ced2dbf52b249690e9a78d6fdad0a409704327f0add9154da"
       }
     }
   }

@@ -5,7 +5,7 @@
   "head": "6d714c4ca68c68094bc9adf3a968fe071e4c9913",
   "indexTree": "55646e71a972dce586258b96f3056d896c915cc3",
   "capturedAt": "2026-10-27T00:03:40+08:00",
-  "scopeDigest": "877768dd269a939727f596948519afb4d84cf1cabbbab17923c9a403875b7dbb",
+  "scopeDigest": "87642ef060326ca798e50a40fc7c83e88862a6e4f04285708f286a39d2e38d6b",
   "dirty": {},
   "untracked": {
     ".trellis/tasks/10-27-fix-scroll-lock-doc-drift/check.jsonl": {
@@ -28,5 +28,21 @@
       "mode": "100644",
       "sha256": "d7b6d6952d7e1130296c9c0a6209d1b52a07f27c3a45e581a0efa42f33b2b4fa"
     }
-  }
+  },
+  "scopeExtensions": [
+    {
+      "category": "spec",
+      "rules": [
+        ".trellis/spec/**"
+      ],
+      "at": "2026-10-27T00:07:47+08:00"
+    },
+    {
+      "category": "tests",
+      "rules": [
+        "tests/**"
+      ],
+      "at": "2026-10-27T00:07:47+08:00"
+    }
+  ]
 }

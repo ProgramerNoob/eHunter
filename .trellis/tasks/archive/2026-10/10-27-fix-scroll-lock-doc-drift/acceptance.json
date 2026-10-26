@@ -29,7 +29,7 @@
       },
       "evidence": [
         ".trellis/spec/frontend/decisions/2026-10-26-jump-scroll-lock.md",
-        ".trellis/tasks/10-27-fix-scroll-lock-doc-drift/validation.md",
+        ".trellis/tasks/archive/2026-10/10-27-fix-scroll-lock-doc-drift/validation.md",
         ".tmp/scroll-lock-doc-drift-grep.log"
       ],
       "note": "grep 脚本断言文档无 800/50ms/200ms/约1s/1316px/409px 等字面量，输出 OK 且 exit 0；六处已改为按符号或定性表述。",
@@ -59,7 +59,7 @@
       },
       "evidence": [
         "tests/layout-model.test.cjs",
-        ".trellis/tasks/10-27-fix-scroll-lock-doc-drift/validation.md",
+        ".trellis/tasks/archive/2026-10/10-27-fix-scroll-lock-doc-drift/validation.md",
         ".tmp/scroll-lock-doc-drift-test.log"
       ],
       "note": "新增 layout: reclamping must not persist the clamped size，定位 reclampThumbSizes 函数体断言不含 persistCurrentModeLayoutPreference；8/8 通过。",
@@ -87,7 +87,7 @@
       },
       "evidence": [
         ".tmp/scroll-lock-doc-drift-guard.log",
-        ".trellis/tasks/10-27-fix-scroll-lock-doc-drift/validation.md"
+        ".trellis/tasks/archive/2026-10/10-27-fix-scroll-lock-doc-drift/validation.md"
       ],
       "note": "脚本注入 persistCurrentModeLayoutPreference() 后测试 7 pass / 1 fail（✖ layout: reclamping must not persist the clamped size）；还原后 8/8 通过，core_dirty=0，脚本 exit 0。",
       "waiver": null
@@ -118,7 +118,7 @@
         ".tmp/scroll-lock-doc-drift-test.log",
         ".tmp/scroll-lock-doc-drift-docs.log",
         ".tmp/scroll-lock-doc-drift-check.log",
-        ".trellis/tasks/10-27-fix-scroll-lock-doc-drift/validation.md"
+        ".trellis/tasks/archive/2026-10/10-27-fix-scroll-lock-doc-drift/validation.md"
       ],
       "note": "npm run test exit 0（tests 4/4 与 tests 8/8）与 npm run check:docs exit 0；随后 npm run check 全链（type-check + test + build-prod + check:docs）exit 0（dist/ehunter.iife.js 444 kB）。",
       "waiver": null
