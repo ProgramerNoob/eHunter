@@ -29,9 +29,13 @@
     </div>
 
     <div v-if="isDragging" class="drop-overlay">
-      <div class="drop-zone left" :class="{ active: previewSlot === 'left' }">{{ i18n.dockLeft }}</div>
-      <div class="drop-zone right" :class="{ active: previewSlot === 'right' }">{{ i18n.dockRight }}</div>
-      <div class="drop-zone bottom" :class="{ active: previewSlot === 'bottom' }">{{ i18n.dockBottom }}</div>
+      <div
+        v-for="slot in allowedSlots"
+        :key="slot"
+        class="drop-zone"
+        :class="[slot, { active: previewSlot === slot }]"
+        :data-slot="slot"
+      >{{ dockSlotLabel(slot) }}</div>
     </div>
   </div>
 </template>
@@ -63,6 +67,17 @@ const isDragging = ref(false)
 const isResizing = ref(false)
 const isResizeHover = ref(false)
 const previewSlot = ref<DockSlotId>('left')
+const allowedSlots = getDockAllowedSlots()
+
+const dockSlotLabels: Record<DockSlotId, () => string> = {
+    left: () => i18n.value.dockLeft,
+    right: () => i18n.value.dockRight,
+    bottom: () => i18n.value.dockBottom,
+}
+
+function dockSlotLabel(slot: DockSlotId): string {
+    return dockSlotLabels[slot]()
+}
 
 const sideThumbStyle = computed(() => {
     const width = props.showThumb && (props.thumbSlot === 'left' || props.thumbSlot === 'right')
@@ -88,7 +103,6 @@ function detectPreviewSlot(clientX: number, clientY: number): DockSlotId {
         return props.thumbSlot
     }
     const rect = rootRef.value.getBoundingClientRect()
-    const allowedSlots = getDockAllowedSlots()
     const leftDistance = clientX - rect.left
     const rightDistance = rect.right - clientX
     const bottomDistance = rect.bottom - clientY
@@ -162,7 +176,7 @@ function onDragEnd(event: PointerEvent) {
         return
     }
     const nextSlot = detectPreviewSlot(event.clientX, event.clientY)
-    if (getDockAllowedSlots().includes(nextSlot)) {
+    if (allowedSlots.includes(nextSlot)) {
         emit('request-dock', nextSlot)
     }
     cleanupDrag()

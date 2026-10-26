@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "弹层网格在 1600/1200/1023/768/390 视口下相邻缩略图项水平间距一致（差值 ≤ 2px），最右列不超出面板。",
+    "AC2": "弹层网格在宽视口为 5 列、390 视口为 3 列，每行首项左对齐面板内边距。",
+    "AC3": "注册表能表达侧边与底部的差异化尺寸范围，`getThumbSizeRange` 不再读取 `bottomMinSizePx`/`bottomMaxSizePx` 常量分支；侧边钳制 60/520、底部钳制 60/420 与现状一致。",
+    "AC4": "`layoutBlockRegistry` 定义早于所有读取它的函数与常量初始化。",
+    "AC5": "`.drop-zone` 数量与文案由注册表允许槽位决定；从注册表移除某槽位后该槽位不再渲染。",
+    "AC6": "1200×900 把侧栏拖到 520 后改为 390×844 视口，主区宽度 > 0 且侧栏不超过 `390 - min(320, 390×0.6)`。",
+    "AC7": "100px 视口下 `getThumbSizeRange('left', 100)` 返回的 `max` 使主区至少保留 `computeMainMinSizePx(100)`。",
+    "AC8": "`npm run type-check` 与新增的 layout 纯函数测试均通过，`npm run check` 整体 exit 0。"
+  },
+  "checks": [
+    {
+      "id": "grid-gap-consistency",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "相邻缩略图项水平间距在各视口一致，最右列不超出面板",
+      "scope": "本地 Vite preflight 轮 fix-review-e079a532，弹层在 1600/1200/1023/768/390 视口采样相邻项间距与最右列边界",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/fix-review-e079a532-8259-4e2a-84ca-be22e5d7035d/measurements.json",
+        ".tmp/browser-preflight/fix-review-e079a532-8259-4e2a-84ca-be22e5d7035d/result.json",
+        ".tmp/browser-preflight/fix-review-e079a532-8259-4e2a-84ca-be22e5d7035d/grid-wide.png",
+        ".tmp/round-fix-review-findings.mjs"
+      ],
+      "note": "五档视口 gapSpread 均为 0：1600/1200 每行 5 项（首行 x 41/173/305/437/569，间距 132px），1023/768 每行 3 项（首行 x 29/159），390 每行 3 项（首行 x 1/131）。最右列 overflowRightPx 分别为 -537/-487/-600/-345/-9，horizontalOverflowPx 全为 0，未越出面板。`.distributed` 已移除（静态校验 fix-review-registry-check.sh 的 distributed-removed: OK）。",
+      "waiver": null
+    },
+    {
+      "id": "grid-columns",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "宽视口 5 列、390 视口 3 列，首项左对齐面板内边距",
+      "scope": "本地 Vite preflight 轮 fix-review-e079a532，同上五档采样 gridTemplateColumns 与首项/末行首项左边距",
+      "method": "runtime",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/fix-review-e079a532-8259-4e2a-84ca-be22e5d7035d/measurements.json",
+        ".tmp/browser-preflight/fix-review-e079a532-8259-4e2a-84ca-be22e5d7035d/result.json",
+        ".tmp/browser-preflight/fix-review-e079a532-8259-4e2a-84ca-be22e5d7035d/grid-wide.png",
+        ".tmp/round-fix-review-findings.mjs"
+      ],
+      "note": "gridTemplateColumns：1600/1200 为 `120px ×5`，1023/768/390 为 `120px ×3`。首项左边距与末行首项左边距一致（1200: 41 与 41，grid.x 25；1023: 29 与 29，grid.x 15；390: 1 与 1，grid.x 1），符合「每行首项左对齐面板内边距」。",
+      "waiver": null
+    },
+    {
+      "id": "registry-size-ranges",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "注册表表达侧边/底部差异化范围，尺寸上下限全部经注册表读取",
+      "scope": "仓库根执行静态校验脚本 + tests/layout-model.test.cjs 断言",
+      "method": "inspection",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/fix-review-registry-check.log",
+        ".tmp/fix-review-registry-check.sh",
+        ".tmp/fix-review-layout-test.log",
+        ".trellis/spec/frontend/features/001-dockable-panel-layout/data-model.md"
+      ],
+      "note": "`getThumbSizeRange` 函数体已无 `bottomMinSizePx`/`bottomMaxSizePx` 分支（日志打印完整函数体，改为 `getBlockSizeRange('thumb', slot)`）；注册表新增 `slotSizeRanges.bottom = {60, 420}`，侧边沿用 `{60, 520}`。测试断言 `getThumbSizeRange('left') = {60,520}`、`getThumbSizeRange('bottom') = {60,420}`、`getBlockSizeRange('thumb','bottom') = {60,420}` 全通过（7/7）。",
+      "waiver": null
+    },
+    {
+      "id": "registry-order",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "`layoutBlockRegistry` 定义早于读取它的函数与模块级初始化",
+      "scope": "仓库根执行静态校验脚本，比较源码中注册表与各消费符号的行号",
+      "method": "inspection",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/fix-review-registry-check.log",
+        ".tmp/fix-review-registry-check.sh",
+        ".tmp/fix-review-layout-test.log"
+      ],
+      "note": "注册表在第 64 行声明；`getLayoutBlock`(88)、`getBlockSizeRange`(92)、`getDockAllowedSlots`(101)、`getDockLongPressMs`(106)、`computeMainMinSizePx`(111)、`getThumbSizeRange`(117)、`clampThumbSize`(132)、`createDefaultModeLayout`(181)、`createDefaultLayoutPreference`(189) 全部在注册表之后。测试 `layout: registry is declared before the helpers that read it` 亦对此施加断言。",
+      "waiver": null
+    },
+    {
+      "id": "drop-zone-registry",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "覆盖层槽位由注册表 allowedSlots 渲染",
+      "scope": "本地 Vite preflight 轮 fix-review-e079a532，拖拽态采样 `.drop-zone` 数量、类名与文案",
+      "method": "runtime",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/fix-review-e079a532-8259-4e2a-84ca-be22e5d7035d/measurements.json",
+        ".tmp/browser-preflight/fix-review-e079a532-8259-4e2a-84ca-be22e5d7035d/result.json",
+        ".tmp/browser-preflight/fix-review-e079a532-8259-4e2a-84ca-be22e5d7035d/drop-overlay.png",
+        ".tmp/round-fix-review-findings.mjs",
+        ".tmp/fix-review-registry-check.log"
+      ],
+      "note": "拖拽态 `.drop-zone` 为 3 个：`{slot:left, text:停靠左侧, className:\"drop-zone left active\"}`、`{slot:right, text:停靠右侧}`、`{slot:bottom, text:停靠底部}`，槽位顺序与 `getDockAllowedSlots()` 一致；模板改为 `v-for=\"slot in allowedSlots\"` + `dockSlotLabels` 映射（静态校验 drop-zone-v-for: OK、dockSlotLabels references: 2）。drop-overlay.png 人工复核三个区域与文案均按注册表渲染。",
+      "waiver": null
+    },
+    {
+      "id": "viewport-reclamp",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "视口变小后侧栏重新钳制，主区保持可见",
+      "scope": "本地 Vite preflight 轮 fix-review-e079a532，1200×900 拖到 520 后改 390×844 采样",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/fix-review-e079a532-8259-4e2a-84ca-be22e5d7035d/measurements.json",
+        ".tmp/browser-preflight/fix-review-e079a532-8259-4e2a-84ca-be22e5d7035d/result.json",
+        ".tmp/round-fix-review-findings.mjs"
+      ],
+      "note": "起点 side 150 / main 1050；加宽后 side 520 / main 680；视口改为 390×844 后 side 156 / main 234，主区宽度 > 0 且侧栏等于 `390 - min(320, round(390×0.6)) = 156` 上限。持久化值仍记录用户拖拽的 520，重新加载后按当时视口再钳制。",
+      "waiver": null
+    },
+    {
+      "id": "extreme-viewport-floor",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "极端窄视口下主区下限优先，缩略图范围让步",
+      "scope": "仓库根执行 node 断言脚本，覆盖 100/140/150/200/390/1200 视口",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "node",
+          ".tmp/extreme-viewport-check.cjs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-26T23:26:04+08:00",
+        "endedAt": "2026-10-26T23:27:04+08:00",
+        "log": ".tmp/extreme-viewport-check.log"
+      },
+      "evidence": [
+        ".tmp/extreme-viewport-check.log",
+        ".tmp/extreme-viewport-check.cjs"
+      ],
+      "note": "100px 视口：mainFloor 60、`getThumbSizeRange('left',100) = {min:40,max:40}`，主区 60 保底（原实现 side 上限 60 会让主区只剩 40）。140→{56,56}/84、150→{60,60}/90、200→{60,80}/120、390→{60,156}/234、1200→{60,520}/320，均满足 side + main ≤ 视口。",
+      "waiver": null
+    },
+    {
+      "id": "check-suite",
+      "ac": [
+        "AC8"
+      ],
+      "claim": "类型检查、layout 测试与整体 check 全部通过",
+      "scope": "仓库根执行 npm run type-check、node --test tests/layout-model.test.cjs、npm run check",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-26T23:29:24+08:00",
+        "endedAt": "2026-10-26T23:30:24+08:00",
+        "log": ".tmp/fix-review-check.log"
+      },
+      "evidence": [
+        ".tmp/fix-review-check.log",
+        ".tmp/fix-review-type-check.log",
+        ".tmp/fix-review-layout-test.log",
+        "tests/layout-model.test.cjs",
+        "package.json"
+      ],
+      "note": "`npm run check` exit 0（type-check + test + build-prod + check:docs 全链条，日志末尾 `check-docs: OK`）；单独 `npm run type-check` exit 0；`node --test tests/layout-model.test.cjs` 7/7 pass、exit 0。",
+      "waiver": null
+    }
+  ]
+}

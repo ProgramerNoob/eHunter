@@ -54,20 +54,18 @@ watch(scrollPosition, () => {
     }
     const cons = [...pageContainers.value].sort((a, b) => a.offsetTop - b.offsetTop)
     let index
-    if (cons) {
-        if (scrollPosition.value !== 0) {
-            const _cons = cons.concat().reverse()
-            let result = cons.indexOf(
-                _cons.find(item => item.offsetTop <= scrollPosition.value + window.innerHeight)
-            );
-            const volIndex = result === -1 ? pageContainers.value.length - 1 : result
-            index = volIndex + computedVolFirstIndex.value
-        } else {
-            index = computedVolFirstIndex.value
-        }
-        if (index !== store.curViewIndex) {
-            storeAction.setCurViewIndex(index, updater)
-        }
+    if (scrollPosition.value !== 0) {
+        const _cons = cons.concat().reverse()
+        let result = cons.indexOf(
+            _cons.find(item => item.offsetTop <= scrollPosition.value + window.innerHeight)
+        );
+        const volIndex = result === -1 ? pageContainers.value.length - 1 : result
+        index = volIndex + computedVolFirstIndex.value
+    } else {
+        index = computedVolFirstIndex.value
+    }
+    if (index !== store.curViewIndex) {
+        storeAction.setCurViewIndex(index, updater)
     }
 })
 

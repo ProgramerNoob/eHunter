@@ -4,7 +4,7 @@
             <div v-if="store.showThumbExpandDialog" class="thumb-expand-modal" @click.self="onClose">
                 <section class="panel" @click.stop>
                     <button class="close-btn" type="button" :aria-label="i18n.cancel" @click="onClose">×</button>
-                    <div ref="gridWrapRef" class="grid-wrap" :class="{ distributed: shouldDistributeItems }">
+                    <div ref="gridWrapRef" class="grid-wrap">
                         <button
                             v-for="item in segmentItems"
                             :key="item.pageNumber"
@@ -28,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { i18n } from '../../store/i18n'
 import { store, storeAction } from '../../store/app'
 import {
@@ -53,11 +53,6 @@ const segmentItems = computed(() => {
 })
 
 const gridWrapRef = ref<HTMLElement | null>(null)
-const gridColumns = ref(1)
-
-const shouldDistributeItems = computed(() => {
-    return segmentItems.value.length > Math.max(1, gridColumns.value)
-})
 
 const emit = defineEmits<{
     (e: 'select-page', pageNumber: number): void
@@ -67,7 +62,6 @@ watch(() => store.showThumbExpandDialog, async (open) => {
     if (open) {
         storeAction.setThumbExpandSegmentIndex(getThumbExpandSegmentByPage(store.curViewIndex))
         await nextTick()
-        updateGridColumns()
         scrollToCurrentPage()
     }
 })
@@ -77,31 +71,8 @@ watch(segmentItems, async () => {
         return
     }
     await nextTick()
-    updateGridColumns()
+    scrollToCurrentPage()
 })
-
-onMounted(() => {
-    window.addEventListener('resize', updateGridColumns)
-})
-
-onBeforeUnmount(() => {
-    window.removeEventListener('resize', updateGridColumns)
-})
-
-function updateGridColumns() {
-    const grid = gridWrapRef.value
-    if (!grid) {
-        gridColumns.value = 1
-        return
-    }
-    const columns = getComputedStyle(grid).gridTemplateColumns
-    const count = columns
-        .split(' ')
-        .map(i => i.trim())
-        .filter(Boolean)
-        .length
-    gridColumns.value = Math.max(1, count)
-}
 
 function scrollToCurrentPage() {
     const grid = gridWrapRef.value
@@ -212,10 +183,6 @@ function onSelectPage(pageNumber: number) {
             justify-content: start;
             align-content: start;
             min-height: 640px;
-
-            &.distributed {
-                justify-content: space-between;
-            }
 
             > .thumb-item {
                 height: 206px;

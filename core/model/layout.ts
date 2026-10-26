@@ -2,14 +2,19 @@ export type ReaderModeLayoutKey = 'scroll' | 'book'
 export type DockSlotId = 'left' | 'right' | 'bottom'
 export type LayoutBlockId = 'thumb' | 'main'
 
+export interface LayoutBlockSizeRange {
+    minSizePx: number
+    maxSizePx: number
+}
+
 export interface LayoutBlockRegistration {
     blockId: LayoutBlockId
     titleI18nKey: string
     dockable: boolean
     resizable: boolean
     allowedSlots: DockSlotId[]
-    minSizePx: number
-    maxSizePx: number
+    sizeRange: LayoutBlockSizeRange
+    slotSizeRanges?: Partial<Record<DockSlotId, LayoutBlockSizeRange>>
     touchLongPressMs: number
 }
 
@@ -56,21 +61,72 @@ const now = () => new Date().toISOString()
 
 const mainSizeFloorRatio = 0.6
 
+export const layoutBlockRegistry: LayoutBlockRegistration[] = [
+    {
+        blockId: 'thumb',
+        titleI18nKey: 'thumbView',
+        dockable: true,
+        resizable: true,
+        allowedSlots: ['left', 'right', 'bottom'],
+        sizeRange: { minSizePx: sideMinSizePx, maxSizePx: sideMaxSizePx },
+        slotSizeRanges: {
+            bottom: { minSizePx: bottomMinSizePx, maxSizePx: bottomMaxSizePx },
+        },
+        touchLongPressMs,
+    },
+    {
+        blockId: 'main',
+        titleI18nKey: 'readingMode',
+        dockable: false,
+        resizable: true,
+        allowedSlots: [],
+        sizeRange: { minSizePx: 320, maxSizePx: 2400 },
+        touchLongPressMs,
+    },
+]
+
+export function getLayoutBlock(blockId: LayoutBlockId): LayoutBlockRegistration | undefined {
+    return layoutBlockRegistry.find(block => block.blockId === blockId)
+}
+
+export function getBlockSizeRange(blockId: LayoutBlockId, slot?: DockSlotId): LayoutBlockSizeRange {
+    const block = getLayoutBlock(blockId)
+    if (!block) {
+        return { minSizePx: 0, maxSizePx: 0 }
+    }
+    const slotRange = slot ? block.slotSizeRanges?.[slot] : undefined
+    return slotRange ? slotRange : block.sizeRange
+}
+
+export function getDockAllowedSlots(): DockSlotId[] {
+    const thumb = getLayoutBlock('thumb')
+    return thumb ? [...thumb.allowedSlots] : []
+}
+
+export function getDockLongPressMs(): number {
+    const thumb = getLayoutBlock('thumb')
+    return thumb ? thumb.touchLongPressMs : touchLongPressMs
+}
+
 export function computeMainMinSizePx(viewportPx: number): number {
     const main = getLayoutBlock('main')
-    const minSize = main ? main.minSizePx : 0
+    const minSize = main ? main.sizeRange.minSizePx : 0
     return Math.min(minSize, Math.round(Math.max(0, viewportPx) * mainSizeFloorRatio))
 }
 
 export function getThumbSizeRange(slot: DockSlotId, viewportPx?: number): { min: number; max: number } {
-    const block = getLayoutBlock('thumb')
-    const min = slot === 'bottom' ? bottomMinSizePx : (block ? block.minSizePx : sideMinSizePx)
-    const baseMax = slot === 'bottom' ? bottomMaxSizePx : (block ? block.maxSizePx : sideMaxSizePx)
+    const base = getBlockSizeRange('thumb', slot)
+    const min = base.minSizePx
+    const baseMax = base.maxSizePx
     if (viewportPx === undefined || viewportPx <= 0) {
         return { min, max: baseMax }
     }
     const ceiling = Math.min(baseMax, viewportPx - computeMainMinSizePx(viewportPx))
-    return { min, max: Math.max(min, ceiling) }
+    if (ceiling < min) {
+        const floor = Math.max(0, ceiling)
+        return { min: floor, max: floor }
+    }
+    return { min, max: ceiling }
 }
 
 export function clampThumbSize(slot: DockSlotId, size: number, viewportPx?: number): number {
@@ -141,39 +197,3 @@ export function createDefaultLayoutPreference(): ReaderModeLayoutPreference {
     }
 }
 
-export function getLayoutBlock(blockId: LayoutBlockId): LayoutBlockRegistration | undefined {
-    return layoutBlockRegistry.find(block => block.blockId === blockId)
-}
-
-export function getDockAllowedSlots(): DockSlotId[] {
-    const thumb = getLayoutBlock('thumb')
-    return thumb ? [...thumb.allowedSlots] : []
-}
-
-export function getDockLongPressMs(): number {
-    const thumb = getLayoutBlock('thumb')
-    return thumb ? thumb.touchLongPressMs : touchLongPressMs
-}
-
-export const layoutBlockRegistry: LayoutBlockRegistration[] = [
-    {
-        blockId: 'thumb',
-        titleI18nKey: 'thumbView',
-        dockable: true,
-        resizable: true,
-        allowedSlots: ['left', 'right', 'bottom'],
-        minSizePx: sideMinSizePx,
-        maxSizePx: sideMaxSizePx,
-        touchLongPressMs,
-    },
-    {
-        blockId: 'main',
-        titleI18nKey: 'readingMode',
-        dockable: false,
-        resizable: true,
-        allowedSlots: [],
-        minSizePx: 320,
-        maxSizePx: 2400,
-        touchLongPressMs,
-    },
-]

@@ -9,13 +9,14 @@
   - `dockable` (boolean, required): Whether the block can be moved between slots.
   - `resizable` (boolean, required): Whether the block supports split resize.
   - `allowedSlots` (string[], required): Allowed dock targets (`left|right|bottom`).
-  - `minSizePx` (number, required): Lower clamp for width/height by orientation.
-  - `maxSizePx` (number, required): Upper clamp for width/height by orientation.
+  - `sizeRange` (object, required): Default clamp `{minSizePx, maxSizePx}` used when no slot-specific range applies.
+  - `slotSizeRanges` (record, optional): Per-slot clamp overrides; keys MUST be members of `allowedSlots`. The `thumb` block overrides `bottom` with `{60, 420}` while the side slots use the default `{60, 520}`.
   - `touchLongPressMs` (number, required): Gesture activation threshold (fixed to `500` in v1).
 - Validation rules:
   - `blockId` MUST be unique in workspace registry.
   - `allowedSlots` MUST be non-empty for `dockable=true`.
-  - `minSizePx < maxSizePx`.
+  - `sizeRange.minSizePx < sizeRange.maxSizePx`; every `slotSizeRanges` entry follows the same ordering.
+  - Effective ranges MUST be read through `getBlockSizeRange(blockId, slot)`; splitting code MUST NOT branch on per-slot constants.
 
 ## 2) DockSlot
 
@@ -41,6 +42,8 @@
 - Validation rules:
   - `currentSizePx` MUST remain clamped in `[minSizePx, maxSizePx]`.
   - Effective `maxSizePx` MUST leave the main block at least `min(320, viewport × 0.6)` on the split axis; the ratio degrades the floor on narrow viewports so the main content area stays visible.
+  - When the viewport is narrow enough that the docked block's minimum conflicts with the main floor (viewport below roughly `min(320, viewport × 0.6) + thumbMinSizePx`), the docked block yields: both its bounds collapse to `viewport − mainFloor` so the main block keeps its floor.
+  - Clamps MUST be re-applied whenever `viewportWidth`/`viewportHeight` change, not only on dock or resize interactions.
   - Boundary MUST exist only when both `betweenBlocks` are visible.
 
 ## 4) ModeLayoutConfiguration

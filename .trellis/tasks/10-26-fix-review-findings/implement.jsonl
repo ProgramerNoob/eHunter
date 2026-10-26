@@ -1,0 +1,8 @@
+{"file": ".trellis/spec/frontend/features/001-dockable-panel-layout/spec.md", "reason": "吸附/缩放/持久化的功能契约与 FR 清单"}
+{"file": ".trellis/spec/frontend/features/001-dockable-panel-layout/data-model.md", "reason": "LayoutBlock / SplitBoundary 字段与生效范围规则，本任务要改 sizeRange"}
+{"file": ".trellis/spec/frontend/features/001-dockable-panel-layout/quickstart.md", "reason": "注册表接线与缩放钳制的验收步骤"}
+{"file": ".trellis/spec/frontend/features/001-thumb-expand-modal/spec.md", "reason": "网格列数、分段与跳转定位契约"}
+{"file": ".trellis/spec/frontend/features/001-thumb-expand-modal/data-model.md", "reason": "ThumbnailSegment 与 grid 列数语义"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "组件与 SCSS 写法约定"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "store action 与偏好写入约定"}
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "测试与验收记录协议"}

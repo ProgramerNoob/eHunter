@@ -1346,6 +1346,19 @@ function applyCurrentModeLayoutPreference() {
     syncThumbVisualMetrics(clampedSize)
 }
 
+function reclampThumbSizes() {
+    const slot = normalizeDockSlot(store.thumbDockSlot)
+    const nextWidth = clampThumbSize(slot, store.thumbViewWidth, store.viewportWidth)
+    const nextHeight = clampThumbSize('bottom', store.thumbViewHeight, store.viewportHeight)
+    const changed = nextWidth !== store.thumbViewWidth || nextHeight !== store.thumbViewHeight
+    if (!changed) {
+        return
+    }
+    store.thumbViewWidth = nextWidth
+    store.thumbViewHeight = nextHeight
+    syncThumbVisualMetrics(slot === 'bottom' ? nextHeight : nextWidth)
+}
+
 function persistCurrentModeLayoutPreference() {
     const key = getLayoutModeKey(store.readingMode)
     const slot = normalizeDockSlot(store.thumbDockSlot)
@@ -1989,9 +2002,11 @@ export const storeAction = {
     },
     setViewportWidth: (val: number) => {
         store.viewportWidth = val
+        reclampThumbSizes()
     },
     setViewportHeight: (val: number) => {
         store.viewportHeight = val
+        reclampThumbSizes()
     },
     getAlbumService: (): AlbumService | null => {
         return runtimeAlbumService
