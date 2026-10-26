@@ -1,0 +1,41 @@
+{
+  "id": "narrow-doc-guard-scope",
+  "name": "narrow-doc-guard-scope",
+  "title": "收窄决策文档守卫的适用范围说明",
+  "description": "脚本头注释宣称通用规则但 DOCS 只登记一篇；把措辞限定为「已登记文档」，补登记规则说明，并处理 bash 3.2 空数组在 set -u 下的 unbound variable",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P3",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-27",
+  "completedAt": null,
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-27-narrow-doc-guard-scope/**"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "ccaa95a5f43a55dacc63d426c63e08d905106e38b859b1572c68ac2a0cd656cd"
+      }
+    }
+  }
+}
