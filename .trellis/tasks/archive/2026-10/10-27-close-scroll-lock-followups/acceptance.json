@@ -30,7 +30,7 @@
       "evidence": [
         "core/components/AlbumScrollView.vue",
         ".tmp/followups-ac1.log",
-        ".trellis/tasks/10-27-close-scroll-lock-followups/validation.md"
+        ".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"
       ],
       "note": "新增 const scrollLockMarginMs = 200；锁定期计算改为 Date.now() + animationTime + scrollLockMarginMs；grep 断言计算中无裸 200。",
       "waiver": null
@@ -60,7 +60,7 @@
       "evidence": [
         "tests/check-decision-doc-durations.sh",
         ".tmp/followups-test-decision-docs.log",
-        ".trellis/tasks/10-27-close-scroll-lock-followups/validation.md"
+        ".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"
       ],
       "note": "脚本从 .tmp 重写迁入 tests/，git ls-files 确认纳入版本控制；对当前文档 exit 0。",
       "waiver": null
@@ -89,7 +89,7 @@
         ".tmp/followups-guard-roundtrip.log",
         ".tmp/followups-guard-violation.log",
         ".tmp/followups-guard-restored.log",
-        ".trellis/tasks/10-27-close-scroll-lock-followups/validation.md"
+        ".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"
       ],
       "note": "脚本临时追加「锁定期约 1s。」后守卫 exit 1（打印第 36 行命中与 FAIL 原因），还原后 exit 0；doc_changed=1 是文档本身的符号表述改动，测试内容无残留。",
       "waiver": null
@@ -119,7 +119,7 @@
       "evidence": [
         ".tmp/followups-test-decision-docs.log",
         ".tmp/followups-check.log",
-        ".trellis/tasks/10-27-close-scroll-lock-followups/validation.md"
+        ".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"
       ],
       "note": "npm run test:decision-docs exit 0；npm run check 全链 exit 0，日志含 OK: decision documents carry no literal durations 与 check-docs: OK。",
       "waiver": null

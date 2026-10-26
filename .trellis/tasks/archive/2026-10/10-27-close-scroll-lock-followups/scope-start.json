@@ -5,7 +5,7 @@
   "head": "63d4e89476bbf5ac01ab3defea100c7d4ae7480a",
   "indexTree": "1a187431b6fd7077d699efe063fb9eb9ae32dcd9",
   "capturedAt": "2026-10-27T00:19:00+08:00",
-  "scopeDigest": "6f55847e316f525f7d1b76b741661f38878ba42a214016e0c295a85aa0973e3b",
+  "scopeDigest": "f493b625dac0adbbb972c08ee575ffbaed31041c098628d1a6bc002919ccf7b8",
   "dirty": {
     ".trellis/spec/frontend/decisions/2026-10-26-jump-scroll-lock.md": {
       "type": "file",
@@ -49,5 +49,35 @@
       "mode": "100755",
       "sha256": "fe43afb6f7f435452afccff1d3fe80780e7e2df2d3c6d22ba8b04cf28939ebe3"
     }
-  }
+  },
+  "scopeExtensions": [
+    {
+      "category": "core",
+      "rules": [
+        "core/**"
+      ],
+      "at": "2026-10-27T00:21:22+08:00"
+    },
+    {
+      "category": "spec",
+      "rules": [
+        ".trellis/spec/**"
+      ],
+      "at": "2026-10-27T00:21:22+08:00"
+    },
+    {
+      "category": "tests",
+      "rules": [
+        "tests/**"
+      ],
+      "at": "2026-10-27T00:21:22+08:00"
+    },
+    {
+      "category": "tooling",
+      "rules": [
+        "package.json"
+      ],
+      "at": "2026-10-27T00:21:22+08:00"
+    }
+  ]
 }

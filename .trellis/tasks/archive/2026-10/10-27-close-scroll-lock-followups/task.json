@@ -3,7 +3,7 @@
   "name": "close-scroll-lock-followups",
   "title": "收口跳转锁余量常量与决策文档守卫入仓",
   "description": "把 AlbumScrollView 的裸 200 提成 scrollLockMarginMs；把 .tmp 里的文档时长 grep 断言搬进 tests/ 并挂进 npm test；文档按符号表述",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -11,7 +11,7 @@
   "creator": "Warwick",
   "assignee": "Warwick",
   "createdAt": "2026-10-27",
-  "completedAt": null,
+  "completedAt": "2026-10-27",
   "branch": "master",
   "base_branch": "master",
   "worktree_path": null,
@@ -30,11 +30,23 @@
       "categories": {
         "task-evidence": [
           ".trellis/tasks/10-27-close-scroll-lock-followups/**"
+        ],
+        "core": [
+          "core/**"
+        ],
+        "spec": [
+          ".trellis/spec/**"
+        ],
+        "tests": [
+          "tests/**"
+        ],
+        "tooling": [
+          "package.json"
         ]
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "8aaf8ab4c3b11fed8f775403cb1367b4de52c3194c39e619992efe5709c9e09e"
+        "sha256": "bcc098eb65e6619214468ac605f128d796f7e46dd1db20ea937538f216f9d8d0"
       }
     }
   }
