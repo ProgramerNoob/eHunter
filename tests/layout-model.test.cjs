@@ -104,3 +104,16 @@ test('layout: registry is declared before the helpers that read it', () => {
         assert.ok(at > registryAt, `${symbol} must be declared after the registry`);
     }
 });
+
+test('layout: reclamping must not persist the clamped size', () => {
+    const fs = require('node:fs');
+    const path = require('node:path');
+    const source = fs.readFileSync(path.resolve(__dirname, '..', 'core/store/app.ts'), 'utf8');
+    const start = source.indexOf('function reclampThumbSizes');
+    assert.ok(start > 0, 'reclampThumbSizes must exist');
+    const bodyEnd = source.indexOf('\n}', start);
+    assert.ok(bodyEnd > start, 'reclampThumbSizes body must be found');
+    const body = source.slice(start, bodyEnd);
+    assert.ok(!body.includes('persistCurrentModeLayoutPreference'),
+        'reclampThumbSizes must not persist the clamped size; the stored value keeps the user requested size');
+});

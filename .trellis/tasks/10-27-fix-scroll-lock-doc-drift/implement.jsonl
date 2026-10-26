@@ -1,0 +1,2 @@
+{"file":".trellis/spec/frontend/decisions/2026-10-26-jump-scroll-lock.md","reason":"R1 落点：三处硬编码时长的替代表述"}
+{"file":".trellis/spec/frontend/features/001-dockable-panel-layout/data-model.md","reason":"被守卫的 MUST 条款原文，测试注释需与之一致"}

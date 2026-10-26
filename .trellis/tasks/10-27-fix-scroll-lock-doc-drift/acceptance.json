@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "决策文档中不再出现 `800`、`50ms`、`约 1s` 之类与实现绑定的字面时长。",
+    "AC2": "`tests/layout-model.test.cjs` 新增一条测试，断言 `reclampThumbSizes` 函数体内不含 `persistCurrentModeLayoutPreference`。",
+    "AC3": "该测试在人为注入违规调用时失败、还原后通过。",
+    "AC4": "`npm run test` 与 `npm run check:docs` 均 exit 0。"
+  },
+  "checks": [
+    {
+      "id": "doc-no-literal-durations",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "决策文档改为按符号表述，无裸时长字面量",
+      "scope": "`.trellis/spec/frontend/decisions/2026-10-26-jump-scroll-lock.md`",
+      "method": "command",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          ".tmp/scroll-lock-doc-drift-grep.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T01:16:00+08:00",
+        "endedAt": "2026-10-27T01:16:01+08:00",
+        "log": ".tmp/scroll-lock-doc-drift-grep.log"
+      },
+      "evidence": [
+        ".trellis/spec/frontend/decisions/2026-10-26-jump-scroll-lock.md",
+        ".trellis/tasks/10-27-fix-scroll-lock-doc-drift/validation.md",
+        ".tmp/scroll-lock-doc-drift-grep.log"
+      ],
+      "note": "grep 脚本断言文档无 800/50ms/200ms/约1s/1316px/409px 等字面量，输出 OK 且 exit 0；六处已改为按符号或定性表述。",
+      "waiver": null
+    },
+    {
+      "id": "reclamp-guard-test",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "新增函数体级断言，禁止 reclampThumbSizes 调用持久化",
+      "scope": "`tests/layout-model.test.cjs`",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "node",
+          "--test",
+          "tests/layout-model.test.cjs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T01:12:00+08:00",
+        "endedAt": "2026-10-27T01:12:00+08:00",
+        "log": ".tmp/scroll-lock-doc-drift-test.log"
+      },
+      "evidence": [
+        "tests/layout-model.test.cjs",
+        ".trellis/tasks/10-27-fix-scroll-lock-doc-drift/validation.md",
+        ".tmp/scroll-lock-doc-drift-test.log"
+      ],
+      "note": "新增 layout: reclamping must not persist the clamped size，定位 reclampThumbSizes 函数体断言不含 persistCurrentModeLayoutPreference；8/8 通过。",
+      "waiver": null
+    },
+    {
+      "id": "guard-fails-on-violation",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "注入违规调用后测试失败、还原后通过",
+      "scope": "临时在 `core/store/app.ts` 的 `reclampThumbSizes` 内加一行持久化调用",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          ".tmp/scroll-lock-doc-drift-guard.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T01:20:00+08:00",
+        "endedAt": "2026-10-27T01:20:04+08:00",
+        "log": ".tmp/scroll-lock-doc-drift-guard.log"
+      },
+      "evidence": [
+        ".tmp/scroll-lock-doc-drift-guard.log",
+        ".trellis/tasks/10-27-fix-scroll-lock-doc-drift/validation.md"
+      ],
+      "note": "脚本注入 persistCurrentModeLayoutPreference() 后测试 7 pass / 1 fail（✖ layout: reclamping must not persist the clamped size）；还原后 8/8 通过，core_dirty=0，脚本 exit 0。",
+      "waiver": null
+    },
+    {
+      "id": "test-and-docs-suite",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "npm run test 与 npm run check:docs 均通过",
+      "scope": "仓库根",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T01:12:00+08:00",
+        "endedAt": "2026-10-27T01:12:00+08:00",
+        "log": ".tmp/scroll-lock-doc-drift-test.log"
+      },
+      "evidence": [
+        ".tmp/scroll-lock-doc-drift-test.log",
+        ".tmp/scroll-lock-doc-drift-docs.log",
+        ".tmp/scroll-lock-doc-drift-check.log",
+        ".trellis/tasks/10-27-fix-scroll-lock-doc-drift/validation.md"
+      ],
+      "note": "npm run test exit 0（tests 4/4 与 tests 8/8）与 npm run check:docs exit 0；随后 npm run check 全链（type-check + test + build-prod + check:docs）exit 0（dist/ehunter.iife.js 444 kB）。",
+      "waiver": null
+    }
+  ]
+}
