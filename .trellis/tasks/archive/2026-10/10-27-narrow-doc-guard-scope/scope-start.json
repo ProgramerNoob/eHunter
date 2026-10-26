@@ -5,7 +5,7 @@
   "head": "3b412a8f042e993748b889f502a20b4bf2e5da1c",
   "indexTree": "162636157de03109c38629e2586db4059b1fa4e8",
   "capturedAt": "2026-10-27T00:27:03+08:00",
-  "scopeDigest": "51368bb6751199c16afbc98995aa0c8015108121c262c400e14f709d2a8b5975",
+  "scopeDigest": "2f155c501dcbc4f53a207d08129a8fc3c76c0bcec258f6c496f219b14d507a55",
   "dirty": {
     "tests/check-decision-doc-durations.sh": {
       "type": "file",
@@ -34,5 +34,16 @@
       "mode": "100644",
       "sha256": "4d4cc93b39edaba0ec13da00656f12215547a0051c207498a904c41b09fd75f4"
     }
-  }
+  },
+  "scopeExtensions": [
+    {
+      "category": "tests",
+      "rules": [
+        "tests/**",
+        "tooling",
+        "package.json"
+      ],
+      "at": "2026-10-27T00:32:01+08:00"
+    }
+  ]
 }

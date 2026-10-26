@@ -21,7 +21,7 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-27-narrow-doc-guard-scope/validation.md",
+        ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md",
         ".tmp/guard-scope-ac1.log"
       ],
       "note": "脚本断言头注释含「断言已登记的决策文档」「DOCS 是逐篇手工登记的清单」「不宣称覆盖整个 decisions/ 目录」「未加入的文档不受检查」「2026-09-18-reader-behavior.md」，且不含旧的全目录措辞；exit 0。",
@@ -49,7 +49,7 @@
         "log": ".tmp/guard-scope-ac3-ac4.log"
       },
       "evidence": [
-        ".trellis/tasks/10-27-narrow-doc-guard-scope/validation.md",
+        ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md",
         ".tmp/guard-scope-ac3-ac4.log"
       ],
       "note": "清空 DOCS 的副本输出 `OK: no registered decision documents`，rc=0；macOS bash 3.2.57 下未触发 unbound variable。",
@@ -77,7 +77,7 @@
         "log": ".tmp/guard-scope-ac3-ac4.log"
       },
       "evidence": [
-        ".trellis/tasks/10-27-narrow-doc-guard-scope/validation.md",
+        ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md",
         ".tmp/guard-scope-ac3-ac4.log"
       ],
       "note": "同一脚本内：当前清单 rc=0； widened 副本 rc=1，输出 `39:…含小于 20px 的边界…` 与 `FAIL: literal durations or pixel sizes in …/2026-09-18-reader-behavior.md`。",
@@ -106,7 +106,7 @@
         "log": ".tmp/guard-narrow-check.log"
       },
       "evidence": [
-        ".trellis/tasks/10-27-narrow-doc-guard-scope/validation.md",
+        ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md",
         ".tmp/guard-narrow-check.log",
         ".tmp/guard-narrow-test.log"
       ],
