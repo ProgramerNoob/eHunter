@@ -34,7 +34,7 @@
       },
       "evidence": [
         ".tmp/env-retro-tmp-report.log",
-        ".trellis/tasks/10-27-env-retro-followups/validation.md"
+        ".trellis/tasks/archive/2026-10/10-27-env-retro-followups/validation.md"
       ],
       "note": "bash .tmp/env-retro-tmp-report-check.sh 两档：默认预算 2.85 GiB 在 3 GiB 内 exit 0；--max-bytes 1 打印 FAIL .tmp is 2.85 GiB, over the 0.0 MiB budget 并 exit 1。报告列出 61 个 browser-preflight 轮次、2 个未引用轮次。",
       "waiver": null
@@ -62,7 +62,7 @@
       },
       "evidence": [
         ".tmp/env-retro-interaction-helpers.log",
-        ".trellis/tasks/10-27-env-retro-followups/validation.md"
+        ".trellis/tasks/archive/2026-10/10-27-env-retro-followups/validation.md"
       ],
       "note": "脚本导出 7 个 helper（dispatchMouse/clickAt/clickElement/dragBy/dismissSimpleDialog/ensureTopBar/ensureThumbPanel）。tests/browser-interaction-helpers.test.mjs 13 pass / 0 fail 覆盖 CDP 事件序列、插值、长按 hold、弹窗关闭与面板可见性；既有 tests/browser-preflight.test.mjs 155 pass / 0 fail 未受影响。",
       "waiver": null
@@ -90,7 +90,7 @@
       },
       "evidence": [
         ".tmp/env-retro-acceptance-validate.log",
-        ".trellis/tasks/10-27-env-retro-followups/validation.md"
+        ".trellis/tasks/archive/2026-10/10-27-env-retro-followups/validation.md"
       ],
       "note": "validate 子命令对合法任务返回 valid:true、8 checks/8 criteria、observedStatus unrun，rc=0；副本删掉 AC8 覆盖后返回 checks: uncovered ACs [AC8]、valid:false，rc=2。测试脚本自带清理，可重复执行。",
       "waiver": null
@@ -118,7 +118,7 @@
       },
       "evidence": [
         ".tmp/env-retro-spec-size.log",
-        ".trellis/tasks/10-27-env-retro-followups/validation.md"
+        ".trellis/tasks/archive/2026-10/10-27-env-retro-followups/validation.md"
       ],
       "note": "browser-acceptance.md 从 33850 降到 25922 字节（限 32768）；拆出 counting-assertions.md 3203、preflight-assertions.md 3249、resource-cleanup.md 2136；check:docs 45 md / 237 本地链接 / 0 断链，reader-test 与 tooling spec 的锚点均可解析。",
       "waiver": null
@@ -146,7 +146,7 @@
       },
       "evidence": [
         ".tmp/env-retro-sass-check.log",
-        ".trellis/tasks/10-27-env-retro-followups/validation.md"
+        ".trellis/tasks/archive/2026-10/10-27-env-retro-followups/validation.md"
       ],
       "note": "build-prod 后日志中 DEPRECATION WARNING 计数为 0（此前 115 [color-functions] + 115 [global-builtin] + 42 [import]）；产物 dist/ehunter.iife.js 444.10 kB │ gzip 143.98 kB。静音配置写在 vite.config.ts 与 vite.config.prod.ts 的 css.preprocessorOptions.scss.silenceDeprecations。",
       "waiver": null
@@ -174,7 +174,7 @@
       },
       "evidence": [
         ".tmp/env-retro-pending-work.log",
-        ".trellis/tasks/10-27-env-retro-followups/validation.md"
+        ".trellis/tasks/archive/2026-10/10-27-env-retro-followups/validation.md"
       ],
       "note": "pending-work.md 改成两张表：仍在排队的验收（4 个功能，只给任务/规格路径）与已收口的验收（指向两份 validation.md）。脚本核对五处入链（features/index.md、decisions/2026-09-18-reader-behavior.md、frontend/index.md、product-goals.md、quality-guidelines.md）仍指向该文件，6 个任务/规格指针均存在，且不再出现 validation-us1 / metadata.json / chunkIndex / fflate / 共享与重置 / 放大镜持久化 等验收项细节。check:docs 通过。",
       "waiver": null
@@ -202,7 +202,7 @@
       },
       "evidence": [
         ".tmp/env-retro-archive-fallback.log",
-        ".trellis/tasks/10-27-env-retro-followups/validation.md"
+        ".trellis/tasks/archive/2026-10/10-27-env-retro-followups/validation.md"
       ],
       "note": "bash -n 通过；--help 打印用法；--dry-run 10-26-fix-acceptance-defects 列出归档目录与 meta.scope 声明的路径，只打印 git add/commit 两条命令不执行；.trellis/spec/tooling/archive-fallback.md 记录触发场景（invalid object / 无法创建树对象）、用法与 scope 门禁关系。",
       "waiver": null
@@ -231,7 +231,7 @@
       },
       "evidence": [
         ".tmp/env-retro-check.log",
-        ".trellis/tasks/10-27-env-retro-followups/validation.md"
+        ".trellis/tasks/archive/2026-10/10-27-env-retro-followups/validation.md"
       ],
       "note": "npm run check（type-check + test 全链 13 个子脚本 + build-prod + check:docs）exit 0；全链 DEPRECATION WARNING 计数为 0，check-docs 237 本地链接 0 断链。",
       "waiver": null
