@@ -3,7 +3,7 @@
   "name": "fix-acceptance-defects",
   "title": "修复两组验收发现的 7 个缺陷",
   "description": "修复 dockable-panel 与 thumb-expand-modal 两组 quickstart 验收中发现的 D1-D7 缺陷：触摸停靠、侧栏压扁主区、registry 接线、宽屏列数、分段规范对齐、pageContainers 顺序、窄屏面板溢出",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -11,7 +11,7 @@
   "creator": "Warwick",
   "assignee": "Warwick",
   "createdAt": "2026-10-26",
-  "completedAt": null,
+  "completedAt": "2026-10-26",
   "branch": "master",
   "base_branch": "master",
   "worktree_path": null,
@@ -36,11 +36,19 @@
         ],
         "spec": [
           ".trellis/spec/**"
+        ],
+        "acceptance-tasks": [
+          ".trellis/tasks/10-25-*/**",
+          ".trellis/tasks/10-25-close-feature-quickstart-acceptance/**",
+          ".trellis/tasks/10-25-dockable-panel-acceptance/**",
+          ".trellis/tasks/10-25-thumb-expand-modal-acceptance/**",
+          ".trellis/tasks/10-25-pageflip-toggle-acceptance/**",
+          ".trellis/tasks/10-25-more-settings-modal-acceptance/**"
         ]
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "f1ee37c5c43b3a6be8aefe7f899e5c65f5c5d26e445fa8a5dd63b4367d5c1f7e"
+        "sha256": "c85d99b13b05ca356346a1658b4f6b2de712f3c7a59ac1ecf2f1cd9236f65889"
       }
     }
   }

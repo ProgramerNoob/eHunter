@@ -25,7 +25,7 @@
       "evidence": [
         ".tmp/browser-preflight/dockable-touch-dock-ddb7ad29-145e-4ea0-aca3-f8a2af410cc7/result.json",
         ".tmp/browser-preflight/dockable-touch-dock-ddb7ad29-145e-4ea0-aca3-f8a2af410cc7/measurements.json",
-        ".trellis/tasks/10-26-fix-acceptance-defects/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md"
       ],
       "note": "touchAction \"none\"；armed 后 overlay true；拖拽事件序列 pointerdown → pointermove ×3 → pointerup（无 pointercancel）；松开后 slot right、存储 thumbSlot right。",
       "waiver": null
@@ -46,7 +46,7 @@
         ".tmp/browser-preflight/dockable-mobile-maxdrag-bfd6439f-6bbd-4af3-91ed-68649d259f62/measurements.json",
         ".tmp/browser-preflight/dockable-desktop-931095ff-6ee6-452a-b070-e8654f211a7b/result.json",
         ".tmp/browser-preflight/dockable-desktop-931095ff-6ee6-452a-b070-e8654f211a7b/measurements.json",
-        ".trellis/tasks/10-26-fix-acceptance-defects/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md"
       ],
       "note": "390×844 拖到右缘：side 156 / main 234（= min(320, 390×0.6)），不再出现 389/1；1200×900 侧栏上限仍 520、main 680 ≥ 320；底栏 60–420 不变（maxed 420 / main 480）。",
       "waiver": null
@@ -76,7 +76,7 @@
         ".tmp/fix-defects-registry-check.log",
         "core/model/layout.ts",
         "core/components/layout/DockWorkspace.vue",
-        ".trellis/tasks/10-26-fix-acceptance-defects/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md"
       ],
       "note": "脚本列出 getDockAllowedSlots/getDockLongPressMs/getThumbSizeRange/getLayoutBlock/computeMainMinSizePx 的全部消费点；组件/状态层无 520/420 硬编码、无数字型 long-press-ms 属性；DockHandle.vue 含 touch-action: none。RESULT: OK，exit 0。",
       "waiver": null
@@ -97,7 +97,7 @@
         ".tmp/browser-preflight/thumb-expand-desktop-6145053c-6c05-4bcc-bdf6-07c3acef0f89/measurements.json",
         ".tmp/browser-preflight/thumb-expand-mobile-ac9b679c-4956-4cc4-a731-d55deba0b019/result.json",
         ".tmp/browser-preflight/thumb-expand-mobile-ac9b679c-4956-4cc4-a731-d55deba0b019/measurements.json",
-        ".trellis/tasks/10-26-fix-acceptance-defects/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md"
       ],
       "note": "density-sweep：1600/1440/1200/1024 均 5 列 4 行、template \"120px ×5\"；900/768/640/480/390 均 3 列 4 行；mobile 弹层 columns 3。",
       "waiver": null
@@ -129,7 +129,7 @@
         ".trellis/spec/frontend/features/001-thumb-expand-modal/data-model.md",
         ".trellis/spec/frontend/features/001-thumb-expand-modal/quickstart.md",
         ".trellis/spec/frontend/features/001-thumb-expand-modal/contracts/thumb-expand-modal.openapi.yaml",
-        ".trellis/tasks/10-26-fix-acceptance-defects/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md"
       ],
       "note": "代码常量 thumbExpandSegmentSize = 200；规格目录内已无「100 页」表述，出现 200 页的 6 处（含 maxItems: 200 与 enum: [200]）。RESULT: OK，exit 0。",
       "waiver": null
@@ -148,7 +148,7 @@
       "evidence": [
         ".tmp/browser-preflight/thumb-expand-desktop-6145053c-6c05-4bcc-bdf6-07c3acef0f89/result.json",
         ".tmp/browser-preflight/thumb-expand-desktop-6145053c-6c05-4bcc-bdf6-07c3acef0f89/measurements.json",
-        ".trellis/tasks/10-26-fix-acceptance-defects/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md"
       ],
       "note": "segment-jump：point 命中 thumb-item，弹层关闭，progress \"204 / 252\"，trail 8 次采样全为 \"204 / 252\"（修复前落到 247 / 250）。",
       "waiver": null
@@ -167,7 +167,7 @@
       "evidence": [
         ".tmp/browser-preflight/thumb-expand-mobile-ac9b679c-4956-4cc4-a731-d55deba0b019/result.json",
         ".tmp/browser-preflight/thumb-expand-mobile-ac9b679c-4956-4cc4-a731-d55deba0b019/measurements.json",
-        ".trellis/tasks/10-26-fix-acceptance-defects/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md"
       ],
       "note": "jump：命中 thumb-item，弹层关闭，progress \"3 / 252\"，trail 8 次采样全为 \"3 / 252\"（修复前落到 4 / 250）。",
       "waiver": null
@@ -187,7 +187,7 @@
         ".tmp/browser-preflight/thumb-expand-mobile-ac9b679c-4956-4cc4-a731-d55deba0b019/result.json",
         ".tmp/browser-preflight/thumb-expand-mobile-ac9b679c-4956-4cc4-a731-d55deba0b019/measurements.json",
         ".tmp/browser-preflight/thumb-expand-mobile-ac9b679c-4956-4cc4-a731-d55deba0b019/mobile-modal.png",
-        ".trellis/tasks/10-26-fix-acceptance-defects/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md"
       ],
       "note": "entry-tap：panel {x0,y0,w390,h844}，与视口完全一致（修复前 h846 溢出 2px）；pagerRect bottom 827 在视口内；columns 3、horizontalOverflow 0、无标题元素。",
       "waiver": null
@@ -208,7 +208,7 @@
         ".tmp/browser-preflight/dockable-desktop-931095ff-6ee6-452a-b070-e8654f211a7b/measurements.json",
         ".tmp/browser-preflight/dockable-mobile-final-6757ef87-6afd-44bb-93ad-aadf8778f356/result.json",
         ".tmp/browser-preflight/dockable-mobile-final-6757ef87-6afd-44bb-93ad-aadf8778f356/measurements.json",
-        ".trellis/tasks/10-26-fix-acceptance-defects/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md"
       ],
       "note": "desktop：左/右/底吸附、无效目标回退、短拖忽略、hover affordance、侧栏 150→320 / 钳制 520 / 60、底栏 200 / 钳制 420 / 60、书页与滚动各自持久化后切换复原；mobile：短按不触发、长按 arm、触摸缩放到 60、触摸滚动 0→188、书页点击翻页。",
       "waiver": null
@@ -231,7 +231,7 @@
         ".tmp/browser-preflight/thumb-expand-single-94eb98f8-698a-454c-963f-7cafbc0780e1/measurements.json",
         ".tmp/browser-preflight/thumb-expand-loadfail-271fe874-1349-4967-b3e9-436b294d6439/result.json",
         ".tmp/browser-preflight/thumb-expand-loadfail-271fe874-1349-4967-b3e9-436b294d6439/measurements.json",
-        ".trellis/tasks/10-26-fix-acceptance-defects/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md"
       ],
       "note": "modal-wide itemCount 200 / labels 连续 / 无标题 / pager [1,2]；partial-last-row itemCount 52、lastRowItems 2、左对齐；single-segment 80 项单分段、分页器仅 1 且两侧 disable；loadfail 123 个资源全部失败时 120 项保留页码、点击跳到 5 / 120 并关闭；reading-modes 202→书页 202→点击 204→回滚动 204。",
       "waiver": null
@@ -260,7 +260,7 @@
       },
       "evidence": [
         ".tmp/fix-defects-type-check.log",
-        ".trellis/tasks/10-26-fix-acceptance-defects/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md"
       ],
       "note": "vue-tsc --noEmit exit 0。",
       "waiver": null
@@ -289,7 +289,7 @@
       },
       "evidence": [
         ".tmp/fix-defects-test.log",
-        ".trellis/tasks/10-26-fix-acceptance-defects/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md"
       ],
       "note": "npm run test exit 0。",
       "waiver": null
@@ -325,7 +325,7 @@
         ".tmp/browser-preflight/thumb-expand-mobile-ac9b679c-4956-4cc4-a731-d55deba0b019/result.json",
         ".tmp/browser-preflight/thumb-expand-single-94eb98f8-698a-454c-963f-7cafbc0780e1/result.json",
         ".tmp/browser-preflight/thumb-expand-loadfail-271fe874-1349-4967-b3e9-436b294d6439/result.json",
-        ".trellis/tasks/10-26-fix-acceptance-defects/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md"
       ],
       "note": "脚本逐个 verify-browser 八份产物，输出 8 次 \"status\": \"passed\"，exit 0。",
       "waiver": null

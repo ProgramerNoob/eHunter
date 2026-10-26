@@ -5,7 +5,7 @@
   "head": "01938b19217e31f9e8a342170208cfcf410889eb",
   "indexTree": "b0c3f12ac303ef5b893aefe2bfe8f75ba26bf28f",
   "capturedAt": "2026-10-26T09:48:57+08:00",
-  "scopeDigest": "e6a1a5190f7e378c8e100e53b0f4bb4e0e5a72ebd8b208122e5104b18bd3727d",
+  "scopeDigest": "f8bb7c9f699b1573e207ce8ff2f3d5fb6138df063253ce39f95c4642de010679",
   "dirty": {},
   "untracked": {
     ".trellis/tasks/10-25-close-feature-quickstart-acceptance/acceptance.json": {
@@ -213,6 +213,24 @@
         ".trellis/spec/**"
       ],
       "at": "2026-10-26T21:42:21+08:00"
+    },
+    {
+      "category": "acceptance-tasks",
+      "rules": [
+        ".trellis/tasks/10-25-*/**"
+      ],
+      "at": "2026-10-26T21:43:24+08:00"
+    },
+    {
+      "category": "acceptance-tasks",
+      "rules": [
+        ".trellis/tasks/10-25-close-feature-quickstart-acceptance/**",
+        ".trellis/tasks/10-25-dockable-panel-acceptance/**",
+        ".trellis/tasks/10-25-thumb-expand-modal-acceptance/**",
+        ".trellis/tasks/10-25-pageflip-toggle-acceptance/**",
+        ".trellis/tasks/10-25-more-settings-modal-acceptance/**"
+      ],
+      "at": "2026-10-26T21:43:29+08:00"
     }
   ]
 }
