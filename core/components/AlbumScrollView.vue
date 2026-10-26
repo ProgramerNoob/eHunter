@@ -32,6 +32,7 @@ import { ref, computed, watch, onMounted, nextTick } from 'vue'
 
 const updater = 'album_scroll_view'
 const animationTime = 800
+const scrollLockMarginMs = 200
 const scrollPosition = ref(0)
 const scrollView: any = ref(null)
 const pageContainers: any = ref(null)
@@ -74,7 +75,7 @@ async function scrollToCurIndex() {
     if (!pageContainers.value) {
         return
     }
-    scrollLockUntil = Date.now() + animationTime + 200
+    scrollLockUntil = Date.now() + animationTime + scrollLockMarginMs
     if (computedVolIndex.value == 0) {
         scrollView.value!.scrollTo(0, animationTime)
         return

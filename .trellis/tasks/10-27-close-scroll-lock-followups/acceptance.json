@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "`core/components/AlbumScrollView.vue` 中锁定期余量以具名常量出现，`scrollLockUntil` 的计算引用该常量，源码中不再有裸 `200` 参与该计算。",
+    "AC2": "`tests/check-decision-doc-durations.sh` 纳入版本控制，对当前文档 exit 0。",
+    "AC3": "人为在决策文档追加一处裸时长后，该脚本 exit 1 并指出位置；还原后 exit 0。",
+    "AC4": "`npm run test:decision-docs` 与 `npm run check` 均 exit 0。"
+  },
+  "checks": [
+    {
+      "id": "scroll-lock-margin-constant",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "锁定期余量提成具名常量并被引用",
+      "scope": "`core/components/AlbumScrollView.vue`",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          ".tmp/followups-ac1.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T00:31:00+08:00",
+        "endedAt": "2026-10-27T00:31:01+08:00",
+        "log": ".tmp/followups-ac1.log"
+      },
+      "evidence": [
+        "core/components/AlbumScrollView.vue",
+        ".tmp/followups-ac1.log",
+        ".trellis/tasks/10-27-close-scroll-lock-followups/validation.md"
+      ],
+      "note": "新增 const scrollLockMarginMs = 200；锁定期计算改为 Date.now() + animationTime + scrollLockMarginMs；grep 断言计算中无裸 200。",
+      "waiver": null
+    },
+    {
+      "id": "doc-guard-script-tracked",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "守卫脚本在 tests/ 下且对当前文档通过",
+      "scope": "`tests/check-decision-doc-durations.sh`",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:decision-docs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T00:33:00+08:00",
+        "endedAt": "2026-10-27T00:33:02+08:00",
+        "log": ".tmp/followups-test-decision-docs.log"
+      },
+      "evidence": [
+        "tests/check-decision-doc-durations.sh",
+        ".tmp/followups-test-decision-docs.log",
+        ".trellis/tasks/10-27-close-scroll-lock-followups/validation.md"
+      ],
+      "note": "脚本从 .tmp 重写迁入 tests/，git ls-files 确认纳入版本控制；对当前文档 exit 0。",
+      "waiver": null
+    },
+    {
+      "id": "doc-guard-detects-violation",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "追加裸时长后脚本 exit 1，还原后 exit 0",
+      "scope": "决策文档 + 守卫脚本",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          ".tmp/followups-guard-roundtrip.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T00:37:00+08:00",
+        "endedAt": "2026-10-27T00:37:02+08:00",
+        "log": ".tmp/followups-guard-roundtrip.log"
+      },
+      "evidence": [
+        ".tmp/followups-guard-roundtrip.log",
+        ".tmp/followups-guard-violation.log",
+        ".tmp/followups-guard-restored.log",
+        ".trellis/tasks/10-27-close-scroll-lock-followups/validation.md"
+      ],
+      "note": "脚本临时追加「锁定期约 1s。」后守卫 exit 1（打印第 36 行命中与 FAIL 原因），还原后 exit 0；doc_changed=1 是文档本身的符号表述改动，测试内容无残留。",
+      "waiver": null
+    },
+    {
+      "id": "check-suite",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "新子脚本与全量 check 均通过",
+      "scope": "仓库根",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T00:34:00+08:00",
+        "endedAt": "2026-10-27T00:35:10+08:00",
+        "log": ".tmp/followups-check.log"
+      },
+      "evidence": [
+        ".tmp/followups-test-decision-docs.log",
+        ".tmp/followups-check.log",
+        ".trellis/tasks/10-27-close-scroll-lock-followups/validation.md"
+      ],
+      "note": "npm run test:decision-docs exit 0；npm run check 全链 exit 0，日志含 OK: decision documents carry no literal durations 与 check-docs: OK。",
+      "waiver": null
+    }
+  ]
+}

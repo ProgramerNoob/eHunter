@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-27-close-scroll-lock-followups",
+  "branch": "master",
+  "head": "63d4e89476bbf5ac01ab3defea100c7d4ae7480a",
+  "indexTree": "1a187431b6fd7077d699efe063fb9eb9ae32dcd9",
+  "capturedAt": "2026-10-27T00:19:00+08:00",
+  "scopeDigest": "6f55847e316f525f7d1b76b741661f38878ba42a214016e0c295a85aa0973e3b",
+  "dirty": {
+    ".trellis/spec/frontend/decisions/2026-10-26-jump-scroll-lock.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "9c8942c7b3ccc8ddfbfcc174ce34ea85b01c06178c72c73b4f7e51564c2b2e4c"
+    },
+    "core/components/AlbumScrollView.vue": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "7994930399b544e30c977e7804bae0010f0606b36ad094ce92ac41b46e56db3d"
+    },
+    "package.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "1ddb104201942785ec183fc6d5eb04534825db1e000d6ea5daf00d1dad7c0ebb"
+    }
+  },
+  "untracked": {
+    ".trellis/tasks/10-27-close-scroll-lock-followups/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-27-close-scroll-lock-followups/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-27-close-scroll-lock-followups/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "526912750f3ced009021d79fb7ca5e18125621c8368e17d2d522e12e5d5ccf2f"
+    },
+    ".trellis/tasks/10-27-close-scroll-lock-followups/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "0b87cf228805aef3fc9d177ec35869505c08a7113f9b6aaab8643420063a58fd"
+    },
+    "tests/check-decision-doc-durations.sh": {
+      "type": "file",
+      "mode": "100755",
+      "sha256": "fe43afb6f7f435452afccff1d3fe80780e7e2df2d3c6d22ba8b04cf28939ebe3"
+    }
+  }
+}
