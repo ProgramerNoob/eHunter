@@ -21,7 +21,7 @@
       "execution": null,
       "evidence": [
         ".trellis/spec/frontend/features/001-dockable-panel-layout/data-model.md",
-        ".trellis/tasks/10-26-fix-spec-reclamp-gaps/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-spec-reclamp-gaps/validation.md"
       ],
       "note": "SplitBoundary 校验规则补「重钳制单向」与「重钳制不写回持久化」两条，措辞与实测一致：390 视口侧栏 156、放宽回 1200 仍 156、存储保持 520、重载后回到 520。",
       "waiver": null
@@ -39,7 +39,7 @@
       "execution": null,
       "evidence": [
         ".trellis/spec/frontend/features/001-thumb-expand-modal/spec.md",
-        ".trellis/tasks/10-26-fix-spec-reclamp-gaps/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-spec-reclamp-gaps/validation.md"
       ],
       "note": "FR-004 补 120px 上限轨道与左对齐留白；Assumptions 补「靠左固定网格不是自适应铺满，右侧留白属预期」；check:docs 通过。",
       "waiver": null
@@ -74,7 +74,7 @@
       "observed": "passed",
       "execution": null,
       "evidence": [
-        ".trellis/tasks/10-26-fix-spec-reclamp-gaps/validation.md",
+        ".trellis/tasks/archive/2026-10/10-26-fix-spec-reclamp-gaps/validation.md",
         ".tmp/browser-preflight/reclamp-cycle-8f43bbd2-9c4c-49c5-bc08-835bebcda74d/measurements.json",
         ".tmp/browser-preflight/reclamp-cycle-8f43bbd2-9c4c-49c5-bc08-835bebcda74d/widened-back-1200.png",
         ".tmp/browser-preflight/reclamp-cycle-8f43bbd2-9c4c-49c5-bc08-835bebcda74d/after-reload-1200.png"
@@ -106,7 +106,7 @@
       },
       "evidence": [
         ".tmp/spec-reclamp-docs-check.log",
-        ".trellis/tasks/10-26-fix-spec-reclamp-gaps/validation.md"
+        ".trellis/tasks/archive/2026-10/10-26-fix-spec-reclamp-gaps/validation.md"
       ],
       "note": "check:docs OK（40 md / 227 本地链接 / 0 问题）；git status --porcelain core src tests 输出 0 行。",
       "waiver": null
