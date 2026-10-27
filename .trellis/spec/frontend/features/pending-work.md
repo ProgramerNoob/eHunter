@@ -15,4 +15,6 @@
 
 ## 已收口的验收
 
-`001-dockable-panel-layout` 与 `001-thumb-expand-modal` 的本地 quickstart 验收已执行完毕，发现的缺陷已修复并回归；结论与证据见 `.trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md` 与 `10-26-fix-review-findings/validation.md`。
+`001-dockable-panel-layout` 与 `001-thumb-expand-modal` 的本地 quickstart 验收已执行完毕，发现的缺陷已修复并回归。
+验收记录见 `.trellis/tasks/archive/2026-10/10-25-dockable-panel-acceptance/` 与 `10-25-thumb-expand-modal-acceptance/`（`acceptance.json` 逐项 passed，证据在各自 `validation.md`）；
+缺陷修复见 `.trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md` 与 `10-26-fix-review-findings/validation.md`。
