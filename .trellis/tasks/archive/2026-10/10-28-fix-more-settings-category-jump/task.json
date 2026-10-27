@@ -3,7 +3,7 @@
   "name": "fix-more-settings-category-jump",
   "title": "修复更多设置弹窗分类跳转高亮与末组对齐",
   "description": "修复 002-more-settings-modal 验收中发现的分类跳转缺陷：左侧分类点击后右侧高亮停留在上一组（onContentScroll 用 offsetTop 与 content scrollTop 相差 51px 比较），以及最后一组「其他」因内容无底部补白永远滚不到组顶（delta 350）。",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -11,7 +11,7 @@
   "creator": "Warwick",
   "assignee": "Warwick",
   "createdAt": "2026-10-28",
-  "completedAt": null,
+  "completedAt": "2026-10-28",
   "branch": "master",
   "base_branch": "master",
   "worktree_path": null,
@@ -33,12 +33,10 @@
         ],
         "core": [
           "core/components/MoreSettingsDialog.vue",
-          "core/model/settingsNavigation.ts",
-          "core/store/app.ts"
+          "core/model/settingsNavigation.ts"
         ],
         "tests": [
           "tests/settings-navigation.test.cjs",
-          "tests/settings-reading-mode-row.test.cjs",
           "package.json"
         ],
         "spec": [
@@ -47,7 +45,7 @@
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "780973b87686b8a4c6483b66cf2815da2a9b24465cb9f1ce3398a4cb98974299"
+        "sha256": "bfb5f0edc880db53d4a1525c827d2ba02da03c5e1eb3c2b7b98fc9712a412024"
       }
     }
   }

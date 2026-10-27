@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-28-fix-more-settings-category-jump",
+  "branch": "master",
+  "head": "8cef307d171349153b6ae1cf0181d562a0ef0347",
+  "indexTree": "a64166220fae7353af0c6e74cc568ebaf845fb94",
+  "capturedAt": "2026-10-28T03:35:27+08:00",
+  "scopeDigest": "827230135c540ed0e008f6979485f7b89b76619f2faacef748ec40a2f33c25c3",
+  "dirty": {
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "5c234f947ad62344ffee6234882cbf751ffbbdf83650dd79c2d8cd211a20510c"
+    },
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "b13f52d84f80bb965d478cc90a9439e721a1848a1a2a622907a304eb3d2c6ad3"
+    },
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "615b1affbe515f7fe574d7a6613bfc71a1b8faacebf2ac088d102ec293d0c7f6"
+    },
+    ".trellis/tasks/10-28-fix-more-settings-category-jump/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "bb1ef68834dd96adef5cda6e5ff264d671ec0667c63d606ccf87de9423700228"
+    }
+  },
+  "untracked": {
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/implement.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "87ee39b67611e2abb8eb265abaefc7756e48fda13769ab7629e1f0973b5e600d"
+    }
+  }
+}
