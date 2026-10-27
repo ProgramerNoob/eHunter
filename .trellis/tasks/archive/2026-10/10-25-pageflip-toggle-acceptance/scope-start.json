@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-25-pageflip-toggle-acceptance",
+  "branch": "master",
+  "head": "2067ed68b725ff6d11d818ba5978beeed08e18e2",
+  "indexTree": "0364e40be1388e275c3fe40cd5044d3a59a99c0d",
+  "capturedAt": "2026-10-28T02:45:24+08:00",
+  "scopeDigest": "8595b4c81484a76d5f88867067e6e553487476ad758bfed5aee2b734bc99a38f",
+  "dirty": {
+    ".trellis/tasks/10-25-pageflip-toggle-acceptance/acceptance.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "030e3653ff59e46ee90ea5279b40879c6ebe5177c58cbb120030a5d369a1c832"
+    },
+    ".trellis/tasks/10-25-pageflip-toggle-acceptance/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "7645a973f5a17a0f6910bbfa682b72ef258c2c6a20892953e6ffc57c10816052"
+    },
+    ".trellis/tasks/10-25-pageflip-toggle-acceptance/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "de55f5e757c3dd816720e8c6295fa20032ece4e29996ea682d51e47632037c6c"
+    },
+    ".trellis/tasks/10-25-pageflip-toggle-acceptance/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "f709af5b924bcde658a0c0896f8f892638bb2a8eb715120afff02e2de184e63b"
+    }
+  },
+  "untracked": {
+    ".trellis/tasks/10-25-pageflip-toggle-acceptance/implement.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "6dc00551c4f0199fe9207410757138755dbe882767036f1f4c740d7644f0398d"
+    },
+    ".trellis/tasks/10-25-pageflip-toggle-acceptance/validation.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e68702274009a591070bb5598ba0e9f480ffb9ac3f4943a84dff07306ecc97e1"
+    }
+  }
+}

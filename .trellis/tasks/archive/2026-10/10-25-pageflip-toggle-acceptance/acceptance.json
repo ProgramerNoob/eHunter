@@ -1,0 +1,286 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "首次初始化矩阵四种环境的结果与 quickstart 表格一致（桌面关/拟真、移动关/平移、两者开/无动效），且记录实际模拟 reduced-motion 的手段。",
+    "AC2": "初始化后稳定性成立：切换系统偏好不改当前动效；保存其他设置后刷新与重开画集仍用已保存结果；预置三种合法偏好（含旧默认拟真）保留；缺失/坏值按本站合法旧值优先补齐；重置后重新初始化不复活旧值。",
+    "AC3": "三档动效生效且点击、滚轮、键盘、自动翻页一致使用当前设置；首页/末页不越界；加载中与快速连续输入无页码错乱或长时间空白；卷轴模式滚动不受影响，返回书页沿用已确定偏好。",
+    "AC4": "共享/迁移/重置矩阵在 GM 可用的 EH/EX/NH 环境下跑通（合法共享优先、统一旧值优先于独立旧值、空共享首次迁入、后续站点只补缺、坏值修复、重复迁移、重置防复活），GM 不可用场景体现 origin 隔离。",
+    "AC5": "本地两 profile 与平台轮均产出通过 `verify-browser` 校验的预检产物，`acceptance.json` 有对应 runtime/inspection 记录与证据路径，`summarize` 实际执行。"
+  },
+  "checks": [
+    {
+      "id": "init-matrix",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "首次初始化矩阵在桌面/移动 × 减少动态效果开关四种环境下分别得到拟真、平移、无动效、无动效",
+      "scope": "本地 Vite，desktop 与 mobile 两 profile，CDP 模拟 prefers-reduced-motion 前后各一轮，无合法共享与本站旧偏好的初始状态",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/pageflip-init-desktop-ef7a26e9-a15d-4cc6-afc2-145636c53652/result.json",
+        ".tmp/browser-preflight/pageflip-init-desktop-ef7a26e9-a15d-4cc6-afc2-145636c53652/measurements.json",
+        ".tmp/browser-preflight/pageflip-init-desktop-ef7a26e9-a15d-4cc6-afc2-145636c53652/init-desktop.png",
+        ".tmp/browser-preflight/pageflip-init-mobile-b9c594c3-b93d-43e5-bbc0-41613fef1596/result.json",
+        ".tmp/browser-preflight/pageflip-init-mobile-b9c594c3-b93d-43e5-bbc0-41613fef1596/measurements.json",
+        ".tmp/browser-preflight/pageflip-init-mobile-b9c594c3-b93d-43e5-bbc0-41613fef1596/init-mobile.png",
+        ".tmp/browser-preflight/pageflip-init-desktop-reduced-8c07cb1e-10dc-44d2-b7d1-55a5bab1e8fa/result.json",
+        ".tmp/browser-preflight/pageflip-init-desktop-reduced-8c07cb1e-10dc-44d2-b7d1-55a5bab1e8fa/measurements.json",
+        ".tmp/browser-preflight/pageflip-init-mobile-reduced-7a18f1fb-1ad1-4fef-861a-101b20492efe/result.json",
+        ".tmp/browser-preflight/pageflip-init-mobile-reduced-7a18f1fb-1ad1-4fef-861a-101b20492efe/measurements.json",
+        ".trellis/tasks/archive/2026-10/10-25-pageflip-toggle-acceptance/validation.md"
+      ],
+      "note": "四轮均在导航前清空 localStorage。desktop 关：`reducedMotion false`，落盘 `animationMode realistic`、统一设置 `realistic`，书页容器 `album-book-view mode-realistic content book-mode`，首翻（`?pageTotal=60`，`1 / 60 → 2 / 60`）过渡类 `screen-flip-enter-active/-from/-to` 与 `screen-flip-leave-*`，设置行显示「拟真翻页」。mobile 关：`reducedMotion false`、`coarse true`、`touchPoints 5`，落盘 `slide`，容器 `mode-slide`，首翻得 `screen-slide-next-*`，设置行「平移翻页」。desktop/mobile 开：`reducedMotion true`，落盘与统一设置均 `none`，容器 `mode-none`，首翻只出现 `screen-none-enter-active/-from` 与 `screen-none-leave-active/-from`（无 `-to`），设置行「无动效」。四轮设置行的选项集合均为 `[\"拟真翻页\",\"平移翻页\",\"无动效\"]`，与 quickstart 表格逐行一致。执行环境 2026-10-27：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 43756 / vite listener PID 43775，证据 `.tmp/pageflip-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile；reduced-motion 用 CDP `Emulation.setEmulatedMedia({features:[{name:'prefers-reduced-motion', value:'reduce'}]})` 模拟，脚本内 `matchMedia` 复核为 true 后才继续；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "stability-after-init",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "初始化后切换系统偏好、保存其他设置并刷新或重开画集，动效设置不意外变化",
+      "scope": "本地 Vite，desktop 与 mobile，初始化后切换 reduced-motion、保存语言、刷新页面、重开读器四种动作后的动效值核对",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/pageflip-stability-desktop-934f8831-1658-41b6-8168-c822a387ad85/result.json",
+        ".tmp/browser-preflight/pageflip-stability-desktop-934f8831-1658-41b6-8168-c822a387ad85/measurements.json",
+        ".tmp/browser-preflight/pageflip-stability-desktop-934f8831-1658-41b6-8168-c822a387ad85/stability-desktop.png",
+        ".trellis/tasks/archive/2026-10/10-25-pageflip-toggle-acceptance/validation.md"
+      ],
+      "note": "初始为 desktop 默认 `realistic`（统一设置同步 `realistic`、`legacyImport done`）。运行时把 `prefers-reduced-motion` 从 no-preference 切到 reduce：`reducedMotion` false→true，`storedAnimationMode` 仍 `realistic`，说明切换系统偏好不改已确定动效。再经「更多设置 → 语言」保存 English（统一设置落盘 `lang: en`）后动效仍 `realistic`；刷新后 `realistic` 与 `en` 同时保留；改用 `?pageTotal=30&round=2` 重新打开画集并重开阅读器，仍是 `realistic`。执行环境 2026-10-27：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 43756 / vite listener PID 43775，证据 `.tmp/pageflip-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile；reduced-motion 用 CDP `Emulation.setEmulatedMedia({features:[{name:'prefers-reduced-motion', value:'reduce'}]})` 模拟，脚本内 `matchMedia` 复核为 true 后才继续；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "legacy-and-bad-value",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "三种合法旧偏好（含恰等于旧默认拟真）被保留；缺失或坏值先由本站合法旧值补齐，全部无合法值才使用矩阵",
+      "scope": "本地 Vite，预置合法旧值与缺失/坏值记录的初始化结果核对",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/pageflip-preset-realistic-desktop-off-824e2edc-46d6-4721-95fb-341ed2ffe356/result.json",
+        ".tmp/browser-preflight/pageflip-preset-realistic-desktop-off-824e2edc-46d6-4721-95fb-341ed2ffe356/measurements.json",
+        ".tmp/browser-preflight/pageflip-preset-realistic-mobile-off-c2053dc8-8453-4ec9-bf70-fd1fc78be4f4/result.json",
+        ".tmp/browser-preflight/pageflip-preset-realistic-mobile-off-c2053dc8-8453-4ec9-bf70-fd1fc78be4f4/measurements.json",
+        ".tmp/browser-preflight/pageflip-preset-realistic-desktop-reduce-e34180de-441f-4d16-9272-c6531bfbe8b2/result.json",
+        ".tmp/browser-preflight/pageflip-preset-realistic-desktop-reduce-e34180de-441f-4d16-9272-c6531bfbe8b2/measurements.json",
+        ".tmp/browser-preflight/pageflip-preset-realistic-mobile-reduce-9bf3a031-b139-4b44-9bb0-fd683380f5bb/result.json",
+        ".tmp/browser-preflight/pageflip-preset-realistic-mobile-reduce-9bf3a031-b139-4b44-9bb0-fd683380f5bb/measurements.json",
+        ".tmp/browser-preflight/pageflip-preset-slide-desktop-off-3c642156-af5f-4fbb-abf0-4912b7e7359c/result.json",
+        ".tmp/browser-preflight/pageflip-preset-slide-desktop-off-3c642156-af5f-4fbb-abf0-4912b7e7359c/measurements.json",
+        ".tmp/browser-preflight/pageflip-preset-slide-mobile-off-27bfe22c-f7c9-4e00-840c-6d35de37330d/result.json",
+        ".tmp/browser-preflight/pageflip-preset-slide-mobile-off-27bfe22c-f7c9-4e00-840c-6d35de37330d/measurements.json",
+        ".tmp/browser-preflight/pageflip-preset-slide-desktop-reduce-1e844e96-9475-42f5-911e-9e0fafe9f734/result.json",
+        ".tmp/browser-preflight/pageflip-preset-slide-desktop-reduce-1e844e96-9475-42f5-911e-9e0fafe9f734/measurements.json",
+        ".tmp/browser-preflight/pageflip-preset-slide-mobile-reduce-07e69287-1518-4c0b-bffb-c8fa2acb18c4/result.json",
+        ".tmp/browser-preflight/pageflip-preset-slide-mobile-reduce-07e69287-1518-4c0b-bffb-c8fa2acb18c4/measurements.json",
+        ".tmp/browser-preflight/pageflip-preset-none-desktop-off-69cd66cc-1e4b-4133-9b10-225fb4323679/result.json",
+        ".tmp/browser-preflight/pageflip-preset-none-desktop-off-69cd66cc-1e4b-4133-9b10-225fb4323679/measurements.json",
+        ".tmp/browser-preflight/pageflip-preset-none-mobile-off-c56efe8d-56a0-487e-9629-37a178c7c12a/result.json",
+        ".tmp/browser-preflight/pageflip-preset-none-mobile-off-c56efe8d-56a0-487e-9629-37a178c7c12a/measurements.json",
+        ".tmp/browser-preflight/pageflip-preset-none-desktop-reduce-62bde0a7-c5ff-4cb9-9a74-6c1989b025db/result.json",
+        ".tmp/browser-preflight/pageflip-preset-none-desktop-reduce-62bde0a7-c5ff-4cb9-9a74-6c1989b025db/measurements.json",
+        ".tmp/browser-preflight/pageflip-preset-none-mobile-reduce-76acf9e1-611d-4bdd-8db2-3c4bad9349b7/result.json",
+        ".tmp/browser-preflight/pageflip-preset-none-mobile-reduce-76acf9e1-611d-4bdd-8db2-3c4bad9349b7/measurements.json",
+        ".tmp/browser-preflight/pageflip-preset-legacy-default-realistic-mobile-cc7c4fb6-4110-46bf-a5c3-06970fdb8fe1/result.json",
+        ".tmp/browser-preflight/pageflip-preset-legacy-default-realistic-mobile-cc7c4fb6-4110-46bf-a5c3-06970fdb8fe1/measurements.json",
+        ".tmp/browser-preflight/pageflip-missing-unified-legacy-slide-3b497653-e408-421e-ae2e-5c8d2d0d3275/result.json",
+        ".tmp/browser-preflight/pageflip-missing-unified-legacy-slide-3b497653-e408-421e-ae2e-5c8d2d0d3275/measurements.json",
+        ".tmp/browser-preflight/pageflip-bad-unified-legacy-none-bc553920-eea7-4ec7-a9c9-250580766aad/result.json",
+        ".tmp/browser-preflight/pageflip-bad-unified-legacy-none-bc553920-eea7-4ec7-a9c9-250580766aad/measurements.json",
+        ".tmp/browser-preflight/pageflip-bad-standalone-falls-back-to-matrix-b35e64d8-ac05-4283-90bf-a29d4bf86d22/result.json",
+        ".tmp/browser-preflight/pageflip-bad-standalone-falls-back-to-matrix-b35e64d8-ac05-4283-90bf-a29d4bf86d22/measurements.json",
+        ".tmp/browser-preflight/pageflip-reset-desktop-from-slide-aa139986-a5c4-4fc0-befc-f133b0ac62ee/result.json",
+        ".tmp/browser-preflight/pageflip-reset-desktop-from-slide-aa139986-a5c4-4fc0-befc-f133b0ac62ee/measurements.json",
+        ".tmp/browser-preflight/pageflip-reset-mobile-from-none-17e4be26-a2a6-4a3c-8f3a-8de197ebc552/result.json",
+        ".tmp/browser-preflight/pageflip-reset-mobile-from-none-17e4be26-a2a6-4a3c-8f3a-8de197ebc552/measurements.json",
+        ".trellis/tasks/archive/2026-10/10-25-pageflip-toggle-acceptance/validation.md"
+      ],
+      "note": "共 16 轮（12 轮合法预置 + 4 轮旧值/缺失/坏值），全部 `verify-browser` passed。合法值：`realistic`/`slide`/`none` × desktop/mobile × reduced 关/开 各轮都保留预置值，reduced 开启也不被矩阵覆盖，与设置行显示一致。旧默认拟真：预置 `{schemaVersion:1, animationMode:\"realistic\"}` 的 mobile 环境保留 `realistic`，未回落到矩阵的 `slide`。缺失补齐：统一设置无 `pageTurnAnimationMode`、本站独立偏好 `slide` 时补齐为 `slide`，`lang` 仍为 `cn`。坏值修复：统一设置为 `bogus`、本站独立偏好 `none` 时得 `none`；本站独立偏好 `bogus`、无统一旧值、mobile 时回落到矩阵默认 `slide`。执行环境 2026-10-27：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 43756 / vite listener PID 43775，证据 `.tmp/pageflip-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile；reduced-motion 用 CDP `Emulation.setEmulatedMedia({features:[{name:'prefers-reduced-motion', value:'reduce'}]})` 模拟，脚本内 `matchMedia` 复核为 true 后才继续；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "reset-no-revival",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "执行明确重置后重新初始化不会重新导入被重置的旧值",
+      "scope": "本地 Vite，重置后重开阅读器与刷新页面各一次，核对动效值",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/pageflip-reset-desktop-from-slide-aa139986-a5c4-4fc0-befc-f133b0ac62ee/result.json",
+        ".tmp/browser-preflight/pageflip-reset-desktop-from-slide-aa139986-a5c4-4fc0-befc-f133b0ac62ee/measurements.json",
+        ".tmp/browser-preflight/pageflip-reset-desktop-from-slide-aa139986-a5c4-4fc0-befc-f133b0ac62ee/reset-desktop-from-slide.png",
+        ".tmp/browser-preflight/pageflip-reset-mobile-from-none-17e4be26-a2a6-4a3c-8f3a-8de197ebc552/result.json",
+        ".tmp/browser-preflight/pageflip-reset-mobile-from-none-17e4be26-a2a6-4a3c-8f3a-8de197ebc552/measurements.json",
+        ".trellis/tasks/archive/2026-10/10-25-pageflip-toggle-acceptance/validation.md"
+      ],
+      "note": "两轮都先预置非默认值（desktop `slide`、mobile `none`），点「重置全部设置」并在确认弹窗点 CONFIRM，页面重载后重开阅读器：desktop 回到矩阵默认 `realistic`、mobile 回到 `slide`；两轮统一设置同步为对应默认值、`legacyImport: \"blocked\"`、`reset-observation` 带新 `resetId`（desktop `0fb7ae2b-…`、mobile `cee0a404-…`），被重置的旧值没有被重新导入。执行环境 2026-10-27：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 43756 / vite listener PID 43775，证据 `.tmp/pageflip-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile；reduced-motion 用 CDP `Emulation.setEmulatedMedia({features:[{name:'prefers-reduced-motion', value:'reduce'}]})` 模拟，脚本内 `matchMedia` 复核为 true 后才继续；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "three-effects-and-inputs",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "书页模式下三档动效设置下一次翻页即生效，且点击、滚轮、键盘、自动翻页均使用同一有效设置",
+      "scope": "本地 Vite，desktop 与 mobile，三档动效分别配四种翻页输入",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/pageflip-effects-desktop-6a95a535-d2f0-443e-b6b7-03d82ce87780/result.json",
+        ".tmp/browser-preflight/pageflip-effects-desktop-6a95a535-d2f0-443e-b6b7-03d82ce87780/measurements.json",
+        ".tmp/browser-preflight/pageflip-effects-desktop-6a95a535-d2f0-443e-b6b7-03d82ce87780/effects-desktop.png",
+        ".tmp/browser-preflight/pageflip-effects-mobile-c42487d7-9467-44b2-bb42-4537ebdc7e41/result.json",
+        ".tmp/browser-preflight/pageflip-effects-mobile-c42487d7-9467-44b2-bb42-4537ebdc7e41/measurements.json",
+        ".trellis/tasks/archive/2026-10/10-25-pageflip-toggle-acceptance/validation.md"
+      ],
+      "note": "`?pageTotal=40`；desktop `pagesPerScreen=2`、mobile `1`；每档都用 MutationObserver 抓 body 上的 `screen-` 过渡类，`others` 全为空。拟真：点击 `1→2`、`2→1`（上一页 `screen-flip-reverse-*`）、滚轮 `1→4`、键盘 `4→6`/`6→4`，均为 `screen-flip-*`。平移：点击 `4→6`/`6→4`、滚轮 `4→8`、键盘 `8→10`/`10→8`，均为 `screen-slide-next-*`/`screen-slide-prev-*`。无动效：点击 `8→10`/`10→8`、滚轮 `8→14`、键盘 `14→16`/`16→14`，只有 `screen-none-enter-active/-from` 与 `screen-none-leave-active/-from`。mobile 每档另测触摸翻页：拟真 `2→3`、平移 `4→5`、无动效 `6→7`，过渡类与同档其它输入一致。自动翻页：打开开关后 desktop `14 / 40 → 16 / 40`、mobile `7 / 40 → 8 / 40`，过渡类为当前档位，关闭后不再前进。执行环境 2026-10-27：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 43756 / vite listener PID 43775，证据 `.tmp/pageflip-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile；reduced-motion 用 CDP `Emulation.setEmulatedMedia({features:[{name:'prefers-reduced-motion', value:'reduce'}]})` 模拟，脚本内 `matchMedia` 复核为 true 后才继续；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "page-boundary-and-rapid-input",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "首页向前与末页向后不越界，加载未完成与快速连续输入不产生页码错乱、积压或长时间空白",
+      "scope": "本地 Vite，desktop 与 mobile，首末页边界与快速连续翻页输入",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/pageflip-effects-desktop-6a95a535-d2f0-443e-b6b7-03d82ce87780/result.json",
+        ".tmp/browser-preflight/pageflip-effects-desktop-6a95a535-d2f0-443e-b6b7-03d82ce87780/measurements.json",
+        ".tmp/browser-preflight/pageflip-effects-mobile-c42487d7-9467-44b2-bb42-4537ebdc7e41/result.json",
+        ".tmp/browser-preflight/pageflip-effects-mobile-c42487d7-9467-44b2-bb42-4537ebdc7e41/measurements.json",
+        ".trellis/tasks/archive/2026-10/10-25-pageflip-toggle-acceptance/validation.md"
+      ],
+      "note": "边界：两轮都先回到 `1 / 40`，在首页按上一页仍为 `1 / 40`；逐次推进到末页 `40 / 40` 后再按下一页仍为 `40 / 40`，两个方向都不越界。快速连续输入：连续 6 次间隔 60ms 的下一页，desktop `1 / 40 → 8 / 40`（耗时 3317ms）、mobile `1 / 40 → 5 / 40`（耗时 3327ms），随后再按一次仍能继续（desktop `12 / 40`、mobile `7 / 40`），全程无卡死与长时间空白；回合内页码单调前进、未出现回跳。执行环境 2026-10-27：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 43756 / vite listener PID 43775，证据 `.tmp/pageflip-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile；reduced-motion 用 CDP `Emulation.setEmulatedMedia({features:[{name:'prefers-reduced-motion', value:'reduce'}]})` 模拟，脚本内 `matchMedia` 复核为 true 后才继续；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "scroll-mode-unaffected",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "切换卷轴模式后原滚动行为保持，返回书页模式仍使用已确定的动效偏好",
+      "scope": "本地 Vite，book → scroll → book 切换后的滚动与翻页动效核对",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/pageflip-effects-desktop-6a95a535-d2f0-443e-b6b7-03d82ce87780/result.json",
+        ".tmp/browser-preflight/pageflip-effects-desktop-6a95a535-d2f0-443e-b6b7-03d82ce87780/measurements.json",
+        ".tmp/browser-preflight/pageflip-effects-mobile-c42487d7-9467-44b2-bb42-4537ebdc7e41/result.json",
+        ".tmp/browser-preflight/pageflip-effects-mobile-c42487d7-9467-44b2-bb42-4537ebdc7e41/measurements.json",
+        ".trellis/tasks/archive/2026-10/10-25-pageflip-toggle-acceptance/validation.md"
+      ],
+      "note": "书页模式切回滚动后容器为 `album-scroll-view content scroll-mode`，偏好仍 `slide`；在 `.awesome-scroll-view` 的 rect 中心派发 `Input.dispatchMouseEvent` 的 `mouseWheel` 后滚动位置变化：desktop `scrollTop 51407 → 51853`（delta +700，`hit` 为 `IMG.album-item`），mobile 因已接近底部反向 `22341 → 21641`（delta -700）；再切回书页得到 `album-book-view mode-slide content book-mode` 且 `stored: slide`，沿用已确定偏好。执行环境 2026-10-27：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 43756 / vite listener PID 43775，证据 `.tmp/pageflip-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile；reduced-motion 用 CDP `Emulation.setEmulatedMedia({features:[{name:'prefers-reduced-motion', value:'reduce'}]})` 模拟，脚本内 `matchMedia` 复核为 true 后才继续；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "sharing-migration-matrix",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "共享与迁移矩阵在 GM 可用的 EH/EX/NH 环境下逐行成立：合法共享优先、统一旧值先迁入后续站点不覆盖、逐项补缺、坏值修复、重复迁移结果相同、重置防复活",
+      "scope": "真实油猴脚本环境，GM 可用，EH/EX/NH 跨站重开阅读器，动效为被测字段并覆盖语言等其他字段",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/pageflip-platform-baseline-eh-b5433f8e-751b-43e6-a5e3-53fcab07f660/result.json",
+        ".tmp/browser-preflight/pageflip-platform-baseline-eh-b5433f8e-751b-43e6-a5e3-53fcab07f660/measurements.json",
+        ".tmp/browser-preflight/pageflip-platform-eh-set-slide-f4f27bc6-f84e-4eb7-807f-3573736eb96f/result.json",
+        ".tmp/browser-preflight/pageflip-platform-eh-set-slide-f4f27bc6-f84e-4eb7-807f-3573736eb96f/measurements.json",
+        ".tmp/browser-preflight/pageflip-platform-ex-reads-shared-9f6939ed-1d04-4eb5-bbae-c7c389cd4f9c/result.json",
+        ".tmp/browser-preflight/pageflip-platform-ex-reads-shared-9f6939ed-1d04-4eb5-bbae-c7c389cd4f9c/measurements.json",
+        ".tmp/browser-preflight/pageflip-platform-nh-reads-shared-f1c5e8aa-099d-45d5-97b7-07d8fbe5a6de/result.json",
+        ".tmp/browser-preflight/pageflip-platform-nh-reads-shared-f1c5e8aa-099d-45d5-97b7-07d8fbe5a6de/measurements.json",
+        ".tmp/browser-preflight/pageflip-platform-nh-set-none-8289ac37-deae-446d-a183-c4a8e3f2157c/result.json",
+        ".tmp/browser-preflight/pageflip-platform-nh-set-none-8289ac37-deae-446d-a183-c4a8e3f2157c/measurements.json",
+        ".tmp/browser-preflight/pageflip-platform-eh-reads-shared-none-64ed6fee-3106-47d2-b61f-7bb0a36f4513/result.json",
+        ".tmp/browser-preflight/pageflip-platform-eh-reads-shared-none-64ed6fee-3106-47d2-b61f-7bb0a36f4513/measurements.json",
+        ".tmp/browser-preflight/pageflip-platform-eh-restore-realistic-e0b75014-bf53-4fce-a78d-a41e947c7720/result.json",
+        ".tmp/browser-preflight/pageflip-platform-eh-restore-realistic-e0b75014-bf53-4fce-a78d-a41e947c7720/measurements.json",
+        ".tmp/pageflip-matrix.test.cjs",
+        ".tmp/pageflip-matrix.log",
+        ".trellis/tasks/archive/2026-10/10-25-pageflip-toggle-acceptance/validation.md"
+      ],
+      "note": "生产包 7 轮（EH/EX/NH 真实站点、真实 GM 存储）全部 `verify-browser` passed：EH 基线读到「拟真翻页」（共享值为 `realistic`，压过本站镜像 `slide`）；在 EH 经「更多设置 → 翻页动效」写入 `slide` 后，EX 的 `1 / 416` 页面与 NH 的 `1 / 18` 页面都读到「平移翻页」；在 NH 写入 `none` 后，EH 读到「无动效」；最后 EH 还原为「拟真翻页」。各站统一设置状态：EH `done`、NH `done`、EX `blocked`（未迁移，直接按共享值渲染），但有效值一致。迁移矩阵另用 Node 夹具加载真实 `core/store/app.ts`（`.tmp/pageflip-matrix.test.cjs`，8/8 通过）：合法共享优先、共享独立翻页偏好先于本站统一旧值、空共享首站统一旧值迁入并置 `done`、后续站点只补缺、重复迁移幂等（settings 深度相等）、坏值由本站合法旧值修复、GM 降级恢复后共享值优先、重置后旧副本不复活。执行环境 2026-10-28：生产包 `dist/ehunter.iife.js`（445013 B，`npm run build-prod` exit 0，日志 `.tmp/reader-test-eh/build-prod.log`）经 `ehunter-dev-loader` 注入 `http://127.0.0.1:8787/ehunter.iife.js`（`npm run serve:bundle`，node listener PID 67543），真实 EH/EX/NH 站点与 GM 存储；EH 已登录、Tampermonkey 中 `eHunter 3.1.0` 停用、`eHunter (dev loader) 1.0.2` 启用（`.tmp/reader-test-eh/pageflip-prep-check.log`）。",
+      "waiver": null
+    },
+    {
+      "id": "gm-unavailable-origin-isolation",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "GM 不可用时多个 origin 的本地偏好互不影响，无跨站共享假象",
+      "scope": "不加载 GM 能力的环境，多个 origin 分别修改并重开阅读器",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/pageflip-origin-127-set-none-3a6d05b4-e46e-47d0-8b8e-76249c237e98/result.json",
+        ".tmp/browser-preflight/pageflip-origin-127-set-none-3a6d05b4-e46e-47d0-8b8e-76249c237e98/measurements.json",
+        ".tmp/browser-preflight/pageflip-origin-127-set-none-3a6d05b4-e46e-47d0-8b8e-76249c237e98/origin-127-set-none.png",
+        ".tmp/browser-preflight/pageflip-origin-127-expect-none-d343800d-a4ea-401e-9ccb-a92966018c31/result.json",
+        ".tmp/browser-preflight/pageflip-origin-127-expect-none-d343800d-a4ea-401e-9ccb-a92966018c31/measurements.json",
+        ".tmp/browser-preflight/pageflip-origin-localhost-set-slide-8c34d366-7c54-41a3-b65c-ac80904e551e/result.json",
+        ".tmp/browser-preflight/pageflip-origin-localhost-set-slide-8c34d366-7c54-41a3-b65c-ac80904e551e/measurements.json",
+        ".tmp/browser-preflight/pageflip-origin-127-still-none-e2fd3dee-7d22-4b0d-b8e6-36311bd979aa/result.json",
+        ".tmp/browser-preflight/pageflip-origin-127-still-none-e2fd3dee-7d22-4b0d-b8e6-36311bd979aa/measurements.json",
+        ".trellis/tasks/archive/2026-10/10-25-pageflip-toggle-acceptance/validation.md"
+      ],
+      "note": "ego-browser 只有一个 profile 且 CLI 无创建入口，「第二个干净 profile」不可行，经确认改用两个 Vite origin 证明无 GM 时的 origin 隔离。四个场景每轮都先断言 `GM_getValue`/`GM_setValue`/`GM_listValues`/`GM_deleteValue`/`GM_xmlhttpRequest` 全为 `undefined`。场景 1：`http://127.0.0.1:5173` 清空后为 `realistic`，经 UI 选「无动效」→ 本站落盘 `{\"scope\":\"global\",\"animationMode\":\"none\"}`，刷新仍 `none`。场景 2：不清存储重开该 origin，直接读到 `none`。（场景 1、2 记录 `origin: http://127.0.0.1:5173`）场景 3：`http://localhost:5174` 清空后为 `realistic`，经 UI 选「平移翻页」→ 落盘 `slide`，刷新仍 `slide`。场景 4：回到 `127.0.0.1:5173` 重开仍为 `none`，未被 localhost 的 `slide` 覆盖。执行环境 2026-10-27：两个本地 Vite origin `http://127.0.0.1:5173`（npm parent 43756 / listener 43775，证据 `.tmp/pageflip-panel-service-evidence.json`）与 `http://localhost:5174`（npm parent 67270 / listener 67288，证据 `.tmp/pageflip-panel-service-evidence-5174.json`），页面内无任何 `GM_*` 全局，偏好只落各 origin 的 localStorage；ego-browser desktop profile 1200×900 DPR1。",
+      "waiver": null
+    },
+    {
+      "id": "browser-artifact-verified",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "本地两 profile 与平台轮预检产物通过 `verify-browser` 校验",
+      "scope": "跨浏览器操作流程的证据完整性，不替代功能断言",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/pageflip-verify-browser.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T02:05:00+08:00",
+        "endedAt": "2026-10-28T02:05:02+08:00",
+        "log": ".tmp/pageflip-verify-browser.log"
+      },
+      "evidence": [
+        ".tmp/pageflip-verify-browser.sh",
+        ".tmp/pageflip-verify-browser.log",
+        ".trellis/tasks/archive/2026-10/10-25-pageflip-toggle-acceptance/validation.md"
+      ],
+      "note": "`bash .tmp/pageflip-verify-browser.sh` 对 36 份预检产物（4 初始化 + 1 稳定性 + 18 预设/坏值/重置 + 2 动效 + 4 origin + 7 平台）逐个执行 `python3 scripts/acceptance.py verify-browser`，全部返回 `\"status\": \"passed\"`（非 stale，源码与场景脚本指纹与当前一致），脚本 exit 0。另 `node --test .tmp/pageflip-matrix.test.cjs` 8/8 通过、`npm run type-check` exit 0。",
+      "waiver": null
+    }
+  ]
+}

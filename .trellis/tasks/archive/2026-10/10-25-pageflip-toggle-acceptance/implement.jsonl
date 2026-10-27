@@ -1,0 +1,5 @@
+{"file": ".trellis/spec/frontend/features/001-add-pageflip-toggle/spec.md", "reason": "翻页动效的字段、取值与生效规则是验收对照基准"}
+{"file": ".trellis/spec/frontend/features/001-add-pageflip-toggle/quickstart.md", "reason": "本轮要逐条执行的验收步骤"}
+{"file": ".trellis/spec/frontend/decisions/2026-09-18-reader-behavior.md", "reason": "首次初始化矩阵与共享/迁移/重置的决策依据"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "本地轮的服务归属、profile、通知与证据规范"}
+{"file": ".pi/skills/reader-test/SKILL.md", "reason": "平台轮生产包构建与注入步骤"}

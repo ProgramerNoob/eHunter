@@ -3,7 +3,7 @@
   "name": "pageflip-toggle-acceptance",
   "title": "验收 001-add-pageflip-toggle",
   "description": "执行 001-add-pageflip-toggle quickstart 的首次初始化矩阵、三档动效与阅读回归，产出可核验验收记录。",
-  "status": "planning",
+  "status": "completed",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -11,8 +11,8 @@
   "creator": "Warwick",
   "assignee": "Warwick",
   "createdAt": "2026-10-25",
-  "completedAt": null,
-  "branch": null,
+  "completedAt": "2026-10-28",
+  "branch": "master",
   "base_branch": "master",
   "worktree_path": null,
   "commit": null,
@@ -34,7 +34,7 @@
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "36bcb13e1065f13eb9d5a4a2c843fc6d189c70ccc73479989dbcef32b8b57541"
+        "sha256": "deed8c406cd0f54bfb3975c2727788faf399c9447e2dad77dd55cb7e21cf7da6"
       }
     }
   }
