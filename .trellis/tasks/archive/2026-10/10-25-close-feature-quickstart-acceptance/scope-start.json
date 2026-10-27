@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-25-close-feature-quickstart-acceptance",
+  "branch": "master",
+  "head": "6357dab75c0e955458f9d32133f5db4b1233f626",
+  "indexTree": "3a186dd0cccc479e9e4e3c66dde7ebb76b8a6314",
+  "capturedAt": "2026-10-28T04:58:30+08:00",
+  "scopeDigest": "23d5c376d116d2df8f6b1b42865e2195bc45b6307b834f272701c0b7c28b253d",
+  "dirty": {
+    ".trellis/tasks/10-25-close-feature-quickstart-acceptance/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "f56eae0661a181713fd45b2fe0fdedac4cc2644e5f7c1c4ca7c275a2501d147a"
+    }
+  },
+  "untracked": {}
+}

@@ -3,7 +3,7 @@
   "name": "close-feature-quickstart-acceptance",
   "title": "补齐四组功能 quickstart 验收",
   "description": "执行 001-add-pageflip-toggle、001-dockable-panel-layout、001-thumb-expand-modal、002-more-settings-modal 四组 quickstart 中未执行的验收步骤，产出可核验的验收记录，并据实回填 pending-work.md 状态。",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -11,7 +11,7 @@
   "creator": "Warwick",
   "assignee": "Warwick",
   "createdAt": "2026-10-25",
-  "completedAt": null,
+  "completedAt": "2026-10-28",
   "branch": "master",
   "base_branch": "master",
   "worktree_path": null,
@@ -42,7 +42,7 @@
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "596a56913e6538e81fcb557f44012db7e9c37aecd30de1acaf1abc65b2a464e9"
+        "sha256": "346f8df0f2109775cc809b365f188bb3506e509ec728c5f6670f32d5c468c3da"
       }
     }
   }
