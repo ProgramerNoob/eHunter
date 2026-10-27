@@ -1,0 +1,339 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "弹窗交互：顶栏可打开/关闭更多设置，旧二层入口不再出现，关闭后阅读位置保留；六个分类跳转、平滑滚动与高亮正确，窄屏布局可读可操作。",
+    "AC2": "逐分类核对全部既有公开配置（含原高级项）：修改立即生效，重开显示正确，中英日文案可见；阅读模式固定第一位且不可取消/拖拽，其他快捷项可勾选排序，两模式按同一全局顺序过滤。",
+    "AC3": "GitHub 链接与版本号正常；重置先显示明确提示，取消无变化，确认后有成功/失败反馈，缓存与设置按既有范围重置。",
+    "AC4": "共享与迁移九行矩阵在 GM 可用与不可用的真实脚本环境下逐行有结论（合法共享优先、统一旧值先迁入且后续站点不覆盖、逐项补缺不被整体覆盖、重复迁移结果相同、origin 隔离、降级后恢复补缺、重置防复活）；生产脚本的 GM 读写/重置能力与权限声明已核实。",
+    "AC5": "翻页专项：无合法迁移值时按系统减少动态效果与设备取默认，三种已有合法值保留，初始化后切换系统偏好或保存其他设置不改变动效。",
+    "AC6": "放大镜专项：桌面设置与快捷菜单范围一致，任意整数 20–300，快捷 ±10 且边界钳制；尺寸与倍率长期保存，开关仅当页会话继承，视口受限的临时尺寸不写回偏好，移动端保留桌面限制。",
+    "AC7": "桌面与移动两轮本地验收、平台轮均产出通过 `verify-browser` 校验的预检产物，`npm run type-check` 结果与 `summarize` 输出实际记录。"
+  },
+  "checks": [
+    {
+      "id": "dialog-open-close",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "顶栏可打开与关闭更多设置，旧二层入口不再出现，关闭后阅读位置保留",
+      "scope": "本地 Vite，desktop 与 mobile，打开/关闭前后阅读页码与滚动位置对比",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/modal-open-desktop-24012a8d-6e98-4196-9821-6558f8b2dc4a/result.json",
+        ".tmp/browser-preflight/modal-open-mobile-d151a840-c516-45dc-a3d7-5e8a3a88043b/result.json",
+        ".tmp/browser-preflight/modal-open-desktop-24012a8d-6e98-4196-9821-6558f8b2dc4a/modal-open-desktop.png",
+        ".tmp/browser-preflight/modal-open-mobile-d151a840-c516-45dc-a3d7-5e8a3a88043b/modal-open-mobile.png",
+        ".trellis/tasks/archive/2026-10/10-25-more-settings-modal-acceptance/validation.md"
+      ],
+      "note": "顶栏 `.float-content` 首按钮弹出的菜单实测只有 `[\"更多设置\",\"快速预览\",\"下载\"]` 三项、`nestedOptionGroups 0`，旧二层设置入口不再出现；点首项打开 `.ehunter-more-settings-modal`，`×`（`.ehunter-close-btn`）与点击遮罩两条路径都能关闭（`closedByX true`、`closedByBackdrop true`）。弹窗打开时视口中心 `elementFromPoint` 命中弹窗（desktop 为 `ehunter-more-settings-modal`、mobile 为 `ehunter-content`），画布被遮住。阅读位置保留：滚动模式 desktop `scrollTop 0 → 1200` 后开/关弹窗仍为 `1200`、`progress 1 / 40`；书页模式 desktop `1 / 40 → 6 / 40`、mobile `1 / 40 → 4 / 40` 后开/关弹窗页码不变（`bookAfterClose` 与 `bookRound.advanced` 一致）。layout：desktop `panel {x110,y80,w980,h740}`、`nav {x110,y131,w231,h689}`、`content {x341,y131,w749,h689}`；mobile `panel {x0,y0,w390,h844}`、`content {x0,y103,w390,h741}`；两者 `inViewport true`、`contentScrollable true`、`horizontalOverflow 0`，首行「阅读模式」label 与控件均完整可见（`labelFits true`、`controlFits true`、`labelFontPx 14`）。执行环境 2026-10-28：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 92137 / vite listener PID 92155，证据 `.tmp/pageflip-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile，测试集 `?pageTotal=40`；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "dialog-categories",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "六个分类跳转、平滑滚动与高亮正确，窄屏下布局可读可操作",
+      "scope": "本地 Vite，desktop 与 mobile，逐个点击分类项并核对滚动位置与高亮态",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/catjump-fix-desktop-ac051502-720e-4461-8673-16afdb4aa6e6/result.json",
+        ".tmp/browser-preflight/catjump-fix-mobile-42d3c0dd-f826-4a8c-9894-83f1c84acc1a/result.json",
+        ".tmp/browser-preflight/modal-open-desktop-24012a8d-6e98-4196-9821-6558f8b2dc4a/result.json",
+        ".tmp/browser-preflight/modal-open-mobile-d151a840-c516-45dc-a3d7-5e8a3a88043b/result.json",
+        ".tmp/browser-preflight/catjump-fix-desktop-ac051502-720e-4461-8673-16afdb4aa6e6/catjump-fix.png",
+        ".tmp/browser-preflight/catjump-fix-mobile-42d3c0dd-f826-4a8c-9894-83f1c84acc1a/catjump-fix.png",
+        ".trellis/tasks/archive/2026-10/10-25-more-settings-modal-acceptance/validation.md"
+      ],
+      "note": "分类为 6 个（通用、滚动模式、书页模式、快捷设置、快捷键、其他），点击后平滑滚动到组顶且高亮落在被点击分类。desktop（`scrollMax 2836`）依次点击得到 `scrollTop 16 / 528 / 852 / 1553 / 2334 / 2836`，前五组组顶偏移 `0`，末组「其他」因内容高度不足滚到 `scrollMax` 时偏移 `349`，靠「滚到底归最后一组」规则正确高亮；mobile（`scrollMax 2790`）为 `12 / 529 / 852 / 1554 / 2335（偏移 -1）/ 2790（偏移 405）`，高亮逐项正确。手动滚动 desktop `0 / 540 / 880 / 1600 / 2400` 分别高亮通用 / 滚动模式 / 书页模式 / 快捷设置 / 快捷键，滚到底高亮「其他」。本轮初测发现高亮滞后一档、末组无法对齐的缺陷，按独立修复任务 `10-28-fix-more-settings-category-jump`（提交 `8cef307`）修正：判定抽到 `core/model/settingsNavigation.ts` 的 `resolveActiveSettingsCategory`（24px 激活阈值 + `scrollTop >= scrollMax - 1` 归最后一组）与 `resolveSettingsCategoryScrollTop`，组件改用 `getBoundingClientRect` 换算，并对 6 分类补了 `tests/settings-navigation.test.cjs` 回归；上表为修复后复跑。执行环境 2026-10-28：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 92137 / vite listener PID 92155，证据 `.tmp/pageflip-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile，测试集 `?pageTotal=40`；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "dialog-fields-coverage",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "逐分类核对全部既有公开配置（含原高级项）：修改立即生效，重开显示正确，中英日文案可见",
+      "scope": "本地 Vite，快速项与高级项逐字段修改与重开核对，三种语言切换下的文案可见性",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/modal-fields-desktop-925ac077-de9a-4dab-9ebb-6fd5c8caefa8/result.json",
+        ".tmp/browser-preflight/modal-fields-mobile-f8d93c66-b0e4-45fc-a550-71b397c25533/result.json",
+        ".tmp/browser-preflight/modal-i18n-desktop-7c92e53c-cd5f-4b2f-8737-94bbd04e325a/result.json",
+        ".tmp/browser-preflight/modal-i18n-mobile-6c459027-e589-4d76-bbd2-629e063ae9a2/result.json",
+        ".tmp/browser-preflight/modal-fields-desktop-925ac077-de9a-4dab-9ebb-6fd5c8caefa8/modal-fields-desktop.png",
+        ".tmp/browser-preflight/modal-fields-mobile-f8d93c66-b0e4-45fc-a550-71b397c25533/modal-fields-mobile.png",
+        ".tmp/browser-preflight/modal-i18n-desktop-7c92e53c-cd5f-4b2f-8737-94bbd04e325a/modal-i18n-desktop.png",
+        ".tmp/browser-preflight/modal-i18n-mobile-6c459027-e589-4d76-bbd2-629e063ae9a2/modal-i18n-mobile.png",
+        ".trellis/tasks/archive/2026-10/10-25-more-settings-modal-acceptance/validation.md"
+      ],
+      "note": "逐分类核对全部既有公开配置（含原高级项），修改立即生效、重开与刷新后保持。desktop 逐项修改 12 个字段全部 `ok`：加载页数 `3P→5P`、自动换源重试 `on→off`、放大镜倍率 `3x→5x`、放大镜区域 `80px→150px`、页面比例 `80%→90%`、分卷页数 `100P→80P`、页间隔 `70px→100px`、缩略图栏 `off→on`、同屏页数 `1P→3P`、翻页动效 `平移翻页→无动效`、滚轮翻页 `100→150`、翻页频率 `10 sec→30 sec`；关闭重开后 12 处差异全部保持（逐行比对无差异），刷新后再开仍无差异，落盘 `unified-settings.settings` 24 键与界面一致。mobile 复用同一份偏好逐项修改同样即时生效，重开与刷新后零差异（改动 2 项、沿用 10 项）。文案：中文「更多设置」/ 通用·滚动模式·书页模式·快捷设置·快捷键·其他，英文「More settings」/ General·Scroll mode·Book mode·Quick settings·Shortcuts·Other，日文「詳細設定」/ 一般·スクロールモード·ページモード·クイック設定·ショートカット·その他；各组首行（Mode / Page scale / Pages/screen / Page scale / Previous page / Reset cache and data）同步切换，切回中文后分类与初始完全一致（`categoriesMatch true`），落盘 `lang` 依次 `cn / en / jp / cn`。执行环境 2026-10-28：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 92137 / vite listener PID 92155，证据 `.tmp/pageflip-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile，测试集 `?pageTotal=40`；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "dialog-pinned-reading-mode",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "阅读模式固定第一位且不可取消或拖拽，其他快捷项可勾选排序，两阅读模式按同一全局顺序过滤",
+      "scope": "本地 Vite，快捷项列表的取消勾选与拖拽排序，书页与卷轴模式下的过滤结果对比",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/modal-pinned-desktop-cc1f68fc-f9ab-4176-a623-1dade115e751/result.json",
+        ".tmp/browser-preflight/modal-pinned-mobile-e35a3a93-d35d-4485-aa54-db0388a36243/result.json",
+        ".tmp/browser-preflight/modal-pinned-desktop-cc1f68fc-f9ab-4176-a623-1dade115e751/modal-pinned-desktop.png",
+        ".tmp/browser-preflight/modal-pinned-mobile-e35a3a93-d35d-4485-aa54-db0388a36243/modal-pinned-mobile.png",
+        ".trellis/tasks/archive/2026-10/10-25-more-settings-modal-acceptance/validation.md"
+      ],
+      "note": "阅读模式固定第一位且不可取消/拖拽：两条快捷 lane 里都不含阅读模式（`pinnedInLanes 0`、`pinnedDraggable []`），对它派发 dragstart 无任何效果（`storedOrder` 与 lane 布局不变），而 `quickSelection` 与 `quickOrder` 恒以 `readingMode` 开头。拖拽与取消勾选生效：拖「加载页数」到已隐藏 lane 后从已启用列表移除并追加到隐藏列表末尾（`hideLoadNum ok`）；拖「页间隔」回已启用 lane 追加到末尾（`showScrollMargin ok`）；把「语言」拖到「页面比例」前，已启用顺序首项变 `lang`，落盘 `quickOrder` 为 `[\"readingMode\",\"lang\",\"widthScale\",\"volumeSize\",…]`（`moveLangBeforeWidthScale ok`）。两模式过滤：滚动模式顶栏 `[\"阅读模式\",\"语言\",\"页面比例\",\"分卷页数\",\"缩略图栏\",\"页间隔\"]`，书页模式 `[\"阅读模式\",\"语言\",\"同屏页数\",\"阅读方向\",\"页目录\",\"奇偶切换\",\"缩略图栏\"]`；刷新后 lane 顺序与两模式过滤完全保持。执行环境 2026-10-28：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 92137 / vite listener PID 92155，证据 `.tmp/pageflip-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile，测试集 `?pageTotal=40`；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "dialog-links-and-reset",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "GitHub 链接与版本号正常；重置先提示，取消无变化，确认后有成功/失败反馈并按既有范围重置缓存与设置",
+      "scope": "本地 Vite，链接与版本号核对，重置的取消与确认两条路径",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/modal-links-desktop-9335edea-9a1f-47b1-bbb4-b58d1a840c5c/result.json",
+        ".tmp/browser-preflight/modal-links-mobile-453f5002-5637-41bd-9a28-21b84205e816/result.json",
+        ".tmp/browser-preflight/modal-links-desktop-9335edea-9a1f-47b1-bbb4-b58d1a840c5c/modal-links-desktop.png",
+        ".tmp/browser-preflight/modal-links-mobile-453f5002-5637-41bd-9a28-21b84205e816/modal-links-mobile.png",
+        ".trellis/tasks/archive/2026-10/10-25-more-settings-modal-acceptance/validation.md"
+      ],
+      "note": "其他分类四行：版本号 `3.1.0` 与 `package.json` 的 `version` 一致（`versionRowMatchesPackage true`）；Github 行为 `a.ehunter-link[href=\"https://github.com/hanFengSan/eHunter\"][target=\"_blank\"]`；「查看说明和关于」打开 `.simple-dialog`（标题「版本更新说明 v3.1.0」、正文 344 字），关闭后更多设置弹窗仍开。重置先提示：标题「确认清空缓存并重置设置」、正文「该操作会清空缓存并恢复所有设置为默认值，且不可撤销。」、按钮 `取消 / 确定`。取消路径设置与存储完全不变（放大镜 `3x / 80px`、加载页数 `3P`），弹窗关闭、更多设置弹窗仍开。确认路径后有明确结果：页面重载并重新出现 `#ehunter-switch`，重开后设置回默认（`3x / 80px / 3P`，翻页动效按当前规则 desktop `realistic` / mobile `slide`），快捷键恢复 `上一页 [← ↑ A]`、`下一页 [→ ↓ D]`、`更多设置开关 [Shift]`，localStorage 只剩 5 个 `ehunter:` 键且 `unified-settings` 为全新 schemaVersion 3 记录。desktop 与 mobile 结果一致。执行环境 2026-10-28：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 92137 / vite listener PID 92155，证据 `.tmp/pageflip-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile，测试集 `?pageTotal=40`；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "sharing-migration-matrix",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "共享与迁移九行矩阵在 GM 可用的 EH/EX/NH 环境下逐行成立，覆盖合法共享优先、统一旧值先迁入、逐项补缺、坏值修复、重复迁移、降级后恢复补缺与重置防复活",
+      "scope": "真实油猴脚本环境，GM 可用，EH/EX/NH 跨站重开阅读器，以翻页动效、语言、快捷项顺序、放大镜尺寸/倍率为代表字段",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/pageflip-platform-baseline-eh-fc396992-4e5e-4767-aa15-57e4e2e6c72b/result.json",
+        ".tmp/browser-preflight/pageflip-platform-baseline-eh-fc396992-4e5e-4767-aa15-57e4e2e6c72b/measurements.json",
+        ".tmp/browser-preflight/pageflip-platform-eh-set-slide-5979ab9c-7b50-46b9-b023-0dda8d9881b7/result.json",
+        ".tmp/browser-preflight/pageflip-platform-eh-set-slide-5979ab9c-7b50-46b9-b023-0dda8d9881b7/measurements.json",
+        ".tmp/browser-preflight/pageflip-platform-ex-reads-shared-cecde213-4fd5-44b3-a951-9462f8936920/result.json",
+        ".tmp/browser-preflight/pageflip-platform-ex-reads-shared-cecde213-4fd5-44b3-a951-9462f8936920/measurements.json",
+        ".tmp/browser-preflight/pageflip-platform-nh-reads-shared-b9510a1d-6df4-4498-b6b4-a8d68f628fdd/result.json",
+        ".tmp/browser-preflight/pageflip-platform-nh-reads-shared-b9510a1d-6df4-4498-b6b4-a8d68f628fdd/measurements.json",
+        ".tmp/browser-preflight/pageflip-platform-nh-set-none-969c6044-7205-4095-8c9b-e46a6ded6beb/result.json",
+        ".tmp/browser-preflight/pageflip-platform-nh-set-none-969c6044-7205-4095-8c9b-e46a6ded6beb/measurements.json",
+        ".tmp/browser-preflight/pageflip-platform-eh-reads-shared-none-35cbc329-13e6-4a2b-bc98-42fc53d403c6/result.json",
+        ".tmp/browser-preflight/pageflip-platform-eh-reads-shared-none-35cbc329-13e6-4a2b-bc98-42fc53d403c6/measurements.json",
+        ".tmp/browser-preflight/pageflip-platform-eh-restore-realistic-21164470-e3e7-4d83-bc71-0ec4e18cb1df/result.json",
+        ".tmp/browser-preflight/pageflip-platform-eh-restore-realistic-21164470-e3e7-4d83-bc71-0ec4e18cb1df/measurements.json",
+        ".tmp/browser-preflight/pageflip-reset-desktop-from-slide-a950a5f9-f7e1-42bb-ab53-4da0e0f22351/result.json",
+        ".tmp/browser-preflight/pageflip-reset-desktop-from-slide-a950a5f9-f7e1-42bb-ab53-4da0e0f22351/measurements.json",
+        ".tmp/browser-preflight/pageflip-reset-mobile-from-none-e157ce16-302f-4b7c-9696-6bb10b1f18f7/result.json",
+        ".tmp/browser-preflight/pageflip-reset-mobile-from-none-e157ce16-302f-4b7c-9696-6bb10b1f18f7/measurements.json",
+        ".tmp/browser-preflight/pageflip-platform-baseline-eh-fc396992-4e5e-4767-aa15-57e4e2e6c72b/platform-baseline-eh.png",
+        ".tmp/browser-preflight/pageflip-platform-ex-reads-shared-cecde213-4fd5-44b3-a951-9462f8936920/platform-ex-reads-shared.png",
+        ".tmp/browser-preflight/pageflip-platform-nh-set-none-969c6044-7205-4095-8c9b-e46a6ded6beb/platform-nh-set-none.png",
+        ".tmp/browser-preflight/pageflip-platform-eh-reads-shared-none-35cbc329-13e6-4a2b-bc98-42fc53d403c6/platform-eh-reads-shared-none.png",
+        ".tmp/pageflip-matrix.test.cjs",
+        ".tmp/more-settings-matrix.log",
+        ".trellis/tasks/archive/2026-10/10-25-more-settings-modal-acceptance/validation.md"
+      ],
+      "note": "九行矩阵逐行有结论（平台轮串行 + Node 夹具补充边界行）。平台轮：EH 经 UI 写「平移翻页」→ EX 与 NH 打开都读到「平移翻页」（EX 本站 `storedAnimationMode null`、`migration blocked`，NH `null` / `done`）→ NH 经 UI 写「无动效」→ EH 读到「无动效」而本站镜像仍 `slide`（合法共享值优先）→ EH 经 UI 还原「拟真翻页」。`pageflip-reset-desktop/mobile` 覆盖确认重置后回到矩阵默认（desktop `realistic` / mobile `slide`）且 `legacyImport blocked` + `resetId`，不复活旧副本。Node 夹具 `.tmp/pageflip-matrix.test.cjs` 加载真实 `core/store/app.ts`，11/11 通过（`.tmp/more-settings-matrix.log`）：row1 合法共享优先、row2 共享独立翻页偏好先于本站统一旧值、row3 空共享首站统一旧值迁入并置 `done`、row4 后续站点只补缺不覆盖、row5 重复迁移幂等（settings 深相等）、row6 坏值由本站合法旧值修复、row7 GM 降级恢复后共享值优先、row8 重置后旧副本不复活、row9 全源缺字段仅该项回默认（其余 `lang jp` 保留）、row10 无 GM 时重置只作用于本 origin（EH 回 `realistic`、NH 仍 `none`）、row11 修坏值不动其他合法值（`lang jp`、`magnifierZoom 4`、`magnifierAreaSize 137`）。执行环境 2026-10-28：生产包 `dist/ehunter.iife.js`（445279 B，`npm run build-prod` exit 0，日志 `.tmp/reader-test-eh/build-prod.log`）经 `ehunter-dev-loader` 注入 `http://127.0.0.1:8787/ehunter.iife.js`（`npm run serve:bundle`，node listener PID 67543），真实 EH/EX/NH 站点与 GM 存储；EH 已登录、Tampermonkey 中 `eHunter 3.1.0` 停用、`eHunter (dev loader) 1.0.2` 启用（`.tmp/reader-test-eh/pageflip-prep-check.log`）。",
+      "waiver": null
+    },
+    {
+      "id": "gm-unavailable-origin-isolation",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "GM 不可用时各 origin 本地偏好互不影响，无跨站共享假象",
+      "scope": "不加载 GM 能力的环境，多 origin 分别修改并重开阅读器",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/pageflip-origin-127-set-none-eee3dcdb-6c00-4361-9016-f80b0a447bcd/result.json",
+        ".tmp/browser-preflight/pageflip-origin-127-set-none-eee3dcdb-6c00-4361-9016-f80b0a447bcd/measurements.json",
+        ".tmp/browser-preflight/pageflip-origin-127-expect-none-2771081c-845d-46c7-82e8-806db053c8da/result.json",
+        ".tmp/browser-preflight/pageflip-origin-127-expect-none-2771081c-845d-46c7-82e8-806db053c8da/measurements.json",
+        ".tmp/browser-preflight/pageflip-origin-localhost-set-slide-8c3daee0-e359-4edc-85a4-9453558d881b/result.json",
+        ".tmp/browser-preflight/pageflip-origin-localhost-set-slide-8c3daee0-e359-4edc-85a4-9453558d881b/measurements.json",
+        ".tmp/browser-preflight/pageflip-origin-127-still-none-ddd19365-c889-4b3c-8f85-e48cec2ac032/result.json",
+        ".tmp/browser-preflight/pageflip-origin-127-still-none-ddd19365-c889-4b3c-8f85-e48cec2ac032/measurements.json",
+        ".tmp/browser-preflight/pageflip-origin-127-set-none-eee3dcdb-6c00-4361-9016-f80b0a447bcd/origin-127-set-none.png",
+        ".tmp/browser-preflight/pageflip-origin-localhost-set-slide-8c3daee0-e359-4edc-85a4-9453558d881b/origin-localhost-set-slide.png",
+        ".trellis/tasks/archive/2026-10/10-25-more-settings-modal-acceptance/validation.md"
+      ],
+      "note": "ego-browser 只提供单个 profile 且 CLI 无创建入口，「第二个干净 profile」不可行，经确认改用两个 Vite origin 证明无 GM 时的 origin 隔离。四个场景每轮先断言 `GM_getValue`/`GM_setValue`/`GM_listValues`/`GM_deleteValue`/`GM_xmlhttpRequest` 全为 `undefined`；`127.0.0.1:5173` 清空后为 `realistic`，经 UI 选「无动效」落盘 `animationMode none` 且刷新仍 `none`；不清存储重开直接读到 `none`；`localhost:5174` 清空后为 `realistic`，选「平移翻页」落盘 `slide` 且刷新仍 `slide`；回到 127 重开仍 `none`，未被 localhost 的 `slide` 覆盖。执行环境 2026-10-28：两个本地 Vite origin `http://127.0.0.1:5173`（npm parent 92137 / listener 92155）与 `http://localhost:5174`（npm parent 16176 / listener 16194，证据 `.tmp/pageflip-panel-service-evidence-5174.json`），页面内无任何 `GM_*` 全局，偏好只落各 origin 的 localStorage；ego-browser desktop profile 1200×900 DPR1。",
+      "waiver": null
+    },
+    {
+      "id": "gm-permissions-audit",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "生产脚本的 GM 读写/重置能力与权限声明一致，单个坏值修复不改变其余合法值",
+      "scope": "生产包油猴元数据的 grant/connect 与存储读写调用点核对",
+      "method": "inspection",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".pi/skills/reader-test/ehunter-dev-loader.user.js",
+        "dist/ehunter.iife.js",
+        "vite.config.prod.ts",
+        ".tmp/reader-test-eh/pageflip-prep-check.log",
+        ".tmp/reader-test-eh/pageflip-tampermonkey-dashboard.png",
+        ".trellis/tasks/archive/2026-10/10-25-more-settings-modal-acceptance/validation.md"
+      ],
+      "note": "生产包 `dist/ehunter.iife.js` 头部（由 `vite.config.prod.ts` 的 userscript 头生成）声明 `@grant GM_xmlhttpRequest / GM_download / GM_getValue / GM_setValue / GM_deleteValue / GM_listValues` 共 6 项，`@match` 覆盖 `exhentai.org`、`e-hentai.org`、`nhentai.net`，`@version 3.1.0`；开发 loader `.pi/skills/reader-test/ehunter-dev-loader.user.js` 声明同样 6 项 `@grant`，经 `GM_xmlhttpRequest` 取 bundle 后 `eval`，与被测脚本同沙箱共享 `GM_*`。平台轮中这三个站点内的设置读写、跨站共享与重置均实际生效，未出现权限缺失导致的降级。`src/platform/base/service/PlatformService.js:198` 的 `storageClear` 要求 `GM_listValues` 与 `GM_deleteValue` 都存在、`GM_listValues()` 返回数组且每个匹配键 `GM_deleteValue` 不抛错才判定 GM 通道清理成功，本地通道始终尝试清理，返回 `gmCleared && localCleared`；重置轮观察到 `ehunter:` 键被清空后由新记录重建，说明两条通道都实际执行。Tampermonkey 中 `eHunter 3.1.0` 为 `enabler_disabled`、`eHunter (dev loader) 1.0.2` 为 `enabler_enabled`，被测对象即生产包 bundle。审计手段：阅读 `vite.config.prod.ts` 与两处用户脚本头 + 浏览器 Tampermonkey 管理页取证 + 平台轮实际读写行为互证。",
+      "waiver": null
+    },
+    {
+      "id": "pageflip-init-specialty",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "翻页专项：无合法迁移值时按系统减少动态效果与设备取默认，三种已有合法值保留，初始化后切换系统偏好或保存其他设置不改变动效",
+      "scope": "本地 Vite 或平台轮，按 001-add-pageflip-toggle quickstart 首次初始化矩阵执行",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/pageflip-init-desktop-d0862cd3-a303-4250-b2e0-1c88b0f109dc/result.json",
+        ".tmp/browser-preflight/pageflip-init-desktop-d0862cd3-a303-4250-b2e0-1c88b0f109dc/measurements.json",
+        ".tmp/browser-preflight/pageflip-init-mobile-f791cb0b-2e1c-4b13-8a95-7390ffe03f21/result.json",
+        ".tmp/browser-preflight/pageflip-init-mobile-f791cb0b-2e1c-4b13-8a95-7390ffe03f21/measurements.json",
+        ".tmp/browser-preflight/pageflip-init-desktop-reduced-70f9b160-1f6c-47b0-98c0-b5b7c40c3f79/result.json",
+        ".tmp/browser-preflight/pageflip-init-desktop-reduced-70f9b160-1f6c-47b0-98c0-b5b7c40c3f79/measurements.json",
+        ".tmp/browser-preflight/pageflip-init-mobile-reduced-701b9956-b952-418d-8974-53902472be24/result.json",
+        ".tmp/browser-preflight/pageflip-init-mobile-reduced-701b9956-b952-418d-8974-53902472be24/measurements.json",
+        ".tmp/browser-preflight/pageflip-stability-desktop-2dd1f58c-96f7-4b6d-a096-22355e10616c/result.json",
+        ".tmp/browser-preflight/pageflip-stability-desktop-2dd1f58c-96f7-4b6d-a096-22355e10616c/measurements.json",
+        ".tmp/browser-preflight/pageflip-preset-legacy-default-realistic-mobile-db59e0c0-3c12-41fb-9c60-40bc3b5ed24a/result.json",
+        ".tmp/browser-preflight/pageflip-preset-legacy-default-realistic-mobile-db59e0c0-3c12-41fb-9c60-40bc3b5ed24a/measurements.json",
+        ".tmp/browser-preflight/pageflip-preset-realistic-desktop-off-bef23b46-cd74-4f4a-b37b-795dbce7e069/result.json",
+        ".tmp/browser-preflight/pageflip-preset-realistic-desktop-off-bef23b46-cd74-4f4a-b37b-795dbce7e069/measurements.json",
+        ".tmp/browser-preflight/pageflip-preset-none-desktop-reduce-ed1296bf-83d5-4568-9d38-1f43a875866c/result.json",
+        ".tmp/browser-preflight/pageflip-preset-none-desktop-reduce-ed1296bf-83d5-4568-9d38-1f43a875866c/measurements.json",
+        ".tmp/browser-preflight/pageflip-missing-unified-legacy-slide-2b8b91db-3c0e-4fbb-908d-d14336cc4f73/result.json",
+        ".tmp/browser-preflight/pageflip-missing-unified-legacy-slide-2b8b91db-3c0e-4fbb-908d-d14336cc4f73/measurements.json",
+        ".tmp/browser-preflight/pageflip-bad-unified-legacy-none-1dd7c3f5-a2d0-47b7-81e6-a52a2c6e7b35/result.json",
+        ".tmp/browser-preflight/pageflip-bad-unified-legacy-none-1dd7c3f5-a2d0-47b7-81e6-a52a2c6e7b35/measurements.json",
+        ".tmp/browser-preflight/pageflip-bad-standalone-falls-back-to-matrix-66a6eb14-e1ab-438d-b651-ae39b3a15f22/result.json",
+        ".tmp/browser-preflight/pageflip-bad-standalone-falls-back-to-matrix-66a6eb14-e1ab-438d-b651-ae39b3a15f22/measurements.json",
+        ".tmp/browser-preflight/pageflip-init-desktop-d0862cd3-a303-4250-b2e0-1c88b0f109dc/init-desktop.png",
+        ".tmp/browser-preflight/pageflip-init-mobile-f791cb0b-2e1c-4b13-8a95-7390ffe03f21/init-mobile.png",
+        ".tmp/browser-preflight/pageflip-init-desktop-reduced-70f9b160-1f6c-47b0-98c0-b5b7c40c3f79/init-desktop-reduced.png",
+        ".tmp/browser-preflight/pageflip-init-mobile-reduced-701b9956-b952-418d-8974-53902472be24/init-mobile-reduced.png",
+        ".tmp/browser-preflight/pageflip-stability-desktop-2dd1f58c-96f7-4b6d-a096-22355e10616c/stability-desktop.png",
+        ".trellis/tasks/archive/2026-10/10-25-more-settings-modal-acceptance/validation.md"
+      ],
+      "note": "无合法迁移值时按环境取默认：desktop `realistic`（容器 `mode-realistic`、首翻 `screen-flip-*`）、mobile `slide`（`mode-slide`、`screen-slide-next-*`），两者在 reduced-motion 开启时均为 `none`（`mode-none`、只出现 `screen-none-enter-*`/`screen-none-leave-*` 无 `-to`）；四轮设置行选项均为 `[\"拟真翻页\",\"平移翻页\",\"无动效\"]`。三种已有合法值保留：`realistic / slide / none` × desktop/mobile × reduced 关/开 共 12 轮预置值全部保留；旧记录 `{schemaVersion:1, animationMode:\"realistic\"}` 在 mobile 上仍保留 `realistic`，未回落到矩阵 `slide`。缺失与坏值按本站合法旧值优先补齐：统一设置缺 `pageTurnAnimationMode` + 独立偏好 `slide` → 得 `slide`；统一设置坏值 `bogus` + 独立偏好 `none` → 得 `none`；独立偏好坏值 `bogus` 且无统一值时回落矩阵（mobile 得 `slide`）。初始化后切换系统 reduced-motion（false→true）不改当前 `realistic`；改语言为 `en` 后刷新、换参数（`?pageTotal=30&round=2`）重开仍 `realistic`。执行环境 2026-10-28：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 92137 / vite listener PID 92155，证据 `.tmp/pageflip-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile，测试集 `?pageTotal=40`；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "magnifier-specialty",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "放大镜专项：桌面设置与快捷菜单范围一致，任意整数 20–300，快捷 ±10 且边界钳制，尺寸与倍率长期保存、开关仅当页会话继承、临时尺寸不写回偏好，移动端保留桌面限制",
+      "scope": "本地 Vite，desktop 与 mobile，按 001-add-pageview-magnifier quickstart 执行",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/magnifier-desktop-5c954ca9-0343-479e-b7f8-e6720b27e14c/result.json",
+        ".tmp/browser-preflight/magnifier-mobile-0a26d95e-9d9e-419b-97bf-e1e92560b9f8/result.json",
+        ".tmp/browser-preflight/magnifier-mobile-0a26d95e-9d9e-419b-97bf-e1e92560b9f8/magnifier-mobile.png",
+        ".trellis/tasks/archive/2026-10/10-25-more-settings-modal-acceptance/validation.md"
+      ],
+      "note": "桌面：默认行 `3x / 80px` 且与存储一致；菜单 `[\"打开放大镜\",\"原图\"]`（书页模式另有「奇偶切换」），开启后参考框 80×80、镜头 240×240（3 倍），镜头阴影含主题绿 `rgb(40,175,96)` 2px 内描边 + `rgba(40,175,96,0.8)` 1px 外描边 + `rgba(0,0,0,0.35)` 投影，参考框白 30% 背景 + 70% 白边框，与 spec 的视觉约束一致。任意整数 20–300 原样生效（`21/27/83/295/299` → 同值 px）；快捷 ±10 为 `83→93→83`，`27` 时「缩小」禁用、`295→300` 时「增大」禁用；倍率 2/3/4/5 逐档推进且 2 与 5 时对应按钮禁用。越界与非整数不落盘：`19`/`301` 回退到输入前值、`80.5`/`abc` → `80px`，`storedAfterInvalid` 仍为 `{5,80}`。137/4 时参考框 137×137、镜头 548×548；切书页无镜头残留且进度不变；刷新后 `enabled false` 而 `stored {4,137}`（尺寸倍率长期保存、开关仅当页）；离开 PageView 后镜头与参考框消失但开启状态保持。视口受限（200/5）：充足时镜头 717×717、参考框 143×143，缩到 1200×560 后镜头 377×377、参考框 75×75，恢复后回 717×717/143×143，`constrainedStored` 与 `restoredStored` 均为 `{5,200}`（临时尺寸不写回）。移动：`pointer {coarse:true, touch:true, maxTouchPoints:5}`；滚动模式长按菜单只有 `[\"原图\"]`、书页模式中央单击/长按为 `[\"原图\",\"奇偶切换\"]`，均无放大镜入口、无镜头（`lens 0`）；滑动仍滚动（`0 → 365`、`1 / 40 → 2 / 40`），书页边缘单击仍翻页（`2 / 40 → 3 / 40`），与 `showMagnifierToggleAction = isDesktopPointer` 的设计一致。已知差异：`PopSlider` 越界提示弹窗在自动化读取前已被关闭，未留下截图，但读数回退到输入前值已证明越界被拒绝。执行环境 2026-10-28：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 92137 / vite listener PID 92155，证据 `.tmp/pageflip-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile，测试集 `?pageTotal=40`；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "type-check",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "`npm run type-check` 通过",
+      "scope": "仓库当前工作树",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "type-check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T04:51:00+08:00",
+        "endedAt": "2026-10-28T04:51:40+08:00",
+        "log": ".tmp/more-settings-type-check.log"
+      },
+      "evidence": [
+        ".tmp/more-settings-type-check.log",
+        "package.json",
+        ".trellis/tasks/archive/2026-10/10-25-more-settings-modal-acceptance/validation.md"
+      ],
+      "note": "`npm run type-check` exit 0（`vue-tsc` 通过），日志 `.tmp/more-settings-type-check.log`；本轮未修改产品代码，唯一的产品改动来自并行修复任务 `10-28-fix-more-settings-category-jump`（`core/model/settingsNavigation.ts`、`core/components/MoreSettingsDialog.vue`、`tests/settings-navigation.test.cjs`、`package.json`），该任务自身已跑过 `npm run check`（含 type-check / 单测 / 生产构建 / 文档检查）。另 `node --test .tmp/pageflip-matrix.test.cjs` 11/11 通过（`.tmp/more-settings-matrix.log`）。",
+      "waiver": null
+    },
+    {
+      "id": "browser-artifact-verified",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "桌面与移动两轮本地轮、平台轮预检产物通过 `verify-browser` 校验",
+      "scope": "跨浏览器操作流程的证据完整性，不替代功能断言",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/more-settings-verify-browser.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T04:56:00+08:00",
+        "endedAt": "2026-10-28T04:56:30+08:00",
+        "log": ".tmp/more-settings-verify-browser.log"
+      },
+      "evidence": [
+        ".tmp/more-settings-verify-browser.sh",
+        ".tmp/more-settings-verify-browser.log",
+        ".tmp/more-settings-fresh-dirs.json",
+        ".trellis/tasks/archive/2026-10/10-25-more-settings-modal-acceptance/validation.md"
+      ],
+      "note": "`bash .tmp/more-settings-verify-browser.sh` 对 50 份预检产物（14 份本组弹窗/分类/快捷项/链接/放大镜轮 + 36 份翻页专项复用轮）逐个执行 `python3 scripts/acceptance.py verify-browser`，全部返回 `\"status\": \"passed\"`（非 stale，源码与场景脚本指纹与当前一致），脚本 exit 0。本地轮覆盖 desktop 与 mobile 两个 profile，平台轮覆盖 EH/EX/NH 生产包，origin 隔离轮覆盖两个本地 origin。",
+      "waiver": null
+    }
+  ]
+}

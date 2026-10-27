@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-25-more-settings-modal-acceptance",
+  "branch": "master",
+  "head": "acbad6759125f9f3d85495872d14e36c9782dd91",
+  "indexTree": "62be276db55ec6411798e8c588d4b5c1a12e54e9",
+  "capturedAt": "2026-10-28T04:55:42+08:00",
+  "scopeDigest": "8ea915560097976e0bc2255e9231cbbe166ba0794b7421322f1c280e1b340132",
+  "dirty": {
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/acceptance.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "4de5540e7a945bd5f059c35b58cd059e40357358c5f8037de16f2fa018502948"
+    },
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "5c234f947ad62344ffee6234882cbf751ffbbdf83650dd79c2d8cd211a20510c"
+    },
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "b13f52d84f80bb965d478cc90a9439e721a1848a1a2a622907a304eb3d2c6ad3"
+    },
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "015e831d015e436f3a231b6ec12269a7c2e1e22d8f89abde37863635374eb6e3"
+    },
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "38b71040c2b10f516b2c13ad1efb6d101b6e52b2c51c387ac8321e50f857f928"
+    }
+  },
+  "untracked": {
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/implement.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "182270876d338405b6b801b2d953cc65b190066f96bc9d98367fdaeb96d80a39"
+    },
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/validation.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "bcff05c2640bc90e76ab505f37d74ce281168b208943380490ba609d283ad571"
+    }
+  }
+}

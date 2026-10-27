@@ -1,0 +1,7 @@
+{"file": ".trellis/spec/frontend/features/002-more-settings-modal/spec.md", "reason": "本轮验收的 FR/SC 对照基准"}
+{"file": ".trellis/spec/frontend/features/002-more-settings-modal/quickstart.md", "reason": "本轮要逐条执行的验收步骤"}
+{"file": ".trellis/spec/frontend/features/001-add-pageflip-toggle/quickstart.md", "reason": "AC5 翻页专项依赖首次初始化矩阵"}
+{"file": ".trellis/spec/frontend/features/001-add-pageview-magnifier/quickstart.md", "reason": "AC6 放大镜专项执行步骤"}
+{"file": ".trellis/spec/frontend/decisions/2026-09-18-reader-behavior.md", "reason": "共享/迁移/重置与默认值决策依据"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "本地轮服务归属、profile、证据与收尾规范"}
+{"file": ".pi/skills/reader-test/SKILL.md", "reason": "平台轮生产构建与注入步骤"}
