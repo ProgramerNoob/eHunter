@@ -3,7 +3,7 @@
   "name": "thumb-expand-modal-acceptance",
   "title": "验收 001-thumb-expand-modal",
   "description": "执行 001-thumb-expand-modal quickstart 的浮动入口、弹窗密度、分页跳转与边界回归，产出可核验验收记录。",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -11,7 +11,7 @@
   "creator": "Warwick",
   "assignee": "Warwick",
   "createdAt": "2026-10-25",
-  "completedAt": null,
+  "completedAt": "2026-10-27",
   "branch": "master",
   "base_branch": "master",
   "worktree_path": null,
@@ -34,7 +34,7 @@
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "f7f6ead1776af3a2aa763935464619f09d442c2bc4bd301df7d9a382ebcbad66"
+        "sha256": "4817c2a87856af0cfc9b787d14463aca1727cca2b095e1cc2d18a02ddc43ba2a"
       }
     }
   }

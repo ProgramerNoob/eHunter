@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-25-thumb-expand-modal-acceptance",
+  "branch": "master",
+  "head": "05b5225e5b9913ab765fa1152a539f753a11cb00",
+  "indexTree": "18aa7c084e910a36abbe74b3ea0d0b63ee7e1344",
+  "capturedAt": "2026-10-27T23:49:41+08:00",
+  "scopeDigest": "61779361cf9039bcd2ebc3532dbff36e261540c004a191f22aac211c7a8c773a",
+  "dirty": {
+    ".trellis/tasks/10-25-thumb-expand-modal-acceptance/acceptance.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "dc9ebf60144e10d18b78011fc727659cc78ad5fe165dc3f57c43c930228555ed"
+    },
+    ".trellis/tasks/10-25-thumb-expand-modal-acceptance/implement.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "d2e3dee697f9ac57660c1b8ef9fccf669cafeb0aa1bc12751ad16c2d0752573d"
+    },
+    ".trellis/tasks/10-25-thumb-expand-modal-acceptance/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "ef0b7bc20d002bce4c37f14df38561cb0f9bcd225bfb24cff7c91032f20366ad"
+    },
+    ".trellis/tasks/10-25-thumb-expand-modal-acceptance/scope-start.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "de3898f00594b8d374701e94ecc4e7211d5605014c985aa062652b10f6bf38e3"
+    },
+    ".trellis/tasks/10-25-thumb-expand-modal-acceptance/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "d0cb5f7e560092bb062d45fb2e1d3abeb8da8f939fadfc3674a223b6bef4fd1c"
+    },
+    ".trellis/tasks/10-25-thumb-expand-modal-acceptance/validation.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "520ea42ca45e668de16a8d9dc3e27527030a65694a6bf352e14f50c304db8a94"
+    }
+  },
+  "untracked": {}
+}
