@@ -18,9 +18,10 @@
 - `scripts/test_scope_gate.py` 的 `ScopeGateFixture.setUp()`——把全部 `GIT_*` 变量临时弹出环境并在 `addCleanup` 里复原；
 - `tests/archive-fallback.test.sh`——开头用 POSIX 写法（`env | sed`）清掉 `GIT_*`，并在清理后断言环境里不再有 `GIT_*`，fixture 因此只操作自己的索引。
 
-别用 bash 内建 `compgen -e` 枚举变量：它只在 bash 下存在，`dash` 里会报 `compgen: not found`，命令替换为空使整个循环静默跳过，变量原封不动而脚本仍以 0 退出——这类失效不会让任何断言变红。
+别用 bash 内建 `compgen -e` 枚举变量：它只在 bash 下存在，`dash` 里会报 `compgen: not found`，命令替换为空使整个循环静默跳过，变量原封不动而脚本仍以 0 退出——这类失效不会让任何断言变红。`tests/archive-fallback.test.sh` 因此自带一条清理后断言，作为不依赖解释器探测的主守卫；`scripts/test_scope_gate.py` 的 dash 用例在未安装 dash 的机器上会 skip，不能当成唯一防线。
 
 同类 fixture 也要遵循同一规则，别让子进程继承 hook 的索引变量。`scripts/test_scope_gate.py` 的 `InheritedGitEnvironmentTests` 同时守这两条。
+
 已经出现幽灵条目时，先确认路径确实不该被跟踪，再单独移除：
 
 ```bash
