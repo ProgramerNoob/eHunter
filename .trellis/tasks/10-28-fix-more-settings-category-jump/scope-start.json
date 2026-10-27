@@ -1,0 +1,88 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-28-fix-more-settings-category-jump",
+  "branch": "master",
+  "head": "39500e093a89acd78436bc70cfbd367efba2d73f",
+  "indexTree": "524d381143d4044b86c506f7b63d4e3b5fb48656",
+  "capturedAt": "2026-10-28T03:34:02+08:00",
+  "scopeDigest": "ebe549378157ea8e4281c79069e714a1cfeb1c02911e105384530bf063a16347",
+  "dirty": {
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "5c234f947ad62344ffee6234882cbf751ffbbdf83650dd79c2d8cd211a20510c"
+    },
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "b13f52d84f80bb965d478cc90a9439e721a1848a1a2a622907a304eb3d2c6ad3"
+    },
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "615b1affbe515f7fe574d7a6613bfc71a1b8faacebf2ac088d102ec293d0c7f6"
+    },
+    "core/components/MoreSettingsDialog.vue": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "0307285b0f9e1615801bfb2aaccf45d59821903636f0ea877f4693f3532986ee"
+    },
+    "package.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "b7508d7206c1ac7867622ccb15a4fe73680ed4bf25e16d5340a454d6ab95a515"
+    }
+  },
+  "untracked": {
+    ".trellis/tasks/10-25-more-settings-modal-acceptance/implement.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "87ee39b67611e2abb8eb265abaefc7756e48fda13769ab7629e1f0973b5e600d"
+    },
+    ".trellis/tasks/10-28-fix-more-settings-category-jump/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "5ef1b39d3bf3edd5920ab2f87788ddb0977ab132200b9df19856678766b2be0c"
+    },
+    ".trellis/tasks/10-28-fix-more-settings-category-jump/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "74d9b7a81b7293c81ae73f015b3ab2eb65a6b17f80e0e88885a98c2cbe39b508"
+    },
+    ".trellis/tasks/10-28-fix-more-settings-category-jump/implement.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e6158a8d49e6315fff89fa05de496eef08870977ed1f780715a5e8a577dfb6ed"
+    },
+    ".trellis/tasks/10-28-fix-more-settings-category-jump/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "18165991ffc3692f2612e611713b63dce5cdc9cef9adf1bbbf57594ea1f20043"
+    },
+    ".trellis/tasks/10-28-fix-more-settings-category-jump/scope-start.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "963a02518be48012b2eb233e216ddefcabf2a9cda6e761bbd1ec6c85a57c8f7a"
+    },
+    ".trellis/tasks/10-28-fix-more-settings-category-jump/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "8e63d1022040c96b9315f43e97b419f9d003ca2aab422f57141b406d0b714f2f"
+    },
+    ".trellis/tasks/10-28-fix-more-settings-category-jump/validation.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "23b6f8518c157158890a696bd231d39dc1fa1b086481a7960c321687e6bbe67f"
+    },
+    "core/model/settingsNavigation.ts": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "ce5a114708b9dbf224dd72b9582ea43bb06534d749a7ba78d41449d77c0739a3"
+    },
+    "tests/settings-navigation.test.cjs": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "1d4777715244e9377a20f5918f8c2e3275a95cd40ac91f593d55e6e9c39bc85d"
+    }
+  }
+}

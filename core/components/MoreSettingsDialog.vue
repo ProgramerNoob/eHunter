@@ -248,6 +248,7 @@ import SimpleDialog from './widget/SimpleDialog.vue'
 import { i18n } from '../store/i18n'
 import { store, storeAction, settingsCategories, quickSettingOptions, settingFieldMap, shortcutActionDefinitions, shortcutKeyCandidates, type ShortcutActionId } from '../store/app'
 import { getFieldValue, setFieldValue, getDropList, getNumList, getNumSuffix, getDialogFieldIds } from '../store/settingFieldRuntime'
+import { resolveActiveSettingsCategory, resolveSettingsCategoryScrollTop } from '../model/settingsNavigation'
 
 const contentRef = ref<HTMLElement | null>(null)
 const generalRef = ref<HTMLElement | null>(null)
@@ -368,42 +369,55 @@ function getCategoryRef(category: string): HTMLElement | null {
     }
 }
 
+function contentScrollMax(content: HTMLElement): number {
+    return content.scrollHeight - content.clientHeight
+}
+
+function categorySections(content: HTMLElement) {
+    const base = content.getBoundingClientRect().top
+    const refs: [string, HTMLElement | null][] = [
+        ['general', generalRef.value],
+        ['scroll', scrollRef.value],
+        ['book', bookRef.value],
+        ['quick', quickRef.value],
+        ['shortcuts', shortcutsRef.value],
+        ['other', otherRef.value],
+    ]
+    return refs
+        .filter(([, elem]) => !!elem)
+        .map(([id, elem]) => ({
+            id,
+            offsetTop: (elem as HTMLElement).getBoundingClientRect().top - base + content.scrollTop,
+        }))
+}
+
 function scrollToCategory(category: any) {
     storeAction.setActiveSettingsCategory(category)
     const target = getCategoryRef(category)
-    if (!target || !contentRef.value) {
+    const content = contentRef.value
+    if (!target || !content) {
         return
     }
-    const containerRect = contentRef.value.getBoundingClientRect()
-    const targetRect = target.getBoundingClientRect()
-    const nextTop = contentRef.value.scrollTop + (targetRect.top - containerRect.top)
-    contentRef.value.scrollTo({
-        top: Math.max(0, nextTop),
+    const targetOffsetTop = categorySections(content).find((item) => item.id === category)?.offsetTop ?? 0
+    const nextTop = resolveSettingsCategoryScrollTop(targetOffsetTop, contentScrollMax(content))
+    content.scrollTo({
+        top: nextTop,
         behavior: 'smooth',
     })
 }
 
 function onContentScroll() {
-    if (!contentRef.value) {
+    const content = contentRef.value
+    if (!content) {
         return
     }
-    const top = contentRef.value.scrollTop
-    const mapping = [
-        { id: 'general', elem: generalRef.value },
-        { id: 'scroll', elem: scrollRef.value },
-        { id: 'book', elem: bookRef.value },
-        { id: 'quick', elem: quickRef.value },
-        { id: 'shortcuts', elem: shortcutsRef.value },
-        { id: 'other', elem: otherRef.value },
-    ]
-    let active: any = 'general'
-    for (const item of mapping) {
-        if (item.elem && top + 20 >= item.elem.offsetTop) {
-            active = item.id
-        }
-    }
-    if (active !== store.activeSettingsCategory) {
-        storeAction.setActiveSettingsCategory(active)
+    const active = resolveActiveSettingsCategory(
+        content.scrollTop,
+        categorySections(content),
+        contentScrollMax(content),
+    )
+    if (active && active !== store.activeSettingsCategory) {
+        storeAction.setActiveSettingsCategory(active as any)
     }
 }
 
