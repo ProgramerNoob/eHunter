@@ -35,7 +35,7 @@
 
 | 检查 | 命令 | 结果 | 日志 |
 | --- | --- | --- | --- |
-| AC1 + AC1b | `bash .tmp/r2-ac-checks.sh` | 12 项全 ok，`main()` 子命令集合 `{summarize, validate, archive, run}` 与 spec 一致 | `.tmp/r2-ac-checks.log` |
+| AC1 + AC1b | 一次性取证脚本（已随 `.tmp` 清理删除） | 12 项全 ok，`main()` 子命令集合 `{summarize, validate, archive, run}` 与 spec 一致 | `.tmp/r2-ac-checks.log` |
 | AC2 | 同上 + `npm run check` | 两份配置引用同一常量，`sass-silence.config.mjs` 在 `INPUTS` 里，`DEPRECATION WARNING` 计数 0 | `.tmp/r2-check.log` |
 | AC3 | `npm run tmp:report -- --json` | `readFailures: {count, reasons, sample}` 两路可见；临时把子目录 `chmod 000` 后得 `{"count":1,"reasons":["EACCES x1"]}`，退出码仍 0 | `.tmp/r2-tmp-report.log` |
 | AC4 | `bash scripts/archive-fallback.sh 10-27-env-retro-followups --dry-run` | `core/**` 展开为 100 个已跟踪文件；`scripts/*.py` 展开为 9 个；空匹配告警逻辑用假 task.json 验证（`scripts/*.nomatch` 与 `core/**/*.nope` 都触发告警） | `.tmp/r2-archive-dryrun.log` |
