@@ -1,0 +1,1 @@
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "自检依据：测试必须在生产路径改变时变红、文档只描述当前状态、验收记录协议"}

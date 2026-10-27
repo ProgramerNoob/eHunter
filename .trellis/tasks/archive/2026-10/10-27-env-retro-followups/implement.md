@@ -10,7 +10,7 @@
 1. **R1 `.tmp` 报告**：新建 `scripts/tmp-report.mjs`，`package.json` 加 `tmp:report`。验证：`npm run tmp:report` exit 0；`npm run tmp:report -- --max-bytes 1` exit 1。
 2. **R2 交互 helper**：`scripts/browser-preflight.mjs` 追加导出；新建 `tests/browser-interaction-helpers.test.mjs`，`package.json` 加 `test:browser-interaction` 并串入 `test`。验证：`npm run test:browser-interaction` exit 0，`npm run test:browser-preflight` 仍 exit 0。
 3. **R3 `validate` 子命令**：`scripts/acceptance.py` 的 `main()` 增加子命令；`scripts/test_acceptance.py` 补断言（合法直通、缺字段拒绝）。验证：`npm run test:acceptance` exit 0；对一个真实任务跑 `validate` exit 0。
-4. **R4 验收指南拆分**：新建 `.trellis/spec/frontend/browser-acceptance/preflight-assertions.md` 与 `resource-cleanup.md`，主文档改摘要 + 链接，更新 `.pi/skills/reader-test/SKILL.md` 与 `.trellis/spec/tooling/index.md` 的锚点。验证：主文件 < 24000 字节；`npm run check:docs` OK。
+4. **R4 验收指南拆分**：新建 `.trellis/spec/frontend/browser-acceptance/preflight-assertions.md` 与 `resource-cleanup.md`，主文档改摘要 + 链接，更新 `.pi/skills/reader-test/SKILL.md` 与 `.trellis/spec/tooling/index.md` 的锚点。验证：主文件 < 32768 字节（`context_injection.max_file_bytes`）；`npm run check:docs` OK。
 5. **R5 Sass 静音**：两处 Vite 配置加 `css.preprocessorOptions.scss.silenceDeprecations`。验证：`npm run build-prod` 日志无三类 `DEPRECATION WARNING`。
 6. **R6 pending-work 收口**：重写 `pending-work.md`。验证：`npm run check:docs` OK，五处引用链接可解析。
 7. **R7 归档兜底**：新建 `scripts/archive-fallback.sh`（可执行）+ `.trellis/spec/tooling/index.md` 新小节。验证：`bash scripts/archive-fallback.sh --dry-run <已归档任务>` 输出正常；`bash -n` 语法检查。

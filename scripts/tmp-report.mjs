@@ -9,7 +9,8 @@
  * 只读：列出未被任何验收记录引用的轮次目录及体积，按体积降序。不删除任何文件。
  *
  * 退出码：总体积超过 `--max-bytes` 阈值（默认 3 GiB）、或存在孤儿轮次超过
- * `--max-orphan-bytes`（默认 2 GiB）时为 1，否则 0。
+ * `--max-orphan-bytes`（默认 2 GiB）时为 1，否则 0。读取失败只计数并写进报告，
+ * 不影响退出码：报告是估算，不该因为一个不可读子目录就报成超预算。
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, resolve, dirname } from 'node:path';
@@ -39,11 +40,19 @@ function parseArgs(argv) {
   return options;
 }
 
+// Reading errors must stay visible: the numbers below drive deletion decisions,
+// so an unreadable subtree would otherwise shrink the estimate silently.
+const readFailures = [];
+const noteReadFailure = (target, error) => {
+  readFailures.push({ path: target, reason: (error && (error.code || error.message)) || 'unknown' });
+};
+
 function* walkFiles(dir) {
   let entries;
   try {
     entries = readdirSync(dir, { withFileTypes: true });
-  } catch {
+  } catch (error) {
+    noteReadFailure(dir, error);
     return;
   }
   for (const entry of entries) {
@@ -61,7 +70,8 @@ function referencedTmpPaths() {
     let data;
     try {
       data = JSON.parse(readFileSync(file, 'utf8'));
-    } catch {
+    } catch (error) {
+      noteReadFailure(file, error);
       continue;
     }
     for (const check of data?.checks ?? []) {
@@ -80,8 +90,9 @@ function directorySize(dir) {
   for (const file of walkFiles(dir)) {
     try {
       total += statSync(file).size;
-    } catch {
-      // A file can disappear between listing and stat; the report only needs an estimate.
+    } catch (error) {
+      // A file can disappear between listing and stat; count it so the gap is visible.
+      noteReadFailure(file, error);
     }
   }
   return total;
@@ -91,7 +102,8 @@ function roundEntries() {
   let names;
   try {
     names = readdirSync(ROUNDS, { withFileTypes: true });
-  } catch {
+  } catch (error) {
+    noteReadFailure(ROUNDS, error);
     return [];
   }
   return names
@@ -107,6 +119,12 @@ const mib = bytes => `${(bytes / 1024 ** 2).toFixed(1)} MiB`;
 
 function formatSize(bytes) {
   return bytes >= 1024 ** 3 ? gib(bytes) : mib(bytes);
+}
+
+function summarizeFailures() {
+  const counts = new Map();
+  for (const failure of readFailures) counts.set(failure.reason, (counts.get(failure.reason) ?? 0) + 1);
+  return [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([reason, count]) => `${reason} x${count}`);
 }
 
 function main() {
@@ -142,6 +160,11 @@ function main() {
     orphanBytes,
     topOrphans: orphans.slice(0, 10),
     budgets: { maxBytes: options.maxBytes, maxOrphanBytes: options.maxOrphanBytes },
+    readFailures: {
+      count: readFailures.length,
+      reasons: summarizeFailures(),
+      sample: readFailures.slice(0, 5),
+    },
   };
 
   if (options.json) {
@@ -154,6 +177,11 @@ function main() {
       console.log(`  orphan ${formatSize(entry.bytes).padStart(10)}  ${entry.path}`);
     }
     if (orphans.length > 10) console.log(`  ... and ${orphans.length - 10} more orphan rounds`);
+    if (readFailures.length > 0) {
+      console.log(`read failures: ${readFailures.length} (${report.readFailures.reasons.join(', ')})`);
+      for (const failure of report.readFailures.sample) console.log(`  unreadable ${failure.path} (${failure.reason})`);
+      if (readFailures.length > 5) console.log(`  ... and ${readFailures.length - 5} more read failures`);
+    }
   }
 
   const overBudget = tmpBytes > options.maxBytes;

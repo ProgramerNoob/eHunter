@@ -6,6 +6,7 @@ import {
   clickElement,
   dragBy,
   dismissSimpleDialog,
+  DIALOG_ACTION_SELECTOR,
   ensureTopBar,
   ensureThumbPanel,
 } from '../scripts/browser-preflight.mjs';
@@ -125,6 +126,19 @@ test('dismissSimpleDialog clicks the trailing action button and re-checks', asyn
 
   assert.equal(await dismissSimpleDialog(page, { settleMs: 0 }), 0);
   assert.deepEqual(page.mouseCalls().map(call => call.type), ['mouseMoved', 'mousePressed', 'mouseReleased']);
+});
+
+// The click has to land on the inner `<a>` of `.flat-button.operation`; the
+// outer wrapper swallows it. Passing the selector keeps that rule in one place
+// and makes a regression to a looser selector fail here.
+test('dismissSimpleDialog resolves actions through the documented selector', async () => {
+  assert.equal(DIALOG_ACTION_SELECTOR, '.operation-bar .flat-button.operation > a');
+  const page = new PageFixture([1, { x: 300, y: 500 }, 0]);
+
+  await dismissSimpleDialog(page, { settleMs: 0 });
+
+  const passed = page.calls.filter(call => call.method === 'evaluate').map(call => call.argument);
+  assert.ok(passed.includes(DIALOG_ACTION_SELECTOR), `evaluate received ${JSON.stringify(passed)}`);
 });
 
 test('dismissSimpleDialog gives up and reports the remaining count', async () => {

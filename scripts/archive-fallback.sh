@@ -90,9 +90,17 @@ done
 if [ -n "$task_json" ]; then
   while IFS= read -r declared; do
     [ -n "$declared" ] || continue
+    case "$declared" in
+      __RULE__*)
+        echo "warning: scope rule matched no tracked path: ${declared#__RULE__}" >&2
+        continue
+        ;;
+    esac
     [ -e "$declared" ] && paths+=("$declared")
   done < <(python3 - "$task_json" <<'PY'
 import json
+import os
+import subprocess
 import sys
 
 try:
@@ -112,7 +120,24 @@ for rules in groups:
     for rule in rules:
         if not isinstance(rule, str):
             continue
-        print(rule[:-3] if rule.endswith('/**') else rule)
+        try:
+            listed = subprocess.run(
+                ['git', 'ls-files', '-z', '--', rule],
+                check=True, capture_output=True, text=True,
+            ).stdout
+        except Exception:
+            listed = ''
+        matched = [entry for entry in listed.split('\0') if entry]
+        if not matched:
+            # A rule whose literal prefix is gone (the source dir was already
+            # moved by task.py archive) is expectedly empty; only a still-present
+            # prefix with no tracked file is worth a warning.
+            prefix = rule.split('*', 1)[0].rstrip('/')
+            if prefix and os.path.exists(prefix):
+                print(f'__RULE__{rule}')
+            continue
+        for entry in matched:
+            print(entry)
 PY
 )
 fi

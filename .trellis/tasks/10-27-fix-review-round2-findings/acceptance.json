@@ -1,0 +1,325 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "`quality-guidelines.md` 的命令清单与 `acceptance.py` 的 `main()` 子命令集合一致（`summarize`、`validate`、`archive`、`run` 四者都在），且说明 validate 的只读语义与退出码。",
+    "AC2": "两份 Vite 配置引用同一个 Sass 静音常量，`npm run build-prod` 无 `DEPRECATION WARNING`，且该常量文件被 `browser-preflight.mjs` 的指纹输入覆盖。",
+    "AC3": "`tmp-report.mjs` 在读取失败时把计数写进报告（人读与 `--json` 两路都可见），失败计数非零时退出码不受影响的说明写在 spec 里。",
+    "AC4": "`archive-fallback.sh` 对 `core/**` 与 `scripts/*.py` 两类规则都展开成具体路径；展开为空时打印警告并继续，不静默丢弃。",
+    "AC5": "`dismissSimpleDialog` 的选择器常量为 `.operation-bar .flat-button.operation > a`，并作为 `evaluate` 参数传入。",
+    "AC6": "`tests/browser-interaction-helpers.test.mjs` 断言选择器常量与传入 `evaluate` 的值，删除该断言后测试变红。",
+    "AC7": "`.trellis/spec/tooling/archive-fallback.md` 记录 `GIT_INDEX_FILE` 真因与 `scripts/test_scope_gate.py` 的修复位置。",
+    "AC8": "归档任务 `10-27-env-retro-followups` 的 `validation.md` 含 hook 场景记录，`design.md`/`implement.md` 的 R4 口径为 `< 32768`。",
+    "AC9": "`browser-acceptance.md` 的「资源清理检查」位于第 4 节内、`## 4.5` 之前，`npm run check:docs` 通过。",
+    "AC10": "`test_acceptance.py` 覆盖 `validate` 的否定路径（缺 evidence 的 passed 记录 → exit 2），实现与规格描述一致。",
+    "AC11": "`tmp-hygiene.md` 记录 `--max-orphan-bytes` 的用途，归档 `validation.md` 记录 `9e58ebc` 的索引修复。",
+    "AC12": "`npm run check` 整体 exit 0，且在 `.githooks/pre-commit` 导出的 `GIT_INDEX_FILE` 环境下同样通过。"
+  },
+  "checks": [
+    {
+      "id": "spec-validate-command",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "quality-guidelines lists the validate subcommand with its read-only semantics and exit codes, matching acceptance.py main()",
+      "scope": "repository tooling docs",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-27-fix-review-round2-findings/validation.md",
+        ".trellis/spec/frontend/quality-guidelines.md"
+      ],
+      "note": "quality-guidelines 的命令块现列 run/summarize/validate/archive 四条，并新增一段说明 validate 输出与 summarize 同形的 JSON、退出码 0 表示自洽、2 表示不自洽、不写盘不执行 check 不移动目录；段末关于 task.py archive 未校验记录的句子补上「acceptance.py archive 是唯一同时校验并移动任务的入口，acceptance.py validate 是廉价的归档前预检」。",
+      "waiver": null
+    },
+    {
+      "id": "sass-silence-shared",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "both Vite configs consume one shared Sass silence constant that the preflight fingerprint covers",
+      "scope": "repository tooling",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/r2-ac-checks.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T22:38:06+08:00",
+        "endedAt": "2026-10-27T22:38:14+08:00",
+        "log": ".tmp/r2-ac-checks.log"
+      },
+      "evidence": [
+        ".trellis/tasks/10-27-fix-review-round2-findings/validation.md",
+        "sass-silence.config.mjs",
+        ".tmp/r2-ac-checks.log",
+        ".tmp/r2-check.log"
+      ],
+      "note": "sass-silence.config.mjs 导出 sassSilenceDeprecations，两份 Vite 配置都改为引用同一常量；scripts/browser-preflight.mjs 的 INPUTS 加入该文件以保证配置改动进指纹。npm run check 期间 build-prod 的 DEPRECATION WARNING 计数为 0（此前 272 条）。",
+      "waiver": null
+    },
+    {
+      "id": "tmp-report-read-failures",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "tmp-report surfaces read failures in both human and JSON output without changing the budget exit code",
+      "scope": "repository tooling",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "tmp:report"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T22:38:41+08:00",
+        "endedAt": "2026-10-27T22:38:43+08:00",
+        "log": ".tmp/r2-tmp-report.log"
+      },
+      "evidence": [
+        ".trellis/tasks/10-27-fix-review-round2-findings/validation.md",
+        "scripts/tmp-report.mjs",
+        ".tmp/r2-tmp-report.log"
+      ],
+      "note": "tmp-report.mjs 的四处 catch 改为 noteReadFailure 收集，人读版打印 read failures 计数与按 reason 聚合、最多 5 条样本，--json 下输出 readFailures.count/reasons/sample；文件头说明读取失败只计数不影响退出码。退出码仍只由两个预算决定。",
+      "waiver": null
+    },
+    {
+      "id": "archive-fallback-glob",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "archive-fallback expands /** and wildcard scope rules into tracked paths and warns on empty matches",
+      "scope": "repository tooling",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          "scripts/archive-fallback.sh",
+          "10-27-env-retro-followups",
+          "--dry-run"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T22:38:41+08:00",
+        "endedAt": "2026-10-27T22:38:43+08:00",
+        "log": ".tmp/r2-archive-dryrun.log"
+      },
+      "evidence": [
+        ".trellis/tasks/10-27-fix-review-round2-findings/validation.md",
+        "scripts/archive-fallback.sh",
+        ".tmp/r2-archive-dryrun.log"
+      ],
+      "note": "scope 规则改用 git ls-files -z -- <rule> 展开成已跟踪文件：core/** 展开 100 个、scripts/*.py 展开 9 个；匹配为空且固定前缀目录仍存在时打印 warning: scope rule matched no tracked path；前缀已被 task.py archive 移走则静默跳过。用假 task.json 验证 scripts/*.nomatch 与 core/**/*.nope 都会触发告警。",
+      "waiver": null
+    },
+    {
+      "id": "dialog-selector-constant",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "dismissSimpleDialog resolves dialog actions through the documented .flat-button.operation > a selector passed as an evaluate argument",
+      "scope": "repository tooling",
+      "method": "inspection",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-27-fix-review-round2-findings/validation.md",
+        "scripts/browser-preflight.mjs"
+      ],
+      "note": "browser-preflight.mjs 导出 DIALOG_ACTION_SELECTOR = '.operation-bar .flat-button.operation > a'，dismissSimpleDialog 通过 page.evaluate 的第二参数传入，不再依赖 querySelectorAll 的文档序末位碰巧是 <a>。",
+      "waiver": null
+    },
+    {
+      "id": "dialog-selector-test",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "helper tests assert the selector constant reaches evaluate, so a selector regression fails the suite",
+      "scope": "repository tooling tests",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "node",
+          "--test",
+          "tests/browser-interaction-helpers.test.mjs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T22:38:43+08:00",
+        "endedAt": "2026-10-27T22:38:44+08:00",
+        "log": ".tmp/r2-helper-tests.log"
+      },
+      "evidence": [
+        ".trellis/tasks/10-27-fix-review-round2-findings/validation.md",
+        "tests/browser-interaction-helpers.test.mjs",
+        ".tmp/r2-helper-tests.log"
+      ],
+      "note": "新增用例断言 DIALOG_ACTION_SELECTOR 的取值并确认它作为 evaluate 参数下发；14 例全过。把常量改回旧的宽松选择器后 13 pass / 1 fail，还原后 14 pass。",
+      "waiver": null
+    },
+    {
+      "id": "archive-fallback-root-cause",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "archive-fallback spec records the GIT_INDEX_FILE root cause and where test_scope_gate.py fixes it",
+      "scope": "repository tooling docs",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-27-fix-review-round2-findings/validation.md",
+        ".trellis/spec/tooling/archive-fallback.md"
+      ],
+      "note": "archive-fallback.md 删除已被证伪的「历史残留、不要重建 index」归因，改为记录真因：.githooks/pre-commit 执行 npm run check 时子进程继承 GIT_INDEX_FILE，fixture 仓库的 git add -A 把文件写进外层 index，并指出修复位置 scripts/test_scope_gate.py 的 ScopeGateFixture.setUp()、症状清理用 git update-index --force-remove。",
+      "waiver": null
+    },
+    {
+      "id": "archived-task-docs",
+      "ac": [
+        "AC8"
+      ],
+      "claim": "the archived env-retro task records the hook scenario and its R4 byte threshold matches the PRD",
+      "scope": "repository task evidence",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-27-fix-review-round2-findings/validation.md",
+        ".trellis/tasks/archive/2026-10/10-27-env-retro-followups/design.md",
+        ".trellis/tasks/archive/2026-10/10-27-env-retro-followups/implement.md",
+        ".trellis/tasks/archive/2026-10/10-27-env-retro-followups/validation.md"
+      ],
+      "note": "归档任务 10-27-env-retro-followups 的 design.md 中 validate 描述改为 JSON + 退出码 0/2；design.md 与 implement.md 的 < 24000 字节门槛改为 < 32768（context_injection.max_file_bytes），两文件已无 24000 命中；validation.md 追加 pre-commit hook 场景与 9e58ebc 归属两节。",
+      "waiver": null
+    },
+    {
+      "id": "acceptance-section-order",
+      "ac": [
+        "AC9"
+      ],
+      "claim": "the resource cleanup section sits inside section 4 and before 4.5 while check:docs still passes",
+      "scope": "repository tooling docs",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/r2-ac-checks.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T22:38:06+08:00",
+        "endedAt": "2026-10-27T22:38:14+08:00",
+        "log": ".tmp/r2-ac-checks.log"
+      },
+      "evidence": [
+        ".trellis/tasks/10-27-fix-review-round2-findings/validation.md",
+        ".trellis/spec/frontend/browser-acceptance.md",
+        ".tmp/r2-ac-checks.log"
+      ],
+      "note": "资源清理检查移回第 4 节正文末尾，行号 203 < 221 < 225（在 4.5 之前）；npm run check:docs 通过，237 条本地链接 0 断链。",
+      "waiver": null
+    },
+    {
+      "id": "validate-negative-path",
+      "ac": [
+        "AC10"
+      ],
+      "claim": "validate rejects a passed record without evidence with exit 2 and the implementation matches the spec wording",
+      "scope": "repository tooling tests",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "scripts",
+          "-p",
+          "test_acceptance.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T22:38:43+08:00",
+        "endedAt": "2026-10-27T22:38:44+08:00",
+        "log": ".tmp/r2-acceptance-tests.log"
+      },
+      "evidence": [
+        ".trellis/tasks/10-27-fix-review-round2-findings/validation.md",
+        "scripts/test_acceptance.py",
+        ".tmp/r2-acceptance-tests.log"
+      ],
+      "note": "新增 test_cli_validate_rejects_a_passed_check_without_evidence：把 evidence 清空后 validate 返回 2、valid 为 false、错误含 passed needs evidence，stderr 同样含该串。39 例全过；注释掉该校验后 2 例失败（AssertionError: 0 != 2），还原后恢复。",
+      "waiver": null
+    },
+    {
+      "id": "scope-declarations",
+      "ac": [
+        "AC11"
+      ],
+      "claim": "tmp-hygiene documents --max-orphan-bytes and the archived task records the 9e58ebc index fix",
+      "scope": "repository tooling docs",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/10-27-fix-review-round2-findings/validation.md",
+        ".trellis/spec/tooling/tmp-hygiene.md"
+      ],
+      "note": "tmp-hygiene.md 明确 --max-orphan-bytes 的用途与两个预算的分工、读取失败不影响退出码；归档任务 validation.md 记录 9e58ebc 属七项之外、来源是 AC8 的 hook 场景暴露的补救提交。",
+      "waiver": null
+    },
+    {
+      "id": "check-suite-and-hook",
+      "ac": [
+        "AC12"
+      ],
+      "claim": "npm run check passes directly and again under the pre-commit hook environment",
+      "scope": "repository tooling",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "sh",
+          ".githooks/pre-commit"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T22:37:38+08:00",
+        "endedAt": "2026-10-27T22:37:44+08:00",
+        "log": ".tmp/r2-hook.log"
+      },
+      "evidence": [
+        ".trellis/tasks/10-27-fix-review-round2-findings/validation.md",
+        ".tmp/r2-check.log",
+        ".tmp/r2-hook.log"
+      ],
+      "note": "npm run check 与 sh .githooks/pre-commit 两次都 exit 0，都到达 check-docs: OK，DEPRECATION WARNING 计数 0；hook 跑完后 git ls-files -s | grep -c docs/readme 为 0，证明 fixture 不再污染外层 index。",
+      "waiver": null
+    }
+  ]
+}

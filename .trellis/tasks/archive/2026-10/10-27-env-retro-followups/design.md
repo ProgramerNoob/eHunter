@@ -31,7 +31,7 @@
 
 ## R3 `acceptance.py validate`
 
-在 `main()` 增加 `validate` 子命令，复用现有 `load()`（读 PRD criteria + acceptance.json）与 `validate(data, criteria, root)`，只打印 `OK: <n> checks` 或抛出的 `Invalid` 文案，退出码 0/1。不写盘、不执行 check。
+在 `main()` 增加 `validate` 子命令，复用现有 `load()`（读 PRD criteria + acceptance.json）与 `validate(data, criteria, root)`，stdout 输出与 `summarize` 同形的单个 JSON 对象（`valid`/`task`/`checks`/`criteria`/`counts`/`observedStatus`），退出码 0 = 记录自洽、2 = 记录不自洽（与 `summarize` 的 2 同义）。不写盘、不执行 check、不移动任务目录。
 
 ## R4 验收指南瘦身
 
@@ -40,7 +40,7 @@
 - `preflight-assertions.md`：现「4.5 预检断言覆盖清单」（含行号列表与未覆盖说明）。
 - `resource-cleanup.md`：现「资源清理检查」。
 
-主文档保留摘要与链接，锚点 `#45-预检断言覆盖清单`、`#资源清理检查` 改为指向新文件对应小节；`.pi/skills/reader-test/SKILL.md`、`.trellis/spec/tooling/index.md` 的链接同步更新。目标：主文件 < 24000 字节，留出后续增长余量。
+主文档保留摘要与链接，锚点 `#45-预检断言覆盖清单`、`#资源清理检查` 改为指向新文件对应小节；`.pi/skills/reader-test/SKILL.md`、`.trellis/spec/tooling/index.md` 的链接同步更新。目标：主文件 < 32768 字节（`context_injection.max_file_bytes`，超过会被截断）；实际拆分后 25922 字节。
 
 ## R5 Sass 静音
 

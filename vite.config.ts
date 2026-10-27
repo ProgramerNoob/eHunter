@@ -5,6 +5,8 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import svgLoader from 'vite-svg-loader'
 
+import { sassSilenceDeprecations } from './sass-silence.config.mjs'
+
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf-8')) as {
   version: string
 }
@@ -23,7 +25,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        silenceDeprecations: ['color-functions', 'global-builtin', 'import']
+        silenceDeprecations: sassSilenceDeprecations
       }
     }
   },

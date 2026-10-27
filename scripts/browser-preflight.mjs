@@ -10,7 +10,11 @@ export const PROFILES = {
   mobile: { width: 390, height: 844, dpr: 3, mobile: true, touchPoints: 5, coarse: true },
 };
 const EVENT_DRAIN_GRACE_MS = 1000;
-const INPUTS = ['src', 'core', 'index.html', 'vite.config.ts', 'vite.config.prod.ts', 'package.json', 'package-lock.json'];
+// `SimpleDialog` renders `<flat-button class="operation" mode="inline">`, and Vue
+// fallthrough puts the class on the wrapper div, so the clickable node is the
+// inner `<a>`. Clicking the outer `.flat-button`/`.operation` does nothing.
+export const DIALOG_ACTION_SELECTOR = '.operation-bar .flat-button.operation > a';
+const INPUTS = ['src', 'core', 'index.html', 'vite.config.ts', 'vite.config.prod.ts', 'sass-silence.config.mjs', 'package.json', 'package-lock.json'];
 const sha = value => createHash('sha256').update(value).digest('hex');
 const identity = value => ({ sha256: sha(value), bytes: Buffer.byteLength(value), length: value.toString().length });
 const firstDivergence = (expected, actual) => {
@@ -1275,17 +1279,17 @@ export async function dismissSimpleDialog(page, { maxRounds = 20, settleMs = 200
   const remaining = async () => page.evaluate(() => document.querySelectorAll('.simple-dialog').length);
   let count = await remaining();
   for (let round = 0; round < maxRounds && count > 0; round += 1) {
-    const target = await page.evaluate(() => {
+    const target = await page.evaluate((selector) => {
       const dialogs = [...document.querySelectorAll('.simple-dialog')];
       const dialog = dialogs[dialogs.length - 1];
       if (!dialog) return null;
-      const buttons = dialog.querySelectorAll('.operation-bar a, .operation-bar .flat-button');
+      const buttons = dialog.querySelectorAll(selector);
       const button = buttons[buttons.length - 1];
       if (!button) return null;
       const rect = button.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) return null;
       return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
-    });
+    }, DIALOG_ACTION_SELECTOR);
     if (!target) return count;
     await clickAt(page, target.x, target.y, { settleMs });
     await page.waitForTimeout(settleMs);

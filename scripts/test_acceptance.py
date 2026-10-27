@@ -350,6 +350,17 @@ class AcceptanceTests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertIn("must exactly match PRD identifiers", " ".join(result["errors"]))
 
+    def test_cli_validate_rejects_a_passed_check_without_evidence(self):
+        self.data["checks"] = [self.check()]
+        self.data["checks"][0]["evidence"] = []
+        self.write()
+
+        code, result, diagnostic = self.invoke("validate", str(self.task))
+        self.assertEqual(code, 2)
+        self.assertFalse(result["valid"])
+        self.assertIn("passed needs evidence", " ".join(result["errors"]))
+        self.assertIn("passed needs evidence", diagnostic)
+
     def test_cli_run_captures_actual_exit_2_and_both_streams(self):
         self.data["checks"] = [self.check(method="command", observed="unrun")]
         self.write()

@@ -38,3 +38,21 @@
 - `archive-fallback.sh` 只验证了 `--dry-run`、`--help` 与语法，没有在真实归档失败场景下执行提交分支；该分支等价于两条显式 pathspec 的 `git add` / `git commit`。
 - Sass 只是静音告警，`@import` 与 `lighten()`/`darken()` 的迁移不在本次范围，源码仍使用旧 API。
 - `browser-acceptance.md` 拆分只动了章节归属与锚点，未重写内容；预检断言清单里的行号引用仍会随 helper 改动漂移。
+
+## 后续补记（审查轮）
+
+### pre-commit hook 场景
+
+AC8 的 `npm run check` 当轮只在干净环境执行过，没有覆盖 `.githooks/pre-commit` 这条路径，而两者不等价：
+
+- hook 在 `npm run check` 之前导出 `GIT_INDEX_FILE`，子进程全部继承；
+- `scripts/test_scope_gate.py` 的 fixture 当时直接用环境里的 `GIT_*` 跑 `git add -A`，把 fixture 的文件写进了外层仓库的 index，留下 `docs/readme.md`（blob `d8f8d469…` 只存在于 fixture 的 object 库）；
+- 此后每次 `git commit` 都在写树时失败：`错误：invalid object 100644 d8f8d46921aa81abc4c0d27703a8908333ae38c3 for 'docs/readme.md'` / `错误：无法创建树对象`，本任务与之前两个任务的归档提交都因此需要手工收尾。
+
+修复提交 `9e58ebc fix(tooling): 测试不再继承 hook 的 GIT_INDEX_FILE` 把 fixture 的 `GIT_*` 弹出并在 `addCleanup` 复原，另加 2 条针对性测试（把继承变量换回 `{}` 后两条测试都变红）。真因与症状清理方式已写进 `.trellis/spec/tooling/archive-fallback.md`。
+
+后续任务的验收要求：涉及 `npm run check` 的 AC 要同时在 `sh .githooks/pre-commit` 下跑一遍，只跑干净环境不足以证明提交门禁可用。
+
+### 索引修复提交的归属
+
+`9e58ebc` 不在本任务 PRD 的七项之内，来源是 AC8 的 hook 场景暴露出的真实缺陷。它作为补救提交单独实施，单独提交，没有并入 `658f78a`。

@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-27-fix-review-round2-findings",
+  "branch": "master",
+  "head": "9e58ebc8ab00dfe451513f5d04fc27d78e44ed21",
+  "indexTree": "f15173a9a78a4934ab6f7cf00f1d215c1fdcfeb3",
+  "capturedAt": "2026-10-27T22:26:09+08:00",
+  "scopeDigest": "786a501e1db6db23fbdee0bd802900e9f849767ea320c309186e714ea17e12a4",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-27-fix-review-round2-findings/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-27-fix-review-round2-findings/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-27-fix-review-round2-findings/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "0a854f199c45cca7dafb75e485daf1c27662601024d0b3666d7d6d239202336f"
+    },
+    ".trellis/tasks/10-27-fix-review-round2-findings/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "99651afe593d17d74ea00252e33c7bc9e18ad7424aef85279a242b0eb184470b"
+    }
+  },
+  "scopeExtensions": [
+    {
+      "category": "scripts",
+      "rules": [
+        "scripts/**"
+      ],
+      "at": "2026-10-27T22:26:25+08:00"
+    },
+    {
+      "category": "tests",
+      "rules": [
+        "tests/**"
+      ],
+      "at": "2026-10-27T22:26:25+08:00"
+    },
+    {
+      "category": "spec",
+      "rules": [
+        ".trellis/spec/**"
+      ],
+      "at": "2026-10-27T22:26:25+08:00"
+    },
+    {
+      "category": "tooling",
+      "rules": [
+        "vite.config.ts",
+        "vite.config.prod.ts",
+        "package.json"
+      ],
+      "at": "2026-10-27T22:26:25+08:00"
+    }
+  ]
+}

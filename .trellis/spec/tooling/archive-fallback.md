@@ -1,13 +1,26 @@
 # 归档提交兜底
 
-`task.py archive` 移动任务目录后会用内部 git 自动提交归档改动。某些仓库状态下这一步会失败，典型报错是：
+`task.py archive` 移动任务目录后会用内部 git 自动提交归档改动。提交失败时典型报错是：
 
 ```
 错误：invalid object 100644 d8f8d46921aa81abc4c0d27703a8908333ae38c3 for 'docs/readme.md'
 错误：无法创建树对象
 ```
 
-对象从未存在于仓库、`git ls-files` 里也没有该路径时，这属于索引与工作树之外的历史残留，不要为了"修好"去重建 `.git/index`。`task.py` 会打印红色提示并返回非零，此时归档目录已经就位，只差一次提交。
+## 真因
+
+`.githooks/pre-commit` 执行 `npm run check`，子进程继承 hook 导出的 `GIT_INDEX_FILE`（指向 checkout 的真实 index）。测试里的 fixture 仓库若直接用环境里的 `GIT_*` 做 `git add -A`，就会把 fixture 的文件写进**外层**仓库的 index：fixture 里的 `docs/readme.md` 的 blob 只存在于 fixture 的 object 库，外层 index 多出一条没有对应对象的条目，之后每次 `git commit` 都在写树时失败。
+
+修复位置是 `scripts/test_scope_gate.py` 的 `ScopeGateFixture.setUp()`：它把全部 `GIT_*` 变量临时弹出环境并在 `addCleanup` 里复原，fixture 因此只操作自己的 index。同类 fixture 也要遵循同一规则，别让子进程继承 hook 的索引变量。
+
+已经出现幽灵条目时，先确认路径确实不该被跟踪，再单独移除：
+
+```bash
+git ls-files -s | grep <path>          # 确认条目仍存在
+git update-index --force-remove <path>
+```
+
+不需要、也不应该为此重建 `.git/index`。
 
 ## 用法
 
@@ -24,7 +37,9 @@ bash scripts/archive-fallback.sh <task-slug>             # 真正提交
 
 - 归档目录（`.trellis/tasks/archive/<YYYY-MM>/<slug>`）；
 - 源目录 `.trellis/tasks/<slug>` 若因移动失败仍存在；
-- 任务 `task.json` 里 `meta.scope.categories` 声明的路径。
+- 任务 `task.json` 里 `meta.scope.categories` 声明的路径，逐条用 `git ls-files` 展开成已跟踪的具体文件（`core/**`、`scripts/*.py` 这类规则都支持）。
+
+某条规则展开为空时：规则的固定前缀目录已经不存在（源目录被 `task.py archive` 正常移走）属于预期，静默跳过；前缀仍在却查不到任何已跟踪文件则打印 `warning: scope rule matched no tracked path: <rule>`，提示 scope 声明与实际仓库不一致，避免兜底脚本漏文件而不出声。
 
 路径无变更时报告 `nothing to commit` 并退出 0，可安全重复执行。`--dry-run` 只打印 `git status --short` 与将要执行的两条命令。
 

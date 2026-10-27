@@ -1,0 +1,6 @@
+{"file": ".trellis/spec/frontend/quality-guidelines.md", "reason": "验收协议章节：acceptance.py 子命令清单与退出码口径，R1/R11 直接改这段"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "验收指南的章节结构与第 4 节归属，R10 调整资源清理检查位置"}
+{"file": ".trellis/spec/frontend/browser-acceptance/counting-assertions.md", "reason": "记录首开弹窗选择器 `.simple-modal .flat-button.operation > a`，R5 的文档依据"}
+{"file": ".trellis/spec/tooling/archive-fallback.md", "reason": "归档兜底脚本的归因与用法，R7 改写真因"}
+{"file": ".trellis/spec/tooling/tmp-hygiene.md", "reason": "tmp-report 的预算参数与引用口径，R3/R12 补充失败计数与 --max-orphan-bytes"}
+{"file": ".trellis/spec/tooling/index.md", "reason": "工具脚本登记与本地提交门禁，本轮新增 sass 常量文件需在 index 登记"}

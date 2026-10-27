@@ -1,0 +1,59 @@
+{
+  "id": "fix-review-round2-findings",
+  "name": "fix-review-round2-findings",
+  "title": "修复两轴审查指出的 12 处工具链偏差",
+  "description": "把 527861a..HEAD 双轴审查的 12 条落成改动：spec 补 validate 子命令与归档真因、dismissSimpleDialog 选搭器按文档口径、tmp-report 吞异常加可见告警、archive-fallback 展开 glob、sass 静音常量抽出、browser-acceptance 章节归位与字节数口径对齐、补一条 counts 自相矛盾用例",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-27",
+  "completedAt": null,
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-27-fix-review-round2-findings/**"
+        ],
+        "scripts": [
+          "scripts/**"
+        ],
+        "tests": [
+          "tests/**"
+        ],
+        "spec": [
+          ".trellis/spec/**"
+        ],
+        "tooling": [
+          "vite.config.ts",
+          "vite.config.prod.ts",
+          "package.json",
+          "sass-silence.config.mjs"
+        ],
+        "archive": [
+          ".trellis/tasks/archive/**"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "7eb16ed898b79c012f7c82921da97ac8acdd02846ee13ae2032efda080b19b0a"
+      }
+    }
+  }
+}

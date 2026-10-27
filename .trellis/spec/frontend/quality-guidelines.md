@@ -299,6 +299,7 @@ command. Use existing type/build commands for product checks where appropriate.
 ```bash
 python3 scripts/acceptance.py run <task-dir> <check-id> -- <argv...>
 python3 scripts/acceptance.py summarize <task-dir>
+python3 scripts/acceptance.py validate <task-dir>
 python3 scripts/acceptance.py archive <task-dir>
 ```
 
@@ -358,6 +359,12 @@ Render conclusions from the JSON; do not replace them with a handwritten total o
 mask nonzero codes using `|| true`. A successful agent process does not establish AC
 success. In particular, summarize exit `3` means waived, never all passed.
 
+`validate` prints the same JSON shape (`valid`, `task`, `checks`, `criteria`, `counts`,
+`observedStatus`) and only differs in exit codes: `0` for a record that loads and
+validates, `2` for one that does not. It never writes the record, executes a check or
+touches the task directory; diagnostics for the invalid case land on stderr in the same
+`errors` field shape that `summarize` uses, so a failing run can be read the same way.
+
 `archive` reloads and recalculates the record. For failed/partial/blocked/unrun it
 returns `1`; invalid input returns `2`. Both paths have `archiveDelegated:false` and
 leave task files, directory and active pointers untouched. Only passed/waived delegate
@@ -371,7 +378,10 @@ never automatically rerun an archive. The wrapper does not fix native archive bu
 This gates the project's standard check/commit/finish-work path. Direct native
 `task.py archive` still enforces the task scope gate for tasks that declare
 `scopePolicyVersion` (legacy tasks get a diagnostic only), but it does not check
-this acceptance record: only `acceptance.py archive` verifies it. `task.py validate`
+this acceptance record: `acceptance.py archive` is the only entry point that both
+verifies the record and moves the task. `acceptance.py validate` runs the same
+verification without writing, delegating or moving anything, so it is the cheap
+pre-flight before an archive attempt. `task.py validate`
 checks context manifests only. `task.py finish` clears the active pointer without
 either check and does not imply completed acceptance.
 
