@@ -7,8 +7,9 @@ set -u
 
 # pre-commit hook 会导出 GIT_INDEX_FILE 指向本次提交的临时索引（`git commit -- <pathspec>`
 # 时为绝对路径）。fixture 仓库必须用自己的索引，否则 `git add -A` 会写进外层提交正在构建的
-# 树，留下指向不存在 blob 的记录并让 `git write-tree` 崩掉。
-unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_OBJECT_DIRECTORY
+# 树，留下指向不存在 blob 的记录并让 `git write-tree` 崩掉。整个 GIT_* 家族一律丢弃，
+# 与 scripts/test_scope_gate.py 的 ScopeGateFixture.setUp() 保持同一口径。
+for _git_env in $(compgen -e | grep '^GIT_'); do unset "$_git_env"; done
 
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"
 source_script="$repo_root/scripts/archive-fallback.sh"

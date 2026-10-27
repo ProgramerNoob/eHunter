@@ -1490,6 +1490,7 @@ class InheritedGitEnvironmentTests(unittest.TestCase):
         fixture = ScopeGateFixture(methodName="runTest")
         # Simulate the hook: GIT_INDEX_FILE points at an index outside the repo.
         hook_index = REPO_ROOT / ".tmp" / "scope-gate" / "hook-index"
+        self.addCleanup(hook_index.unlink, missing_ok=True)
         hook_env = dict(base_env, GIT_INDEX_FILE=str(hook_index))
 
         with patch.dict(os.environ, hook_env, clear=True):
@@ -1570,6 +1571,7 @@ class InheritedGitEnvironmentTests(unittest.TestCase):
         hook_index = REPO_ROOT / ".tmp" / "scope-gate" / "bash-fixture-index"
         hook_index.parent.mkdir(parents=True, exist_ok=True)
         hook_index.unlink(missing_ok=True)
+        self.addCleanup(hook_index.unlink, missing_ok=True)
 
         completed = subprocess.run(
             ["bash", str(REPO_ROOT / "tests" / "archive-fallback.test.sh")],
