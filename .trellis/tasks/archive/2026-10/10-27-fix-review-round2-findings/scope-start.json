@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-27-fix-review-round2-findings",
+  "branch": "master",
+  "head": "8b51c9c3caf20be5adc351a059c3c9080f531a22",
+  "indexTree": "305dbff669db18c14b803e883b4522b1bf797df3",
+  "capturedAt": "2026-10-27T22:41:13+08:00",
+  "scopeDigest": "c6c74f1bc43d5b1f59d041850304807162b59ac58ffa91fe5364c780950d7c2e",
+  "dirty": {
+    ".trellis/tasks/10-27-fix-review-round2-findings/scope-start.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "06034613d3f59732f96b7bfb62e9433f246dfc1b5a585d2fa326536e0f88dddb"
+    },
+    ".trellis/tasks/10-27-fix-review-round2-findings/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "f8edb1ffb2c9acb673391f8a0e6bdbc95667cf99dd32cbecf21a28ef3c598d27"
+    }
+  },
+  "untracked": {},
+  "scopeExtensions": [
+    {
+      "category": "tooling",
+      "rules": [
+        "sass-silence.config.mjs"
+      ],
+      "at": "2026-10-27T22:41:18+08:00"
+    },
+    {
+      "category": "archive",
+      "rules": [
+        ".trellis/tasks/archive/**"
+      ],
+      "at": "2026-10-27T22:41:18+08:00"
+    }
+  ]
+}
