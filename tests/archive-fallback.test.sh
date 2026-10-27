@@ -9,7 +9,14 @@ set -u
 # 时为绝对路径）。fixture 仓库必须用自己的索引，否则 `git add -A` 会写进外层提交正在构建的
 # 树，留下指向不存在 blob 的记录并让 `git write-tree` 崩掉。整个 GIT_* 家族一律丢弃，
 # 与 scripts/test_scope_gate.py 的 ScopeGateFixture.setUp() 保持同一口径。
-for _git_env in $(compgen -e | grep '^GIT_'); do unset "$_git_env"; done
+# 用 env|sed 而不靠 bash 内建 compgen：dash 下 compgen 不存在，命令替换为空会让整个
+# 循环静默跳过，变量原封不动而脚本仍然 exit 0。
+for _git_env in $(env | sed -n 's/^\(GIT_[A-Za-z0-9_]*\)=.*/\1/p'); do unset "$_git_env"; done
+if env | grep -q '^GIT_'; then
+  echo "FAIL: GIT_* 环境未能清理，fixture 可能写进调用方索引" >&2
+  env | sed -n 's/^\(GIT_[A-Za-z0-9_]*\)=.*/  \1/p' >&2
+  exit 1
+fi
 
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"
 source_script="$repo_root/scripts/archive-fallback.sh"

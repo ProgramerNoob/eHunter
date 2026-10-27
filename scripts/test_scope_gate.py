@@ -1587,6 +1587,52 @@ class InheritedGitEnvironmentTests(unittest.TestCase):
             "the fixture must not touch the caller's index file",
         )
 
+    def test_bash_archive_fixture_clears_git_env_under_dash(self) -> None:
+        """The same guard must hold when the script runs under a POSIX shell.
+
+        `compgen` is a bash builtin: under dash the command substitution is
+        empty, the loop silently skips, and the script still exits 0 with the
+        caller's GIT_* intact. Only the caller index check catches it.
+        """
+        dash = shutil.which("dash")
+        if dash is None:
+            self.skipTest("dash not installed")
+
+        inherited = {
+            key: value
+            for key, value in os.environ.items()
+            if not key.startswith("GIT_")
+        }
+        inherited.update(
+            {
+                "GIT_AUTHOR_NAME": "Scope Gate",
+                "GIT_AUTHOR_EMAIL": "scope-gate@example.com",
+                "GIT_COMMITTER_NAME": "Scope Gate",
+                "GIT_COMMITTER_EMAIL": "scope-gate@example.com",
+                "GIT_CONFIG_GLOBAL": os.devnull,
+                "GIT_CONFIG_SYSTEM": os.devnull,
+            }
+        )
+
+        hook_index = REPO_ROOT / ".tmp" / "scope-gate" / "dash-fixture-index"
+        hook_index.parent.mkdir(parents=True, exist_ok=True)
+        hook_index.unlink(missing_ok=True)
+        self.addCleanup(hook_index.unlink, missing_ok=True)
+
+        completed = subprocess.run(
+            [dash, str(REPO_ROOT / "tests" / "archive-fallback.test.sh")],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            env=dict(inherited, GIT_INDEX_FILE=str(hook_index)),
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertIn("RESULT: archive-fallback contract holds", completed.stdout)
+        self.assertFalse(
+            hook_index.exists(),
+            "dash must clear GIT_* too, not just bash",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
