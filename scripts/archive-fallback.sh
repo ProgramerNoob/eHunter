@@ -92,7 +92,7 @@ if [ -n "$task_json" ]; then
     [ -n "$declared" ] || continue
     case "$declared" in
       __RULE__*)
-        echo "warning: scope rule matched no tracked path: ${declared#__RULE__}" >&2
+        echo "warning: scope rule matched no path: ${declared#__RULE__}" >&2
         continue
         ;;
     esac

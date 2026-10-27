@@ -41,7 +41,7 @@ bash scripts/archive-fallback.sh <task-slug>             # 真正提交
 
 展开用 `-co`（cached + others）而不是默认的 cached：`task.py archive` 用 `mv` 移走源目录后，源路径在索引里还是已跟踪、在工作树里已经消失，默认的 cached 列表会把它当作有效条目返回，但任何「路径存在吗」的过滤都会把它判假。展开结果因此又包含两种状态——已删除的源文件和尚未 `git add` 的新文件——两者都必须原样进 pathspec，交给 `git add` 与 `git commit` 记录，不需要额外调 `git rm --cached`：`git add <已删路径>` 返回 0（只在 stderr 提一句目录打不开），`git commit -- <pathspec>` 能正常记下 deletion。
 
-某条规则展开为空时：规则的固定前缀目录已经不存在（源目录被 `task.py archive` 正常移走）属于预期，静默跳过；前缀仍在却查不到任何条目则打印 `warning: scope rule matched no tracked path: <rule>`，提示 scope 声明与实际仓库不一致，避免兜底脚本漏文件而不出声。
+某条规则展开为空时：规则的固定前缀目录已经不存在（源目录被 `task.py archive` 正常移走）属于预期，静默跳过；前缀仍在却查不到任何条目则打印 `warning: scope rule matched no path: <rule>`，提示 scope 声明与实际仓库不一致，避免兜底脚本漏文件而不出声。
 
 路径无变更时报告 `nothing to commit` 并退出 0，可安全重复执行。`--dry-run` 只打印 `git status --short` 与将要执行的两条命令。
 
