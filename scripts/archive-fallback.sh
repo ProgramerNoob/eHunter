@@ -96,7 +96,7 @@ if [ -n "$task_json" ]; then
         continue
         ;;
     esac
-    [ -e "$declared" ] && paths+=("$declared")
+    paths+=("$declared")
   done < <(python3 - "$task_json" <<'PY'
 import json
 import os
@@ -122,7 +122,7 @@ for rules in groups:
             continue
         try:
             listed = subprocess.run(
-                ['git', 'ls-files', '-z', '--', rule],
+                ['git', 'ls-files', '-z', '-co', '--exclude-standard', '--', rule],
                 check=True, capture_output=True, text=True,
             ).stdout
         except Exception:

@@ -37,12 +37,24 @@ bash scripts/archive-fallback.sh <task-slug>             # 真正提交
 
 - 归档目录（`.trellis/tasks/archive/<YYYY-MM>/<slug>`）；
 - 源目录 `.trellis/tasks/<slug>` 若因移动失败仍存在；
-- 任务 `task.json` 里 `meta.scope.categories` 声明的路径，逐条用 `git ls-files` 展开成已跟踪的具体文件（`core/**`、`scripts/*.py` 这类规则都支持）。
+- 任务 `task.json` 里 `meta.scope.categories` 声明的路径，逐条用 `git ls-files -z -co --exclude-standard` 展开（`core/**`、`scripts/*.py` 这类规则都支持）。
 
-某条规则展开为空时：规则的固定前缀目录已经不存在（源目录被 `task.py archive` 正常移走）属于预期，静默跳过；前缀仍在却查不到任何已跟踪文件则打印 `warning: scope rule matched no tracked path: <rule>`，提示 scope 声明与实际仓库不一致，避免兜底脚本漏文件而不出声。
+展开用 `-co`（cached + others）而不是默认的 cached：`task.py archive` 用 `mv` 移走源目录后，源路径在索引里还是已跟踪、在工作树里已经消失，默认的 cached 列表会把它当作有效条目返回，但任何「路径存在吗」的过滤都会把它判假。展开结果因此又包含两种状态——已删除的源文件和尚未 `git add` 的新文件——两者都必须原样进 pathspec，交给 `git add` 与 `git commit` 记录，不需要额外调 `git rm --cached`：`git add <已删路径>` 返回 0（只在 stderr 提一句目录打不开），`git commit -- <pathspec>` 能正常记下 deletion。
+
+某条规则展开为空时：规则的固定前缀目录已经不存在（源目录被 `task.py archive` 正常移走）属于预期，静默跳过；前缀仍在却查不到任何条目则打印 `warning: scope rule matched no tracked path: <rule>`，提示 scope 声明与实际仓库不一致，避免兜底脚本漏文件而不出声。
 
 路径无变更时报告 `nothing to commit` 并退出 0，可安全重复执行。`--dry-run` 只打印 `git status --short` 与将要执行的两条命令。
 
 ## 与 scope 门禁的关系
 
 归档前仍需按 [任务改动范围门禁](task-scope-gate.md) 用 `task.py extend-scope` 声明实际改动的范围类别；兜底脚本只负责提交，不替代 scope 检查。提交信息沿用 `chore(task): archive <slug>`，与 `task.py archive` 一致。
+
+## 回归守卫
+
+`tests/archive-fallback.test.sh`（`npm run test:archive-fallback`）在临时仓库里复现三个场景并断言提交结果：
+
+- 源目录被 `mv` 到归档目录后，源侧删除必须在同一次提交里记下（检查 `git status --short` 为空且提交里有 `R100` rename）；
+- scope 规则里尚未 `git add` 的新文件必须入库；
+- 重复执行安全退出 0 并报 `nothing to commit`。
+
+第一条是这条脚本最容易回归的地方：`git ls-files` 默认只看索引，展开出来的源路径在 `-e` 测试下会一律判假，源侧删除就永远进不了 pathspec，结果是归档目录被提交、源目录的删除留在工作区外——看起来成功、实际半提交。`task.py archive` 自己的提交路径靠额外的 `git rm --cached` 规避了这点，兜底脚本不需要那一步，但要保留 `-co` 展开与「不做存在性过滤」两条。
