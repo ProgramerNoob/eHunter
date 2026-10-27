@@ -60,10 +60,10 @@ bash scripts/archive-fallback.sh <task-slug>             # 真正提交
 
 ## 回归守卫
 
-`tests/archive-fallback.test.sh`（`npm run test:archive-fallback`）在临时仓库里复现三个场景并断言提交结果：
+`tests/archive-fallback.test.sh`（`npm run test:archive-fallback`）在临时仓库里复现三个场景、共五条断言：
 
-- 源目录被 `mv` 到归档目录后，源侧删除必须在同一次提交里记下（检查 `git status --short` 为空且提交里有 `R100` rename）；
-- scope 规则里尚未 `git add` 的新文件必须入库；
-- 重复执行安全退出 0 并报 `nothing to commit`。
+- 源目录被 `mv` 到归档目录后——① `git status --short` 为空（源侧删除已记下）、② 提交里有 `R100` rename；
+- scope 规则里尚未 `git add` 的新文件——③ 已入库、④ 提交后工作树干净；
+- ⑤ 重复执行安全退出 0 并报 `nothing to commit`。
 
 第一条是这条脚本最容易回归的地方：`git ls-files` 默认只看索引，展开出来的源路径在 `-e` 测试下会一律判假，源侧删除就永远进不了 pathspec，结果是归档目录被提交、源目录的删除留在工作区外——看起来成功、实际半提交。`task.py archive` 自己的提交路径靠额外的 `git rm --cached` 规避了这点，兜底脚本不需要那一步，但要保留 `-co` 展开与「不做存在性过滤」两条。
