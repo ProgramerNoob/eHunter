@@ -9,9 +9,16 @@
 
 ## 真因
 
-`.githooks/pre-commit` 执行 `npm run check`，子进程继承 hook 导出的 `GIT_INDEX_FILE`（指向 checkout 的真实 index）。测试里的 fixture 仓库若直接用环境里的 `GIT_*` 做 `git add -A`，就会把 fixture 的文件写进**外层**仓库的 index：fixture 里的 `docs/readme.md` 的 blob 只存在于 fixture 的 object 库，外层 index 多出一条没有对应对象的条目，之后每次 `git commit` 都在写树时失败。
+`.githooks/pre-commit` 执行 `npm run check`，子进程继承 hook 导出的 `GIT_INDEX_FILE`。fixture 仓库若直接用环境里的 `GIT_*` 做 `git add -A`，就会把 fixture 的文件写进**外层**仓库的 index：fixture 里 `docs/readme.md` 的 blob 只存在于 fixture 的 object 库，外层 index 多出一条没有对应对象的条目，之后每次 `git commit` 都在写树时失败。
 
-修复位置是 `scripts/test_scope_gate.py` 的 `ScopeGateFixture.setUp()`：它把全部 `GIT_*` 变量临时弹出环境并在 `addCleanup` 里复原，fixture 因此只操作自己的 index。同类 fixture 也要遵循同一规则，别让子进程继承 hook 的索引变量。
+导出的值取决于提交形式：普通提交是相对路径 `.git/index`（fixture `cd` 之后会解析成它自己的索引，碰巧没事）；`git commit -- <pathspec>` 是**绝对路径的临时索引**，fixture 无论 `cd` 到哪里都写进调用方正在构建的那棵树。`task.py archive` 与 `scripts/archive-fallback.sh` 都走后者，所以归档一定会撞上。
+
+修复位置：
+
+- `scripts/test_scope_gate.py` 的 `ScopeGateFixture.setUp()`——把全部 `GIT_*` 变量临时弹出环境并在 `addCleanup` 里复原；
+- `tests/archive-fallback.test.sh`——开头 `unset` 掉 `GIT_*`，fixture 因此只操作自己的索引。
+
+同类 fixture 也要遵循同一规则，别让子进程继承 hook 的索引变量。`scripts/test_scope_gate.py` 的 `InheritedGitEnvironmentTests` 同时守这两条。
 
 已经出现幽灵条目时，先确认路径确实不该被跟踪，再单独移除：
 
