@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "P1 吸附：左侧→右侧、→底部两种目标均成功，拖到无效目标释放后布局回到上一稳定状态，且内容面板不重叠。",
+    "AC2": "P2 缩放：hover 边界出现 resize affordance；水平/垂直拖拽实时更新并在最小/最大限制处钳制，主内容区始终可见；touch 短按不触发、500ms 长按激活拖拽或缩放。",
+    "AC3": "P3 持久化：布局按模式独立保存，`book ↔ scroll` 切换自动应用目标模式布局，刷新后各模式恢复自身布局。",
+    "AC4": "回归：吸附/缩放后卷轴模式内容可读可交互、书页模式翻页与分页正常，依赖中无第三方 UI 组件库。",
+    "AC5": "桌面与移动两轮均产出通过 `verify-browser` 校验的预检产物，`acceptance.json` 有对应 runtime/inspection 记录与证据路径，`summarize` 实际执行。"
+  },
+  "checks": [
+    {
+      "id": "dock-desktop-pointer",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "桌面 1200×900 下拖拽缩略图面板头部可吸附到右侧与底部，拖到无效目标释放后回到上一稳定布局，且主内容区不重叠",
+      "scope": "本地 Vite，desktop profile，鼠标拖拽 `EHUNTER` 头部，左→右、→底部、拖到无效区域释放三种动作",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/dockable-desktop-586dd0a5-c567-48bd-bab3-b83fd3b48873/result.json",
+        ".tmp/browser-preflight/dockable-desktop-586dd0a5-c567-48bd-bab3-b83fd3b48873/measurements.json",
+        ".tmp/browser-preflight/dockable-desktop-586dd0a5-c567-48bd-bab3-b83fd3b48873/dock-right.png",
+        ".tmp/browser-preflight/dockable-desktop-586dd0a5-c567-48bd-bab3-b83fd3b48873/dock-bottom.png",
+        ".trellis/tasks/archive/2026-10/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "desktop profile 1200×900 DPR1：拖 `EHUNTER` 头部左→右得到 `dock-workspace slot-right`、侧栏 {x1050,w150}、主面板 x=0 无重叠，存储 scroll.thumbSlot=right/150（book 仍 left/150）；右侧→底部得到 `slot-bottom`、底栏 {x0,y750,w1200,h150}、主面板 {w1200,h750}。拖到视口中心释放后 `slot` 仍为 bottom、尺寸不变，只有「停靠底部」zone 为 active，存储 thumbSlot/thumbSizePx 未变（仅 updatedAt 刷新）。截图 dock-right.png / dock-bottom.png 已人工确认布局与缩略图渲染正常。执行环境 2026-10-27：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 79726 / vite listener PID 79744，证据 `.tmp/dockable-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile，样本 `?pageTotal=120`；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "dock-mobile-touch",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "移动 390×844 下长按 500ms 头部可激活拖拽并完成吸附，短按不改变布局",
+      "scope": "本地 Vite，mobile profile（DPR3 / touch 5 / coarse），缩略图头部短按与长按对比",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/dockable-touch-dock-372cd38d-88de-483d-981e-ab94e19dac4b/result.json",
+        ".tmp/browser-preflight/dockable-touch-dock-372cd38d-88de-483d-981e-ab94e19dac4b/measurements.json",
+        ".tmp/browser-preflight/dockable-touch-dock-372cd38d-88de-483d-981e-ab94e19dac4b/touch-drag-failure.png",
+        ".tmp/browser-preflight/dockable-mobile-final-e19c7c9b-3e3e-456b-b1be-3396bfd44da4/result.json",
+        ".tmp/browser-preflight/dockable-mobile-final-e19c7c9b-3e3e-456b-b1be-3396bfd44da4/measurements.json",
+        ".trellis/tasks/archive/2026-10/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "mobile profile 390×844 DPR3 touch5 coarse：首轮验收发现的 pointercancel 缺陷已修复——`core/components/layout/DockHandle.vue` 现声明 `touch-action: none`，实测 computed `touchAction \"none\"`。长按 800ms 后 `.drop-overlay` 与 armed 为 true，拖拽事件序列为 `pointerdown{x75,y20} → pointermove{200,200} → pointermove{330,400} → pointermove{382,500} → pointerup{382,500}`，无 pointercancel；松手后切到 `slot \"right\"`、侧栏 {x240,y0,w150,h844}、handle {x315,y20}，存储 book.thumbSlot=\"right\"。短按不改变布局（touch-short-tap before/after 完全一致），长按后未拖拽则 overlay/armed 恢复 false 且布局不变。执行环境 2026-10-27：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 79726 / vite listener PID 79744，证据 `.tmp/dockable-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile，样本 `?pageTotal=120`；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "resize-desktop",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "桌面 hover 分界线出现 resize affordance，水平与垂直拖拽实时改变尺寸并在最小/最大限制处钳制，主内容区保持可见",
+      "scope": "本地 Vite，desktop profile，侧边吸附与底部吸附两种边界的 hover、拖拽到上下限、越界拖拽",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/dockable-desktop-586dd0a5-c567-48bd-bab3-b83fd3b48873/result.json",
+        ".tmp/browser-preflight/dockable-desktop-586dd0a5-c567-48bd-bab3-b83fd3b48873/measurements.json",
+        ".tmp/browser-preflight/dockable-desktop-586dd0a5-c567-48bd-bab3-b83fd3b48873/resize-hover.png",
+        ".tmp/browser-preflight/dockable-desktop-586dd0a5-c567-48bd-bab3-b83fd3b48873/resize-min.png",
+        ".tmp/browser-preflight/dockable-desktop-586dd0a5-c567-48bd-bab3-b83fd3b48873/resize-bottom.png",
+        ".trellis/tasks/archive/2026-10/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "desktop profile：hover 分界线时 grip 由 rgba(0,0,0,0) 变为 rgba(46,204,113,0.16)，`.main-panel` 加 `resizing` class，离开后复原。侧边拖拽 150→320（主面板 880）期间实时跟随，拖到右缘钳制 **520（主面板 680）**，拖到左缘钳制 **60（主面板 1140）**；底边 60→200（主面板 700），上限钳制 **420（主面板 480）**、下限钳制 **60（主面板 840）**，全程主内容区 >0。底栏读数改用轮询等待过渡稳定（`.thumb-panel` 有 `transition: height 0.28s`），settle 轨迹 maxTrail [420,420,420]、minTrail [60,60,60]。截图 resize-hover.png / resize-min.png / resize-bottom.png 已人工确认。执行环境 2026-10-27：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 79726 / vite listener PID 79744，证据 `.tmp/dockable-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile，样本 `?pageTotal=120`；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "resize-touch-longpress",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "移动端短按分界线不触发缩放，500ms 长按后拖动可改变尺寸并受钳制",
+      "scope": "本地 Vite，mobile profile，触摸短按与长按分界线的对比与钳制边界",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/dockable-mobile-final-e19c7c9b-3e3e-456b-b1be-3396bfd44da4/result.json",
+        ".tmp/browser-preflight/dockable-mobile-final-e19c7c9b-3e3e-456b-b1be-3396bfd44da4/measurements.json",
+        ".tmp/browser-preflight/dockable-mobile-final-e19c7c9b-3e3e-456b-b1be-3396bfd44da4/touch-min-clamp.png",
+        ".tmp/browser-preflight/dockable-mobile-maxdrag-215af20c-f060-4a14-865b-d8d2d9f7d010/result.json",
+        ".tmp/browser-preflight/dockable-mobile-maxdrag-215af20c-f060-4a14-865b-d8d2d9f7d010/measurements.json",
+        ".tmp/browser-preflight/dockable-mobile-maxdrag-215af20c-f060-4a14-865b-d8d2d9f7d010/touch-max-drag.png",
+        ".trellis/tasks/archive/2026-10/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "mobile profile：触摸短按分界线 120ms 不改变宽度；长按 750–780ms 后 `.split-handle` 进入 active，拖动使侧栏 150→60 并在下限钳制，主面板 240→330，存储写入 thumbSizePx=60（截图 touch-min-clamp.png）。首轮验收发现的「拖到视口右缘侧栏 389 / 主面板 1px」已修复：`core/model/layout.ts` 引入 `mainSizeFloorRatio = 0.6` 与 `computeMainMinSizePx`，`getThumbSizeRange(slot, viewportPx)` 按视口降级上限；实测 390 宽拖到右缘钳制 **侧栏 156 / 主面板 234**（= min(320, 390×0.6)），存储 thumbSizePx=156，主内容区始终可见（截图 touch-max-drag.png）。执行环境 2026-10-27：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 79726 / vite listener PID 79744，证据 `.tmp/dockable-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile，样本 `?pageTotal=120`；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "layout-persistence-mode",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "布局按阅读模式独立保存：在书页模式设置布局后切到卷轴模式应用该模式自身布局，刷新后两种模式各自恢复上次布局",
+      "scope": "本地 Vite，desktop profile，book → scroll → book 切换与页面刷新前后的吸附位置和尺寸",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/dockable-refresh-41cdba5c-d9eb-4645-ae76-97efd24f71a4/result.json",
+        ".tmp/browser-preflight/dockable-refresh-41cdba5c-d9eb-4645-ae76-97efd24f71a4/measurements.json",
+        ".tmp/browser-preflight/dockable-refresh-41cdba5c-d9eb-4645-ae76-97efd24f71a4/refresh-restored.png",
+        ".trellis/tasks/archive/2026-10/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "desktop profile：清空 `ehunter:reader:prefs:mode-layout` 后重置回默认 left/150；scroll 依附底部并 resize 到 h=222（存储 scroll bottom/222），切书页后应用该模式自身布局（left/150），改为吸附右侧并 resize 到 w=333（存储 book right/333，scroll 保持 bottom/222）；**刷新后**直接落在书页 right/333（`side {x867,w333}`、主面板 {w867}），切回滚动恢复 bottom/222（`bottom {y678,h222}`），再切回书页仍 right/333。截图 refresh-restored.png 已人工确认。执行环境 2026-10-27：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 79726 / vite listener PID 79744，证据 `.tmp/dockable-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile，样本 `?pageTotal=120`；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "layout-block-registry",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "核心吸附/缩放行为由 block registry 元数据驱动，没有针对缩略图面板的硬编码分支",
+      "scope": "`core/model/layout.ts` 的块元数据与 `DockWorkspace` 交互入口的静态核对",
+      "method": "inspection",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        "core/model/layout.ts",
+        "core/components/layout/DockWorkspace.vue",
+        "core/components/layout/DockHandle.vue",
+        "core/components/layout/SplitHandle.vue",
+        "core/components/ReaderView.vue",
+        "core/store/app.ts",
+        ".trellis/spec/frontend/features/001-dockable-panel-layout/quickstart.md",
+        ".trellis/tasks/archive/2026-10/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "首轮「注册表无消费方」缺陷已修复，现行为由 `core/model/layout.ts` 的 `layoutBlockRegistry` 元数据驱动：`getLayoutBlock`（layout.ts:88）、`getBlockSizeRange`（:92）、`getDockAllowedSlots`（:101，读 thumb.allowedSlots）、`getDockLongPressMs`（:106，读 thumb.touchLongPressMs）、`computeMainMinSizePx`（:111，读 main.sizeRange.minSizePx）、`getThumbSizeRange`（:117，经 `getBlockSizeRange` 取 thumb 的 sizeRange/slotSizeRanges）、`clampThumbSize`（:131）均从注册表取值。消费点：`DockWorkspace.vue:47,57,70` 使用 `getDockAllowedSlots` / `getDockLongPressMs`，`DockHandle.vue:19,28` 与 `SplitHandle.vue:19,25` 使用 `getDockLongPressMs`；`ReaderView.vue` 已删除写死的 `:long-press-ms=\"500\"`；`core/store/app.ts` 的 `clampThumbSize` 调用均传入视口尺寸。静态复核脚本 `.tmp/fix-defects-registry-check.sh` 断言注册表被消费、无硬编码 long-press 值，输出 `RESULT: OK`。执行环境 2026-10-27：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 79726 / vite listener PID 79744，证据 `.tmp/dockable-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile，样本 `?pageTotal=120`；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "reader-regression-after-layout",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "吸附与缩放后卷轴模式内容可读可交互，书页模式翻页与分页仍正常",
+      "scope": "本地 Vite，desktop 与 mobile 各一轮，改变布局后切换两种模式并翻页、滚动",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/browser-preflight/dockable-desktop-586dd0a5-c567-48bd-bab3-b83fd3b48873/result.json",
+        ".tmp/browser-preflight/dockable-desktop-586dd0a5-c567-48bd-bab3-b83fd3b48873/measurements.json",
+        ".tmp/browser-preflight/dockable-desktop-586dd0a5-c567-48bd-bab3-b83fd3b48873/scroll-regression.png",
+        ".tmp/browser-preflight/dockable-desktop-586dd0a5-c567-48bd-bab3-b83fd3b48873/book-regression.png",
+        ".tmp/browser-preflight/dockable-mobile-final-e19c7c9b-3e3e-456b-b1be-3396bfd44da4/result.json",
+        ".tmp/browser-preflight/dockable-mobile-final-e19c7c9b-3e3e-456b-b1be-3396bfd44da4/measurements.json",
+        ".tmp/browser-preflight/dockable-mobile-final-e19c7c9b-3e3e-456b-b1be-3396bfd44da4/mobile-book-tap.png",
+        ".trellis/tasks/archive/2026-10/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "desktop：底部吸附（h=222）后滚轮使 scrollTop 0→900、已加载图片 4→5、进度 1/120→2/120，容器仍为 `album-scroll-view content scroll-mode`；切书页得到 `album-book-view mode-realistic content book-mode`、分页控件可见、点击后 2/120→4/120（截图 book-regression.png）。mobile：上滑 scrollTop 0→188、图片 4→6、进度 1/120→3/120；触摸点击书页 3/120→4/120（截图 mobile-book-tap.png）。执行环境 2026-10-27：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 79726 / vite listener PID 79744，证据 `.tmp/dockable-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile，样本 `?pageTotal=120`；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    },
+    {
+      "id": "no-third-party-ui-library",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "依赖中没有新增第三方 UI 组件库",
+      "scope": "`package.json` 依赖清单",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/dockable-deps-check.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T23:40:10+08:00",
+        "endedAt": "2026-10-27T23:40:11+08:00",
+        "log": ".tmp/dockable-deps-check.log"
+      },
+      "evidence": [
+        ".tmp/dockable-deps-check.log",
+        "package.json",
+        ".trellis/tasks/archive/2026-10/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "python3 脚本读取 package.json：dependencies 仅 fflate / markdown-it / vite-plugin-css-injected-by-js / vue，按 UI 组件库特征词（element/vuetify/ant-design/naive-ui/bootstrap/tailwind）匹配 0 项，退出码 0。",
+      "waiver": null
+    },
+    {
+      "id": "browser-artifact-verified",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "桌面与移动两轮预检产物通过 `verify-browser` 校验",
+      "scope": "跨浏览器操作流程的证据完整性，不替代功能断言",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/dockable-verify-browser.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-27T23:42:05+08:00",
+        "endedAt": "2026-10-27T23:42:31+08:00",
+        "log": ".tmp/dockable-verify-browser.log"
+      },
+      "evidence": [
+        ".tmp/dockable-verify-browser.log",
+        ".tmp/browser-preflight/dockable-desktop-586dd0a5-c567-48bd-bab3-b83fd3b48873/result.json",
+        ".tmp/browser-preflight/dockable-mobile-final-e19c7c9b-3e3e-456b-b1be-3396bfd44da4/result.json",
+        ".tmp/browser-preflight/dockable-touch-dock-372cd38d-88de-483d-981e-ab94e19dac4b/result.json",
+        ".tmp/browser-preflight/dockable-mobile-maxdrag-215af20c-f060-4a14-865b-d8d2d9f7d010/result.json",
+        ".tmp/browser-preflight/dockable-refresh-41cdba5c-d9eb-4645-ae76-97efd24f71a4/result.json",
+        ".trellis/tasks/archive/2026-10/10-25-dockable-panel-acceptance/validation.md"
+      ],
+      "note": "`acceptance.py verify-browser` 依次校验桌面、移动、触摸停靠、移动极限拖拽、刷新恢复五份产物，全部返回 `valid:true status:passed`（均非 stale），脚本退出码 0。首轮失败轮 `dockable-touch-dock-23feb3b7…` 与 `dockable-mobile-maxdrag-fb1a48bd…` 仍保留在 `.tmp/browser-preflight/` 作为缺陷取证，不参与本项通过判定。执行环境 2026-10-27：本地 Vite `http://127.0.0.1:5173`（`npm run dev -- --host 127.0.0.1 --port 5173 --strictPort`，npm parent PID 79726 / vite listener PID 79744，证据 `.tmp/dockable-panel-service-evidence.json`），ego-browser + `withBrowserPreflight` 的 desktop（1200×900 DPR1）与 mobile（390×844 DPR3 touch5 coarse）profile，样本 `?pageTotal=120`；每轮产物用 `python3 scripts/acceptance.py verify-browser` 校验为 passed（非 stale）。",
+      "waiver": null
+    }
+  ]
+}

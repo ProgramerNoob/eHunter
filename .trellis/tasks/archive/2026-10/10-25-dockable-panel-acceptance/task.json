@@ -3,7 +3,7 @@
   "name": "dockable-panel-acceptance",
   "title": "验收 001-dockable-panel-layout",
   "description": "执行 001-dockable-panel-layout quickstart 的 P1 吸附、P2 缩放、P3 模式隔离持久化与回归检查，产出可核验验收记录。",
-  "status": "in_progress",
+  "status": "completed",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -11,7 +11,7 @@
   "creator": "Warwick",
   "assignee": "Warwick",
   "createdAt": "2026-10-25",
-  "completedAt": null,
+  "completedAt": "2026-10-27",
   "branch": "master",
   "base_branch": "master",
   "worktree_path": null,
@@ -34,7 +34,7 @@
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "632d7fea40cc7aeee3820024dc705262b4293398331a6359f4fcc2d32feb38ff"
+        "sha256": "cae8bca450b9ace39fa9caffcd0c1c4567618c52620c6aea7251470fb4359d12"
       }
     }
   }
