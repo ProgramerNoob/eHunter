@@ -5,6 +5,11 @@
 # 脚本靠 dirname/.. 回仓库根，所以副本必须放在仓库的一级子目录里跑。
 set -u
 
+# pre-commit hook 会导出 GIT_INDEX_FILE 指向本次提交的临时索引（`git commit -- <pathspec>`
+# 时为绝对路径）。fixture 仓库必须用自己的索引，否则 `git add -A` 会写进外层提交正在构建的
+# 树，留下指向不存在 blob 的记录并让 `git write-tree` 崩掉。
+unset GIT_DIR GIT_WORK_TREE GIT_INDEX_FILE GIT_PREFIX GIT_OBJECT_DIRECTORY
+
 repo_root="$(cd "$(dirname "$0")/.." && pwd)"
 source_script="$repo_root/scripts/archive-fallback.sh"
 workdir="$(mktemp -d "${TMPDIR:-/tmp}/archive-fallback.XXXXXX")"

@@ -1542,6 +1542,49 @@ class InheritedGitEnvironmentTests(unittest.TestCase):
             for key, value in sentinel.items():
                 self.assertEqual(os.environ.get(key), value)
 
+    def test_bash_archive_fixture_ignores_inherited_index(self) -> None:
+        """`tests/archive-fallback.test.sh` must not stage into the hook's index.
+
+        `git commit -- <pathspec>` exports GIT_INDEX_FILE as an absolute path
+        to the index it is building. The bash fixture creates its own repos
+        under mktemp, so an inherited value makes its `git add -A` write into
+        the caller's in-flight tree and `git write-tree` then fails with
+        `invalid object … for '.trellis/tasks/archive/YYYY-MM/demo/prd.md'`.
+        """
+        inherited = dict(
+            (key, value)
+            for key, value in os.environ.items()
+            if not key.startswith("GIT_")
+        )
+        inherited.update(
+            {
+                "GIT_AUTHOR_NAME": "Scope Gate",
+                "GIT_AUTHOR_EMAIL": "scope-gate@example.com",
+                "GIT_COMMITTER_NAME": "Scope Gate",
+                "GIT_COMMITTER_EMAIL": "scope-gate@example.com",
+                "GIT_CONFIG_GLOBAL": os.devnull,
+                "GIT_CONFIG_SYSTEM": os.devnull,
+            }
+        )
+
+        hook_index = REPO_ROOT / ".tmp" / "scope-gate" / "bash-fixture-index"
+        hook_index.parent.mkdir(parents=True, exist_ok=True)
+        hook_index.unlink(missing_ok=True)
+
+        completed = subprocess.run(
+            ["bash", str(REPO_ROOT / "tests" / "archive-fallback.test.sh")],
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            env=dict(inherited, GIT_INDEX_FILE=str(hook_index)),
+        )
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertIn("RESULT: archive-fallback contract holds", completed.stdout)
+        self.assertFalse(
+            hook_index.exists(),
+            "the fixture must not touch the caller's index file",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
