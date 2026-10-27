@@ -9,54 +9,101 @@
   "checks": [
     {
       "id": "child-summaries-recorded",
-      "ac": ["AC1"],
+      "ac": [
+        "AC1"
+      ],
       "claim": "四个 child 任务的 acceptance.json 均可被 summarize 解析并返回合法结论，结论已记入本任务",
       "scope": "四个 child 任务的 acceptance.json 有效性与 summarize 退出码（0 passed / 1 未通过但合法）",
       "method": "command",
       "dimension": "structure",
-      "observed": "unrun",
-      "execution": null,
-      "evidence": [],
-      "note": "计划中；未执行",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "python3",
+          ".tmp/close-parent-summarize.py"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T05:10:00+08:00",
+        "endedAt": "2026-10-28T05:10:05+08:00",
+        "log": ".tmp/close-parent-summaries.log"
+      },
+      "evidence": [
+        ".tmp/close-parent-summaries.json",
+        ".tmp/close-parent-summaries.log",
+        ".tmp/close-parent-summarize.py",
+        ".trellis/tasks/archive/2026-10/10-25-dockable-panel-acceptance/acceptance.json",
+        ".trellis/tasks/archive/2026-10/10-25-thumb-expand-modal-acceptance/acceptance.json",
+        ".trellis/tasks/archive/2026-10/10-25-pageflip-toggle-acceptance/acceptance.json",
+        ".trellis/tasks/archive/2026-10/10-25-more-settings-modal-acceptance/acceptance.json",
+        ".trellis/tasks/10-25-close-feature-quickstart-acceptance/validation.md"
+      ],
+      "note": "四个 child 归档后逐个执行 `python3 scripts/acceptance.py summarize <task-dir>`，全部 exit 0、`valid true`、`observedStatus \"passed\"`：`10-25-dockable-panel-acceptance` 9/9 passed、`10-25-thumb-expand-modal-acceptance` 11/11 passed、`10-25-pageflip-toggle-acceptance` 10/10 passed、`10-25-more-settings-modal-acceptance` 12/12 passed；合计 42 项 check 无 failed/partial/blocked/unrun。四份 JSON 原文已保存为 `.tmp/close-parent-summaries.json`。不存在非 passed 项，故无需列出失败 phase 与错误文本。各组验收执行期间确实出现过失败轮与缺陷，均已修复并复跑通过：dockable/thumb-expand 的 D1–D7 与 R1–R7 由 `10-26-fix-acceptance-defects` / `10-26-fix-review-findings` 修复；more-settings 的分类跳转高亮与末组对齐由 `10-28-fix-more-settings-category-jump` 修复（提交 `8cef307`）。判定口径：`acceptance.json` 只登记修复后复跑的结论，失败轮以 `.tmp/browser-preflight/` 产物与新任务 validation.md 记录。",
       "waiver": null
     },
     {
       "id": "per-group-evidence",
-      "ac": ["AC2"],
+      "ac": [
+        "AC2"
+      ],
       "claim": "每组验收记录包含环境信息、截图与日志路径，以及实际执行的 quickstart 步骤清单",
       "scope": "四个 child 任务的 prd/记录文档与 acceptance.json 的 note/evidence 字段",
       "method": "inspection",
       "dimension": "content",
-      "observed": "unrun",
+      "observed": "passed",
       "execution": null,
-      "evidence": [],
-      "note": "计划中；未执行",
+      "evidence": [
+        ".trellis/tasks/archive/2026-10/10-25-dockable-panel-acceptance/validation.md",
+        ".trellis/tasks/archive/2026-10/10-25-thumb-expand-modal-acceptance/validation.md",
+        ".trellis/tasks/archive/2026-10/10-25-pageflip-toggle-acceptance/validation.md",
+        ".trellis/tasks/archive/2026-10/10-25-more-settings-modal-acceptance/validation.md",
+        ".trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md",
+        ".trellis/tasks/archive/2026-10/10-26-fix-review-findings/validation.md",
+        ".trellis/tasks/archive/2026-10/10-28-fix-more-settings-category-jump/prd.md",
+        ".trellis/tasks/10-25-close-feature-quickstart-acceptance/validation.md"
+      ],
+      "note": "四份 child `validation.md` 均含环境表（浏览器与 desktop/mobile profile、本地 Vite 或生产包版本与 PID、执行日期）、轮次与产物目录表、逐条 AC 实测数值、截图文件名与校验命令日志路径，以及实际执行的 quickstart 步骤：dockable 与 thumb-expand 覆盖本地两组 profile 的布局/弹窗轮；pageflip 覆盖 quickstart 第 2–4 节（首次初始化矩阵 4 轮、稳定性、18 轮预设/坏值/重置、三档动效 2 轮、origin 隔离 4 轮、EH/EX/NH 平台 7 轮）；more-settings 覆盖 quickstart 第 2 节弹窗与阅读回归、第 3 节九行共享迁移矩阵 + GM 权限审计、第 4 节翻页与放大镜专项。每组 `acceptance.json` 的 note 内嵌同一环境串，evidence 指向 `.tmp/browser-preflight/<round>/result.json`、`measurements.json` 与截图。",
       "waiver": null
     },
     {
       "id": "failed-rounds-preserved",
-      "ac": ["AC3"],
+      "ac": [
+        "AC3"
+      ],
       "claim": "记录中提及的失败轮产物仍在 `.tmp/browser-preflight/` 下存在且未被覆盖",
       "scope": "各 child 记录引用的失败轮 artifactDir 与磁盘实际目录对照",
       "method": "inspection",
       "dimension": "structure",
-      "observed": "unrun",
+      "observed": "passed",
       "execution": null,
-      "evidence": [],
-      "note": "计划中；未执行",
+      "evidence": [
+        ".tmp/browser-preflight/dockable-touch-dock-23feb3b7-a759-4a60-b574-2be577c3bc77/result.json",
+        ".tmp/browser-preflight/dockable-mobile-maxdrag-fb1a48bd-d753-4d43-88e1-c0538479cc1f/result.json",
+        ".tmp/browser-preflight/dockable-desktop-b709b30a-5d2e-4465-88d7-735dfa7ef444/result.json",
+        ".tmp/browser-preflight/pageflip-init-mobile-a05d8fb5-4b3f-4353-baf8-de2418390eca/result.json",
+        ".tmp/browser-preflight/pageflip-reset-desktop-from-slide-6dfb6299-f910-4e14-94f6-141f469a0127/result.json",
+        ".tmp/browser-preflight/catjump-fix-desktop-a4ca5743-5151-4748-9581-c0a61c11f05e/result.json",
+        ".trellis/tasks/10-25-close-feature-quickstart-acceptance/validation.md"
+      ],
+      "note": "失败轮产物全部保留在 `.tmp/browser-preflight/`（当前 342 个目录），未被删除或覆盖，每轮都是独立 UUID 目录、只新增不改写。抽查 6 个代表性失败轮仍可读：`dockable-touch-dock-23feb3b7…`（D1 touch-action 缺失，`pointercancel` 中断）、`dockable-mobile-maxdrag-fb1a48bd…`（D2 主面板被压到 1px）、`dockable-desktop-b709b30a…`（bottom 最小高度采样落在过渡中段，脚本时序问题）、`pageflip-init-mobile-a05d8fb5…`（弹窗遮挡导致触摸未翻页）、`pageflip-reset-desktop-from-slide-6dfb6299…`（重置确认点错对话框）、`catjump-fix-desktop-a4ca5743…`（修复首轮分类跳转仍不对齐）。上述目录均含 `result.json`、`commands.jsonl`、`environments.jsonl`、`identity.jsonl`、`manifest.json` 与截图。",
       "waiver": null
     },
     {
       "id": "pending-work-updated",
-      "ac": ["AC4"],
+      "ac": [
+        "AC4"
+      ],
       "claim": "`pending-work.md` 按四组实际结论更新，已执行项改写、未执行或失败项保持可见",
       "scope": "`.trellis/spec/frontend/features/pending-work.md` 的当前状态描述与四组验收结论一致",
       "method": "inspection",
       "dimension": "content",
-      "observed": "unrun",
+      "observed": "passed",
       "execution": null,
-      "evidence": [],
-      "note": "计划中；未执行",
+      "evidence": [
+        ".trellis/spec/frontend/features/pending-work.md",
+        ".trellis/tasks/10-25-close-feature-quickstart-acceptance/validation.md"
+      ],
+      "note": "`pending-work.md` 已按实际结论更新：「仍在排队的验收」表只剩 `001-gallery-download-bundle` 与 `001-platform-injection`（均不在本轮范围），`001-add-pageflip-toggle` 与 `002-more-settings-modal` 两行已移除；「已收口的验收」段在原有 dockable/thumb-expand 之外新增一段，写明 pageflip 与 more-settings 的验收范围（本地 desktop/mobile + EH/EX/NH 生产包 + GM 不可用双 origin）、记录位置（两份归档任务的 `acceptance.json` 与 `validation.md`，分别 10/10 与 12/12 passed）以及分类跳转缺陷修复任务 `10-28-fix-more-settings-category-jump`。四条待排队项与四组已收口项的表述与各自 `validation.md` 一致，未把未验证内容写成通过。",
       "waiver": null
     }
   ]

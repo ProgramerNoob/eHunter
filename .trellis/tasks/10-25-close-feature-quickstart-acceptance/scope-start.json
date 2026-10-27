@@ -5,7 +5,7 @@
   "head": "01938b19217e31f9e8a342170208cfcf410889eb",
   "indexTree": "b0c3f12ac303ef5b893aefe2bfe8f75ba26bf28f",
   "capturedAt": "2026-10-25T23:20:51+08:00",
-  "scopeDigest": "1276ba3615f06c8eb5473a35499055d72e5d45ab7b89b5d735799cac54a277c6",
+  "scopeDigest": "23d5c376d116d2df8f6b1b42865e2195bc45b6307b834f272701c0b7c28b253d",
   "dirty": {},
   "untracked": {
     ".trellis/tasks/10-25-close-feature-quickstart-acceptance/check.jsonl": {
@@ -28,5 +28,14 @@
       "mode": "100644",
       "sha256": "6cd471ea3ebc06598d33eb121835f9cbaeb497bc7a7607938c4addf8bd997e6d"
     }
-  }
+  },
+  "scopeExtensions": [
+    {
+      "category": "spec",
+      "rules": [
+        ".trellis/spec/frontend/features/pending-work.md"
+      ],
+      "at": "2026-10-28T04:56:49+08:00"
+    }
+  ]
 }

@@ -6,15 +6,17 @@
 
 | 功能 | 任务 / 规格 |
 | --- | --- |
-| `001-add-pageflip-toggle` | 任务 `.trellis/tasks/10-25-pageflip-toggle-acceptance/`；规格 [features/001-add-pageflip-toggle](./001-add-pageflip-toggle/) |
-| `002-more-settings-modal` | 任务 `.trellis/tasks/10-25-more-settings-modal-acceptance/`；规格 [features/002-more-settings-modal](./002-more-settings-modal/) |
 | `001-gallery-download-bundle` | 规格 [features/001-gallery-download-bundle](./001-gallery-download-bundle/) |
 | `001-platform-injection` | 规格 [features/001-platform-injection](./001-platform-injection/) |
 
-各组的未执行项以对应 quickstart 与任务 `prd.md` 为准。
+未执行项以对应 quickstart 为准。
 
 ## 已收口的验收
 
 `001-dockable-panel-layout` 与 `001-thumb-expand-modal` 的本地 quickstart 验收已执行完毕，发现的缺陷已修复并回归。
 验收记录见 `.trellis/tasks/archive/2026-10/10-25-dockable-panel-acceptance/` 与 `10-25-thumb-expand-modal-acceptance/`（`acceptance.json` 逐项 passed，证据在各自 `validation.md`）；
 缺陷修复见 `.trellis/tasks/archive/2026-10/10-26-fix-acceptance-defects/validation.md` 与 `10-26-fix-review-findings/validation.md`。
+
+`001-add-pageflip-toggle` 与 `002-more-settings-modal` 的 quickstart 验收已执行完毕，含本地 desktop/mobile 轮、EH/EX/NH 生产包轮、GM 不可用的双 origin 轮。
+验收记录见 `.trellis/tasks/archive/2026-10/10-25-pageflip-toggle-acceptance/` 与 `10-25-more-settings-modal-acceptance/`（`acceptance.json` 分别为 10/10 与 12/12 passed，证据在各自 `validation.md`）；
+弹窗分类跳转缺陷的修复见 `.trellis/tasks/archive/2026-10/10-28-fix-more-settings-category-jump/`。

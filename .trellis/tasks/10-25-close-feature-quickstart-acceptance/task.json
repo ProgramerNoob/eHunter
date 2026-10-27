@@ -3,7 +3,7 @@
   "name": "close-feature-quickstart-acceptance",
   "title": "补齐四组功能 quickstart 验收",
   "description": "执行 001-add-pageflip-toggle、001-dockable-panel-layout、001-thumb-expand-modal、002-more-settings-modal 四组 quickstart 中未执行的验收步骤，产出可核验的验收记录，并据实回填 pending-work.md 状态。",
-  "status": "planning",
+  "status": "in_progress",
   "dev_type": null,
   "scope": null,
   "package": null,
@@ -12,7 +12,7 @@
   "assignee": "Warwick",
   "createdAt": "2026-10-25",
   "completedAt": null,
-  "branch": null,
+  "branch": "master",
   "base_branch": "master",
   "worktree_path": null,
   "commit": null,
@@ -35,11 +35,14 @@
       "categories": {
         "task-evidence": [
           ".trellis/tasks/10-25-close-feature-quickstart-acceptance/**"
+        ],
+        "spec": [
+          ".trellis/spec/frontend/features/pending-work.md"
         ]
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "a4244415aa61ae20f449a59645dd27af17db0d1fa304fcb74045394c6522d3f5"
+        "sha256": "596a56913e6538e81fcb557f44012db7e9c37aecd30de1acaf1abc65b2a464e9"
       }
     }
   }
