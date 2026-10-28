@@ -738,18 +738,38 @@ test('a missing mobile command success receipt cannot pass from CSS and touch si
   assert.equal(f.page.openCount, 0);
 });
 
-test('command and command-log write errors both survive', async t => {
+test('a failing round persists full command receipts and no summary', async t => {
   const f = await fixture(t);
-  f.page.onCommand = async method => {
-    if (method !== 'Page.getFrameTree') return;
-    const file = path.join(f.options.artifactDir, 'commands.jsonl');
-    await fs.rename(file, path.join(f.dir, 'saved-commands.jsonl'));
-    await fs.mkdir(file);
-    throw new Error('original frame command failure');
-  };
-  const error = await blocked(f, /original frame command failure/);
-  assert.equal(error.cause.message, 'original frame command failure');
-  assert.ok(error.result.errors.some(e => e.code === 'EISDIR'));
+  f.page.onOpen = () => { throw new Error('fixture product failure'); };
+  const error = await f.run().then(() => assert.fail('must reject'), e => e);
+  assert.ok(error instanceof BrowserPreflightError);
+  assert.ok(error.result.errors.length > 0);
+  const raw = await fs.readFile(path.join(f.options.artifactDir, 'commands.jsonl'), 'utf8');
+  const receipts = raw.split('\n').filter(Boolean).map(line => JSON.parse(line));
+  assert.ok(receipts.length > 0);
+
+  assert.ok(receipts.every(row => typeof row.method === 'string' && row.runId && row.roundId));
+  assert.ok(!(await fs.readdir(f.options.artifactDir)).includes('commands.json'));
+});
+
+test('a passing round writes a command summary instead of full receipts', async t => {
+  const f = await fixture(t);
+  assert.equal((await f.run()).observed, 'passed');
+  assert.ok(!(await fs.readdir(f.options.artifactDir)).includes('commands.jsonl'));
+  const summary = JSON.parse(await fs.readFile(path.join(f.options.artifactDir, 'commands.json'), 'utf8'));
+  assert.ok(summary.receiptCount > 0);
+  assert.equal(summary.failedReceiptCount, 0);
+  assert.equal(summary.byMethod.reduce((total, entry) => total + entry.count, 0), summary.receiptCount);
+});
+
+test('a command summary write error still blocks an otherwise passing round', async t => {
+  const f = await fixture(t);
+  await fs.mkdir(f.options.artifactDir, { recursive: true });
+  await fs.mkdir(path.join(f.options.artifactDir, 'commands.json'));
+  const error = await f.run().then(() => assert.fail('must reject'), e => e);
+  assert.ok(error instanceof BrowserPreflightError);
+  assert.equal(error.result.observed, 'blocked');
+  assert.ok(error.result.errors.some(e => e.code === 'EISDIR' || e.code === 'EEXIST'));
 });
 
 test('suite timeout aborts the callback signal and prevents subsequent protected actions', async t => {

@@ -507,12 +507,34 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
     let failure;
     try { row.result = await bounded(method, () => page.cdp(method, params, { timeout: timeoutMs })); }
     catch (error) { row.error = errorRecord(error); failure = error; }
-    // Do not let a persistence exception replace a command exception.
-    try { await save('commands.jsonl', row, true); }
-    catch (error) { failure ??= error; }
+    // Receipts stay in memory so the write failure below still surfaces, but only
+    // a round that did not pass persists them; a passing round keeps a summary.
     receipts.push(row);
     if (failure) throw failure;
     return row.result;
+  }
+  function commandSummary() {
+    const byMethod = new Map();
+    let failed = 0;
+    for (const row of receipts) {
+      const entry = byMethod.get(row.method) ?? { method: row.method, count: 0, failed: 0 };
+      entry.count += 1;
+      if (row.error) { entry.failed += 1; failed += 1; }
+      byMethod.set(row.method, entry);
+    }
+    return { receiptCount: receipts.length, failedReceiptCount: failed,
+      byMethod: [...byMethod.values()].sort((a, b) => b.count - a.count || a.method.localeCompare(b.method)),
+      note: 'Full receipts are persisted only for rounds that did not pass.' };
+  }
+  async function persistCommandReceipts(observed) {
+    try {
+      if (observed === 'passed') {
+        await save('commands.json', commandSummary());
+        return;
+      }
+      await fs.writeFile(path.join(artifactDir, 'commands.jsonl'),
+        receipts.map(row => JSON.stringify(row) + '\n').join(''));
+    } catch (error) { recordError(error, 'finally:commands'); }
   }
   function consume(events) {
     for (const event of events) {
@@ -787,7 +809,8 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
         fullBundleCandidate: userscript && isProductionBundle(actual, bundle, result.permissions.production.name),
         verified: expectedSource === actual && !!topLevel };
       rows.push(row);
-      // Full responses are also in commands.jsonl; save stable content-addressed
+      // Full responses are also in the in-memory command receipts and, for a
+      // round that did not pass, in commands.jsonl; save stable content-addressed
       // source copies for review without duplicating them at every checkpoint.
       await fs.writeFile(path.join(artifactDir, `source-${row.actual.sha256}.js`), actual);
       await fs.writeFile(path.join(artifactDir, `source-${row.expected.sha256}.js`), expectedSource);
@@ -1164,6 +1187,7 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
       result.observed = result.errors.some(e => e.name !== 'ProductAssertion') ? 'blocked'
         : result.errors.length ? 'failed' : 'passed';
       if (result.preparation !== 'verified') result.preparation = 'blocked';
+      await persistCommandReceipts(result.observed);
       try {
         await save('result.pending.json', result);
         await fs.rename(path.join(artifactDir, 'result.pending.json'), path.join(artifactDir, 'result.json'));
