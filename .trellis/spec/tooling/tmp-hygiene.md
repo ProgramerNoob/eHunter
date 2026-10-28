@@ -16,13 +16,13 @@ npm run tmp:report -- --max-bytes 4294967296 --max-orphan-bytes 2147483648
 
 退出码 0 表示在预算内，1 表示超出预算；命令本身不修改 `.tmp/`。
 
-读取失败（权限不足、文件在列举与 `stat` 之间消失、`acceptance.json` 解析失败）不改变退出码，只在报告里计数并按 `reason` 聚合，`--json` 下对应 `readFailures.count`、`readFailures.reasons` 与最多 5 条 `sample`。报告是估算：让一个不可读子目录把结论翻成「超预算」同样会误导，但读不到的部分必须看得见，否则体积会被低估而影响删除决策。
+读取失败（权限不足、文件在列举与 `stat` 之间消失、`acceptance.json` 解析失败、判定引用是否存在时撞上 `ELOOP` 一类错误）不改变退出码，只在报告里计数并按 `reason` 聚合，`--json` 下对应 `readFailures.count`、`readFailures.reasons` 与最多 5 条 `sample`。报告是估算：让一个不可读子目录把结论翻成「超预算」同样会误导，但读不到的部分必须看得见，否则体积会被低估而影响删除决策。判定引用是否存在时读不到状态同样记 `readFailures` 并按「可能仍在」处理——否则一个不可读的引用路径会从 `dangling references` 里静默消失，报告同时显示「没有悬空」与「有读失败」。
 
 ## 引用口径
 
 脚本遍历 `.trellis/**/acceptance.json`，收集每个 check 的 `evidence` 与 `execution.log` 里的 `.tmp/` 路径，把它们视为「仍被引用」。`.tmp/browser-preflight/<round-dir>` 按目录聚合体积，目录下没有任何被引用文件的即为**未引用轮次**。非 `browser-preflight` 的路径只计入总量，不参与轮次判定。
 
-已被清理的归档任务会在 `acceptance.json` 里留下指向已删除文件的引用。报告把这些列在 `dangling references` 里，`--json` 下对应 `danglingCount` 与最多 10 条 `danglingSample`（每条带 `path` 与引用它的任务目录）：它们说明哪条验收记录的证据已经不在磁盘上，必须先补齐或改记录才能让该任务的 `validate` 恢复 `valid`。悬空引用不改变退出码——历史任务普遍如此，让它在提交时变红只会挡路；把结论当作清理或修复的线索。反过来，仍被引用的文件即使体积很大也要保留——那是验收证据。
+已被清理的归档任务会在 `acceptance.json` 里留下指向已删除文件的引用。报告把这些列在 `dangling references` 里，`--json` 下对应 `danglingCount` 与最多 10 条 `danglingSample`（每条带 `path` 与引用它的全部任务目录）：它们说明哪条验收记录的证据已经不在磁盘上，必须先补齐或改记录才能让该任务的 `validate` 恢复 `valid`。悬空引用不改变退出码——历史任务普遍如此，让它在提交时变红只会挡路；把结论当作清理或修复的线索。反过来，仍被引用的文件即使体积很大也要保留——那是验收证据。
 
 ## 清理方式
 

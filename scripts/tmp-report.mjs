@@ -105,10 +105,12 @@ export function run(options, repo = DEFAULT_REPO) {
   function danglingReferences(referenced) {
     const dangling = [];
     for (const [path, tasks] of referenced) {
+      const target = join(repo, path);
       let present;
       try {
-        present = statSync(join(repo, path), { throwIfNoEntry: false }) !== undefined;
-      } catch {
+        present = statSync(target, { throwIfNoEntry: false }) !== undefined;
+      } catch (error) {
+        noteReadFailure(target, error);
         present = true;
       }
       if (!present) dangling.push({ path, tasks: [...tasks].sort() });
@@ -220,7 +222,7 @@ function main() {
     if (report.danglingCount > 0) {
       console.log(`dangling references: ${report.danglingCount} (listed in acceptance.json, missing on disk)`);
       for (const entry of report.danglingSample) {
-        console.log(`  missing ${entry.path}  <- ${entry.tasks[0]}`);
+        console.log(`  missing ${entry.path}  <- ${entry.tasks.join(', ')}`);
       }
       if (report.danglingCount > 10) {
         console.log(`  ... and ${report.danglingCount - 10} more dangling references`);

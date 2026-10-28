@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { chmodSync, mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { chmodSync, mkdtempSync, mkdirSync, writeFileSync, rmSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, describe, it } from 'node:test';
@@ -137,6 +137,41 @@ describe('tmp report budgets', () => {
     const result = run(baseOptions, repo);
     assert.equal(result.report.danglingCount, 0);
     assert.deepEqual(result.report.danglingSample, []);
+  });
+
+  it('a reference whose status cannot be read is a visible read failure, not a silent pass', () => {
+    const repo = makeRepo({
+      acceptanceRecords: [{ dir: 'task-loop', data: acceptance({ evidence: ['.tmp/loop/x.log'] }) }],
+    });
+    mkdirSync(join(repo, '.tmp'), { recursive: true });
+    symlinkSync(join(repo, '.tmp', 'loop'), join(repo, '.tmp', 'loop'));
+    const result = run(baseOptions, repo);
+    assert.equal(result.report.danglingCount, 0);
+    assert.equal(result.report.readFailures.count, 1);
+    assert.deepEqual(result.report.readFailures.reasons, ['ELOOP x1']);
+    assert.equal(result.report.readFailures.sample[0].path, '.tmp/loop/x.log');
+  });
+
+  it('keeps only the first ten dangling samples but counts them all', () => {
+    const evidence = Array.from({ length: 12 }, (_, index) => `.tmp/gone-${String(index).padStart(2, '0')}.log`);
+    const repo = makeRepo({ acceptanceRecords: [{ dir: 'task-many', data: acceptance({ evidence }) }] });
+    const result = run(baseOptions, repo);
+    assert.equal(result.report.danglingCount, 12);
+    assert.equal(result.report.danglingSample.length, 10);
+    assert.equal(result.report.danglingSample[0].path, '.tmp/gone-00.log');
+    assert.equal(result.report.danglingSample[9].path, '.tmp/gone-09.log');
+  });
+
+  it('lists every task that references the same missing path', () => {
+    const repo = makeRepo({
+      acceptanceRecords: [
+        { dir: 'task-b', data: acceptance({ evidence: ['.tmp/shared.log'] }) },
+        { dir: 'task-a', data: acceptance({ evidence: ['.tmp/shared.log'] }) },
+      ],
+    });
+    const result = run(baseOptions, repo);
+    assert.equal(result.report.danglingCount, 1);
+    assert.deepEqual(result.report.danglingSample[0].tasks, ['.trellis/task-a', '.trellis/task-b']);
   });
 });
 
