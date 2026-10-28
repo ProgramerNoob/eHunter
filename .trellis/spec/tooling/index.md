@@ -28,7 +28,7 @@ git config core.hooksPath .githooks
 
 `git commit --no-verify` 仍可绕过；只改文档或任务产物时可改跑 `npm run check:docs` 并跳过 hook。hook 失败时先修，不用 `--no-verify` 掩盖类型、测试、构建或链接问题。
 
-`npm run check` 的扩展测试需要 Pi SDK：普通终端提交时按 `~/.pi/agent/install/current-version` 定位托管安装，只有装在非默认位置时才需显式设 `PI_MANAGED_INSTALL_ROOT`。
+`npm run check` 的扩展测试需要 Pi SDK：普通终端提交时按 `~/.pi/agent/install/current-version` 定位托管安装，只有装在非默认位置时才需显式设 `PI_MANAGED_INSTALL_ROOT`。本地跟随托管安装的当前版本，CI 在 [check.yml](../../../.github/workflows/check.yml) 里独立 pin `@earendil-works/pi-coding-agent@<version>`，升级 Pi 时两处都要改，否则本地与 CI 跑的不是同一版本。
 
 ## 归档门禁
 
