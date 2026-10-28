@@ -657,7 +657,12 @@ Session summary was not supplied.
 
 ### Main Changes
 
-- - 收紧 `npm run check` 链：`tmp:report` 移到链首、新增 `check:syntax` 并排在第二位（`19f8599`、`e00d0d0`）。
+- 收紧 `npm run check` 链：`tmp:report` 移到链首、新增 `check:syntax` 并排在第二位（`19f8599`、`e00d0d0`）；两者都在一秒内完成且只依赖已提交文件，失败早于 type-check 与生产构建。
+- 新增 `scripts/check-syntax.mjs`（`node --check` 扫 `scripts/` 与 `tests/` 全部 `.mjs`/`.cjs`），根目录不可读或收集到零文件也退出 1。
+- `scripts/tmp-report.mjs` 抽出可测的 `run(options, repo)`，新增 `tests/tmp-report.test.mjs` 9 条；`walkFiles` 与 `roundEntries` 一致地只豁免 `ENOENT`，缺 `.tmp/` 的 clone 不再报读失败。
+- CLI 直接调用判定改用 `realpathSync` 比对，修掉经 `/tmp`（真实路径 `/private/tmp`）调用时脚本静默空转、退出 0 的缺陷。
+- 「代码不写注释」收窄为只约束 `src/` 与 `core/`（`AGENTS.md`、`quality-guidelines.md`）；`scripts/`、`tests/` 与 Vite 配置保留文件头契约与内联说明。
+- `.trellis/spec/tooling/index.md` 补 `acceptance.py` 六个真实子命令与各自退出码、两个 `.tmp` 独立阈值，并明写 `set-meta` 与上下文校验的 `validate` 属 `task.py`；新增「归档门禁」小节。
 
 ### Git Commits
 
@@ -667,6 +672,19 @@ Session summary was not supplied.
 | `e00d0d0` | fix(tooling): 语法检查前置到链第二位并同步 .tmp 门禁的两处规范 |
 | `680c4fd` | chore(task): archive 10-28-tighten-check-pipeline |
 
+### Testing
+
+- [OK] `npm run check` exit 0，539 行；`tmp:report` 第 3 行、`check:syntax` 第 19 行、`type-check` 第 23 行
+- [OK] `.tmp` 预算超限时整链在 `check:syntax` 之前失败（改 `--max-bytes 1024` 实证 exit 1，日志 19 行即 FAIL）
+- [OK] `check:syntax` 23 files 0 failed；注入语法错误、`chmod 000 tests`、缺目录三种情况均 exit 1
+- [OK] `npm run test:tmp-report` 9/9，7 条变异全部 KILLED
+- [OK] `check:docs` 45 md / 6 yaml / 240 本地链接 / 70 $ref + OK
+
 ### Status
 
 [OK] **Completed**
+
+### Next Steps
+
+- `.trellis/scripts` 里 `task.json` 的顶层 `commit` 与 `pr_url` 字段是死字段：只有创建时的 `null` 模板（`common/task_store.py:642`），无任何读写者，`task.py` 也无 `set-commit`；56 个任务里唯一的非 null 是手工补的 `10-12-browser-acceptance-preflight`（`ad02f64`）。已决定不动（属上游 Trellis 代码），任务到提交的映射走 journal 索引与 `git log --grep`。
+- `pending-work.md` 仍排队：`001-gallery-download-bundle`、`001-platform-injection`。
