@@ -353,16 +353,19 @@ def run_check(root, task, data, check_id, argv):
             signal.signal(sig, handler)
 
 
-def archive(root, task, result):
+def archive(root, task, result, skip_branch_validation=False):
     """Reject before delegation; the native CLI retains all move/commit behavior."""
     status = result["status"]
     output = dict(result, acceptanceStatus=status, archiveDelegated=False)
     if status not in ("passed", "waived"):
         return output, 1
     output["archiveDelegated"] = True
+    argv = [sys.executable, str(root / ".trellis/scripts/task.py"), "archive", str(task)]
+    if skip_branch_validation:
+        argv.append("--skip-branch-validation")
     try:
         completed = subprocess.run(
-            [sys.executable, str(root / ".trellis/scripts/task.py"), "archive", str(task)],
+            argv,
             cwd=root, shell=False, capture_output=True, text=True, encoding="utf-8", errors="replace",
         )
     except OSError as exc:
@@ -649,6 +652,11 @@ def main(argv=None, root=None):
         if name == "run":
             command.add_argument("check_id")
             command.add_argument("argv", nargs=argparse.REMAINDER, help="-- argv to execute (shell=False)")
+        if name == "archive":
+            command.add_argument(
+                "--skip-branch-validation",
+                action="store_true",
+                help="forward to task.py archive when the task never went through a PR branch")
     browser = commands.add_parser("verify-browser")
     browser.add_argument("artifact", help="explicit repository-relative or absolute artifact directory")
     cleanup = commands.add_parser("cleanup-browser")
@@ -677,7 +685,7 @@ def main(argv=None, root=None):
             else:
                 result = summarize(data)
                 if args.command == "archive":
-                    result, exit_code = archive(root, task, result)
+                    result, exit_code = archive(root, task, result, skip_branch_validation=args.skip_branch_validation)
                 else:
                     exit_code = summary_exit(result)
     except (Invalid, OSError, ValueError) as exc:

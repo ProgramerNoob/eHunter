@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import { after, test, mock } from 'node:test';
 import { EventEmitter } from 'node:events';
+import { homedir } from 'node:os';
 import { PassThrough } from 'node:stream';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -12,15 +13,39 @@ import childProcess from 'node:child_process';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const extensionPath = join(repo, '.pi/extensions/trellis/index.ts');
+// Managed Pi installs keep releases side by side and pass the root with `..` segments.
+// PI_MANAGED_INSTALL_ROOT is exported only by Pi's own launcher, so a terminal
+// commit takes the same install root from the default location instead.
+function managedModulesBase() {
+  const installRoot = process.env.PI_MANAGED_INSTALL_ROOT ?? join(homedir(), '.pi/agent/install');
+  try {
+    const root = resolve(installRoot);
+    const version = readFileSync(join(root, 'current-version'), 'utf8').trim();
+    return version ? join(root, 'releases', version, 'node_modules') : undefined;
+  } catch {
+    return undefined;
+  }
+}
 const globalModules = childProcess.execFileSync('npm', ['root', '-g'], { encoding: 'utf8' }).trim();
-const sdkRoot = [join(repo, 'node_modules'), globalModules]
+const sdkRoot = [join(repo, 'node_modules'), globalModules, managedModulesBase()]
+  .filter(Boolean)
   .map(base => join(base, '@earendil-works/pi-coding-agent'))
   .find(base => existsSync(join(base, 'dist/core/tools/tool-definition-wrapper.js')));
 assert.ok(sdkRoot, 'Install Pi before running the extension contract tests');
 const { version: sdkVersion } = JSON.parse(readFileSync(join(sdkRoot, 'package.json'), 'utf8'));
+// Nested npm installs keep siblings under the SDK; managed pnpm-style installs flatten them.
+function sdkPackage(...rest) {
+  const candidates = [
+    join(sdkRoot, 'node_modules/@earendil-works', ...rest),
+    resolve(dirname(sdkRoot), '..', '@earendil-works', ...rest),
+  ];
+  const found = candidates.find(candidate => existsSync(candidate));
+  assert.ok(found, `Pi SDK is missing @earendil-works/${rest[0]}`);
+  return found;
+}
 const { wrapToolDefinition } = await import(pathToFileURL(join(sdkRoot, 'dist/core/tools/tool-definition-wrapper.js')));
-const { validateToolArguments } = await import(pathToFileURL(join(sdkRoot, 'node_modules/@earendil-works/pi-ai/dist/utils/validation.js')));
-const { runToolCall } = await import(pathToFileURL(join(sdkRoot, 'node_modules/@earendil-works/pi-agent-core/dist/agent-loop.js')));
+const { validateToolArguments } = await import(pathToFileURL(sdkPackage('pi-ai', 'dist/utils/validation.js')));
+const { runToolCall } = await import(pathToFileURL(sdkPackage('pi-agent-core', 'dist/agent-loop.js')));
 // Frozen pre-lean source: compare contracts and injection payloads with identical inputs.
 const baselineRevision = 'e7e5f28';
 const baselineSource = childProcess.execFileSync('git', ['show', `${baselineRevision}:.pi/extensions/trellis/index.ts`], { cwd: repo, encoding: 'utf8' });

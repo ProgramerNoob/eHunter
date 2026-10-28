@@ -621,6 +621,29 @@ time.sleep(30)
                 self.assertEqual(delegate.call_args.args[0], [sys.executable, str(self.root / ".trellis/scripts/task.py"), "archive", str(self.task)])
                 self.assertFalse(delegate.call_args.kwargs["shell"])
 
+    def test_archive_forwards_skip_branch_validation_only_when_requested(self):
+        self.write()
+        with patch.object(acceptance.subprocess, "run", return_value=subprocess.CompletedProcess([], 0, "archived\n", "")) as delegate:
+            code, report, _ = self.invoke("archive", str(self.task), "--skip-branch-validation")
+        self.assertEqual(code, 0)
+        self.assertTrue(report["archiveDelegated"])
+        delegate.assert_called_once()
+        self.assertEqual(delegate.call_args.args[0], [sys.executable, str(self.root / ".trellis/scripts/task.py"), "archive", str(self.task), "--skip-branch-validation"])
+        self.assertFalse(delegate.call_args.kwargs["shell"])
+        with patch.object(acceptance.subprocess, "run", return_value=subprocess.CompletedProcess([], 0, "archived\n", "")) as delegate:
+            code, _, _ = self.invoke("archive", str(self.task))
+        self.assertEqual(code, 0)
+        self.assertEqual(delegate.call_args.args[0], [sys.executable, str(self.root / ".trellis/scripts/task.py"), "archive", str(self.task)])
+
+    def test_skip_branch_validation_does_not_bypass_the_acceptance_gate(self):
+        self.data["checks"][0]["observed"] = "partial"
+        self.write()
+        with patch.object(acceptance.subprocess, "run") as delegate:
+            code, report, _ = self.invoke("archive", str(self.task), "--skip-branch-validation")
+            delegate.assert_not_called()
+        self.assertEqual(code, 1)
+        self.assertFalse(report["archiveDelegated"])
+
     def test_archive_failure_retains_original_code_and_output_without_retry(self):
         for native_code in (1, 2, -15):
             with self.subTest(native_code=native_code):

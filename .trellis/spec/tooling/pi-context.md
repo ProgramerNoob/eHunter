@@ -57,7 +57,7 @@ pi --mode json -p --no-session --tools <comma-separated-tools>
 
 本项目直接定制 `.pi/extensions/trellis/index.ts`、`.trellis/workflow.md`、`common/workflow_phase.py` / `common/session_context.py`、Trellis skills、Pi prompts 与 agents；没有额外 lean 开关，也不启用社区 `subagent`。`trellis update` 可能更新这些托管文件，更新前保存差异，更新后复查下列契约和测试；不要修改全局 Pi 安装。
 
-工具名和参数类型/枚举/数量边界由注册 schema 保持。当前 Pi SDK 1.2.0 支持 `prepareArguments(args: unknown)`，顺序为 prepare → schema validation → beforeToolCall → execute。只在 execute 中修正类型不能补救宿主预校验失败。
+工具名和参数类型/枚举/数量边界由注册 schema 保持。当前 Pi SDK 支持 `prepareArguments(args: unknown)`，顺序为 prepare → schema validation → beforeToolCall → execute。只在 execute 中修正类型不能补救宿主预校验失败。
 
 | 输入 | 处理与边界 |
 | --- | --- |
@@ -83,7 +83,7 @@ Pi 属于必须派发的平台，但 `<workflow-state>` 只是注入文本，无
 
 路径判定按真实落点而非字面名称：从目标向上找到最近的已存在祖先（`lstat` 能拿到信息，含目标自身），对它做 realpath 再拼回剩余未创建段，按解析结果比较。`notes.md` 指向 `src/main.ts` 时按 `src/main.ts` 判定；`.tmp` 被换成指向 `src` 的软链时，其下尚不存在的 `.tmp/new-child.ts` 按 `src/new-child.ts` 拦截；仓库内软链指向仓库外一律按越界处理，即使名称落在放行范围。悬空软链（`lstat` 成功、`realpath` 抛 ENOENT）与已存在但解析失败的目标同样按越界拦截，不放宽放行表。全新路径（目标及其祖先均不存在）回溯到仓库根后拼回剩余段，得到的是同一仓库内相对路径，判定结果与旧的字面比较一致，常规首次 `write` 行为不变。相对路径不做词法归一：`${cwd}/${raw}` 字面拼接后交给 `realpathSync.native` 解析，保留内核「先解析软链、再退父目录」的语义。若先用 `resolve` 把 `..` 吃掉，`link-out/../.tmp/evil.png`（`link-out` 指向仓库外）会按仓库内 `.tmp/` 判定而放行；只换拼接仍用 JS 版 `realpathSync` 也不行，它同样在解析途中折叠 `..`，两者必须同时满足。
 
-边界：只拦 `write` 与 `edit`。`bash` 携带字符串，heredoc 仍可写到同一路径，当前未覆盖；状态门禁读取 `task.json` 的 `status`，`planning`/`review`/`completed` 一律放行。
+边界：只拦 `write` 与 `edit`。`bash` 携带字符串，heredoc 仍可写到同一路径，当前未覆盖；状态门禁读取 `task.json` 的 `status`，`planning`/`review`/`completed` 一律放行。硬链接同样不在覆盖范围：`realpathSync.native` 解析的是路径而非 inode，`ln src/main.ts notes.md` 之后 `notes.md` 仍按字面名判定并被当作 Markdown 放行，且建链本身需要 `bash`，属于上面已声明的绕过路径。不做 `nlink > 1` 拦截——它只能覆盖「先建链再 write」一种用法，`bash` 侧仍不受控。
 
 验证命令：
 
