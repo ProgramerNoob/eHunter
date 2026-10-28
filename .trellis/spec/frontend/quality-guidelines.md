@@ -341,8 +341,10 @@ and clears the old execution, evidence and waiver. It then records stdout/stderr
 `.tmp/acceptance/<task-name>/` and saves the actual subprocess return code. Zero becomes
 passed, normal nonzero becomes failed and returns that original code. Because `run`
 rewrites `evidence`, `note` and `waiver` with the fresh log and the generic
-`Command completed with exitCode N; …` note, any hand-written note, waiver or durable
-evidence must be restored afterwards. Launch failure
+`Command completed with exitCode N; …` note, any hand-written note or durable evidence
+must be restored afterwards. Re-running also clears an effective `waiver`, so any
+accepted-but-unverified scope must be re-registered with its original authority.
+Launch failure
 becomes blocked with `exitCode:null` and CLI exit `127`. Signal termination preserves
 the negative subprocess return code and returns `128 + signal`. Interrupting the runner
 with SIGINT/SIGTERM forwards the signal to its command group and allows its direct
