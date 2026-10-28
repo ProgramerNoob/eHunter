@@ -758,7 +758,8 @@ test('a passing round writes a command summary instead of full receipts', async 
   assert.ok(!(await fs.readdir(f.options.artifactDir)).includes('commands.jsonl'));
   const summary = JSON.parse(await fs.readFile(path.join(f.options.artifactDir, 'commands.json'), 'utf8'));
   assert.ok(summary.receiptCount > 0);
-  assert.equal(summary.failedReceiptCount, 0);
+  assert.deepEqual(Object.keys(summary).sort(), ['byMethod', 'note', 'receiptCount']);
+  assert.ok(summary.byMethod.every(entry => Object.keys(entry).sort().join() === 'count,method'));
   assert.equal(summary.byMethod.reduce((total, entry) => total + entry.count, 0), summary.receiptCount);
 });
 

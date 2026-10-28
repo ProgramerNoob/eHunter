@@ -513,14 +513,12 @@ export async function withBrowserPreflight({ page, artifactDir, profile, source,
   }
   function commandSummary() {
     const byMethod = new Map();
-    let failed = 0;
     for (const row of receipts) {
-      const entry = byMethod.get(row.method) ?? { method: row.method, count: 0, failed: 0 };
+      const entry = byMethod.get(row.method) ?? { method: row.method, count: 0 };
       entry.count += 1;
-      if (row.error) { entry.failed += 1; failed += 1; }
       byMethod.set(row.method, entry);
     }
-    return { receiptCount: receipts.length, failedReceiptCount: failed,
+    return { receiptCount: receipts.length,
       byMethod: [...byMethod.values()].sort((a, b) => b.count - a.count || a.method.localeCompare(b.method)),
       note: 'Full receipts are persisted only for rounds that did not pass.' };
   }
