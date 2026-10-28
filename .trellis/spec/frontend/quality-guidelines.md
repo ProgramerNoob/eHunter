@@ -27,6 +27,11 @@ through `globals`; pass host objects and functions instead of shadowing the cons
 Re-check that the failure path actually ran and turns red when the fixture stops
 injecting them.
 
+Count protecting tests by mutation, not by reading assertions. Which cases guard a
+branch is only visible when you replace that branch with `if (false)` and read the failing
+list; one assertion can be guarded by several cases and a case claiming a branch can turn
+out not to depend on it at all. Never report "only this test protects it" without that run.
+
 ## Documentation boundaries
 
 Documentation and code comments describe the current state only. Do not record AI
