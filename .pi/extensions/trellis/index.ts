@@ -1116,6 +1116,66 @@ function readTaskDir(root: string, key: string | null): string | null {
   }
 }
 
+// ── Main-Session Implementation Write Guard ───────────────────────────
+// Pi is a dispatch platform: while a task is in_progress only the
+// `trellis-implement` child writes implementation code. The workflow-state
+// breadcrumb states that, but prose does not stop a main session from editing
+// src/ directly, so refuse the write here instead. Task material, specs and
+// Markdown stay writable — the main session still owns planning artifacts,
+// acceptance records and the acceptance/verification loop.
+//
+// Limit worth knowing: `write` and `edit` only. A bash command carries a
+// string, so a heredoc can still reach the same file.
+const MAIN_SESSION_WRITE_TOOLS = new Set(["write", "edit"]);
+const IMPLEMENTING_STATUS = "in_progress";
+
+function readTaskStatus(taskDir: string): string | null {
+  try {
+    const data = JSON.parse(readText(join(taskDir, "task.json"))) as JsonObject;
+    return str(data.status);
+  } catch {
+    return null;
+  }
+}
+
+function repoRelativePath(root: string, raw: string, cwd: string): string | null {
+  const abs = isAbsolute(raw) ? raw : resolve(cwd, raw);
+  const rel = relative(root, abs).replace(/\\/g, "/");
+  if (!rel || rel.startsWith("..") || isAbsolute(rel)) return null;
+  return rel;
+}
+
+function isMainSessionWritable(path: string) {
+  if (path === ".trellis" || path.startsWith(".trellis/")) return true;
+  return /\.(md|markdown)$/i.test(path);
+}
+
+function mainSessionWriteBlock(
+  ev: { toolName?: string; input?: JsonObject },
+  key: string | null,
+  ctx?: PiExtensionContext,
+): { block: true; reason: string } | undefined {
+  // The implement/check children run their own pi process; they are the ones
+  // allowed to write. TRELLIS_SUBAGENT_CHILD is set by buildChildEnv().
+  if (process.env.TRELLIS_SUBAGENT_CHILD) return undefined;
+  if (!MAIN_SESSION_WRITE_TOOLS.has(ev.toolName ?? "")) return undefined;
+  const raw = isObj(ev.input) ? str(ev.input.path) : null;
+  if (!raw) return undefined;
+  const root = resolveRoot(ctx);
+  const taskDir = readTaskDir(root, key);
+  if (!taskDir) return undefined;
+  if (readTaskStatus(taskDir) !== IMPLEMENTING_STATUS) return undefined;
+  const rel = repoRelativePath(root, raw, ctx?.cwd ?? process.cwd());
+  if (!rel || isMainSessionWritable(rel)) return undefined;
+  return {
+    block: true,
+    reason:
+      `${rel} 是实现代码，任务处于 in_progress 时主会话不得直接修改。` +
+      `请派发 trellis-implement（prompt 首行 Active task: <task path>），` +
+      `由子代理写入，主会话只负责派发与验收。`,
+  };
+}
+
 // ── Workflow State Breadcrumb ─────────────────────────────────────────
 const WF_RE =
   /\[workflow-state:([A-Za-z0-9_-]+)\]\s*\n([\s\S]*?)\n\s*\[\/workflow-state:\1\]/g;
@@ -2041,6 +2101,7 @@ export default function trellisExtension(pi: {
       !cmdHasTrellisCtx(ev.input.command)
     )
       ev.input.command = `export TRELLIS_CONTEXT_ID=${shellQuote(k)}; ${ev.input.command}`;
+    return mainSessionWriteBlock(ev, k, ctx);
   });
   // Preserve progress details from execute(); mark failed subagent results through
   // the official tool_result patch hook instead of throwing away renderer details.

@@ -74,6 +74,15 @@ pi --mode json -p --no-session --tools <comma-separated-tools>
 工作流源状态标记用于解析，输出索引去维护注释。任务正文、curated specs、预算、顺序及更新/恢复机制保留；不能靠降低预算、隐藏 skills 或改成仅传路径宣称等价精简。
 
 `trellis-check` 角色为双模式（2026-10-15 起）：派发方未声明时为自检模式，可就地修范围内机械问题；派发 prompt 声明 `review-only` 时为正式审查，只读返回 findings，不修改受审文件、不更新 `acceptance.json`，受审代码与测试版本当轮冻结。模式由派发方显式选择，不由子代理推断；子代理工具白名单仍含 write/edit，该约束是 prompt 契约而非机械强制。`trellis update` 后复查 `.pi/agents/trellis-check.md`、`.agents/skills/trellis-check/SKILL.md` 与项目 `AGENTS.md` 技能分工段是否仍保留双模式表述。
+
+## 9. 主会话实现写入门禁
+
+Pi 属于必须派发的平台，但 `<workflow-state>` 只是注入文本，无法阻止主会话直接改实现代码。`tool_call` 处理器在以下条件同时成立时返回 `{block: true, reason}`：进程未设 `TRELLIS_SUBAGENT_CHILD`、工具是 `write`/`edit`、当前 session 的任务状态为 `in_progress`、目标路径落在仓库内且不是 `.trellis/**` 与 `*.md`/`*.markdown`。
+
+放行范围是刻意的：主会话仍可写任务资料、规范、验收记录和根目录 Markdown，只在写实现代码时被推向 `trellis-implement`。`trellis-implement`/`trellis-check` 子进程由 `buildChildEnv()` 设 `TRELLIS_SUBAGENT_CHILD=1`，不受此门禁影响。
+
+边界：只拦 `write` 与 `edit`。`bash` 携带字符串，heredoc 仍可写到同一路径，本轮不覆盖；状态门禁读取 `task.json` 的 `status`，`planning`/`review`/`completed` 一律放行。
+
 验证命令：
 
 ```bash

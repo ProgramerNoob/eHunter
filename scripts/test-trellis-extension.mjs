@@ -416,3 +416,33 @@ test('child recursion guard, bash context bridge, notifications and shutdown hoo
   assert.match(once, /export TRELLIS_CONTEXT_ID=/);
   registration.hooks.get('session_shutdown')({});
 });
+
+test('in_progress tasks refuse main-session implementation writes and keep the rest open', () => {
+  const registration = register(), root = project('write-guard');
+  point(root, taskPath, 'guard-session');
+  const context = ctx(root, 'guard-session');
+  const call = (toolName, path) => registration.hooks.get('tool_call')({ toolName, input: { path } }, context);
+  put(root, `${taskPath}/task.json`, JSON.stringify({ id: 'fixture', status: 'in_progress' }));
+
+  const blocked = call('write', 'src/main.ts');
+  assert.equal(blocked.block, true);
+  assert.match(blocked.reason, /src\/main\.ts.*trellis-implement/s);
+  assert.equal(call('edit', join(root, 'core/TestApp.vue')).block, true);
+  assert.equal(call('edit', 'scripts/acceptance.py').block, true);
+
+  assert.equal(call('write', `${taskPath}/acceptance.json`), undefined);
+  assert.equal(call('edit', '.trellis/spec/frontend/quality-guidelines.md'), undefined);
+  assert.equal(call('edit', 'AGENTS.md'), undefined);
+  assert.equal(call('write', '.trellis/tasks/fixture/notes.txt'), undefined);
+  assert.equal(call('bash', 'src/main.ts'), undefined);
+
+  put(root, `${taskPath}/task.json`, JSON.stringify({ id: 'fixture', status: 'planning' }));
+  assert.equal(call('write', 'src/main.ts'), undefined);
+
+  put(root, `${taskPath}/task.json`, JSON.stringify({ id: 'fixture', status: 'in_progress' }));
+  process.env.TRELLIS_SUBAGENT_CHILD = '1';
+  try { assert.equal(call('write', 'src/main.ts'), undefined); }
+  finally { delete process.env.TRELLIS_SUBAGENT_CHILD; }
+
+  assert.equal(registration.hooks.get('tool_call')({ toolName: 'write', input: { path: 'src/main.ts' } }, ctx(root, 'other-session')), undefined);
+});
