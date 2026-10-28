@@ -642,3 +642,31 @@ Session summary was not supplied.
 
 - `.tmp` 已清理到 2.61 GiB（低于 3 GiB 默认预算）：删掉 402 个未引用轮次的 `commands.jsonl`、3 个非轮次大块、46 个未被引用的散目录；保留 35 个失败反证轮次与 `acceptance.json` 引用的 1.43 GiB 证据。helper 已改为只在失败轮落完整命令回执（`ad18a93`、`7f0e34e`、`efdd0ad`）。
 - `pending-work.md` 仍排队：`001-gallery-download-bundle`、`001-platform-injection`。
+
+
+## Session 16: 收紧检查流水线：tmp 预算前置与语法检查
+<!-- trellis-session: v=2 fp=1115466b7775b9d3 -->
+
+**Date**: 2026-10-28
+**Task**: 收紧检查流水线：tmp 预算前置与语法检查
+**Branch**: `master`
+
+### Summary
+
+把 tmp:report 前置到 npm run check 链首并新增 check:syntax，补 tmp-report 单测与 CLI 修复，收窄注释规则到 src/ 与 core/，补齐 acceptance.py 与 task.py 的 CLI 契约文档。
+
+### Main Changes
+
+- - 收紧 `npm run check` 链：`tmp:report` 移到链首、新增 `check:syntax` 并排在第二位（`19f8599`、`e00d0d0`）。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `19f8599` | feat(tooling): 检查链前置 .tmp 预算、补语法检查并收窄注释规则范围 |
+| `e00d0d0` | fix(tooling): 语法检查前置到链第二位并同步 .tmp 门禁的两处规范 |
+| `680c4fd` | chore(task): archive 10-28-tighten-check-pipeline |
+
+### Status
+
+[OK] **Completed**

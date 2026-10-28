@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 14
-- **Last Active**: 2026-10-18
+- **Total Sessions**: 16
+- **Last Active**: 2026-10-28
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~597 | Active |
+| `journal-1.md` | ~672 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 16 | 2026-10-28 | 收紧检查流水线：tmp 预算前置与语法检查 | `19f8599`, `e00d0d0`, `680c4fd` | `master` |
 | 14 | 2026-10-18 | 新增 task.py extend-scope | `7db8b73` | `master` |
 | 13 | 2026-10-18 | NH 移动视口验收补跑 | `4945d96` | `master` |
 | 12 | 2026-10-17 | 合并 EH 验收技能为 reader-test | `1ee549d` | `master` |
