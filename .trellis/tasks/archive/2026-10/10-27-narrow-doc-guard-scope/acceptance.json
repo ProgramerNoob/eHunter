@@ -58,14 +58,17 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-28T20:23:53.715994+00:00",
-        "endedAt": "2026-10-28T20:23:53.759204+00:00",
-        "log": ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpzcoicmip.log"
+        "startedAt": "2026-10-28T20:37:40.636842+00:00",
+        "endedAt": "2026-10-28T20:37:40.684110+00:00",
+        "log": ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpapbfftzw.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpzcoicmip.log"
+        ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpapbfftzw.log",
+        ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/rerun/guard-narrow.sh",
+        ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md",
+        "tests/check-decision-doc-durations.sh"
       ],
-      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "note": "在私有副本树里把 `DOCS=()` 后运行重放脚本的 empty 模式：输出 `OK: no registered decision documents` 且 exit 0，macOS bash 3.2.57 下未触发 unbound variable。本轮重跑结果（2026-10-29）：原始 `.tmp` 日志已随清理删除，execution 与日志文件记录的是同一断言在新日期重新执行的事实，不是当轮产物。重放脚本已随任务归档保存，可随时重跑。",
       "waiver": null
     },
     {
@@ -86,14 +89,17 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-28T20:23:53.803970+00:00",
-        "endedAt": "2026-10-28T20:23:53.849419+00:00",
-        "log": ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpxmnwwf8t.log"
+        "startedAt": "2026-10-28T20:37:40.718542+00:00",
+        "endedAt": "2026-10-28T20:37:40.769705+00:00",
+        "log": ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpd45civip.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpxmnwwf8t.log"
+        ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpd45civip.log",
+        ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/rerun/guard-narrow.sh",
+        ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md",
+        "tests/check-decision-doc-durations.sh"
       ],
-      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "note": "在私有副本树里模拟把 `2026-09-18-reader-behavior.md` 登记进去（widened 模式）：守卫 exit 1，输出命中第 39 行「含小于 20px 的边界」并打印 `FAIL: literal durations or pixel sizes in …/2026-09-18-reader-behavior.md`；当前清单仍 exit 0。本轮重跑结果（2026-10-29）：原始 `.tmp` 日志已随清理删除，execution 与日志文件记录的是同一断言在新日期重新执行的事实，不是当轮产物。重放脚本已随任务归档保存，可随时重跑。",
       "waiver": null
     },
     {

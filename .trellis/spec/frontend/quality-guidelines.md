@@ -339,7 +339,10 @@ startup or an observation script that prints `pass:false` but exits zero is not 
 functional assertion. Before log preparation/launch, `run` atomically saves `unrun`
 and clears the old execution, evidence and waiver. It then records stdout/stderr in
 `.tmp/acceptance/<task-name>/` and saves the actual subprocess return code. Zero becomes
-passed, normal nonzero becomes failed and returns that original code. Launch failure
+passed, normal nonzero becomes failed and returns that original code. Because `run`
+rewrites `evidence`, `note` and `waiver` with the fresh log and the generic
+`Command completed with exitCode N; …` note, any hand-written note, waiver or durable
+evidence must be restored afterwards. Launch failure
 becomes blocked with `exitCode:null` and CLI exit `127`. Signal termination preserves
 the negative subprocess return code and returns `128 + signal`. Interrupting the runner
 with SIGINT/SIGTERM forwards the signal to its command group and allows its direct

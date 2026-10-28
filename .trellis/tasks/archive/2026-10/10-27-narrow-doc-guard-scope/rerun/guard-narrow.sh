@@ -31,7 +31,7 @@ fi
 
 if [ "$MODE" = all ] || [ "$MODE" = widened ]; then
   reset_script
-  python3 - "$WORK/$SCRIPT" "$REG" <<'PY'
+  if python3 - "$WORK/$SCRIPT" "$REG" <<'PY'
 import sys
 path, doc = sys.argv[1], sys.argv[2]
 src = open(path, encoding='utf-8').read()
@@ -40,24 +40,25 @@ if needle not in src:
     sys.exit('registration line not found: ' + repr(needle))
 open(path, 'w', encoding='utf-8').write(src.replace(needle, needle + f'  {doc}\n', 1))
 PY
-  if [ $? -ne 0 ]; then
-    echo "FAIL widened: DOCS 里找不到登记行（缩进或路径被改过），重放脚本需要同步更新"
-    fail=1
-  fi
-  out=$(run 2>&1)
-  rc=$?
-  if [ "$rc" -eq 1 ] && printf '%s' "$out" | grep -q '小于 20px' && printf '%s' "$out" | grep -q 'FAIL: literal durations or pixel sizes in'; then
-    echo "ok widened list: exit 1 and reader-behavior is named"
-    printf '%s\n' "$out" | sed 's/^/    /'
+  then
+    out=$(run 2>&1)
+    rc=$?
+    if [ "$rc" -eq 1 ] && printf '%s' "$out" | grep -q '小于 20px' && printf '%s' "$out" | grep -q 'FAIL: literal durations or pixel sizes in'; then
+      echo "ok widened list: exit 1 and reader-behavior is named"
+      printf '%s\n' "$out" | sed 's/^/    /'
+    else
+      echo "FAIL widened list: rc=$rc out=$out"
+      fail=1
+    fi
   else
-    echo "FAIL widened list: rc=$rc out=$out"
+    echo "FAIL widened: DOCS 里找不到登记行（缩进或路径被改过），重放脚本需要同步更新"
     fail=1
   fi
 fi
 
 if [ "$MODE" = all ] || [ "$MODE" = empty ]; then
   reset_script
-  python3 - "$WORK/$SCRIPT" <<'PY'
+  if python3 - "$WORK/$SCRIPT" <<'PY'
 import re, sys
 path = sys.argv[1]
 src = open(path, encoding='utf-8').read()
@@ -66,16 +67,17 @@ if count != 1:
     sys.exit('DOCS array block not found')
 open(path, 'w', encoding='utf-8').write(replaced)
 PY
-  if [ $? -ne 0 ]; then
-    echo "FAIL empty: DOCS 数组块匹配不上（格式被改过），重放脚本需要同步更新"
-    fail=1
-  fi
-  out=$(run 2>&1)
-  rc=$?
-  if [ "$rc" -eq 0 ] && [ "$out" = 'OK: no registered decision documents' ]; then
-    echo "ok empty list: exit 0 with the empty-list notice (no unbound variable)"
+  then
+    out=$(run 2>&1)
+    rc=$?
+    if [ "$rc" -eq 0 ] && [ "$out" = 'OK: no registered decision documents' ]; then
+      echo "ok empty list: exit 0 with the empty-list notice (no unbound variable)"
+    else
+      echo "FAIL empty list: rc=$rc out=$out"
+      fail=1
+    fi
   else
-    echo "FAIL empty list: rc=$rc out=$out"
+    echo "FAIL empty: DOCS 数组块匹配不上（格式被改过），重放脚本需要同步更新"
     fail=1
   fi
 fi
