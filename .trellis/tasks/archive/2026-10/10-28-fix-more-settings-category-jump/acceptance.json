@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "分类点击后高亮等于目标分类：通用/滚动模式/书页模式/快捷设置/快捷键/其他六项逐一命中。",
+    "AC2": "内容滚到底部时高亮为「其他」，即使「其他」组顶无法到达容器顶部。",
+    "AC3": "手动滚动内容到各组位置时，高亮按阈值切换，且组间不再出现「永远差一组」的偏移。",
+    "AC4": "`npm run type-check` 与新增单元测试通过，`npm run check` 通过。"
+  },
+  "checks": [
+    {
+      "id": "click-lands-on-own-section",
+      "ac": ["AC1"],
+      "claim": "六项分类点击后高亮各自命中，不再滞后一档",
+      "scope": "`tests/settings-navigation.test.cjs` 的 `every category click lands on its own section`；覆盖 16/528/852/1553/2334 五个可达偏移与末组边界",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": ["node", "--test", "--test-name-pattern", "every category click lands on its own section", "tests/settings-navigation.test.cjs"],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T19:55:24.234999+00:00",
+        "endedAt": "2026-10-28T19:55:24.438427+00:00",
+        "log": ".tmp/acceptance/10-28-fix-more-settings-category-jump/tmp88z_dvuj.log"
+      },
+      "evidence": [".tmp/acceptance/10-28-fix-more-settings-category-jump/tmp88z_dvuj.log", "core/model/settingsNavigation.ts", ".trellis/tasks/archive/2026-10/10-28-fix-more-settings-category-jump/validation.md"],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope. 原始 browser-preflight 产物与 .tmp 服务证据已随 .tmp 清理删除；当轮数值见 validation.md，本轮只重跑单元测试与全量 check。",
+      "waiver": null
+    },
+    {
+      "id": "last-section-boundary",
+      "ac": ["AC2"],
+      "claim": "滚到底部时高亮为「其他」，即使其组顶到达不了容器顶部",
+      "scope": "`resolveActiveSettingsCategory` 的 `scrollTop >= scrollMax - 1` 分支；桌面 scrollMax 2836、移动 scrollMax 2790",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": ["node", "--test", "--test-name-pattern", "unreachable last section wins at the scroll boundary", "tests/settings-navigation.test.cjs"],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T19:55:27.163693+00:00",
+        "endedAt": "2026-10-28T19:55:27.350759+00:00",
+        "log": ".tmp/acceptance/10-28-fix-more-settings-category-jump/tmp1gef0o2l.log"
+      },
+      "evidence": [".tmp/acceptance/10-28-fix-more-settings-category-jump/tmp1gef0o2l.log", "core/model/settingsNavigation.ts", ".trellis/tasks/archive/2026-10/10-28-fix-more-settings-category-jump/validation.md"],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope. 原始 browser-preflight 产物与 .tmp 服务证据已随 .tmp 清理删除；当轮数值见 validation.md，本轮只重跑单元测试与全量 check。",
+      "waiver": null
+    },
+    {
+      "id": "manual-scroll-no-lag",
+      "ac": ["AC3"],
+      "claim": "手动滚动按阈值切换高亮，组间不再差一组",
+      "scope": "`tests/settings-navigation.test.cjs` 的 `manual scrolling switches sections without a one-step lag`",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": ["node", "--test", "--test-name-pattern", "manual scrolling switches sections without a one-step lag", "tests/settings-navigation.test.cjs"],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T19:55:27.385863+00:00",
+        "endedAt": "2026-10-28T19:55:27.565302+00:00",
+        "log": ".tmp/acceptance/10-28-fix-more-settings-category-jump/tmpq2x_30kd.log"
+      },
+      "evidence": [".tmp/acceptance/10-28-fix-more-settings-category-jump/tmpq2x_30kd.log", "core/model/settingsNavigation.ts", ".trellis/tasks/archive/2026-10/10-28-fix-more-settings-category-jump/validation.md"],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope. 原始 browser-preflight 产物与 .tmp 服务证据已随 .tmp 清理删除；当轮数值见 validation.md，本轮只重跑单元测试与全量 check。",
+      "waiver": null
+    },
+    {
+      "id": "type-check-and-check",
+      "ac": ["AC4"],
+      "claim": "type-check、settings-navigation 单元测试与全量 check 全过",
+      "scope": "仓库根",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": ["npm", "run", "check"],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T19:55:27.598321+00:00",
+        "endedAt": "2026-10-28T19:56:01.854485+00:00",
+        "log": ".tmp/acceptance/10-28-fix-more-settings-category-jump/tmpdov042w4.log"
+      },
+      "evidence": [".tmp/acceptance/10-28-fix-more-settings-category-jump/tmpdov042w4.log", "package.json", ".trellis/tasks/archive/2026-10/10-28-fix-more-settings-category-jump/validation.md"],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope. 原始 browser-preflight 产物与 .tmp 服务证据已随 .tmp 清理删除；当轮数值见 validation.md，本轮只重跑单元测试与全量 check。",
+      "waiver": null
+    }
+  ]
+}
