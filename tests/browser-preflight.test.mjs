@@ -764,12 +764,11 @@ test('a passing round writes a command summary instead of full receipts', async 
 
 test('a command summary write error still blocks an otherwise passing round', async t => {
   const f = await fixture(t);
-  await fs.mkdir(f.options.artifactDir, { recursive: true });
-  await fs.mkdir(path.join(f.options.artifactDir, 'commands.json'));
+  f.page.onOpen = () => fs.mkdir(path.join(f.options.artifactDir, 'commands.json'), { recursive: true });
   const error = await f.run().then(() => assert.fail('must reject'), e => e);
   assert.ok(error instanceof BrowserPreflightError);
   assert.equal(error.result.observed, 'blocked');
-  assert.ok(error.result.errors.some(e => e.code === 'EISDIR' || e.code === 'EEXIST'));
+  assert.equal(error.result.errors.filter(e => e.code === 'EISDIR').length, 1);
 });
 
 test('suite timeout aborts the callback signal and prevents subsequent protected actions', async t => {

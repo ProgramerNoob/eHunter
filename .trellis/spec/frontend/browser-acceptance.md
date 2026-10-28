@@ -204,7 +204,7 @@ DOM 计数、站点自带产物、日志归因、窄视口与过渡动画等容�
 
 helper 是本轮唯一 `page.events()` 消费者。所有捕获的原始事件先追加到 `events.jsonl`，再共同分析身份与错误；每批含 runId、roundId、page、phase、sequence、recordedAt 和完整 events。导航前旧文档、导航/加载、准备、关键动作及截图前后分阶段保存；不要另行 drain 或用最后一批替代全程日志。
 
-每轮目录保存初始 `manifest.json`（incomplete）、`source.json`、指纹、身份、环境记录及源码副本；EH 另有权限记录，Vite 另有资源记录。`result.json` 在 finally 完成后原子保存。命令回执在内存中保留整轮：`observed` 为 `passed` 时只写汇总 `commands.json`（回执数、按方法聚合的次数与失败数），非 passed 时把完整逐条回执写成 `commands.jsonl` 供事后排查；两处写入失败都会把该轮记为 blocked。读取其中的 `logs`，检查 console 的 log/info/warning/error、未捕获异常和 Log 事件；身份和 coverage 仅证明该文本执行，不能替代异步平台初始化及功能结果。
+每轮目录保存初始 `manifest.json`（incomplete）、`source.json`、指纹、身份、环境记录及源码副本；EH 另有权限记录，Vite 另有资源记录。`result.json` 在 finally 完成后原子保存。命令回执在内存中保留整轮，`observed` 定稿后才落盘：`passed` 只写汇总 `commands.json`（回执数、按方法聚合的次数与失败数），非 passed 把完整逐条回执写成 `commands.jsonl` 供事后排查；两者都直写而非原子写，写失败则将该轮改记为 blocked。回执不随每条命令即时落盘，因此进程被硬终止、或尚未进入 finally 写入阶段的轮次不会留下命令回执。读取其中的 `logs`，检查 console 的 log/info/warning/error、未捕获异常和 Log 事件；身份和 coverage 仅证明该文本执行，不能替代异步平台初始化及功能结果。
 
 `python3 scripts/acceptance.py verify-browser <artifact-dir>` 只读校验该轮产物：重算 source bundle/loader 或 Vite 输入、`scenarioInputs` 与 Vite 聚合指纹，并复核 manifest/result 关联、`observed`、`checks`、`errors`、`eventCollection.unresolved` 与 source-specific identity。状态与退出码为 `passed` 0、`stale`/`blocked` 1、`invalid` 2、`legacy` 3（缺少 provenance 的历史产物）；输出 JSON 的 `errors` 给出可定位的不匹配事实，命令不修改产物或 `acceptance.json`。`verify-browser` 复核 source 与声明输入，不覆盖 `scripts/browser-preflight.mjs` 自身版本；helper 变更后必须重跑轮次，不能沿用旧产物。
 
