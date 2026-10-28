@@ -1,0 +1,50 @@
+{
+  "id": "guard-regression-gate",
+  "name": "guard-regression-gate",
+  "title": "门禁回归门：扩展测试进 check 链与 SDK 定位",
+  "description": "把扩展测试挂进 npm run check，让 SDK 定位认 PI_MANAGED_INSTALL_ROOT，CI 装 SDK 并取全历史，文档补硬链接边界",
+  "status": "completed",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-29",
+  "completedAt": "2026-10-29",
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-29-guard-regression-gate/**"
+        ],
+        "tooling": [
+          "package.json",
+          "scripts/test-trellis-extension.mjs",
+          ".github/workflows/check.yml",
+          "scripts/acceptance.py",
+          ".trellis/spec/tooling/pi-context.md",
+          ".trellis/spec/tooling/index.md",
+          "scripts/test_acceptance.py"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "525bffc1c33e0c6f2cecc31c6b0451cc60d08e04d94e625cd823e6b0d16590e3"
+      }
+    }
+  }
+}

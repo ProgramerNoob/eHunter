@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/tooling/pi-context.md", "reason": "核对门禁语义未被回归门改动，SDK 定位与硬链接边界与实现一致"}
+{"file": ".trellis/spec/tooling/index.md", "reason": "核对归档 flag 说明与 acceptance.py 实际行为一致"}

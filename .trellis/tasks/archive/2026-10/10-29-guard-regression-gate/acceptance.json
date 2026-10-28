@@ -1,0 +1,210 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "`npm run check` 的链路中包含扩展测试；在只有托管安装（无 `node_modules`、无全局 SDK）的机器上 `npm run check` 通过，且扩展测试确实执行了 14 条断言而非跳过。",
+    "AC2": "`scripts/test-trellis-extension.mjs` 能通过 `PI_MANAGED_INSTALL_ROOT` 定位 SDK，版本号动态读取；SDK 完全缺失时仍以 `Install Pi before running the extension contract tests` 失败。",
+    "AC3": "故意改坏 `isMainSessionWritable` 的放行表（让 `src/` 被放行）后，`npm run check` 在扩展测试处失败；恢复后重新通过。该变异证明 R1 的回归门真实生效。",
+    "AC4": "`.github/workflows/check.yml` 含 `fetch-depth: 0` 与 SDK 安装步骤；`git clone --depth 1` 的副本中扩展测试因取不到基线提交 `e7e5f28` 而失败，`git fetch --unshallow` 后取到基线并通过 14/14。",
+    "AC5": "`python3 scripts/acceptance.py archive <task-dir>` 对 `branch == base_branch` 的任务不再因自指元数据失败；对 `branch != base_branch` 的既有行为不变。",
+    "AC6": "`.trellis/spec/tooling/pi-context.md` 第 9 节写明硬链接边界；`.trellis/spec/tooling/index.md` 写明 `task.py archive` 与 `acceptance.py archive` 两条命令的参数差异。",
+    "AC7": "`npm run check`、`node --test scripts/test-trellis-extension.mjs`、`python3 -m unittest discover -s scripts -p 'test_acceptance.py'` 全部通过，`npm run check:docs` 通过。"
+  },
+  "checks": [
+    {
+      "id": "ac1-check-chain-runs-extension-test",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "`package.json` 的 `test` 聚合链包含 `test:trellis-extension`，且在仓库 `node_modules` 与全局 npm 根都没有 `@earendil-works` 的机器上，`npm run check` 实际执行了 14 条扩展断言并全部通过。",
+      "scope": "`package.json` 的 `test`/`test:trellis-extension` 脚本与一次 `env -u PI_MANAGED_INSTALL_ROOT npm run check` 的完整日志",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/gate-10-29/verify-ac.sh",
+          "ac1"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T18:45:41.088120+00:00",
+        "endedAt": "2026-10-28T18:46:08.497024+00:00",
+        "log": ".tmp/acceptance/10-29-guard-regression-gate/tmpqo_evhyg.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-29-guard-regression-gate/tmpqo_evhyg.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac2-sdk-resolution-sources",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "扩展测试在显式 `PI_MANAGED_INSTALL_ROOT`、变量缺失时回落 `~/.pi/agent/install`、以及指向不存在目录三种情况下分别通过、通过、以 `Install Pi before running the extension contract tests` 失败；版本号从 `current-version` 动态读取。",
+      "scope": "`scripts/test-trellis-extension.mjs` 的 `managedModulesBase()`/`sdkPackage()` 与三次 `node --test` 运行日志",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/gate-10-29/verify-ac.sh",
+          "ac2"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T18:46:11.596765+00:00",
+        "endedAt": "2026-10-28T18:46:12.378998+00:00",
+        "log": ".tmp/acceptance/10-29-guard-regression-gate/tmphz8j31wx.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-29-guard-regression-gate/tmphz8j31wx.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac3-mutation-proves-regression-gate",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "把 `isMainSessionWritable` 变异成无条件放行后，`npm run check` 在扩展测试处失败并点名放行表断言；从变异前副本恢复后 `npm run check` 重新通过。",
+      "scope": "`.pi/extensions/trellis/index.ts` 的 `isMainSessionWritable` 与两次 `npm run check` 日志、恢复后的 shasum 比对",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/gate-10-29/verify-ac.sh",
+          "ac3"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T18:46:12.405683+00:00",
+        "endedAt": "2026-10-28T18:47:06.549376+00:00",
+        "log": ".tmp/acceptance/10-29-guard-regression-gate/tmp_nhij2qj.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-29-guard-regression-gate/tmp_nhij2qj.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac4-ci-config-and-shallow-clone",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "`check.yml` 含 `fetch-depth: 0` 与固定版本的 SDK 安装步骤且 YAML 可解析；在 `git clone --depth 1` 副本中扩展测试因取不到基线 `e7e5f28` 失败（`ℹ fail 1`），`git fetch --unshallow` 后通过 14/14。",
+      "scope": "`.github/workflows/check.yml` 的三处配置，以及 `.tmp/gate-10-29/shallow-clone` 中浅克隆/补齐历史两次运行的日志",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/gate-10-29/verify-ac.sh",
+          "ac4"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T18:47:09.718415+00:00",
+        "endedAt": "2026-10-28T18:47:11.159730+00:00",
+        "log": ".tmp/acceptance/10-29-guard-regression-gate/tmpzidm5cvy.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-29-guard-regression-gate/tmpzidm5cvy.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac5-archive-forwards-skip-flag",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "`acceptance.py archive` 透传 `--skip-branch-validation`：自指分支任务不带 flag 仍以原消息拒绝、带 flag 成功归档并自动提交；`branch != base_branch` 的任务不带 flag 也能归档。探针全部在一次性克隆里执行。",
+      "scope": "`scripts/acceptance.py` 的 `archive()`/`main()`，与 `.tmp/gate-10-29/ac5-repo` 克隆中的三次归档探针",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/gate-10-29/verify-ac.sh",
+          "ac5"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T18:47:11.188225+00:00",
+        "endedAt": "2026-10-28T18:47:13.298846+00:00",
+        "log": ".tmp/acceptance/10-29-guard-regression-gate/tmpwig4iflr.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-29-guard-regression-gate/tmpwig4iflr.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac6-spec-documents-boundaries",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "`pi-context.md` 第 9 节写明硬链接边界与不做 `nlink` 检测的理由；`index.md` 写明 `task.py archive` 与 `acceptance.py archive` 的参数差异、`--skip-branch-validation` 的透传，以及扩展测试定位托管安装的方式。",
+      "scope": "`.trellis/spec/tooling/pi-context.md` 第 9 节、`.trellis/spec/tooling/index.md` 的提交门禁与归档门禁两段",
+      "method": "command",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/gate-10-29/verify-ac.sh",
+          "ac6"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T18:47:59.720334+00:00",
+        "endedAt": "2026-10-28T18:47:59.737854+00:00",
+        "log": ".tmp/acceptance/10-29-guard-regression-gate/tmpjsou8qws.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-29-guard-regression-gate/tmpjsou8qws.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac7-four-commands-pass",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "`npm run check`、`node --test scripts/test-trellis-extension.mjs`、`python3 -m unittest discover -s scripts -p test_acceptance.py`、`npm run check:docs` 四条命令全部以 exit 0 结束。",
+      "scope": "四条验证命令在当前工作区的完整运行",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/gate-10-29/verify-ac.sh",
+          "ac7"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T18:47:59.767955+00:00",
+        "endedAt": "2026-10-28T18:48:29.153535+00:00",
+        "log": ".tmp/acceptance/10-29-guard-regression-gate/tmppr03lq_d.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-29-guard-regression-gate/tmppr03lq_d.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    }
+  ]
+}

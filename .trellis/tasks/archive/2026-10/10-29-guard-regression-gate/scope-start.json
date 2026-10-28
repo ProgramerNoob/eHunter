@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-29-guard-regression-gate",
+  "branch": "master",
+  "head": "c5c581b0997564c21f8935a76f0f0d66bc27abdd",
+  "indexTree": "8cc162ab6fca2cb7e1700528b96a5f43e2ed7f3d",
+  "capturedAt": "2026-10-29T01:21:06+08:00",
+  "scopeDigest": "ecc87e61dd43c55fe593361b9404ff051204ba3222860d1cf162124e3bc8012b",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-29-guard-regression-gate/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-29-guard-regression-gate/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    ".trellis/tasks/10-29-guard-regression-gate/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "fda171baa7a529129f3079db96a6afe0b6f74915414548b9d63a7d7bd84c4b38"
+    },
+    ".trellis/tasks/10-29-guard-regression-gate/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "76eac2f6d88fdabc024e18a6fb3176b9b99f68b63f77ba50e28a337a6ab5dc4e"
+    }
+  },
+  "scopeExtensions": [
+    {
+      "category": "tooling",
+      "rules": [
+        "package.json",
+        "scripts/test-trellis-extension.mjs",
+        ".github/workflows/check.yml",
+        "scripts/acceptance.py",
+        ".trellis/spec/tooling/pi-context.md",
+        ".trellis/spec/tooling/index.md"
+      ],
+      "at": "2026-10-29T01:21:35+08:00"
+    },
+    {
+      "category": "tooling",
+      "rules": [
+        "scripts/test_acceptance.py"
+      ],
+      "at": "2026-10-29T01:24:09+08:00"
+    }
+  ]
+}

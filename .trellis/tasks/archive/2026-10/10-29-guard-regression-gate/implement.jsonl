@@ -1,0 +1,3 @@
+{"file": ".trellis/spec/tooling/pi-context.md", "reason": "第 9 节定义门禁判定语义与已知绕过边界，SDK 定位与硬链接文档都落在这里"}
+{"file": ".trellis/spec/tooling/index.md", "reason": "归档门禁三道门与 pre-commit 说明，acceptance.py archive 的 flag 透传要同步这里"}
+{"file": ".trellis/spec/tooling/tmp-hygiene.md", "reason": "npm run check 首步是 tmp:report，check 链改动会影响这条门禁的执行顺序"}
