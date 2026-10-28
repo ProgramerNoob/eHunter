@@ -8,8 +8,8 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 16
-- **Last Active**: 2026-10-28
+- **Total Sessions**: 18
+- **Last Active**: 2026-10-29
 <!-- @@@/auto:current-status -->
 
 ---
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~672 | Active |
+| `journal-1.md` | ~757 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 18 | 2026-10-29 | 修主会话写入门禁的五处缺陷 | `0fec79b` | `master` |
 | 16 | 2026-10-28 | 收紧检查流水线：tmp 预算前置与语法检查 | `19f8599`, `e00d0d0`, `680c4fd` | `master` |
 | 14 | 2026-10-18 | 新增 task.py extend-scope | `7db8b73` | `master` |
 | 13 | 2026-10-18 | NH 移动视口验收补跑 | `4945d96` | `master` |

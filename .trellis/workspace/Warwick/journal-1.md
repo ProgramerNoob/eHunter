@@ -688,3 +688,70 @@ Session summary was not supplied.
 
 - `.trellis/scripts` 里 `task.json` 的顶层 `commit` 与 `pr_url` 字段是死字段：只有创建时的 `null` 模板（`common/task_store.py:642`），无任何读写者，`task.py` 也无 `set-commit`；56 个任务里唯一的非 null 是手工补的 `10-12-browser-acceptance-preflight`（`ad02f64`）。已决定不动（属上游 Trellis 代码），任务到提交的映射走 journal 索引与 `git log --grep`。
 - `pending-work.md` 仍排队：`001-gallery-download-bundle`、`001-platform-injection`。
+
+
+## Session 17: 修主会话写入门禁的五处缺陷
+<!-- trellis-session: v=2 fp=f8d85bcce22c61fe -->
+
+**Date**: 2026-10-29
+**Task**: 修主会话写入门禁的五处缺陷
+**Branch**: `master`
+
+### Summary
+
+review 指出门禁的 .tmp/ 拦截、bash 断言重言式、子进程判断死代码、路径未 realpath 与两处换行噪音；本轮补齐放行范围、改为按真实落点判定并补变异测试。
+
+### Main Changes
+
+- `.tmp/` 补进主会话放行范围（`.pi/extensions/trellis/index.ts` 的 `isMainSessionWritable`）：浏览器验收指南要求日志、截图与报告写在仓库 `.tmp/`，拦住它只会把写入挤到 bash heredoc 那条已知绕过路径。
+- 路径判定改为按真实落点：`realWritePath` 从目标向上找最近的已存在祖先（`lstat` 含目标自身），对该祖先 `realpathSync.native` 再拼回未创建段；悬空软链、指向实现目录的链目录及其下新建文件、仓库内指向仓库外的软链一律拦截。
+- 相对路径改为 `${cwd}/${raw}` 字面拼接配合 `realpathSync.native`，保留内核「先解析软链、再退父目录」语义；`resolve` 前置归一或退回 JS `realpathSync` 都会让 `link-out/../.tmp/evil.png` 落进放行表，两者必须同时满足。
+- 删掉 `mainSessionWriteBlock` 里不可达的 `TRELLIS_SUBAGENT_CHILD` 判断，只保留扩展入口一处，并加注释说明入口已先返回。
+- `scripts/test-trellis-extension.mjs`：恒真的 `call('bash', 'src/main.ts')` 换成真实 bash 形状并标注为已知绕过；新增软链用例与 `..` 用例，`register()` 在子进程环境同时断言 `hooks.size === 0`。
+- 补回 `.trellis/spec/tooling/pi-context.md` 末尾换行、去掉 `AGENTS.md` 末尾多余空行；第 9 节同步 `.tmp/` 与真实落点判定的完整规则。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `0fec79b` | fix(tooling): 修主会话写入门禁的五处缺陷 |
+
+### Testing
+
+- [OK] `node --test scripts/test-trellis-extension.mjs` 14/14（含新增的软链与 `..` 用例）；本机 `npm root -g` 不含 Pi SDK，用 `.tmp/sdk-shim` 指向 `/Users/warwick/.pi/agent/install/releases/1.4.0/node_modules/@earendil-works/` 跑通，跑完删除
+- [OK] 变异测试：M1（按字面名判定）、X（`resolve` 前置归一）、Y（JS `realpathSync`）三个变异各自让对应用例变红（`ℹ fail 1`），恢复后全绿
+- [OK] 宿主链路实测：任务 `in_progress` 期间主会话写 `.tmp/write-guard/e2e-tmp-allowed.txt` 成功；写 `src/zz-e2e-probe.ts`、`link-out/../.tmp/evil.png`、悬空 `ghost.md`、`linkdir/new-child.ts` 分别被拦并给出对应文案
+- [OK] `npm run check` exit 0（tmp 预算、语法、type-check、15 组测试、build-prod、check-docs 全过）
+- [OK] `python3 scripts/acceptance.py summarize` exit 0：8/8 AC passed，9/9 check passed，无 waiver
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 归档被第三道分支门拦住：`task.json` 的 `branch` 与 `base_branch` 同为 `master`，`task.py archive` 拒绝自指元数据；`scripts/acceptance.py archive` 没有透传 `--skip-branch-validation` 的入口。验收与范围门均已通过，任务保持 active。
+- 可选做法：`python3 .trellis/scripts/task.py archive .trellis/tasks/10-28-fix-write-guard --skip-branch-validation`（历史归档如 `680c4fd` 就这样过门），或用 `set-branch` 写入真实分支名后再归档。
+- `.trellis/spec/tooling/index.md:37` 只写了「两者相同时加 `--skip-branch-validation`」，未说明 `acceptance.py archive` 不支持透传，收口时容易再撞一次。
+
+
+## Session 18: 修主会话写入门禁的五处缺陷
+<!-- trellis-session: v=2 fp=8051715ecd5a277b -->
+
+**Date**: 2026-10-29
+**Task**: 修主会话写入门禁的五处缺陷
+**Branch**: `master`
+
+### Summary
+
+review 指出门禁的 .tmp/ 拦截、bash 断言重言式、子进程判断死代码、路径未 realpath 与两处换行噪音；本轮补齐放行范围、改为按真实落点判定并补变异测试。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `0fec79b` | fix(tooling): 修主会话写入门禁的五处缺陷 |
+
+### Status
+
+[OK] **Completed**
