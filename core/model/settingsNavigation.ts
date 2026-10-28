@@ -14,7 +14,7 @@ export function resolveActiveSettingsCategory<T extends string>(
     if (!last) {
         return null
     }
-    if (scrollMax > 0 && scrollTop >= scrollMax - 1 && last.offsetTop > scrollMax) {
+    if (scrollMax > 0 && scrollTop >= scrollMax - 1) {
         return last.id
     }
     let active = sections[0].id

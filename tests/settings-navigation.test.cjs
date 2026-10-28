@@ -41,7 +41,7 @@ test('settings navigation: an unreachable last section wins at the scroll bounda
     assert.equal(model.resolveSettingsCategoryScrollTop(SECTIONS[5].offsetTop, SCROLL_MAX), SCROLL_MAX);
 });
 
-test('settings navigation: a reachable last section is not forced to win at the boundary', () => {
+test('settings navigation: a reachable last section is already selected before the boundary', () => {
     const model = loadModel();
     const reachable = [
         { id: 'general', offsetTop: 16 },
