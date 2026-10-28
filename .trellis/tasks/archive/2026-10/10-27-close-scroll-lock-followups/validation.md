@@ -51,3 +51,15 @@ scrollLockUntil = Date.now() + animationTime + scrollLockMarginMs
 ## 范围说明
 
 用户复核的第 3 点（「重钳制不跳过」不补反向守卫）已确认按现状接受，本任务不动。该约束仍只由 `10-26-fix-spec-reclamp-gaps` 的浏览器轮证据支撑。
+
+## 补充：2026-10-29 重跑
+
+原始 `.tmp` 日志已随 `.tmp` 清理删除，`acceptance.json` 里这几条一度被改成 inspection。按 `quality-guidelines.md` 的「inspection 不能证明运行时行为」，behavior 类改为重跑取证：
+
+| check | argv | 结果 |
+| --- | --- | --- |
+| `doc-guard-script-tracked` | `npm run test:decision-docs` | exit 0 |
+| `doc-guard-detects-violation` | `bash .trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/rerun/guard-followups.sh` | exit 0 |
+| `check-suite` | `npm run check` | exit 0 |
+
+`rerun/guard-followups.sh` 在 `.tmp` 下建私有副本树重放三态（当前清单 exit 0 → 追加「锁定期约 1s。」exit 1 并报第 36 行 → 还原 exit 0），不触碰仓库内文档，跑完删除副本。脚本随任务归档保存，可随时重跑。

@@ -18,7 +18,10 @@
       "dimension": "structure",
       "observed": "passed",
       "execution": null,
-      "evidence": ["core/components/AlbumScrollView.vue", ".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"],
+      "evidence": [
+        "core/components/AlbumScrollView.vue",
+        ".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"
+      ],
       "note": "新增 const scrollLockMarginMs = 200；锁定期计算改为 Date.now() + animationTime + scrollLockMarginMs；grep 断言计算中无裸 200。 原始日志已随 .tmp 清理删除，证据改为按 validation.md 的当轮记录复核，本轮未重跑命令。",
       "waiver": null
     },
@@ -29,12 +32,25 @@
       ],
       "claim": "守卫脚本在 tests/ 下且对当前文档通过",
       "scope": "`tests/check-decision-doc-durations.sh`",
-      "method": "inspection",
+      "method": "command",
       "dimension": "structure",
       "observed": "passed",
-      "execution": null,
-      "evidence": ["tests/check-decision-doc-durations.sh", ".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"],
-      "note": "脚本从 .tmp 重写迁入 tests/，git ls-files 确认纳入版本控制；对当前文档 exit 0。 原始日志已随 .tmp 清理删除，证据改为按 validation.md 的当轮记录复核，本轮未重跑命令。",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:decision-docs"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T20:15:00.093425+00:00",
+        "endedAt": "2026-10-28T20:15:00.198970+00:00",
+        "log": ".tmp/acceptance/10-27-close-scroll-lock-followups/tmpbia6b8l_.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-27-close-scroll-lock-followups/tmpbia6b8l_.log"
+      ],
+      "note": "守卫脚本自 2026-10-27 起位于 `tests/check-decision-doc-durations.sh` 并受版本控制；本轮重跑 `npm run test:decision-docs` exit 0。本轮重跑结果（2026-10-29）：原始 `.tmp` 日志已随清理删除，execution 与日志文件记录的是同一断言在新日期重新执行的事实，不是当轮产物。重放脚本已随任务归档保存，可随时重跑。",
       "waiver": null
     },
     {
@@ -44,12 +60,25 @@
       ],
       "claim": "追加裸时长后脚本 exit 1，还原后 exit 0",
       "scope": "决策文档 + 守卫脚本",
-      "method": "inspection",
+      "method": "command",
       "dimension": "behavior",
       "observed": "passed",
-      "execution": null,
-      "evidence": [".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"],
-      "note": "脚本临时追加「锁定期约 1s。」后守卫 exit 1（打印第 36 行命中与 FAIL 原因），还原后 exit 0；doc_changed=1 是文档本身的符号表述改动，测试内容无残留。 原始日志已随 .tmp 清理删除，证据改为按 validation.md 的当轮记录复核，本轮未重跑命令。",
+      "execution": {
+        "argv": [
+          "bash",
+          ".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/rerun/guard-followups.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T20:15:00.232198+00:00",
+        "endedAt": "2026-10-28T20:15:00.292083+00:00",
+        "log": ".tmp/acceptance/10-27-close-scroll-lock-followups/tmpqxxlwajm.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-27-close-scroll-lock-followups/tmpqxxlwajm.log",
+        ".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/rerun/guard-followups.sh"
+      ],
+      "note": "在私有副本树里重放往返：追加「锁定期约 1s。」后守卫 exit 1 并报第 36 行，还原文档后 exit 0。副本建在 `.tmp` 下、跑完即删，仓库内文档全程未被修改。本轮重跑结果（2026-10-29）：原始 `.tmp` 日志已随清理删除，execution 与日志文件记录的是同一断言在新日期重新执行的事实，不是当轮产物。重放脚本已随任务归档保存，可随时重跑。",
       "waiver": null
     },
     {
@@ -59,12 +88,25 @@
       ],
       "claim": "新子脚本与全量 check 均通过",
       "scope": "仓库根",
-      "method": "inspection",
+      "method": "command",
       "dimension": "structure",
       "observed": "passed",
-      "execution": null,
-      "evidence": [".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"],
-      "note": "npm run test:decision-docs exit 0；npm run check 全链 exit 0，日志含 OK: decision documents carry no literal durations 与 check-docs: OK。 原始日志已随 .tmp 清理删除，证据改为按 validation.md 的当轮记录复核，本轮未重跑命令。",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T20:15:03.656985+00:00",
+        "endedAt": "2026-10-28T20:15:35.817248+00:00",
+        "log": ".tmp/acceptance/10-27-close-scroll-lock-followups/tmp093_teri.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-27-close-scroll-lock-followups/tmp093_teri.log"
+      ],
+      "note": "本轮重跑 `npm run check` 全链 exit 0，链内含 `test:decision-docs`（输出 `OK: registered decision documents carry no literal durations`）与 `check-docs: OK`。本轮重跑结果（2026-10-29）：原始 `.tmp` 日志已随清理删除，execution 与日志文件记录的是同一断言在新日期重新执行的事实，不是当轮产物。重放脚本已随任务归档保存，可随时重跑。",
       "waiver": null
     }
   ]

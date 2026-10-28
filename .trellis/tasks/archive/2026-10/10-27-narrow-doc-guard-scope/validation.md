@@ -52,3 +52,15 @@ fi
 - 只改 `tests/check-decision-doc-durations.sh`，未动 `2026-09-18-reader-behavior.md`，未改 `package.json` 测试链。
 - 检查逻辑（缺文件 exit 1、命中 exit 1、通过 exit 0）保持原样。
 - `set -u` 无 `set -e` 是刻意的：要多篇文档都报错而非第一篇就退出；现在注释里也点明了空数组的原因。
+
+## 补充：2026-10-29 重跑
+
+原始 `.tmp` 日志已随 `.tmp` 清理删除，`acceptance.json` 里这几条一度被改成 inspection。按 `quality-guidelines.md` 的「inspection 不能证明运行时行为」，behavior 类改为重跑取证：
+
+| check | argv | 结果 |
+| --- | --- | --- |
+| `empty-list-safe` | `bash .trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/rerun/guard-narrow.sh empty` | exit 0 |
+| `guard-behavior-unchanged` | `bash .trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/rerun/guard-narrow.sh widened` | exit 0 |
+| `check-suite` | `npm run check` | exit 0 |
+
+`rerun/guard-narrow.sh` 支持 `all|current|widened|empty` 四种模式，在 `.tmp` 下建私有副本树重放，不触碰仓库内文档，跑完删除副本。脚本随任务归档保存，可随时重跑。
