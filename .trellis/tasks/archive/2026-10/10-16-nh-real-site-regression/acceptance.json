@@ -84,8 +84,8 @@
       "dimension": "content",
       "observed": "passed",
       "execution": null,
-      "evidence": [".trellis/spec/frontend/features/001-platform-injection/tasks.md", ".tmp/test-reports/nh-real-site-regression-20261016.md"],
-      "note": "T108–T116 与 T113 均已按当前真实证据勾选，并附有效/无效 URL、EH/NH artifact 和未覆盖边界。",
+      "evidence": [".tmp/test-reports/nh-real-site-regression-20261016.md"],
+      "note": "T108–T116 与 T113 均已按当前真实证据勾选，并附有效/无效 URL、EH/NH artifact 和未覆盖边界。 原引用的 001-platform-injection/tasks.md 已在 418389f 随 spec-kit 计划型产物删除；本条其余证据仍为同轮 .tmp 产物。",
       "waiver": null
     },
     {

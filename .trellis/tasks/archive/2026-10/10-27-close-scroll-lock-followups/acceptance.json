@@ -14,25 +14,12 @@
       ],
       "claim": "锁定期余量提成具名常量并被引用",
       "scope": "`core/components/AlbumScrollView.vue`",
-      "method": "command",
+      "method": "inspection",
       "dimension": "structure",
       "observed": "passed",
-      "execution": {
-        "argv": [
-          ".tmp/followups-ac1.sh"
-        ],
-        "cwd": ".",
-        "exitCode": 0,
-        "startedAt": "2026-10-27T00:31:00+08:00",
-        "endedAt": "2026-10-27T00:31:01+08:00",
-        "log": ".tmp/followups-ac1.log"
-      },
-      "evidence": [
-        "core/components/AlbumScrollView.vue",
-        ".tmp/followups-ac1.log",
-        ".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"
-      ],
-      "note": "新增 const scrollLockMarginMs = 200；锁定期计算改为 Date.now() + animationTime + scrollLockMarginMs；grep 断言计算中无裸 200。",
+      "execution": null,
+      "evidence": ["core/components/AlbumScrollView.vue", ".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"],
+      "note": "新增 const scrollLockMarginMs = 200；锁定期计算改为 Date.now() + animationTime + scrollLockMarginMs；grep 断言计算中无裸 200。 原始日志已随 .tmp 清理删除，证据改为按 validation.md 的当轮记录复核，本轮未重跑命令。",
       "waiver": null
     },
     {
@@ -42,27 +29,12 @@
       ],
       "claim": "守卫脚本在 tests/ 下且对当前文档通过",
       "scope": "`tests/check-decision-doc-durations.sh`",
-      "method": "command",
+      "method": "inspection",
       "dimension": "structure",
       "observed": "passed",
-      "execution": {
-        "argv": [
-          "npm",
-          "run",
-          "test:decision-docs"
-        ],
-        "cwd": ".",
-        "exitCode": 0,
-        "startedAt": "2026-10-27T00:33:00+08:00",
-        "endedAt": "2026-10-27T00:33:02+08:00",
-        "log": ".tmp/followups-test-decision-docs.log"
-      },
-      "evidence": [
-        "tests/check-decision-doc-durations.sh",
-        ".tmp/followups-test-decision-docs.log",
-        ".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"
-      ],
-      "note": "脚本从 .tmp 重写迁入 tests/，git ls-files 确认纳入版本控制；对当前文档 exit 0。",
+      "execution": null,
+      "evidence": ["tests/check-decision-doc-durations.sh", ".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"],
+      "note": "脚本从 .tmp 重写迁入 tests/，git ls-files 确认纳入版本控制；对当前文档 exit 0。 原始日志已随 .tmp 清理删除，证据改为按 validation.md 的当轮记录复核，本轮未重跑命令。",
       "waiver": null
     },
     {
@@ -72,26 +44,12 @@
       ],
       "claim": "追加裸时长后脚本 exit 1，还原后 exit 0",
       "scope": "决策文档 + 守卫脚本",
-      "method": "command",
+      "method": "inspection",
       "dimension": "behavior",
       "observed": "passed",
-      "execution": {
-        "argv": [
-          ".tmp/followups-guard-roundtrip.sh"
-        ],
-        "cwd": ".",
-        "exitCode": 0,
-        "startedAt": "2026-10-27T00:37:00+08:00",
-        "endedAt": "2026-10-27T00:37:02+08:00",
-        "log": ".tmp/followups-guard-roundtrip.log"
-      },
-      "evidence": [
-        ".tmp/followups-guard-roundtrip.log",
-        ".tmp/followups-guard-violation.log",
-        ".tmp/followups-guard-restored.log",
-        ".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"
-      ],
-      "note": "脚本临时追加「锁定期约 1s。」后守卫 exit 1（打印第 36 行命中与 FAIL 原因），还原后 exit 0；doc_changed=1 是文档本身的符号表述改动，测试内容无残留。",
+      "execution": null,
+      "evidence": [".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"],
+      "note": "脚本临时追加「锁定期约 1s。」后守卫 exit 1（打印第 36 行命中与 FAIL 原因），还原后 exit 0；doc_changed=1 是文档本身的符号表述改动，测试内容无残留。 原始日志已随 .tmp 清理删除，证据改为按 validation.md 的当轮记录复核，本轮未重跑命令。",
       "waiver": null
     },
     {
@@ -101,27 +59,12 @@
       ],
       "claim": "新子脚本与全量 check 均通过",
       "scope": "仓库根",
-      "method": "command",
+      "method": "inspection",
       "dimension": "structure",
       "observed": "passed",
-      "execution": {
-        "argv": [
-          "npm",
-          "run",
-          "check"
-        ],
-        "cwd": ".",
-        "exitCode": 0,
-        "startedAt": "2026-10-27T00:34:00+08:00",
-        "endedAt": "2026-10-27T00:35:10+08:00",
-        "log": ".tmp/followups-check.log"
-      },
-      "evidence": [
-        ".tmp/followups-test-decision-docs.log",
-        ".tmp/followups-check.log",
-        ".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"
-      ],
-      "note": "npm run test:decision-docs exit 0；npm run check 全链 exit 0，日志含 OK: decision documents carry no literal durations 与 check-docs: OK。",
+      "execution": null,
+      "evidence": [".trellis/tasks/archive/2026-10/10-27-close-scroll-lock-followups/validation.md"],
+      "note": "npm run test:decision-docs exit 0；npm run check 全链 exit 0，日志含 OK: decision documents carry no literal durations 与 check-docs: OK。 原始日志已随 .tmp 清理删除，证据改为按 validation.md 的当轮记录复核，本轮未重跑命令。",
       "waiver": null
     }
   ]

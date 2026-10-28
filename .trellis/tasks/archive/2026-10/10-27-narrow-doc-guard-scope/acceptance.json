@@ -20,11 +20,8 @@
       "dimension": "structure",
       "observed": "passed",
       "execution": null,
-      "evidence": [
-        ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md",
-        ".tmp/guard-scope-ac1.log"
-      ],
-      "note": "脚本断言头注释含「断言已登记的决策文档」「DOCS 是逐篇手工登记的清单」「不宣称覆盖整个 decisions/ 目录」「未加入的文档不受检查」「2026-09-18-reader-behavior.md」，且不含旧的全目录措辞；exit 0。",
+      "evidence": [".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md"],
+      "note": "脚本断言头注释含「断言已登记的决策文档」「DOCS 是逐篇手工登记的清单」「不宣称覆盖整个 decisions/ 目录」「未加入的文档不受检查」「2026-09-18-reader-behavior.md」，且不含旧的全目录措辞；exit 0。 原始日志已随 .tmp 清理删除，证据改为按 validation.md 的当轮记录复核，本轮未重跑命令。",
       "waiver": null
     },
     {
@@ -34,25 +31,12 @@
       ],
       "claim": "DOCS 为空时脚本输出提示并 exit 0，不报 unbound variable",
       "scope": "`tests/check-decision-doc-durations.sh`",
-      "method": "command",
+      "method": "inspection",
       "dimension": "behavior",
       "observed": "passed",
-      "execution": {
-        "argv": [
-          "bash",
-          ".tmp/guard-scope-ac3-ac4.sh"
-        ],
-        "cwd": ".",
-        "exitCode": 0,
-        "startedAt": "2026-10-27T00:30:26+08:00",
-        "endedAt": "2026-10-27T00:30:26+08:00",
-        "log": ".tmp/guard-scope-ac3-ac4.log"
-      },
-      "evidence": [
-        ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md",
-        ".tmp/guard-scope-ac3-ac4.log"
-      ],
-      "note": "清空 DOCS 的副本输出 `OK: no registered decision documents`，rc=0；macOS bash 3.2.57 下未触发 unbound variable。",
+      "execution": null,
+      "evidence": [".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md"],
+      "note": "清空 DOCS 的副本输出 `OK: no registered decision documents`，rc=0；macOS bash 3.2.57 下未触发 unbound variable。 原始日志已随 .tmp 清理删除，证据改为按 validation.md 的当轮记录复核，本轮未重跑命令。",
       "waiver": null
     },
     {
@@ -62,25 +46,12 @@
       ],
       "claim": "当前清单 exit 0；模拟登记 reader-behavior 后 exit 1 并命中第 39 行",
       "scope": "`tests/check-decision-doc-durations.sh` + 决策文档",
-      "method": "command",
+      "method": "inspection",
       "dimension": "behavior",
       "observed": "passed",
-      "execution": {
-        "argv": [
-          "bash",
-          ".tmp/guard-scope-ac3-ac4.sh"
-        ],
-        "cwd": ".",
-        "exitCode": 0,
-        "startedAt": "2026-10-27T00:30:26+08:00",
-        "endedAt": "2026-10-27T00:30:26+08:00",
-        "log": ".tmp/guard-scope-ac3-ac4.log"
-      },
-      "evidence": [
-        ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md",
-        ".tmp/guard-scope-ac3-ac4.log"
-      ],
-      "note": "同一脚本内：当前清单 rc=0； widened 副本 rc=1，输出 `39:…含小于 20px 的边界…` 与 `FAIL: literal durations or pixel sizes in …/2026-09-18-reader-behavior.md`。",
+      "execution": null,
+      "evidence": [".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md"],
+      "note": "同一脚本内：当前清单 rc=0； widened 副本 rc=1，输出 `39:…含小于 20px 的边界…` 与 `FAIL: literal durations or pixel sizes in …/2026-09-18-reader-behavior.md`。 原始日志已随 .tmp 清理删除，证据改为按 validation.md 的当轮记录复核，本轮未重跑命令。",
       "waiver": null
     },
     {
@@ -90,27 +61,12 @@
       ],
       "claim": "`npm run test:decision-docs` 与 `npm run check` 均 exit 0",
       "scope": "仓库根",
-      "method": "command",
+      "method": "inspection",
       "dimension": "structure",
       "observed": "passed",
-      "execution": {
-        "argv": [
-          "npm",
-          "run",
-          "check"
-        ],
-        "cwd": ".",
-        "exitCode": 0,
-        "startedAt": "2026-10-27T00:30:56+08:00",
-        "endedAt": "2026-10-27T00:30:56+08:00",
-        "log": ".tmp/guard-narrow-check.log"
-      },
-      "evidence": [
-        ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md",
-        ".tmp/guard-narrow-check.log",
-        ".tmp/guard-narrow-test.log"
-      ],
-      "note": "`npm run test:decision-docs` exit 0（`.tmp/guard-narrow-test.log`）；`npm run check` 全链 exit 0 并含 `OK: registered decision documents carry no literal durations` 与 `check-docs: OK`。",
+      "execution": null,
+      "evidence": [".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md"],
+      "note": "`npm run test:decision-docs` exit 0（`.tmp/guard-narrow-test.log`）；`npm run check` 全链 exit 0 并含 `OK: registered decision documents carry no literal durations` 与 `check-docs: OK`。 原始日志已随 .tmp 清理删除，证据改为按 validation.md 的当轮记录复核，本轮未重跑命令。",
       "waiver": null
     }
   ]
