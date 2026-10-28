@@ -733,3 +733,50 @@ review 指出门禁的 .tmp/ 拦截、bash 断言重言式、子进程判断死�
 - 归档被第三道分支门拦住：`task.json` 的 `branch` 与 `base_branch` 同为 `master`，`task.py archive` 拒绝自指元数据；`scripts/acceptance.py archive` 没有透传 `--skip-branch-validation` 的入口。验收与范围门均已通过，任务保持 active。
 - 可选做法：`python3 .trellis/scripts/task.py archive .trellis/tasks/10-28-fix-write-guard --skip-branch-validation`（历史归档如 `680c4fd` 就这样过门），或用 `set-branch` 写入真实分支名后再归档。
 - `.trellis/spec/tooling/index.md:37` 只写了「两者相同时加 `--skip-branch-validation`」，未说明 `acceptance.py archive` 不支持透传，收口时容易再撞一次。
+
+
+## Session 18: 扩展测试挂进 check 链，SDK 定位认托管安装
+<!-- trellis-session: v=2 fp=a29a3451829b2044 -->
+
+**Date**: 2026-10-29
+**Task**: 扩展测试挂进 check 链，SDK 定位认托管安装
+**Branch**: `master`
+
+### Summary
+
+把写入门禁的 14 条扩展测试接进 npm run check 与 CI，SDK 按托管安装定位；acceptance.py archive 透传 --skip-branch-validation
+
+- `package.json` 新增 `test:trellis-extension` 并拼进 `test` 聚合链，扩展测试从此受 `.githooks/pre-commit` 的 `npm run check` 保护；此前 14 条写入门禁断言只在手工运行时存在。
+- `scripts/test-trellis-extension.mjs` 的 SDK 定位改为三候选：仓库 `node_modules`、`npm root -g`、托管安装。托管安装按 `PI_MANAGED_INSTALL_ROOT ?? join(homedir(), '.pi/agent/install')` 取根，再读 `current-version` 拼 `releases/<ver>/node_modules`，版本号动态而非写死。新增 `sdkPackage(...rest)` 同时兼容平铺（托管安装、仓库）与包内嵌套（npm 全局）两种布局。
+- `.github/workflows/check.yml` 给 checkout 加 `fetch-depth: 0`（扩展测试要 `git show e7e5f28:.pi/extensions/trellis/index.ts` 取基线），并在 `npm ci` 后加 `npm install --global @earendil-works/pi-coding-agent@1.4.0`。SDK 不进 `devDependencies`：单包 unpackedSize 23.4 MB / 1279 文件，且它只在测试里被 `wrapToolDefinition`、`validateToolArguments`、`runToolCall` 用到。
+- `scripts/acceptance.py` 的 `archive()` 增加 `skip_branch_validation` 参数并按需追加 `--skip-branch-validation`；`main()` 只给 `archive` 子命令注册该 flag，`run` 的 `REMAINDER` 与非 archive 子命令不受影响。验收门仍在委托之前，flag 绕不过 `status not in ("passed", "waived")`。
+- `scripts/test_acceptance.py` 加两条用例：flag 只在显式要求时出现在 argv 里；flag 不能让未通过的验收记录委托归档。
+- `.trellis/spec/tooling/pi-context.md` 第 9 节补硬链接边界（`realpathSync.native` 解析路径而非 inode，`ln src/main.ts notes.md` 仍按字面名放行，建硬链接本身需要 bash，与已声明的已知绕过同源）；第 8 节的「当前 Pi SDK 1.2.0」改成「当前 Pi SDK」，版本已漂到 1.4.0，不写死。
+- `.trellis/spec/tooling/index.md`：提交门禁补「普通终端提交按 `~/.pi/agent/install/current-version` 定位托管安装」；归档门禁写明 `task.py archive` 认 flag、`acceptance.py archive` 同样接受并透传，且验收记录那道门不受该 flag 影响。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `7633549` | chore(task): archive 10-29-guard-regression-gate |
+| `e99c778` | feat(tooling): 扩展测试进 check 链，SDK 定位认托管安装 |
+
+### Testing
+
+- [OK] `npm run check` exit 0：tmp 报告 2.61 GiB / 176 轮 browser-preflight 中 35 个 orphan、`check-syntax: 23 files, 0 failed`、type-check、16 组测试（含新挂的扩展测试 14/14）、`vite build` 443.89 kB / gzip 144.00 kB、`check-docs: 45 md, 6 yaml, 241 本地链接, 0 外链(仅记录), 70 $ref`
+- [OK] SDK 三来源实跑：显式 `PI_MANAGED_INSTALL_ROOT` 14/14；`env -u PI_MANAGED_INSTALL_ROOT` 回落 `~/.pi/agent/install` 14/14；指向不存在目录时失败并输出 `Install Pi before running the extension contract tests`
+- [OK] 变异证明回归门生效：把 `isMainSessionWritable` 改成无条件 `return true` 后 `npm run check` exit 1，失败点名第 12、13 号用例；从私有副本恢复后 shasum `7d92396b9549adf2f64baad56d999fe928cc7f06` 一致且 `npm run check` 重新 exit 0
+- [OK] 浅克隆实测：`git clone --depth 1` 副本 rev-count=1，`git show e7e5f28` 报 `128 致命错误：无效的对象名 'e7e5f28'`、扩展测试 `ℹ fail 1`；`git fetch --unshallow` 后 569 commits、14/14 通过
+- [OK] 归档透传实测：自指分支任务不带 flag exit 4 且保留原消息 `branch and base_branch are both 'master'`，带 flag exit 0 并自动提交；`branch=feature/...` 的任务不带 flag 也能归档。探针全部在一次性克隆内，未在本仓库留下提交
+- [OK] `python3 scripts/acceptance.py summarize` exit 0：7/7 AC passed，7/7 check passed，无 waiver
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- `.trellis/tasks/10-28-fix-write-guard` 仍 active：验收与范围门已过，归档曾因同一处自指分支元数据被拒。现在 `acceptance.py archive --skip-branch-validation` 已能透传，可作为该任务的下一步收口。
+- `.tmp/gate-10-29/`（`verify-ac.sh`、`index.ts.bak`、各 ac 日志）保留为变异与透传的反证，确认结论后可清理；`.tmp/acceptance/10-29-guard-regression-gate/` 是 7 条 check 的 evidence，须保留。
+- `scripts/test-trellis-extension.mjs:32` 的 `execFileSync('npm', ['root', '-g'])` 在 npm 完全缺失时抛 `spawnSync npm ENOENT`，走不到 `Install Pi before…` 那条断言；npm 必与 node 同装，当前未覆盖。
+
