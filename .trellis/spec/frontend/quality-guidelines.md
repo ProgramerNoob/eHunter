@@ -338,21 +338,21 @@ record. The command must assert its claim and return nonzero on failure; a servi
 startup or an observation script that prints `pass:false` but exits zero is not a
 functional assertion. Before log preparation/launch, `run` atomically saves `unrun`
 and clears the old execution, evidence and waiver. It then records stdout/stderr in
-`.tmp/acceptance/<task-name>/` and saves the actual subprocess return code. Zero becomes
-passed, normal nonzero becomes failed and returns that original code. Because `run`
-rewrites `evidence`, `note` and `waiver` with the fresh log and the generic
-`Command completed with exitCode N; …` note, any hand-written note or durable evidence
-must be restored afterwards. Re-running also clears an effective `waiver`, so any
-accepted-but-unverified scope must be re-registered with its original authority.
-Launch failure
-becomes blocked with `exitCode:null` and CLI exit `127`. Signal termination preserves
-the negative subprocess return code and returns `128 + signal`. Interrupting the runner
-with SIGINT/SIGTERM forwards the signal to its command group and allows its direct
-child up to 3 seconds to exit. It then sends SIGKILL to remaining group members,
-even when the direct child exited early. It reaps only that child and records
-partial, preserving its return code even if zero.
-This runner uses POSIX process groups (macOS/Linux); descendants that leave the
-group are outside this cleanup.
+`.tmp/acceptance/<task-name>/` and saves the actual subprocess return code. Zero
+becomes passed, normal nonzero becomes failed and returns that original code. Because
+`run` rewrites `evidence`, `note` and `waiver` with the fresh log and the generic
+`Command completed with exitCode N; …` note, any hand-written note or durable
+evidence must be restored afterwards. Re-running also clears an effective `waiver`:
+it prints `run: clearing waiver <reason> / <authority>` to stderr and appends
+`Cleared waiver …` to the note, so any accepted-but-unverified scope must be
+re-registered with its original authority. Launch failure becomes blocked with
+`exitCode:null` and CLI exit `127`. Signal termination preserves the negative
+subprocess return code and returns `128 + signal`. Interrupting the runner with
+SIGINT/SIGTERM forwards the signal to its command group and allows its direct child
+up to 3 seconds to exit. It then sends SIGKILL to remaining group members, even when
+the direct child exited early. It reaps only that child and records partial,
+preserving its return code even if zero. This runner uses POSIX process groups
+(macOS/Linux); descendants that leave the group are outside this cleanup.
 A hard kill may leave unrun and an orphan command;
 inspect and clean up that command before retrying. A record/file error returns `2`.
 These run exit codes are distinct from summarize's codes. Fix invalid records before

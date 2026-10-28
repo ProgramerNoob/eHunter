@@ -295,8 +295,13 @@ def run_check(root, task, data, check_id, argv):
     require(check is not None, f"run: unknown check id {check_id}")
     require(check["method"] == "command", f"run: {check_id} is not a command check")
     require(bool(argv) and bool(argv[0]), "run: supply explicit argv after --")
+    cleared = check.get("waiver")
+    cleared_note = ""
+    if cleared:
+        cleared_note = f"Cleared waiver {cleared['reason']} / {cleared['authority']}."
+        print(f"run: clearing waiver {cleared['reason']} / {cleared['authority']}", file=sys.stderr)
     check.update(observed="unrun", execution=None, evidence=[], waiver=None,
-                 note="New run requested; no completed result yet.")
+                 note=f"New run requested; no completed result yet. {cleared_note}".strip())
     save(task, data)  # Invalidate the old pass before even preparing the log/process.
     log_dir = root / ".tmp" / "acceptance" / task.name
     log_dir.mkdir(parents=True, exist_ok=True)
@@ -316,10 +321,10 @@ def run_check(root, task, data, check_id, argv):
                 code = child.wait()
                 execution["exitCode"] = code
                 check.update(observed="passed" if code == 0 else "failed",
-                             note=f"Command completed with exitCode {code}; covers only this check's claim and scope.")
+                             note=f"Command completed with exitCode {code}; covers only this check's claim and scope. {cleared_note}".strip())
                 exit_code = code if code >= 0 else 128 - code
             except OSError as exc:
-                check.update(observed="blocked", note=f"Command could not start: {exc}")
+                check.update(observed="blocked", note=f"Command could not start: {exc} {cleared_note}".strip())
                 log.write((check["note"] + "\n").encode("utf-8"))
                 exit_code = 127
             except (Interrupted, KeyboardInterrupt) as exc:
@@ -343,7 +348,7 @@ def run_check(root, task, data, check_id, argv):
                         pass
                     child.wait()
                     execution["exitCode"] = child.returncode
-                check.update(observed="partial", note=f"Run interrupted by signal {signum}; verification incomplete.")
+                check.update(observed="partial", note=f"Run interrupted by signal {signum}; verification incomplete. {cleared_note}".strip())
                 exit_code = 128 + signum
             execution["endedAt"] = now()
         save(task, data)

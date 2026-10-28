@@ -385,11 +385,18 @@ class AcceptanceTests(unittest.TestCase):
                     self.data["checks"][0]["waiver"] = {"reason": "Fixture only", "authority": "fixture:1"}
                 self.write()
                 # The child observes the on-disk staging state, not just an in-memory object.
-                code = "import json,pathlib; c=json.loads(pathlib.Path('.trellis/tasks/example/acceptance.json').read_text())['checks'][0]; assert c['observed']=='unrun' and c['waiver'] is None and c['execution']['exitCode'] is None"
-                result, output, _ = self.invoke("run", str(self.task), "check", "--", sys.executable, "-c", code)
+                code = "import json,pathlib; c=json.loads(pathlib.Path('.trellis/tasks/example/acceptance.json').read_text())['checks'][0]; assert c['observed']=='unrun' and c['waiver'] is None and c['execution']['exitCode'] is None and bool(c['note'])"
+                result, output, diagnostic = self.invoke("run", str(self.task), "check", "--", sys.executable, "-c", code)
                 self.assertEqual(result, 0)
                 self.assertEqual(output["check"]["observed"], "passed")
                 self.assertIsNone(output["check"]["waiver"])
+                if waived:
+                    # stderr reaches the operator; the note keeps the same fact in the record.
+                    self.assertIn("run: clearing waiver Fixture only / fixture:1", diagnostic)
+                    self.assertIn("Cleared waiver Fixture only / fixture:1.", output["check"]["note"])
+                else:
+                    self.assertEqual(diagnostic, "")
+                    self.assertNotIn("waiver", output["check"]["note"])
                 self.assertEqual(self.invoke("summarize", str(self.task))[0], 0)
 
     def test_launch_failure_blocks_and_loses_old_pass(self):
