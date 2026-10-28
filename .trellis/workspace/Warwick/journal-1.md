@@ -690,7 +690,7 @@ Session summary was not supplied.
 - `pending-work.md` 仍排队：`001-gallery-download-bundle`、`001-platform-injection`。
 
 
-## Session 18: 修主会话写入门禁的五处缺陷
+## Session 17: 修主会话写入门禁的五处缺陷
 <!-- trellis-session: v=2 fp=8051715ecd5a277b -->
 
 **Date**: 2026-10-29
@@ -733,25 +733,3 @@ review 指出门禁的 .tmp/ 拦截、bash 断言重言式、子进程判断死�
 - 归档被第三道分支门拦住：`task.json` 的 `branch` 与 `base_branch` 同为 `master`，`task.py archive` 拒绝自指元数据；`scripts/acceptance.py archive` 没有透传 `--skip-branch-validation` 的入口。验收与范围门均已通过，任务保持 active。
 - 可选做法：`python3 .trellis/scripts/task.py archive .trellis/tasks/10-28-fix-write-guard --skip-branch-validation`（历史归档如 `680c4fd` 就这样过门），或用 `set-branch` 写入真实分支名后再归档。
 - `.trellis/spec/tooling/index.md:37` 只写了「两者相同时加 `--skip-branch-validation`」，未说明 `acceptance.py archive` 不支持透传，收口时容易再撞一次。
-
-
-## Session 19: 修主会话写入门禁的五处缺陷
-<!-- trellis-session: v=2 fp=2f77cee79fd3e0b9 -->
-
-**Date**: 2026-10-29
-**Task**: 修主会话写入门禁的五处缺陷
-**Branch**: `master`
-
-### Summary
-
-review 指出门禁的 .tmp/ 拦截、bash 断言重言式、子进程判断死代码、路径未 realpath 与两处换行噪音；本轮补齐放行范围、改为按真实落点判定并补变异测试。
-
-### Git Commits
-
-| Hash | Message |
-|------|---------|
-| `0fec79b` | fix(tooling): 修主会话写入门禁的五处缺陷 |
-
-### Status
-
-[OK] **Completed**
