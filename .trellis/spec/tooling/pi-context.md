@@ -77,11 +77,13 @@ pi --mode json -p --no-session --tools <comma-separated-tools>
 
 ## 9. 主会话实现写入门禁
 
-Pi 属于必须派发的平台，但 `<workflow-state>` 只是注入文本，无法阻止主会话直接改实现代码。`tool_call` 处理器在以下条件同时成立时返回 `{block: true, reason}`：进程未设 `TRELLIS_SUBAGENT_CHILD`、工具是 `write`/`edit`、当前 session 的任务状态为 `in_progress`、目标路径落在仓库内且不是 `.trellis/**` 与 `*.md`/`*.markdown`。
+Pi 属于必须派发的平台，但 `<workflow-state>` 只是注入文本，无法阻止主会话直接改实现代码。`tool_call` 处理器在以下条件同时成立时返回 `{block: true, reason}`：工具是 `write`/`edit`、当前 session 的任务状态为 `in_progress`、目标路径落在仓库内且不是 `.trellis/**`、`.tmp/**` 与 `*.md`/`*.markdown`。子进程判断只保留在扩展入口：`TRELLIS_SUBAGENT_CHILD` 由 `buildChildEnv()` 设置，置位时扩展直接返回、不注册任何 hook，门禁处理函数在该进程不可达。
 
-放行范围是刻意的：主会话仍可写任务资料、规范、验收记录和根目录 Markdown，只在写实现代码时被推向 `trellis-implement`。`trellis-implement`/`trellis-check` 子进程由 `buildChildEnv()` 设 `TRELLIS_SUBAGENT_CHILD=1`，不受此门禁影响。
+放行范围是刻意的：主会话仍可写任务资料、规范、验收记录和根目录 Markdown，只在写实现代码时被推向 `trellis-implement`。`.tmp/` 一并放行，因为[浏览器验收指南](../frontend/browser-acceptance.md)要求日志、截图、下载和报告保存在仓库 `.tmp/`，验收由主会话执行；拦住它只会把写入挤到下面那条已知的 bash 绕过路径上。
 
-边界：只拦 `write` 与 `edit`。`bash` 携带字符串，heredoc 仍可写到同一路径，本轮不覆盖；状态门禁读取 `task.json` 的 `status`，`planning`/`review`/`completed` 一律放行。
+路径判定按真实落点而非字面名称：从目标向上找到最近的已存在祖先（`lstat` 能拿到信息，含目标自身），对它做 realpath 再拼回剩余未创建段，按解析结果比较。`notes.md` 指向 `src/main.ts` 时按 `src/main.ts` 判定；`.tmp` 被换成指向 `src` 的软链时，其下尚不存在的 `.tmp/new-child.ts` 按 `src/new-child.ts` 拦截；仓库内软链指向仓库外一律按越界处理，即使名称落在放行范围。悬空软链（`lstat` 成功、`realpath` 抛 ENOENT）与已存在但解析失败的目标同样按越界拦截，不放宽放行表。全新路径（目标及其祖先均不存在）回溯到仓库根后拼回剩余段，得到的是同一仓库内相对路径，判定结果与旧的字面比较一致，常规首次 `write` 行为不变。相对路径不做词法归一：`${cwd}/${raw}` 字面拼接后交给 `realpathSync.native` 解析，保留内核「先解析软链、再退父目录」的语义。若先用 `resolve` 把 `..` 吃掉，`link-out/../.tmp/evil.png`（`link-out` 指向仓库外）会按仓库内 `.tmp/` 判定而放行；只换拼接仍用 JS 版 `realpathSync` 也不行，它同样在解析途中折叠 `..`，两者必须同时满足。
+
+边界：只拦 `write` 与 `edit`。`bash` 携带字符串，heredoc 仍可写到同一路径，当前未覆盖；状态门禁读取 `task.json` 的 `status`，`planning`/`review`/`completed` 一律放行。
 
 验证命令：
 

@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-28-fix-write-guard",
+  "branch": "master",
+  "head": "3f794c1d304d66306d754e0d89a3339709c8f346",
+  "indexTree": "86ea7cf1f1cbd27a712d4b55ad517517dd85b671",
+  "capturedAt": "2026-10-28T23:11:40+08:00",
+  "scopeDigest": "0e23dd5e81e3cbea82e30362b5fbf1df2789ae09c28a7045a8e2196e63da751b",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-28-fix-write-guard/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "141b643cb566d65edef58a9f0898ce64c1f807149ec5e39ba2bbfcc9ed2e4a43"
+    },
+    ".trellis/tasks/10-28-fix-write-guard/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "dfea3b0c234328a67cc3f83e48bdae194b790434b613b668ba04b4cea596ee53"
+    },
+    ".trellis/tasks/10-28-fix-write-guard/implement.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "86ac5777346bdbf6df4c38551d71ab1de349206b2cccf5a79a322d17e2b99e63"
+    },
+    ".trellis/tasks/10-28-fix-write-guard/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "69b517381fa96b9cb20fba9bf8f8cc8455f9cc74c450b32b41b251fe9237c938"
+    },
+    ".trellis/tasks/10-28-fix-write-guard/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "5a0c29dd382a44c5a6738b2d8d6d3fea6ef03972572155fc331a4a417e007a77"
+    }
+  }
+}

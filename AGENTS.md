@@ -31,7 +31,7 @@
 
 - 开发收口和提交前验收使用 `trellis-check`（默认自检，可就地修机械问题）；用户要求对分支、PR 或指定提交范围独立审查时使用 `code-review`，或向 `trellis-check` 派发 `review-only`——该模式只读返回 findings，受审代码与测试版本当轮冻结，修复留到下一轮。审查依据优先用对应 Trellis 任务产物与 `.trellis/spec/`，范围含未提交改动时显式检查暂存区与工作区。
 - 需求澄清由 `trellis-brainstorm` 主导，压力测试或上层规则要求的追问使用 `grilling` 并回填当前 Trellis 规划；任务内研究交给 `trellis-research`，结论沉淀到 `.trellis/spec/`。Pi 子代理经 `trellis_subagent` 派发 `.pi/agents/` 中已定义的角色，零散探索、规划及独立审查由主会话完成。
-- Pi 属于必须派发的平台：任务 `in_progress` 时实现代码（`src/`、`core/`、`scripts/`、`tests/`、构建配置）由 `trellis-implement` 子代理写入，主会话只负责派发、验收和写 `.trellis/` 与 Markdown。该约束由扩展的 `tool_call` 门禁机械执行，不是可选的文案约定；边界见 [pi-context](.trellis/spec/tooling/pi-context.md#9-主会话实现写入门禁)。
+- Pi 属于必须派发的平台：任务 `in_progress` 时实现代码（`src/`、`core/`、`scripts/`、`tests/`、构建配置）由 `trellis-implement` 子代理写入，主会话只负责派发、验收和写 `.trellis/`、`.tmp/` 与 Markdown。该约束由扩展的 `tool_call` 门禁机械执行，不是可选的文案约定；边界见 [pi-context](.trellis/spec/tooling/pi-context.md#9-主会话实现写入门禁)。
 - Pi 扩展与技能屏蔽配置见 [.pi/settings.json](.pi/settings.json)：扩展按 `packages` 过滤，屏蔽全局技能须同时列出其 `SKILL.md` 路径和排除规则以覆盖全局发现。
 
 ## 文档维护与提交
@@ -63,4 +63,3 @@ If you're using Codex or another agent-capable tool, additional project-scoped h
 Managed by Trellis. Edits outside this block are preserved; edits inside may be overwritten by a future `trellis update`.
 
 <!-- TRELLIS:END -->
-

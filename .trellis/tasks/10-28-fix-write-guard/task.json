@@ -1,0 +1,47 @@
+{
+  "id": "fix-write-guard",
+  "name": "fix-write-guard",
+  "title": "修主会话写入门禁的五处缺陷",
+  "description": "修复 review 指出的五处问题：.tmp/ 被拦、bash 断言重言式、子进程判断死代码、路径未 realpath、两处换行噪音",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-28",
+  "completedAt": null,
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-28-fix-write-guard/**"
+        ],
+        "tooling": [
+          ".pi/extensions/trellis/index.ts",
+          "scripts/test-trellis-extension.mjs",
+          ".trellis/spec/tooling/pi-context.md",
+          "AGENTS.md"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "8fdbab477a9c2fbb21f80d18bfcff4aedefd2c9b9ddc316f8b506877b35c1c5f"
+      }
+    }
+  }
+}

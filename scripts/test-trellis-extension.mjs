@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { after, test, mock } from 'node:test';
 import { EventEmitter } from 'node:events';
 import { PassThrough } from 'node:stream';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { stripTypeScriptTypes, syncBuiltinESMExports } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -401,8 +401,11 @@ test('curated/artifact content, ordering and byte budgets are identical apart fr
 
 test('child recursion guard, bash context bridge, notifications and shutdown hooks remain available', () => {
   process.env.TRELLIS_SUBAGENT_CHILD = '1';
-  try { assert.equal(register().tools.length, 0); }
-  finally { delete process.env.TRELLIS_SUBAGENT_CHILD; }
+  try {
+    const childless = register();
+    assert.equal(childless.tools.length, 0);
+    assert.equal(childless.hooks.size, 0);
+  } finally { delete process.env.TRELLIS_SUBAGENT_CHILD; }
   const registration = register(), root = project('hooks');
   const notices = [];
   registration.hooks.get('session_start')({}, { ...ctx(root), ui: { notify: (...args) => notices.push(args) } });
@@ -421,7 +424,8 @@ test('in_progress tasks refuse main-session implementation writes and keep the r
   const registration = register(), root = project('write-guard');
   point(root, taskPath, 'guard-session');
   const context = ctx(root, 'guard-session');
-  const call = (toolName, path) => registration.hooks.get('tool_call')({ toolName, input: { path } }, context);
+  const callInput = (toolName, input) => registration.hooks.get('tool_call')({ toolName, input }, context);
+  const call = (toolName, path) => callInput(toolName, { path });
   put(root, `${taskPath}/task.json`, JSON.stringify({ id: 'fixture', status: 'in_progress' }));
 
   const blocked = call('write', 'src/main.ts');
@@ -429,20 +433,105 @@ test('in_progress tasks refuse main-session implementation writes and keep the r
   assert.match(blocked.reason, /src\/main\.ts.*trellis-implement/s);
   assert.equal(call('edit', join(root, 'core/TestApp.vue')).block, true);
   assert.equal(call('edit', 'scripts/acceptance.py').block, true);
+  assert.equal(call('write', 'tests/acceptance.test.mjs').block, true);
 
   assert.equal(call('write', `${taskPath}/acceptance.json`), undefined);
   assert.equal(call('edit', '.trellis/spec/frontend/quality-guidelines.md'), undefined);
   assert.equal(call('edit', 'AGENTS.md'), undefined);
   assert.equal(call('write', '.trellis/tasks/fixture/notes.txt'), undefined);
-  assert.equal(call('bash', 'src/main.ts'), undefined);
+  // Browser acceptance writes logs, screenshots and reports under `.tmp/` from
+  // the main session, so that prefix stays open.
+  assert.equal(call('write', '.tmp'), undefined);
+  assert.equal(call('write', '.tmp/browser-preflight/x/shot.png'), undefined);
+  assert.equal(call('edit', '.tmp/scenario-inputs/reader.json'), undefined);
+  // Known bypass, recorded rather than protected: MAIN_SESSION_WRITE_TOOLS has
+  // no `bash`, so a heredoc still reaches the same blocked path.
+  assert.equal(callInput('bash', { command: 'cat > src/main.ts <<EOF' }), undefined);
+
+  // An existing path is judged by where it really points, so a whitelisted name
+  // cannot smuggle the write into implementation code, and a link resolving out
+  // of the repo is refused instead of inheriting the pass list.
+  put(root, 'src/main.ts', 'x\n');
+  put(fixture + '/escape', 'target.txt', 'x\n');
+  symlinkSync(join(root, 'src/main.ts'), join(root, 'notes.md'));
+  symlinkSync(join(fixture, 'escape'), join(root, 'linked-out'));
+  const viaMd = call('write', 'notes.md');
+  assert.equal(viaMd.block, true);
+  assert.match(viaMd.reason, /src\/main\.ts/);
+  const escape = call('write', 'linked-out/target.txt');
+  assert.equal(escape.block, true);
+  assert.match(escape.reason, /仓库外/);
 
   put(root, `${taskPath}/task.json`, JSON.stringify({ id: 'fixture', status: 'planning' }));
   assert.equal(call('write', 'src/main.ts'), undefined);
+  // Gating follows the session's own task pointer, not the project and not
+  // whichever task another session has open.
+  put(root, '.trellis/tasks/other/task.json', JSON.stringify({ id: 'other', status: 'in_progress' }));
+  point(root, '.trellis/tasks/other', 'other-session');
+  assert.equal(call('write', 'src/main.ts'), undefined);
+  assert.equal(registration.hooks.get('tool_call')({ toolName: 'write', input: { path: 'src/main.ts' } }, ctx(root, 'other-session')).block, true);
+  // The child-process escape is guarded once, at the extension entry: such a
+  // process registers nothing, which the recursion-guard test asserts above.
+});
 
+test('write guard follows links whose target or children do not exist yet', () => {
+  const registration = register(), root = project('write-guard-links');
+  point(root, taskPath, 'link-session');
+  const context = ctx(root, 'link-session');
+  const call = (toolName, path) => registration.hooks.get('tool_call')({ toolName, input: { path } }, context);
   put(root, `${taskPath}/task.json`, JSON.stringify({ id: 'fixture', status: 'in_progress' }));
-  process.env.TRELLIS_SUBAGENT_CHILD = '1';
-  try { assert.equal(call('write', 'src/main.ts'), undefined); }
-  finally { delete process.env.TRELLIS_SUBAGENT_CHILD; }
 
-  assert.equal(registration.hooks.get('tool_call')({ toolName: 'write', input: { path: 'src/main.ts' } }, ctx(root, 'other-session')), undefined);
+  // A dangling link is present on disk but resolves nowhere, so the literal name
+  // is not the landing point; it must not borrow the `*.md` pass.
+  symlinkSync(join(root, 'src/new.ts'), join(root, 'ghost.md'));
+  const ghost = call('write', 'ghost.md');
+  assert.equal(ghost.block, true);
+  assert.match(ghost.reason, /仓库外或无法确认落点/);
+
+  // Regular writes are unaffected: a brand-new path already existed as a string
+  // verdict and still does, whether or not its name is pass-listed.
+  assert.equal(call('write', '.tmp/fresh-dir/shot.png'), undefined);
+  assert.equal(call('write', 'fresh-dir/note.md'), undefined);
+  const freshImpl = call('write', 'node_modules/.cache/build.json');
+  assert.equal(freshImpl.block, true);
+  assert.doesNotMatch(freshImpl.reason, /仓库外或无法确认落点/);
+
+  // A linked directory decides where names under it land, including ones it does
+  // not contain yet: `.tmp` -> `src` must not pass `.tmp/new-child.ts`.
+  put(root, '.tmp/anchor.png', 'x\n');
+  put(root, 'src/keep.ts', 'x\n');
+  rmSync(join(root, '.tmp'), { recursive: true });
+  symlinkSync(join(root, 'src'), join(root, '.tmp'));
+  const child = call('write', '.tmp/new-child.ts');
+  assert.equal(child.block, true);
+  assert.match(child.reason, /src\/new-child\.ts/);
+});
+
+test('write guard resolves `..` after following links, not before', () => {
+  const registration = register(), root = project('write-guard-dotdot');
+  point(root, taskPath, 'dotdot-session');
+  const context = ctx(root, 'dotdot-session');
+  const call = (path) => registration.hooks.get('tool_call')({ toolName: 'write', input: { path } }, context);
+  put(root, `${taskPath}/task.json`, JSON.stringify({ id: 'fixture', status: 'in_progress' }));
+
+  // `link-out` sits in the repo but points outside. The kernel resolves the
+  // link before the parent step, so `link-out/../.tmp/evil.png` lands in the
+  // outside `.tmp/` — a lexical `..` collapse would read it as a repo `.tmp/`
+  // write and hand back the pass list. The repo has its own real `.tmp/` and
+  // `src/`, so both collapses below produce a pass-listed or in-repo name.
+  const outside = join(root, '..', 'outside-dotdot');
+  mkdirSync(join(outside, '.tmp'), { recursive: true });
+  mkdirSync(join(outside, 'sub'), { recursive: true });
+  put(root, '.tmp/keep.png', 'x\n');
+  put(root, 'src/keep.ts', 'x\n');
+  symlinkSync(join(outside, 'sub'), join(root, 'link-out'));
+  for (const raw of ['link-out/../.tmp/evil.png', 'link-out/../.tmp/evil.md']) {
+    const escaped = call(raw);
+    assert.equal(escaped?.block, true, `${raw} leaves the repo`);
+    assert.match(escaped.reason, /仓库外/);
+  }
+  // Still blocked inside, and still open for the plain `.tmp/` prefix.
+  assert.equal(call('link-out/../src/x.ts').block, true);
+  assert.equal(call('.tmp/screenshot.png'), undefined);
+  rmSync(outside, { recursive: true, force: true });
 });

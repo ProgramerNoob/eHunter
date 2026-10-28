@@ -1,0 +1,257 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "任务 `in_progress` 时，主会话对 `.tmp/` 下任意路径的 `write`/`edit` 不被拦截；`src/`、`core/`、`scripts/`、`tests/` 仍被拦截。测试用例覆盖 `.tmp/` 放行与 `src/` 拦截两侧。",
+    "AC2": "`scripts/test-trellis-extension.mjs` 中不再存在恒真的 bash 断言；改为断言「带 `command` 的 `bash` 调用不被拦截」并显式标注它是已知绕过路径而非保护。",
+    "AC3": "`TRELLIS_SUBAGENT_CHILD` 在 `mainSessionWriteBlock` 与扩展入口两处只剩一处判断；若保留，附注释说明它防的是什么场景。",
+    "AC4": "路径判定按真实落点而非字面名称：目标已存在时 realpath 后判定；目标不存在时回溯到最近存在的祖先目录 realpath，再拼回剩余段判定。仓库内指向仓库外的软链（含悬空链、指向实现目录的链目录及其下新建文件）一律拦截。",
+    "AC8": "含 `..` 的相对路径保留内核「先解析软链、再退父目录」语义：仓库内指向仓库外的软链目录后接 `..`（如 `link-out/../.tmp/evil.png`、`link-out/../.tmp/evil.md`）按其真实落点判定并被拦截，不能因提前做词法归一而落到放行表。",
+    "AC7": "上述两条残留绕过在扩展测试中有对应断言：悬空软链（如 `ghost.md -> src/new.ts`）与链目录下新建子文件（`.tmp` 链到 `src` 后的 `.tmp/new-child.ts`）均被拦截，且各有一次变异测试证明断言会失败。",
+    "AC5": "`.trellis/spec/tooling/pi-context.md` 以单个换行结尾，`AGENTS.md` 末尾不残留多余空行；`npm run check:docs` 通过。",
+    "AC6": "`node --test scripts/test-trellis-extension.mjs` 全部通过，`npm run check` 通过。"
+  },
+  "checks": [
+    {
+      "id": "ac1-tmp-allowed-impl-blocked",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "`.tmp` 与 `.tmp/` 子路径在 in_progress 任务下放行，`src/`、`core/` 实现路径仍拦截，扩展测试对两侧都有断言。",
+      "scope": "`isMainSessionWritable` 的 `.tmp` 分支、第 12 个测试用例对 `.tmp` 放行与 `src`/`core` 拦截的断言",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/write-guard/verify-ac.sh",
+          "ac1"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T16:47:12.329334+00:00",
+        "endedAt": "2026-10-28T16:47:12.562434+00:00",
+        "log": ".tmp/acceptance/10-28-fix-write-guard/tmp4bxnr586.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-28-fix-write-guard/tmp4bxnr586.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac1-host-probe",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "真实 Pi 宿主链路下，`in_progress` 任务的主会话写 `.tmp/` 放行、写 `src/` 被拦并给出派发提示。",
+      "scope": "当前会话对 `/Users/warwick/claude/eHunter/.tmp/write-guard/e2e-tmp-allowed.txt` 与 `/Users/warwick/claude/eHunter/src/zz-e2e-probe.ts` 的 `write` 回执",
+      "method": "runtime",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".tmp/write-guard/runtime-probe.md",
+        ".tmp/write-guard/e2e-tmp-allowed.txt"
+      ],
+      "note": "任务 in_progress 期间，主会话用 write 工具依次写 .tmp/write-guard/e2e-tmp-allowed.txt（成功）、src/zz-e2e-probe.ts（被拦，回执含派发提示）、.tmp/write-guard/link-out/../.tmp/evil.png（被拦，报落在仓库外）、.tmp/write-guard/ghost.md 悬空链（被拦）、.tmp/write-guard/linkdir/new-child.ts（被拦，报 src/new-child.ts）。逐字回执与探针前置条件记录在 runtime-probe.md。探针结束后删除软链与仓库外临时目录。",
+      "waiver": null
+    },
+    {
+      "id": "ac2-bash-bypass-recorded",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "恒真的 `call('bash', 'src/main.ts')` 断言已删除，改为真实 `bash` + `command` 形状并标注为已知绕过路径。",
+      "scope": "`scripts/test-trellis-extension.mjs` 第 12 个用例的 bash 断言与注释",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/write-guard/verify-ac.sh",
+          "ac2"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T16:47:12.592932+00:00",
+        "endedAt": "2026-10-28T16:47:12.604799+00:00",
+        "log": ".tmp/acceptance/10-28-fix-write-guard/tmpzf_n2kuk.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-28-fix-write-guard/tmpzf_n2kuk.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac3-single-env-guard",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "`TRELLIS_SUBAGENT_CHILD` 只在扩展入口判断一次，门禁处理函数内无同类判断且以注释说明入口已拦截。",
+      "scope": "`.pi/extensions/trellis/index.ts` 的 `mainSessionWriteBlock` 与扩展入口",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/write-guard/verify-ac.sh",
+          "ac3"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T16:47:12.633617+00:00",
+        "endedAt": "2026-10-28T16:47:12.645092+00:00",
+        "log": ".tmp/acceptance/10-28-fix-write-guard/tmpwftybx3j.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-28-fix-write-guard/tmpwftybx3j.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac4-realpath-follows-links",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "路径判定用真实落点：悬空软链与链目录下新建子文件被拦，realpath 走 `realpathSync.native` 并回溯最近存在祖先。",
+      "scope": "`.pi/extensions/trellis/index.ts` 的 `realWritePath`/`repoWriteTarget` 与测试用例 `write guard follows links whose target or children do not exist yet`",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/write-guard/verify-ac.sh",
+          "ac4"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T16:47:15.551223+00:00",
+        "endedAt": "2026-10-28T16:47:15.778126+00:00",
+        "log": ".tmp/acceptance/10-28-fix-write-guard/tmpfcndhc0t.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-28-fix-write-guard/tmpfcndhc0t.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac8-dotdot-after-links",
+      "ac": [
+        "AC8"
+      ],
+      "claim": "`link-out/../.tmp/evil.png` 与 `.md` 按「先解析软链、再退父目录」判定并被拦，两种变异（`resolve` 前置归一、JS `realpathSync`）都能让该断言变红。",
+      "scope": "`repoWriteTarget` 的字面拼接与 `realpathSync.native`，测试用例 `write guard resolves \\`..\\` after following links, not before` 的两次变异",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/write-guard/verify-ac.sh",
+          "ac8"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T16:47:16.101276+00:00",
+        "endedAt": "2026-10-28T16:47:16.576272+00:00",
+        "log": ".tmp/acceptance/10-28-fix-write-guard/tmpxnycp2xa.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-28-fix-write-guard/tmpxnycp2xa.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac7-mutation-coverage",
+      "ac": [
+        "AC7"
+      ],
+      "claim": "悬空软链与链目录下新建子文件两条绕过在测试中有断言，且变异 M1（按字面名判定）让它们变红。",
+      "scope": "测试用例 `ghost.md`/`.tmp/new-child.ts` 断言与 `mutate.sh ac7` 的变异运行",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/write-guard/verify-ac.sh",
+          "ac7"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T16:47:15.822445+00:00",
+        "endedAt": "2026-10-28T16:47:16.058819+00:00",
+        "log": ".tmp/acceptance/10-28-fix-write-guard/tmpdzt3r56_.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-28-fix-write-guard/tmpdzt3r56_.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac5-newline-noise",
+      "ac": [
+        "AC5"
+      ],
+      "claim": "`pi-context.md` 与 `AGENTS.md` 均以单个换行结尾，`npm run check:docs` 通过。",
+      "scope": "两个 Markdown 文件的末尾字节与 `check:docs` 结果",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/write-guard/verify-ac.sh",
+          "ac5"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T16:47:16.620549+00:00",
+        "endedAt": "2026-10-28T16:47:16.736893+00:00",
+        "log": ".tmp/acceptance/10-28-fix-write-guard/tmpm4asxhpk.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-28-fix-write-guard/tmpm4asxhpk.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    },
+    {
+      "id": "ac6-full-suite",
+      "ac": [
+        "AC6"
+      ],
+      "claim": "`node --test scripts/test-trellis-extension.mjs` 全部通过，`npm run check` 全链通过。",
+      "scope": "扩展测试全量与 `npm run check`",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/write-guard/verify-ac.sh",
+          "ac6"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T16:47:20.472030+00:00",
+        "endedAt": "2026-10-28T16:47:50.202709+00:00",
+        "log": ".tmp/acceptance/10-28-fix-write-guard/tmpf7snhbxp.log"
+      },
+      "evidence": [
+        ".tmp/acceptance/10-28-fix-write-guard/tmpf7snhbxp.log"
+      ],
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
+      "waiver": null
+    }
+  ]
+}

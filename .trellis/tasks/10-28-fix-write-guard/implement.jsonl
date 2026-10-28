@@ -1,0 +1,3 @@
+{"file": ".trellis/spec/tooling/pi-context.md", "reason": "门禁契约、放行范围与边界的唯一记录处，R1/R3/R4 的改动必须与第 9 节保持一致"}
+{"file": ".trellis/spec/tooling/tmp-hygiene.md", "reason": "定义 .tmp/ 的用途与清理规则，R1 放行 .tmp/ 的依据之一"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "第 30 行要求日志截图报告写 .tmp/，R1 的直接来源，也是验收脚本写 .tmp/ 的实际调用方"}

@@ -1,5 +1,6 @@
 import {
   existsSync,
+  lstatSync,
   readFileSync,
   readdirSync,
   realpathSync,
@@ -7,6 +8,7 @@ import {
 } from "node:fs";
 import { createHash, randomBytes } from "node:crypto";
 import {
+  basename,
   delimiter,
   dirname,
   isAbsolute,
@@ -1126,6 +1128,11 @@ function readTaskDir(root: string, key: string | null): string | null {
 //
 // Limit worth knowing: `write` and `edit` only. A bash command carries a
 // string, so a heredoc can still reach the same file.
+//
+// `.tmp/` stays writable: browser acceptance keeps logs, screenshots and
+// reports there (`.trellis/spec/frontend/browser-acceptance.md`), and the main
+// session runs that loop itself. Blocking it would only push those writes into
+// the bash heredoc path this guard deliberately leaves open.
 const MAIN_SESSION_WRITE_TOOLS = new Set(["write", "edit"]);
 const IMPLEMENTING_STATUS = "in_progress";
 
@@ -1138,15 +1145,90 @@ function readTaskStatus(taskDir: string): string | null {
   }
 }
 
-function repoRelativePath(root: string, raw: string, cwd: string): string | null {
-  const abs = isAbsolute(raw) ? raw : resolve(cwd, raw);
+function insideRelative(root: string, abs: string): string | null {
   const rel = relative(root, abs).replace(/\\/g, "/");
   if (!rel || rel.startsWith("..") || isAbsolute(rel)) return null;
   return rel;
 }
 
+/** Where a main-session write lands; `rel` is the repo-relative path to report. */
+type WriteTarget = {
+  rel: string;
+  /** The name is inside the repo but the path resolves out of it. */
+  escapes: boolean;
+};
+
+/**
+ * Resolve `abs` to its real location, or null when that cannot be confirmed.
+ *
+ * The walk starts at `abs` and climbs to the nearest ancestor `lstat` can see,
+ * then appends the still-uncreated tail. `lstat` is what keeps this honest: it
+ * succeeds on a symlink itself, so a link whose own target is missing (the
+ * usual first `write` through a name like `ghost.md -> src/new.ts`) reaches the
+ * `realpath` branch instead of being mistaken for a fresh file, and a linked
+ * directory still resolves before its new children are appended. Only a path
+ * whose ancestors are all literal directories ends up equal to its own string
+ * form.
+ */
+function realWritePath(abs: string): string | null {
+  const tail: string[] = [];
+  let cursor = abs;
+  for (;;) {
+    try {
+      if (lstatSync(cursor, { throwIfNoEntry: false })) {
+        try {
+          return join(realpathSync.native(cursor), ...tail);
+        } catch {
+          // Present but unresolvable: a dangling link, not a new name.
+          return null;
+        }
+      }
+    } catch {
+      return null;
+    }
+    const parent = dirname(cursor);
+    if (parent === cursor) return null;
+    tail.unshift(basename(cursor));
+    cursor = parent;
+  }
+}
+
+/**
+ * Classify where `raw` lands, or null when it never claims a repo path.
+ *
+ * The verdict follows the real location, so a name the guard would whitelist
+ * cannot smuggle the write somewhere else: `notes.md` pointing at `src/main.ts`
+ * is judged as `src/main.ts`, a link directory reaches the same verdict for
+ * children it does not contain yet, and a link that resolves outside the repo
+ * is reported as escaping instead of inheriting the `.trellis/**`, `.tmp/**` or
+ * `*.md` pass — `containInRoot` resolves session pointers for the same reason.
+ * Containment is checked against `realpath(root)` so a repo reached through a
+ * symlink (macOS `/tmp`) still compares like with like. Anything the resolver
+ * cannot pin down counts as escaping rather than falling back to the literal
+ * string, so an unreadable or dangling link never widens the pass list.
+ */
+function repoWriteTarget(root: string, raw: string, cwd: string): WriteTarget | null {
+  // Literal join, not `resolve`: resolving first collapses `..` lexically and
+  // loses the kernel rule that links are followed before the parent step. A
+  // `link-out/../.tmp/x.png` whose `link-out` points outside would then look
+  // like a `.tmp` write. `realpathSync.native` keeps the same rule in the
+  // resolver below.
+  const abs = isAbsolute(raw) ? raw : `${cwd}/${raw}`;
+  const rel = insideRelative(root, abs);
+  if (!rel) return null;
+  try {
+    const real = realWritePath(abs);
+    if (!real) return { rel, escapes: true };
+    const resolved = insideRelative(realpathSync.native(root), real);
+    return resolved ? { rel: resolved, escapes: false } : { rel, escapes: true };
+  } catch {
+    return { rel, escapes: true };
+  }
+}
+
 function isMainSessionWritable(path: string) {
   if (path === ".trellis" || path.startsWith(".trellis/")) return true;
+  if (path === ".tmp" || path.startsWith(".tmp/")) return true;
   return /\.(md|markdown)$/i.test(path);
 }
 
@@ -1155,9 +1237,9 @@ function mainSessionWriteBlock(
   key: string | null,
   ctx?: PiExtensionContext,
 ): { block: true; reason: string } | undefined {
-  // The implement/check children run their own pi process; they are the ones
-  // allowed to write. TRELLIS_SUBAGENT_CHILD is set by buildChildEnv().
-  if (process.env.TRELLIS_SUBAGENT_CHILD) return undefined;
+  // No TRELLIS_SUBAGENT_CHILD check here: buildChildEnv() sets it, and the
+  // extension entry returns before registering anything in such a process, so
+  // this handler cannot run there.
   if (!MAIN_SESSION_WRITE_TOOLS.has(ev.toolName ?? "")) return undefined;
   const raw = isObj(ev.input) ? str(ev.input.path) : null;
   if (!raw) return undefined;
@@ -1165,14 +1247,18 @@ function mainSessionWriteBlock(
   const taskDir = readTaskDir(root, key);
   if (!taskDir) return undefined;
   if (readTaskStatus(taskDir) !== IMPLEMENTING_STATUS) return undefined;
-  const rel = repoRelativePath(root, raw, ctx?.cwd ?? process.cwd());
-  if (!rel || isMainSessionWritable(rel)) return undefined;
+  const target = repoWriteTarget(root, raw, ctx?.cwd ?? process.cwd());
+  if (!target) return undefined;
+  if (!target.escapes && isMainSessionWritable(target.rel)) return undefined;
   return {
     block: true,
-    reason:
-      `${rel} 是实现代码，任务处于 in_progress 时主会话不得直接修改。` +
-      `请派发 trellis-implement（prompt 首行 Active task: <task path>），` +
-      `由子代理写入，主会话只负责派发与验收。`,
+    reason: target.escapes
+      ? `${target.rel} 解析后落在仓库外或无法确认落点。` +
+        `任务处于 in_progress 时主会话不得借仓库内路径（含软链）写外部目标，` +
+        `请派发 trellis-implement 处理。`
+      : `${target.rel} 不在主会话可写范围内，任务处于 in_progress 时不得由主会话直接修改。` +
+        `请派发 trellis-implement（prompt 首行 Active task: <task path>），` +
+        `由子代理写入，主会话只负责派发与验收。`,
   };
 }
 
@@ -1875,6 +1961,10 @@ export default function trellisExtension(pi: {
   ) => void;
   getThinkingLevel?: () => string;
 }): void {
+  // The implement/check children run their own pi process, and writing
+  // implementation code is exactly their job. buildChildEnv() sets
+  // TRELLIS_SUBAGENT_CHILD for them; registering nothing here keeps the write
+  // guard below from blocking the process it exists to dispatch to.
   if (process.env.TRELLIS_SUBAGENT_CHILD === "1") return;
   // Process-level fallback; call sites with a session context re-resolve via
   // resolveRoot(ctx) so the active project (session cwd) is used instead.

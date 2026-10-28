@@ -1,0 +1,2 @@
+{"file": ".trellis/spec/tooling/pi-context.md", "reason": "验收门禁行为是否仍与第 9 节契约一致"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "确认放行 .tmp/ 后主会话跑验收不再撞墙，且示例路径全部可写"}
