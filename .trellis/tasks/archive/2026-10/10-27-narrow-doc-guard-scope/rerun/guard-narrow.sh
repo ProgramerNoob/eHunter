@@ -36,9 +36,14 @@ import sys
 path, doc = sys.argv[1], sys.argv[2]
 src = open(path, encoding='utf-8').read()
 needle = '  .trellis/spec/frontend/decisions/2026-10-26-jump-scroll-lock.md\n'
-assert needle in src, 'registration line not found'
+if needle not in src:
+    sys.exit('registration line not found: ' + repr(needle))
 open(path, 'w', encoding='utf-8').write(src.replace(needle, needle + f'  {doc}\n', 1))
 PY
+  if [ $? -ne 0 ]; then
+    echo "FAIL widened: DOCS 里找不到登记行（缩进或路径被改过），重放脚本需要同步更新"
+    fail=1
+  fi
   out=$(run 2>&1)
   rc=$?
   if [ "$rc" -eq 1 ] && printf '%s' "$out" | grep -q '小于 20px' && printf '%s' "$out" | grep -q 'FAIL: literal durations or pixel sizes in'; then
@@ -56,9 +61,15 @@ if [ "$MODE" = all ] || [ "$MODE" = empty ]; then
 import re, sys
 path = sys.argv[1]
 src = open(path, encoding='utf-8').read()
-src = re.sub(r'DOCS=\(\n(?:  .*\n)*\)', 'DOCS=()', src, count=1)
-open(path, 'w', encoding='utf-8').write(src)
+replaced, count = re.subn(r'DOCS=\(\n(?:  .*\n)*\)', 'DOCS=()', src, count=1)
+if count != 1:
+    sys.exit('DOCS array block not found')
+open(path, 'w', encoding='utf-8').write(replaced)
 PY
+  if [ $? -ne 0 ]; then
+    echo "FAIL empty: DOCS 数组块匹配不上（格式被改过），重放脚本需要同步更新"
+    fail=1
+  fi
   out=$(run 2>&1)
   rc=$?
   if [ "$rc" -eq 0 ] && [ "$out" = 'OK: no registered decision documents' ]; then

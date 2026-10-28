@@ -16,14 +16,28 @@
       ],
       "claim": "头注释限定为已登记的决策文档，DOCS 上方写明逐篇登记与不登记 reader-behavior 的原因",
       "scope": "`tests/check-decision-doc-durations.sh`",
-      "method": "inspection",
+      "method": "command",
       "dimension": "structure",
       "observed": "passed",
-      "execution": null,
+      "execution": {
+        "argv": [
+          "grep",
+          "-nE",
+          "断言已登记的决策文档|DOCS 是逐篇手工登记的清单|不宣称覆盖整个 decisions/ 目录|未加入的文档不受检查|2026-09-18-reader-behavior.md",
+          "tests/check-decision-doc-durations.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T20:24:09.586311+00:00",
+        "endedAt": "2026-10-28T20:24:09.590333+00:00",
+        "log": ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpszox7c87.log"
+      },
       "evidence": [
+        ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpszox7c87.log",
+        "tests/check-decision-doc-durations.sh",
         ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md"
       ],
-      "note": "脚本断言头注释含「断言已登记的决策文档」「DOCS 是逐篇手工登记的清单」「不宣称覆盖整个 decisions/ 目录」「未加入的文档不受检查」「2026-09-18-reader-behavior.md」，且不含旧的全目录措辞；exit 0。 原始日志已随 .tmp 清理删除，证据改为按 validation.md 的当轮记录复核，本轮未重跑命令。",
+      "note": "脚本头注释含「断言已登记的决策文档」「DOCS 是逐篇手工登记的清单」「不宣称覆盖整个 decisions/ 目录」「未加入的文档不受检查」「2026-09-18-reader-behavior.md」，且不含旧的全目录措辞；本轮用 grep 逐条命中并经 `acceptance.py run` 记录 exit 0。本轮重跑结果（2026-10-29）：原始 `.tmp` 日志已随清理删除，execution 与日志文件记录的是同一断言在新日期重新执行的事实，不是当轮产物。",
       "waiver": null
     },
     {
@@ -44,15 +58,14 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-28T20:15:00.325432+00:00",
-        "endedAt": "2026-10-28T20:15:00.373976+00:00",
-        "log": ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpalz386c1.log"
+        "startedAt": "2026-10-28T20:23:53.715994+00:00",
+        "endedAt": "2026-10-28T20:23:53.759204+00:00",
+        "log": ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpzcoicmip.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpalz386c1.log",
-        ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/rerun/guard-narrow.sh"
+        ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpzcoicmip.log"
       ],
-      "note": "在私有副本树里把 `DOCS=()` 后运行：输出 `OK: no registered decision documents` 且 exit 0，macOS bash 3.2.57 下未触发 unbound variable。本轮重跑结果（2026-10-29）：原始 `.tmp` 日志已随清理删除，execution 与日志文件记录的是同一断言在新日期重新执行的事实，不是当轮产物。重放脚本已随任务归档保存，可随时重跑。",
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     },
     {
@@ -73,15 +86,14 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-28T20:15:00.405009+00:00",
-        "endedAt": "2026-10-28T20:15:00.465094+00:00",
-        "log": ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpt5_i7vjj.log"
+        "startedAt": "2026-10-28T20:23:53.803970+00:00",
+        "endedAt": "2026-10-28T20:23:53.849419+00:00",
+        "log": ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpxmnwwf8t.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpt5_i7vjj.log",
-        ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/rerun/guard-narrow.sh"
+        ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpxmnwwf8t.log"
       ],
-      "note": "在私有副本树里模拟把 `2026-09-18-reader-behavior.md` 登记进去：exit 1，输出命中第 39 行「含小于 20px 的边界」并打印 `FAIL: literal durations or pixel sizes in …`；当前清单仍 exit 0。本轮重跑结果（2026-10-29）：原始 `.tmp` 日志已随清理删除，execution 与日志文件记录的是同一断言在新日期重新执行的事实，不是当轮产物。重放脚本已随任务归档保存，可随时重跑。",
+      "note": "Command completed with exitCode 0; covers only this check's claim and scope.",
       "waiver": null
     },
     {
@@ -107,7 +119,8 @@
         "log": ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpnnt1sdzn.log"
       },
       "evidence": [
-        ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpnnt1sdzn.log"
+        ".tmp/acceptance/10-27-narrow-doc-guard-scope/tmpnnt1sdzn.log",
+        ".trellis/tasks/archive/2026-10/10-27-narrow-doc-guard-scope/validation.md"
       ],
       "note": "本轮重跑 `npm run check` 全链 exit 0，链内含 `test:decision-docs` 与 `check-docs: OK`。本轮重跑结果（2026-10-29）：原始 `.tmp` 日志已随清理删除，execution 与日志文件记录的是同一断言在新日期重新执行的事实，不是当轮产物。重放脚本已随任务归档保存，可随时重跑。",
       "waiver": null
