@@ -828,3 +828,55 @@ review 指出门禁的 .tmp/ 拦截、bash 断言重言式、子进程判断死�
 
 - `.trellis/.runtime/sessions/pi_01a13bac-e148-76a1-b28a-a909ea445060.json` 是 2026-10-14 的 stale 指针，指向已不存在的 `.trellis/tasks/10-15-graft-to-trail-migration`；文件被 `.trellis/.gitignore:8` 忽略，可按需清理。
 - `.tmp/gate-10-29/` 与 `.tmp/write-guard/` 是两轮验收脚本与变异反证的载体，确认结论后可清理。
+
+
+## Session 20: 补齐归档验收记录并把验收工具行为变成可见痕迹
+<!-- trellis-session: v=2 fp=42f8ee0d4a5001ad -->
+
+**Date**: 2026-10-29
+**Task**: 补齐归档验收记录并把验收工具行为变成可见痕迹
+**Branch**: `master`
+
+### Summary
+
+清掉 .tmp 的未引用记录后，验收记录开始暴露悬空引用：补上检测、补齐三条归档任务缺失的证据、把两条 10-27 从 inspection 改成真重跑并归档重放脚本，最后让 run 清空 waiver 时在 stderr 与 note 里都留痕。
+
+### Main Changes
+
+- tmp 报告新增悬空引用检测（statSync 逐条判存在），不进退出码，读状态失败单独记 readFailures
+- 按同一口径清理 .tmp：2.8G → 1.8G，664 项 0.93 GiB，orphan rounds 35 → 0，保留全部被引用路径
+- 补 10-16 / 两条 10-27 / 10-28 设置分类跳转四组归档记录的证据与验收
+- 10-27 两条从 inspection 改回 command，重放脚本随任务归档，锚点漂移只报一条 FAIL
+- acceptance.py run 清空 waiver 时打印到 stderr 并把 Cleared waiver … 拼进四条终态 note
+- quality-guidelines.md 补充 run 重写 evidence/note/waiver 的行为，并点名已生效 waiver 必须重新登记
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `2563607` | feat(tooling): tmp 报告列出已被引用的缺失文件 |
+| `4d90be5` | fix(tooling): 修掉三条归档任务里缺失的证据引用 |
+| `d0f85e5` | fix(tooling): 补建缺失的 10-28 设置分类跳转验收记录 |
+| `c1f611c` | fix(tooling): tmp 报告在引用状态读不到时记读失败 |
+| `0493bce` | fix(tooling): 两条 10-27 验收改回重跑取证并归档重放脚本 |
+| `9086a4d` | fix(tooling): 消除两条 10-27 验收记录与证据的相互矛盾 |
+| `773e17a` | fix(tooling): 重跑后回补 10-27 的说明与重放脚本证据 |
+| `a658a17` | docs(spec): 点名重跑会清空已生效的 waiver |
+| `022a55a` | feat(tooling): 重跑清空 waiver 时在 stderr 与记录里留痕 |
+
+### Testing
+
+- [OK] npm run check exit 0（tmp 预算、语法、type-check、全量测试、build-prod、check-docs 全过）
+- [OK] python3 -m unittest discover -s scripts -p test_acceptance.py：Ran 41 tests OK，含新增的 clearing waiver stderr 断言
+- [OK] node scripts/tmp-report.mjs：orphan rounds 0、dangling 0、referencedFiles 765
+- [OK] 两条 10-27 与 10-28 设置分类跳转 acceptance.py summarize：valid: true、observedStatus: passed
+- [OK] 合成探针实测：带 waiver 的 check 重跑后 status waived → passed、waiver → null，note 带 Cleared waiver …
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- 九笔提交尚未推送远端；origin 上仍停在更早的提交
+- 10-16-nh-real-site-regression 的 platform-task-status 仍缺真机浏览器证据，当前记录只是把断言指向现存文档，未补真机重跑

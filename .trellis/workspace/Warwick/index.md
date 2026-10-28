@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 19
+- **Total Sessions**: 20
 - **Last Active**: 2026-10-29
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~817 | Active |
+| `journal-1.md` | ~882 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 20 | 2026-10-29 | 补齐归档验收记录并把验收工具行为变成可见痕迹 | `2563607`, `4d90be5`, `d0f85e5`, `c1f611c`, `0493bce`, `9086a4d`, `773e17a`, `a658a17`, `022a55a` | `master` |
 | 19 | 2026-10-29 | 重建 scope 基线并归档写入门禁任务 | `cf9197a`, `82b4908` | `master` |
 | 18 | 2026-10-29 | 扩展测试挂进 check 链，SDK 定位认托管安装 | `e99c778`, `7633549` | `master` |
 | 17 | 2026-10-29 | 修主会话写入门禁的五处缺陷 | `0fec79b` | `master` |
