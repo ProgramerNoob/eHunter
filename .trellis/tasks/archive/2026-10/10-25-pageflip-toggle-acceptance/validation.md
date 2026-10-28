@@ -128,6 +128,15 @@ EX 轮的站点本地副本为 `migration: blocked`（该站未做迁移，直�
 
 ## 其它偏差与说明
 
+- 2026-10-27 17:00–17:12 的 `pageflip-effects-desktop|mobile-*` 排查轮共有 8 个失败轮，失败全部在测试脚本侧，产品行为在后续重跑中一致转绿。逐轮结论：
+  - `pageflip-effects-desktop-e004b8de-…`（17:00）`mode-realistic` 报「书页容器未反映所选动效」。实测 `mode-realistic-state` 为 `{stored: 'realistic', unified: 'realistic', bookClass: null}`，是读数早于阅读器进入书页模式（`bookClass` 尚为 `null`），不是动效选错。同一轮 `scroll-*` 的读数同样缺 `delta`。
+  - `pageflip-effects-desktop-d6a2ba66-…`（17:01）同一条报错，`bookClass` 仍为 `null`，脚本此时既没等进入书页模式也没取到容器类名。
+  - `pageflip-effects-desktop-6e3fbd58-…`（17:02）`pointer-tap 未触发翻页`。`book-entry` 已是 `album-book-view mode-realistic content book-mode`，失败在指针落点：落在 `DIV.page.start-page` 时点击被页面元素吞掉，需派发到 `.album-book-view`。
+  - `pageflip-effects-desktop-f10ba453-…`（17:05）`pointer-next 未触发翻页`，同一落点问题；后续轮改为点击容器后 `1 / 40 → 2 / 40`。
+  - `pageflip-effects-desktop-3361d585-…`（17:06）`首页向前翻越界了`。该轮 `boundary-first-page` 读到 `{first: '16 / 40', afterPrevAtFirst: '14 / 40'}`，说明脚本没先把页码退回首页就断言「首页不能后退」，是断言前置条件缺失，不是越界。
+  - `pageflip-effects-desktop-a4f5fed3-…`（17:07）`滚动模式不再滚动`。`scroll-scrolled` 前后 `top` 都是 `5930`、`height 6830`、`client 900` 且已 `atBottom`，滚轮落点本身已在底部，没有可滚动余量。
+  - `pageflip-effects-desktop-fa8c5db9-…`（17:09）同一条报错，读数缺 `delta`/`atBottom` 字段，轮点在容器底部同样无法滚动。
+  - `pageflip-effects-mobile-20ec1ac1-…`（17:12）`末页向后翻越界了`。该轮 `reached-tail` 停在 `39 / 40`，脚本没推进到 `40 / 40` 就断言末页行为；桌面同结构轮 `reached-tail` 为 `40 / 40` 时通过。
 - 「第二个干净 profile」方案不可行：ego-browser 只有一个 profile（`{id:"Default",name:"Warwick"}`），CLI 无创建入口。经确认改用两个 Vite origin 证明无 GM 时的 origin 隔离，与 `10-18-pageview-magnifier-acceptance` 的既有做法一致。
 - `core/model/layout.ts` 的 `thumbExpandWideBreakpoint = 1600` / `thumbExpandItemWidthWide = 150` / `thumbExpandItemPadding = 8` 属 thumb-expand 遗留的未消费常量，与本组无关，已在前一组验收记录中标注。
 - 平台轮读取的演示页面为随机选取的公开画集（`4285868` / `4285873` / `688467`），不涉及账号私有内容；共享值已还原为基线的「拟真翻页」。
