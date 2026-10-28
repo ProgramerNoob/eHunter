@@ -18,7 +18,7 @@
 ## Requirements
 
 - R1 `npm run check` 开头追加 `.tmp` 预算检查，使用已存在的 `scripts/tmp-report.mjs`，不加新参数、不改其退出码语义；放在链首是为了超预算时立刻失败，不先付出全量检查成本。
-- R2 新增一个语法检查脚本，对 `scripts/` 与 `tests/` 下所有 `.mjs`/`.cjs` 逐个跑 `node --check`，任一失败即以非零退出并打印失败文件。
+- R2 新增一个语法检查脚本，对 `scripts/` 与 `tests/` 下所有 `.mjs`/`.cjs` 逐个跑 `node --check`，任一失败即以非零退出并打印失败文件；它在 `npm run check` 里紧接 `.tmp` 预算检查之后，理由同上：亚秒级、只读仓库内容。
 - R3 `scripts/tmp-report.mjs` 在 `.tmp`、`.tmp/browser-preflight` 不存在时必须照常 exit 0：CI 全新 clone 没有 `.tmp`，缺目录不是超预算。
 - R4 `scripts/tmp-report.mjs` 的预算判定与既有实现一致，不因为该文件自身的输出无关紧要而跳过测试；本次为它补最小单元测试（缺目录、超预算、孤儿超预算三种输入）。
 - R5 `quality-guidelines.md` 的 Documentation boundaries 明写「代码不写注释」只约束 `src/` 与 `core/`，不新增 grep 检查。

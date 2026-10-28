@@ -5,7 +5,7 @@
   "head": "92232220cb12c575054ce43b865d586af2a54710",
   "indexTree": "26107d9e6a76cc5c09e8af7fb6b12bedc3f14015",
   "capturedAt": "2026-10-28T20:19:13+08:00",
-  "scopeDigest": "d6f9c05aad55104b7b54443ec5f3134b557d0745d3e27e520b4381875bf4ffc7",
+  "scopeDigest": "eea81c3b37f538556a9b7b97f4309f8f96e3b7803e24c01ea17d81f7db74d24d",
   "dirty": {},
   "untracked": {
     ".trellis/tasks/10-28-tighten-check-pipeline/check.jsonl": {
@@ -46,6 +46,13 @@
         "AGENTS.md"
       ],
       "at": "2026-10-28T20:38:28+08:00"
+    },
+    {
+      "category": "spec",
+      "rules": [
+        ".trellis/spec/tooling/tmp-hygiene.md"
+      ],
+      "at": "2026-10-28T20:54:20+08:00"
     }
   ]
 }

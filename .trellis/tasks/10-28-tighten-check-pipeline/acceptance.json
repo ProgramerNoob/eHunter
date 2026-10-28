@@ -24,8 +24,8 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-28T20:40:00+08:00",
-        "endedAt": "2026-10-28T20:41:40+08:00",
+        "startedAt": "2026-10-28T20:50:00+08:00",
+        "endedAt": "2026-10-28T20:52:30+08:00",
         "log": ".tmp/tighten-ac1-run.log"
       },
       "evidence": [
@@ -34,7 +34,7 @@
         "package.json",
         "scripts/tmp-report.mjs"
       ],
-      "note": "验收脚本分四步断言：① `npm run check` exit 0、日志 538 行，其中 `notice run ehunter@3.1.0 tmp:report` 在第 3 行、`type-check` 在第 19 行，报告打印 `.tmp total: 2.61 GiB` 与 `browser-preflight rounds: 176, orphan rounds: 35`；② 把 `check` 的 `tmp:report` 改成 `--max-bytes 1024` 后同一命令 exit 1，日志只有 19 行、19 行内即出现 `FAIL .tmp is 2.61 GiB, over the 0.0 MiB budget`，且日志里没有任何 `type-check` 启动记录，证明链首失败不再付出全量成本，脚本随后还原 `package.json` 并断言无 `max-bytes 1024` 残留；③ 在只含 `scripts/tmp-report.mjs` 与空 `.trellis/` 的 `/tmp/ac1-empty` 里 `--json` 输出 `readFailures {\"count\":0,\"reasons\":[],\"sample\":[]}`、`tmpBytes 0`、`roundCount 0`，exit 0；④ 经 `/tmp`（真实路径 `/private/tmp`）符号链接前缀调用该脚本时仍真正执行并打印 `.tmp total: 0.0 MiB`——旧守卫用 `resolve(argv[1]) === fileURLToPath(import.meta.url)` 比较，在这类路径下不相等会静默空转且 exit 0，已改用两侧 `realpathSync` 后修好，并由这条断言钉住。",
+      "note": "验收脚本分四步断言：① `npm run check` exit 0、日志 539 行，其中 `notice run ehunter@3.1.0 tmp:report` 在第 3 行、`check:syntax` 在第 19 行、`type-check` 在第 23 行，即 `.tmp` 报告与语法检查都排在 type-check 之前，报告打印 `.tmp total: 2.61 GiB` 与 `browser-preflight rounds: 176, orphan rounds: 35`；② 把 `check` 的 `tmp:report` 改成 `--max-bytes 1024` 后同一命令 exit 1，日志只有 19 行、19 行内即出现 `FAIL .tmp is 2.61 GiB, over the 0.0 MiB budget`，且日志里既无 `type-check` 也无 `check:syntax` 启动记录，证明链首失败不再付出全量成本，脚本随后还原 `package.json` 并断言无 `max-bytes 1024` 残留；③ 在只含 `scripts/tmp-report.mjs` 与空 `.trellis/` 的 `/tmp/ac1-empty` 里 `--json` 输出 `readFailures {\"count\":0,\"reasons\":[],\"sample\":[]}`、`tmpBytes 0`、`roundCount 0`，exit 0；④ 经 `/tmp`（真实路径 `/private/tmp`）符号链接前缀调用该脚本时仍真正执行并打印 `.tmp total: 0.0 MiB`——旧守卫用 `resolve(argv[1]) === fileURLToPath(import.meta.url)` 比较，在这类路径下不相等会静默空转且 exit 0，已改用两侧 `realpathSync` 后修好，并由这条断言钉住。",
       "waiver": null
     },
     {
@@ -149,8 +149,8 @@
         ],
         "cwd": ".",
         "exitCode": 0,
-        "startedAt": "2026-10-28T20:44:15+08:00",
-        "endedAt": "2026-10-28T20:44:24+08:00",
+        "startedAt": "2026-10-28T20:51:40+08:00",
+        "endedAt": "2026-10-28T20:52:30+08:00",
         "log": ".tmp/tighten-ac4-run.log"
       },
       "evidence": [
@@ -160,7 +160,7 @@
         ".trellis/spec/tooling/index.md",
         ".trellis/spec/frontend/quality-guidelines.md"
       ],
-      "note": "`npm run check:docs` exit 0：`check-docs: 45 md, 6 yaml, 240 本地链接, 0 外链(仅记录), 70 $ref` 与 `check-docs: OK`，本地链接从改动前的 235 增至 240。同一脚本还断言了规范文本与工具契约：`acceptance.py --help` 列出六个子命令、`acceptance.py set-meta` 被拒绝（exit 2）、`task.py set-meta` 存在、`tooling/index.md` 不再把 `set-meta` 写成 `acceptance.py` 子命令并写明归属 `task.py`、含 `cleanup-browser`、`退出 4`、`max-orphan-bytes`；`quality-guidelines.md` 含注释规则范围句与 `test:tmp-report` 行；`AGENTS.md` 含「限 `src/` 与 `core/`」。末尾重跑 `python3 scripts/acceptance.py summarize` 得 `valid true / status passed / counts passed 6`、exit 0。",
+      "note": "`npm run check:docs` exit 0：`check-docs: 45 md, 6 yaml, 240 本地链接, 0 外链(仅记录), 70 $ref` 与 `check-docs: OK`，本地链接从改动前的 235 增至 240。同一脚本还断言了规范文本与工具契约：`acceptance.py --help` 列出六个子命令、`acceptance.py set-meta` 被拒绝（exit 2）、`task.py set-meta` 存在、`tooling/index.md` 不再把 `set-meta` 写成 `acceptance.py` 子命令并写明归属 `task.py`、含 `cleanup-browser`、`退出 4`、`max-orphan-bytes`；`quality-guidelines.md` 含注释规则范围句、`test:tmp-report` 与 `check:syntax` 命令行、语法检查前置理由段；`tmp-hygiene.md` 含「`npm run check` 的首步即 `npm run tmp:report`」与「既是首步门禁、也是人工清理范围的依据」；`AGENTS.md` 含「限 `src/` 与 `core/`」。末尾重跑 `python3 scripts/acceptance.py summarize` 得 `valid true / status passed / counts passed 6`、exit 0。",
       "waiver": null
     }
   ]

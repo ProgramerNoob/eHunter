@@ -40,12 +40,13 @@
         "spec": [
           ".trellis/spec/frontend/quality-guidelines.md",
           ".trellis/spec/tooling/index.md",
-          "AGENTS.md"
+          "AGENTS.md",
+          ".trellis/spec/tooling/tmp-hygiene.md"
         ]
       },
       "snapshot": {
         "path": "scope-start.json",
-        "sha256": "2277d63fb5c955f55aa96f5687f6d596c18863ab1c760714024a59e1cfde6097"
+        "sha256": "303d887d4d663cffe439522e9b281a377169809b62c9872440b91e37839933a7"
       }
     }
   }

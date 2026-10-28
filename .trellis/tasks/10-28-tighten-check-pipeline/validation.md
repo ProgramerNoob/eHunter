@@ -7,7 +7,7 @@
 | 仓库 | `/Users/warwick/claude/eHunter`，分支 `master` |
 | Node | v24.22.1（本机）；CI 为 Node 22 |
 | Python | 3.13.14（本机）；CI 为 3.12 |
-| 执行日期 | 2026-10-28 20:40–20:45 +08:00 |
+| 执行日期 | 2026-10-28 20:40–20:52 +08:00 |
 | `.tmp` 现状 | 2.61 GiB（预算 3 GiB）；孤儿轮次 933.3 MiB（预算 2 GiB）；176 轮次 / 35 孤儿 |
 | 浏览器 | 本任务不涉及 UI，未启动任何浏览器或本地服务 |
 
@@ -17,9 +17,9 @@
 
 | 断言 | 实测 |
 | --- | --- |
-| `npm run check` 全绿 | exit 0，538 行；`notice run ehunter@3.1.0 tmp:report` 在第 3 行、`type-check` 在第 19 行 |
+| `npm run check` 全绿 | exit 0，539 行；`notice run ehunter@3.1.0 tmp:report` 在第 3 行、`check:syntax` 在第 19 行、`type-check` 在第 23 行 |
 | 报告内容 | `.tmp total: 2.61 GiB`、`browser-preflight rounds: 176, orphan rounds: 35` |
-| 超预算时链首即失败 | 预算改 1 KiB 后 exit 1，日志 19 行，直接以 `FAIL .tmp is 2.61 GiB, over the 0.0 MiB budget` 结束，无 `type-check` 启动记录 |
+| 超预算时链首即失败 | 预算改 1 KiB 后 exit 1，日志 19 行，直接以 `FAIL .tmp is 2.61 GiB, over the 0.0 MiB budget` 结束，无 `check:syntax` 与 `type-check` 启动记录 |
 | 全新 clone 无 `.tmp` | `/tmp/ac1-empty` 下 exit 0，`tmpBytes 0`、`roundCount 0`、`readFailures {"count":0}` |
 | 符号链接路径调用 | 经 `/tmp`（真实路径 `/private/tmp`）调用仍真正执行并打印 `.tmp total: 0.0 MiB` |
 
@@ -61,6 +61,11 @@
 
 - **#4 `tmp:report` 的位置**：已前置到 `check` 链首。理由记入 R1 与 `quality-guidelines.md`：0.25 s 就能拦住超预算，不必等 type-check、测试与构建全跑完才失败；AC1 第 2 条断言钉住了「超预算时不启动 type-check」。代价是本地 `.tmp` 超预算会让任何改动在链首失败，规范里写明处理动作是清理而非绕过。
 - **#6 小问题**：PRD/implement 中「22 个文件」改为不写死数量（实际 23）；命令表补 `test:tmp-report`；`scripts/tmp-report.mjs` 的引用判定改为循环外展开 `referencedList` 一次；`tests/tmp-report.test.mjs` 的超预算用例只用几百字节，未引入 GiB 级真实字节。
+
+## 复审提出的两处遗留
+
+- **tmp-hygiene.md 与 check 行为脱节**：`tmp-hygiene.md` 首段从「供人工决定清理范围」改为「既是 `npm run check` 的首道门禁，也是人工清理范围的依据」；用法块下新增一段：`npm run check` 的首步即 `npm run tmp:report`，超预算会在 `check:syntax` 与 `type-check` 之前失败，全新 clone 或 CI 无 `.tmp/` 时按 0 字节通过。两份规范对同一工具的门禁地位现在一致。
+- **`check:syntax` 移至链第二位**：`check` 改为 `npm run tmp:report && npm run check:syntax && npm run type-check && npm test && npm run build-prod && npm run check:docs`。0.5 s 的静态检查不再排在 `build-prod` 之后；`quality-guidelines.md` 新增一段写明它与 `tmp:report` 前置的理由相同，且只读仓库文件、不受本地 `.tmp` 状态影响。断言同步：AC1 第 1 条除 `tmp:report` 早于 `type-check` 外，还断言 `check:syntax` 早于 `type-check` 且晚于 `tmp:report`，并断言日志含 `check-syntax: N files, 0 failed, 0 unreadable`；第 2 条新增「超预算时不得有 `check:syntax` 启动记录」。
 
 ## 未验证范围
 

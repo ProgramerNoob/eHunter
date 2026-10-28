@@ -15,7 +15,7 @@
 
 ## 2. tmp 预算进 check
 
-- `package.json` 的 `check` 改为 `npm run tmp:report && npm run type-check && npm test && npm run build-prod && npm run check:docs && npm run check:syntax`。前置到链首：0.25 s 就能拦住超预算，不必等 type-check、测试与构建全跑完才失败。
+- `package.json` 的 `check` 改为 `npm run tmp:report && npm run check:syntax && npm run type-check && npm test && npm run build-prod && npm run check:docs`。前两步都是亚秒级且只读仓库内容，任何一步失败都不必等 type-check、测试与构建全跑完；`tmp:report` 排首位是因为它的失败原因在本地磁盘而不在代码。
 - 给 `scripts/tmp-report.mjs` 补最小单元测试 `tests/tmp-report.test.mjs`：用 `mkdtemp` 造临时仓库根（含 `scripts/` 与空 `.trellis/`），复制或直接调用导出的函数，覆盖三种输入——目录缺失（exit 0）、总量超 `--max-bytes`（exit 1）、孤儿超 `--max-orphan-bytes`（exit 1）。为可测试性把 `main()` 从「读 `process.argv` 并设置 `process.exitCode`」抽出为可传参的 `run(options, paths)`，并在文件末尾用 `import.meta.main` 或 `process.argv[1]` 判断保留 CLI 行为。
 - `package.json` 增加 `test:tmp-report` 并挂进 `npm test`。
 - `.tmp` 根目录与 `.tmp/browser-preflight` 缺失时统一豁免 ENOENT：`walkFiles` 与 `roundEntries` 都不记读失败，全新 clone 上报告不再出现 `read failures: 1` 噪音。

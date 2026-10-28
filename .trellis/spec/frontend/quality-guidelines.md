@@ -88,7 +88,7 @@ Run from the repository root. [package.json](../../../package.json) is authorita
 | `npm run check:syntax` | Runs `node --check` over every `.mjs`/`.cjs` in `scripts/` and `tests/` |
 | `npm run tmp:report` | Reports `.tmp/` size and unreferenced browser-preflight rounds; exits 1 over the 3 GiB / 2 GiB budgets |
 | `npm test` | Runs the acceptance Python suites plus every `test:*` Node regression, in `package.json` order |
-| `npm run check` | Runs the `.tmp` budget report first (0.25 s, before any other cost), then type-check, `npm test`, the production build, the documentation check and the syntax check; stops at the first failure |
+| `npm run check` | Runs the `.tmp` budget report and the syntax check first (both under a second, before any other cost), then type-check, `npm test`, the production build and the documentation check; stops at the first failure |
 | `npm run build` | Runs normal `vite build` |
 | `npm run build-only` / `npm run build-dev` | Same normal Vite build; neither adds type-checking |
 | `npm run build-prod` | Builds the IIFE userscript with the production config |
@@ -129,6 +129,12 @@ bites locally — CI has no `.tmp/`, where the report exits 0. Budgets depend on
 machine, so a checkout that is otherwise healthy can fail the chain until the
 unreferenced rounds are removed; keep that distinction in mind before reading a
 failure on the first chain element as a code problem.
+
+The syntax check runs second for the same reason: `node --check` over `scripts/` and
+`tests/` costs about half a second and depends on nothing but the checked-in files, so a
+stray comma in a `.mjs` file reports before type-check and the test suite rather than
+after the production build. It reads files only — it cannot fail because of local
+`.tmp/` state.
 
 [`storage-lifecycle.test.cjs`](../../../tests/storage-lifecycle.test.cjs) exercises
 current `app.ts`, `layoutPreference.ts`, `PlatformService.js` and real Vue through
