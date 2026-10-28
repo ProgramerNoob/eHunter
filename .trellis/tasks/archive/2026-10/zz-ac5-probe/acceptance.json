@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "probe"
+  },
+  "checks": [
+    {
+      "id": "probe",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "probe",
+      "scope": "probe",
+      "method": "inspection",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/tasks/archive/2026-10/zz-ac5-probe/prd.md"
+      ],
+      "note": "Synthetic probe.",
+      "waiver": null
+    }
+  ]
+}
