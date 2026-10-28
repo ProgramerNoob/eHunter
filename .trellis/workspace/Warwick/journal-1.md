@@ -640,5 +640,5 @@ Session summary was not supplied.
 
 ### Next Steps
 
-- `.tmp` 已达 14.45 GiB（超 3 GiB 预算，未引用轮次 207 个共 7.87 GiB），需要按 `npm run tmp:report` 清理未引用轮次，保留失败反证与仍被引用的证据。
+- `.tmp` 已清理到 2.61 GiB（低于 3 GiB 默认预算）：删掉 402 个未引用轮次的 `commands.jsonl`、3 个非轮次大块、46 个未被引用的散目录；保留 35 个失败反证轮次与 `acceptance.json` 引用的 1.43 GiB 证据。helper 已改为只在失败轮落完整命令回执（`ad18a93`、`7f0e34e`、`efdd0ad`）。
 - `pending-work.md` 仍排队：`001-gallery-download-bundle`、`001-platform-injection`。
