@@ -1,0 +1,52 @@
+{
+  "id": "tighten-settings-navigation",
+  "name": "tighten-settings-navigation",
+  "title": "收敛分类跳转实现与类型契约",
+  "description": "按 code-review 对 8cef307 的结论整改：categorySections 改为从 .ehunter-group[data-category] 派生并删除 getCategoryRef 与 6 个分组 ref；scrollToCategory/onContentScroll 去掉 any，model 返回 SettingsCategory['id'] | null；滚动事件改用 offsetTop 减少同步布局读取；清掉测试文件注释；把滚底规则的测试断言改为条件验证。",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-28",
+  "completedAt": null,
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-28-tighten-settings-navigation/**"
+        ],
+        "core": [
+          "core/components/MoreSettingsDialog.vue",
+          "core/model/settingsNavigation.ts"
+        ],
+        "tests": [
+          "tests/settings-navigation.test.cjs",
+          "package.json"
+        ],
+        "spec": [
+          ".trellis/spec/frontend/features/002-more-settings-modal/**"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "a4dcd6059b33cadc86f8897270ab94e76f149ce63ff4c7783065ab833ba8b7c8"
+      }
+    }
+  }
+}

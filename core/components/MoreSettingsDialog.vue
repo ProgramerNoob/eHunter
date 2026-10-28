@@ -18,7 +18,7 @@
                             </button>
                         </nav>
                         <section ref="contentRef" class="ehunter-content" @scroll="onContentScroll">
-                            <article ref="generalRef" class="ehunter-group" data-category="general">
+                            <article class="ehunter-group" data-category="general">
                                 <h4>{{ i18n.settingsGeneral }}</h4>
                                 <div class="ehunter-row" v-for="fieldId in dialogGeneralFieldIds" :key="fieldId">
                                     <div class="ehunter-label-block">
@@ -48,7 +48,7 @@
                                 </div>
                             </article>
 
-                            <article ref="scrollRef" class="ehunter-group" data-category="scroll">
+                            <article class="ehunter-group" data-category="scroll">
                                 <h4>{{ i18n.settingsScrollMode }}</h4>
                                 <div class="ehunter-row" v-for="fieldId in dialogScrollFieldIds" :key="fieldId">
                                     <div class="ehunter-label-block">
@@ -78,7 +78,7 @@
                                 </div>
                             </article>
 
-                            <article ref="bookRef" class="ehunter-group" data-category="book">
+                            <article class="ehunter-group" data-category="book">
                                 <h4>{{ i18n.settingsBookMode }}</h4>
                                 <div class="ehunter-row" v-for="fieldId in dialogBookFieldIds" :key="fieldId">
                                     <div class="ehunter-label-block">
@@ -108,7 +108,7 @@
                                 </div>
                             </article>
 
-                            <article ref="quickRef" class="ehunter-group" data-category="quick">
+                            <article class="ehunter-group" data-category="quick">
                                 <h4>{{ i18n.settingsQuick }}</h4>
                                 <div class="ehunter-quick-lanes">
                                     <p class="ehunter-lane-intro">{{ i18n.quickDragHint }}</p>
@@ -162,7 +162,7 @@
                                 </div>
                             </article>
 
-                            <article ref="shortcutsRef" class="ehunter-group" data-category="shortcuts">
+                            <article class="ehunter-group" data-category="shortcuts">
                                 <h4>{{ i18n.settingsShortcuts }}</h4>
                                 <p class="ehunter-shortcut-intro">{{ i18n.shortcutEditHint }}</p>
                                 <div class="ehunter-row" v-for="action in shortcutActionDefinitions" :key="action.id">
@@ -205,7 +205,7 @@
                                 </div>
                             </article>
 
-                            <article ref="otherRef" class="ehunter-group" data-category="other">
+                            <article class="ehunter-group" data-category="other">
                                 <h4>{{ i18n.settingsOther }}</h4>
                                 <div class="ehunter-row">
                                     <span class="ehunter-label">{{ i18n.versionLabel }}</span>
@@ -246,17 +246,11 @@ import NumDropOption from './widget/NumDropOption.vue'
 import SimpleSwitch from './widget/SimpleSwitch.vue'
 import SimpleDialog from './widget/SimpleDialog.vue'
 import { i18n } from '../store/i18n'
-import { store, storeAction, settingsCategories, quickSettingOptions, settingFieldMap, shortcutActionDefinitions, shortcutKeyCandidates, type ShortcutActionId } from '../store/app'
+import { store, storeAction, settingsCategories, quickSettingOptions, settingFieldMap, shortcutActionDefinitions, shortcutKeyCandidates, type SettingsCategory, type ShortcutActionId } from '../store/app'
 import { getFieldValue, setFieldValue, getDropList, getNumList, getNumSuffix, getDialogFieldIds } from '../store/settingFieldRuntime'
-import { resolveActiveSettingsCategory, resolveSettingsCategoryScrollTop } from '../model/settingsNavigation'
+import { resolveActiveSettingsCategory, resolveSettingsCategoryScrollTop, type SettingsSectionOffset } from '../model/settingsNavigation'
 
 const contentRef = ref<HTMLElement | null>(null)
-const generalRef = ref<HTMLElement | null>(null)
-const scrollRef = ref<HTMLElement | null>(null)
-const bookRef = ref<HTMLElement | null>(null)
-const quickRef = ref<HTMLElement | null>(null)
-const shortcutsRef = ref<HTMLElement | null>(null)
-const otherRef = ref<HTMLElement | null>(null)
 const dragSourceId = ref('')
 const openedShortcutDropdown = ref<ShortcutActionId | ''>('')
 const pinnedQuickSettingId = 'readingMode'
@@ -350,56 +344,34 @@ function onFieldChange(id: string, val: any) {
     setFieldValue(id, val)
 }
 
-function getCategoryRef(category: string): HTMLElement | null {
-    switch (category) {
-        case 'general':
-            return generalRef.value
-        case 'scroll':
-            return scrollRef.value
-        case 'book':
-            return bookRef.value
-        case 'quick':
-            return quickRef.value
-        case 'shortcuts':
-            return shortcutsRef.value
-        case 'other':
-            return otherRef.value
-        default:
-            return null
-    }
-}
-
 function contentScrollMax(content: HTMLElement): number {
     return content.scrollHeight - content.clientHeight
 }
 
 function categorySections(content: HTMLElement) {
-    const base = content.getBoundingClientRect().top
-    const refs: [string, HTMLElement | null][] = [
-        ['general', generalRef.value],
-        ['scroll', scrollRef.value],
-        ['book', bookRef.value],
-        ['quick', quickRef.value],
-        ['shortcuts', shortcutsRef.value],
-        ['other', otherRef.value],
-    ]
-    return refs
-        .filter(([, elem]) => !!elem)
-        .map(([id, elem]) => ({
-            id,
-            offsetTop: (elem as HTMLElement).getBoundingClientRect().top - base + content.scrollTop,
-        }))
+    const groups = content.querySelectorAll<HTMLElement>('.ehunter-group[data-category]')
+    const result: SettingsSectionOffset<SettingsCategory['id']>[] = []
+    groups.forEach((group) => {
+        const id = group.dataset.category as SettingsCategory['id'] | undefined
+        if (!id) {
+            return
+        }
+        result.push({ id, offsetTop: group.offsetTop - content.offsetTop })
+    })
+    return result
 }
 
-function scrollToCategory(category: any) {
+function scrollToCategory(category: SettingsCategory['id']) {
     storeAction.setActiveSettingsCategory(category)
-    const target = getCategoryRef(category)
     const content = contentRef.value
-    if (!target || !content) {
+    if (!content) {
         return
     }
-    const targetOffsetTop = categorySections(content).find((item) => item.id === category)?.offsetTop ?? 0
-    const nextTop = resolveSettingsCategoryScrollTop(targetOffsetTop, contentScrollMax(content))
+    const target = categorySections(content).find((item) => item.id === category)
+    if (!target) {
+        return
+    }
+    const nextTop = resolveSettingsCategoryScrollTop(target.offsetTop, contentScrollMax(content))
     content.scrollTo({
         top: nextTop,
         behavior: 'smooth',
@@ -417,7 +389,7 @@ function onContentScroll() {
         contentScrollMax(content),
     )
     if (active && active !== store.activeSettingsCategory) {
-        storeAction.setActiveSettingsCategory(active as any)
+        storeAction.setActiveSettingsCategory(active)
     }
 }
 

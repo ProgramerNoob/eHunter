@@ -1,20 +1,20 @@
-export interface SettingsSectionOffset {
-    id: string
+export interface SettingsSectionOffset<T extends string = string> {
+    id: T
     offsetTop: number
 }
 
 export const settingsCategoryActivationOffsetPx = 24
 
-export function resolveActiveSettingsCategory(
+export function resolveActiveSettingsCategory<T extends string>(
     scrollTop: number,
-    sections: SettingsSectionOffset[],
+    sections: SettingsSectionOffset<T>[],
     scrollMax: number,
-): string {
+): T | null {
     const last = sections[sections.length - 1]
     if (!last) {
-        return ''
+        return null
     }
-    if (scrollMax > 0 && scrollTop >= scrollMax - 1) {
+    if (scrollMax > 0 && scrollTop >= scrollMax - 1 && last.offsetTop > scrollMax) {
         return last.id
     }
     let active = sections[0].id

@@ -1,0 +1,3 @@
+{"file": ".trellis/spec/frontend/features/002-more-settings-modal/spec.md", "reason": "FR-004 分类跳转契约"}
+{"file": ".trellis/spec/frontend/features/002-more-settings-modal/quickstart.md", "reason": "分类跳转验收步骤"}
+{"file": ".trellis/spec/frontend/browser-acceptance.md", "reason": "本地两 profile 回归口径"}

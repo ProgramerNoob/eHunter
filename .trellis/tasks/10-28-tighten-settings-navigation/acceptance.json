@@ -1,0 +1,131 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "`core/components/MoreSettingsDialog.vue` 中不再出现 `getCategoryRef`、六个分组 `ref` 声明与模板 `ref=\"…Ref\"`；`categorySections` 由 `querySelectorAll('.ehunter-group[data-category]')` 派生，新增分类只需在模板加一个分组。",
+    "AC2": "`core/model/settingsNavigation.ts` 的 `resolveActiveSettingsCategory` 返回 `SettingsCategory['id'] | null`，空列表返回 `null`；`MoreSettingsDialog.vue` 两个调用点不再出现 `any`；`npm run type-check` 通过。",
+    "AC3": "滚动路径不再对每个分组调用 `getBoundingClientRect`；`resolveActiveSettingsCategory` 的单元测试覆盖「末组可达」「末组不可达」两种布局。",
+    "AC4": "`tests/settings-navigation.test.cjs` 无注释；分类跳转在桌面 1200×900 与移动 390×844 两 profile 的 `verify-browser` 产物中均为 passed，数值与 `8cef307` 回归记录一致。"
+  },
+  "checks": [
+    {
+      "id": "category-refs-removed",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "getCategoryRef 与六个分组 ref 已删除，categorySections 由 .ehunter-group[data-category] 派生",
+      "scope": "`core/components/MoreSettingsDialog.vue`",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/tighten-settings-navigation-check.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T17:36:20+08:00",
+        "endedAt": "2026-10-28T17:36:20+08:00",
+        "log": ".tmp/tighten-ac1.log"
+      },
+      "evidence": [
+        ".tmp/tighten-ac1.log",
+        ".tmp/tighten-check-all.log",
+        ".trellis/tasks/10-28-tighten-settings-navigation/validation.md"
+      ],
+      "note": "grep getCategoryRef=0、六个分组 ref 名称=0、getBoundingClientRect=0；querySelectorAll<HTMLElement>('.ehunter-group[data-category]') 命中 MoreSettingsDialog.vue:352。",
+      "waiver": null
+    },
+    {
+      "id": "navigation-types-tightened",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "resolveActiveSettingsCategory 返回 SettingsCategory['id'] | null，空列表返回 null，两个调用点无 any，type-check 通过",
+      "scope": "`core/model/settingsNavigation.ts`、`core/components/MoreSettingsDialog.vue`",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "type-check"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T17:36:20+08:00",
+        "endedAt": "2026-10-28T17:36:20+08:00",
+        "log": ".tmp/tighten-ac2-type-check.log"
+      },
+      "evidence": [
+        ".tmp/tighten-ac2-type-check.log",
+        ".tmp/tighten-check-all.log",
+        ".trellis/tasks/10-28-tighten-settings-navigation/validation.md"
+      ],
+      "note": "vue-tsc --noEmit exit 0；模型签名 SettingsSectionOffset<T extends string> / resolveActiveSettingsCategory<T extends string>(...): T | null；scrollToCategory(category: SettingsCategory['id'])，onContentScroll 内 setActiveSettingsCategory(active) 无 as any。",
+      "waiver": null
+    },
+    {
+      "id": "scroll-path-and-unit-tests",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "滚动路径不再逐分组 getBoundingClientRect，单测覆盖末组可达与不可达两种布局",
+      "scope": "`core/components/MoreSettingsDialog.vue`、`tests/settings-navigation.test.cjs`",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "npm",
+          "run",
+          "test:settings-navigation"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T17:36:20+08:00",
+        "endedAt": "2026-10-28T17:36:20+08:00",
+        "log": ".tmp/tighten-ac3-unit.log"
+      },
+      "evidence": [
+        ".tmp/tighten-ac3-unit.log",
+        ".tmp/tighten-check-all.log",
+        ".trellis/tasks/10-28-tighten-settings-navigation/validation.md"
+      ],
+      "note": "node --test 5/5 pass；新增用例 a reachable last section is not forced to win at the boundary（末组 offsetTop 800 < scrollMax 1600 时按位置判定）；滚动路径改用 group.offsetTop - content.offsetTop。",
+      "waiver": null
+    },
+    {
+      "id": "browser-regression-both-profiles",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "桌面 1200x900 与移动 390x844 的分类跳转回归均 passed，数值与 8cef307 记录一致",
+      "scope": "`.tmp/browser-preflight/catjump-tighten-*`",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/tighten-settings-navigation-check.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T17:36:20+08:00",
+        "endedAt": "2026-10-28T17:36:20+08:00",
+        "log": ".tmp/tighten-ac4-desktop.log"
+      },
+      "evidence": [
+        ".tmp/tighten-ac4-desktop.log",
+        ".tmp/tighten-ac4-mobile.log",
+        ".tmp/browser-preflight/catjump-tighten-desktop-7005d3f1-34ab-46ae-922a-c6c13f1bfe51/result.json",
+        ".tmp/browser-preflight/catjump-tighten-mobile-38bcc72d-d8f1-44c2-af52-c5ef66fc4a61/result.json",
+        ".trellis/tasks/10-28-tighten-settings-navigation/validation.md"
+      ],
+      "note": "verify-browser 两 profile 均 status passed；点击 scrollTop desktop 16/528/852/1553/2334/2836(max)、mobile 12/529/852/1554/2334/2790(max)，与 8cef307 一致（mobile 快捷键 2335->2334 为 offsetTop 取整差异）；手动滚动高亮逐组正确，滚到底为「其他」；tests/settings-navigation.test.cjs 注释数 0。",
+      "waiver": null
+    }
+  ]
+}

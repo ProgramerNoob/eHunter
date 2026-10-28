@@ -11,7 +11,6 @@ function loadModel() {
     return runtime.load(MODEL);
 }
 
-// Offsets measured in the 1200x900 dialog: group tops relative to the content box.
 const SECTIONS = [
     { id: 'general', offsetTop: 16 },
     { id: 'scroll', offsetTop: 528 },
@@ -34,10 +33,24 @@ test('settings navigation: every category click lands on its own section', () =>
     }
 });
 
-test('settings navigation: the last section wins at the scroll boundary', () => {
+test('settings navigation: an unreachable last section wins at the scroll boundary', () => {
     const model = loadModel();
+    assert.ok(SECTIONS[SECTIONS.length - 1].offsetTop > SCROLL_MAX);
+    assert.equal(model.resolveActiveSettingsCategory(SCROLL_MAX - 200, SECTIONS, SCROLL_MAX), 'shortcuts');
     assert.equal(model.resolveActiveSettingsCategory(SCROLL_MAX, SECTIONS, SCROLL_MAX), 'other');
     assert.equal(model.resolveSettingsCategoryScrollTop(SECTIONS[5].offsetTop, SCROLL_MAX), SCROLL_MAX);
+});
+
+test('settings navigation: a reachable last section is not forced to win at the boundary', () => {
+    const model = loadModel();
+    const reachable = [
+        { id: 'general', offsetTop: 16 },
+        { id: 'scroll', offsetTop: 400 },
+        { id: 'book', offsetTop: 800 },
+    ];
+    const reachableMax = 1600;
+    assert.equal(model.resolveActiveSettingsCategory(reachableMax, reachable, reachableMax), 'book');
+    assert.equal(model.resolveActiveSettingsCategory(700, reachable, reachableMax), 'scroll');
 });
 
 test('settings navigation: manual scrolling switches sections without a one-step lag', () => {
@@ -56,16 +69,9 @@ test('settings navigation: manual scrolling switches sections without a one-step
     }
 });
 
-test('settings navigation: an unreachable last section highlights only at the bottom boundary', () => {
-    const model = loadModel();
-    assert.ok(SECTIONS[5].offsetTop > SCROLL_MAX, 'last section top is unreachable in this layout');
-    assert.equal(model.resolveActiveSettingsCategory(SCROLL_MAX - 200, SECTIONS, SCROLL_MAX), 'shortcuts');
-    assert.equal(model.resolveActiveSettingsCategory(SCROLL_MAX - 1, SECTIONS, SCROLL_MAX), 'other');
-});
-
 test('settings navigation: missing sections and empty lists stay inert', () => {
     const model = loadModel();
-    assert.equal(model.resolveActiveSettingsCategory(0, [], SCROLL_MAX), '');
+    assert.equal(model.resolveActiveSettingsCategory(0, [], SCROLL_MAX), null);
     assert.equal(model.resolveActiveSettingsCategory(0, SECTIONS, 0), 'general');
     assert.equal(model.resolveSettingsCategoryScrollTop(-40, SCROLL_MAX), 0);
     assert.equal(model.resolveSettingsCategoryScrollTop(500, 0), 0);

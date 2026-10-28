@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-28-tighten-settings-navigation",
+  "branch": "master",
+  "head": "b80cafc52fd4c8e19a0d3c25ddfa4adef359040d",
+  "indexTree": "a6f7d6bb9d76c633a4014d034fa32958b9a41520",
+  "capturedAt": "2026-10-28T17:28:48+08:00",
+  "scopeDigest": "bd1372d3b5beef17f7d61ef68baea9fa21d162bc62128f6a54ac029107431c35",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-28-tighten-settings-navigation/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "09c3f9fc0f02ba6f1ab7d0e4cb76f267dfd55219cf24284b353dc8dc1aebf6df"
+    },
+    ".trellis/tasks/10-28-tighten-settings-navigation/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "d69a666eec0ba17488f125b621d1fc84f814bda430d65cbc01844ab9bd95442e"
+    },
+    ".trellis/tasks/10-28-tighten-settings-navigation/implement.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "aab209829dbca0c08a3b6ecf9ea1d3884ab9e6fd808c0ea44553d85f2a932b35"
+    },
+    ".trellis/tasks/10-28-tighten-settings-navigation/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "1962606747e0174e6ee16811423f64be4cd01a446bce577e57318bb5677fd6dc"
+    },
+    ".trellis/tasks/10-28-tighten-settings-navigation/scope-start.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "3d41f9c55016f1907f7c9533b9f9c67352c0ac5ecb176cc2f72323e49d576b12"
+    },
+    ".trellis/tasks/10-28-tighten-settings-navigation/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "f679b5562bb60786d484760e4d90dfbd27c583955018aa28e649766243cc670d"
+    }
+  }
+}
