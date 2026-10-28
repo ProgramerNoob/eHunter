@@ -780,3 +780,51 @@ review 指出门禁的 .tmp/ 拦截、bash 断言重言式、子进程判断死�
 - `.tmp/gate-10-29/`（`verify-ac.sh`、`index.ts.bak`、各 ac 日志）保留为变异与透传的反证，确认结论后可清理；`.tmp/acceptance/10-29-guard-regression-gate/` 是 7 条 check 的 evidence，须保留。
 - `scripts/test-trellis-extension.mjs:32` 的 `execFileSync('npm', ['root', '-g'])` 在 npm 完全缺失时抛 `spawnSync npm ENOENT`，走不到 `Install Pi before…` 那条断言；npm 必与 node 同装，当前未覆盖。
 
+
+
+## Session 19: 重建 scope 基线并归档写入门禁任务
+<!-- trellis-session: v=2 fp=137d141244ed965d -->
+
+**Date**: 2026-10-29
+**Task**: 重建 scope 基线并归档写入门禁任务
+**Branch**: `master`
+
+### Summary
+
+10-28 任务归档被范围门拦下：scope 基线停在 `3f794c1`，之后别人的四个提交进入比较窗口。按既有恢复路径重写 scope 再 `start` 重建基线，归档通过。
+
+### Main Changes
+
+归档 10-28 时被范围门拦下，根因是 scope 基线不前进；按 spec 给的路径重建基线后归档通过。
+
+- `.trellis/tasks/10-28-fix-write-guard` 的 `scope-start.json` 的 `head` 停在 `3f794c1`（`capturedAt 2026-10-28T23:11:40+08:00`）。之后 10-29 任务与 journal 的四个提交（`0fec79b`、`e99c778`、`7633549`、`7ddb8d8`）全落在同一比较窗口里，归档报 `15 changed path(s) fall outside meta.scope`，越界项全是别人的改动。
+- 分支门与范围门是两道独立的门：10-28 自己那 11 个文件当时已通过范围门，只被 `branch and base_branch are both 'master'` 拦下；上一轮加的 `acceptance.py archive --skip-branch-validation` 透传解决了前者，这次暴露的是后者。
+- 恢复按 `.trellis/spec/tooling/index.md:38` 的既有路径：`task.py set-meta <task> scope '<JSON>'` 重写同一份 scope（`set-meta` 清除旧 `meta.scope.snapshot` 引用并打印提醒）→ `task.py start <task>` 重新捕获基线。新基线 `head=7ddb8d8`、`indexTree=c82296a`，`scopeDigest` 与旧值一致（`0e23dd5e…`），说明改的是基线而不是范围。
+- `check_archive_scope` 复核：重建后 `changed: 2 / violations: 0`，两条变化都落在 `task-evidence: .trellis/tasks/10-28-fix-write-guard/**`。
+- 基线文件先随 `chore(task): 重建 10-28 的范围门基线` 提交，再跑 `acceptance.py archive`，归档门看到 `Scope gate: 2 changed path(s), all allowed by meta.scope.` 后放行，自动提交 `82b4908 chore(task): archive 10-28-fix-write-guard`。
+- 探针 `10-15-graft-to-trail-migration` 指针是 2026-10-14 的 stale 会话文件，指向已不存在的任务；`.trellis/.runtime/sessions/` 被 `.trellis/.gitignore:8` 忽略，不影响归档，未处理。
+
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `cf9197a` | chore(task): 重建 10-28 的范围门基线 |
+| `82b4908` | chore(task): archive 10-28-fix-write-guard |
+
+### Testing
+
+- [OK] `python3 scripts/acceptance.py summarize .trellis/tasks/10-28-fix-write-guard` exit 0：`valid: true`、`observedStatus: passed`、9/9 check passed、8/8 AC passed、`waivedChecks: []`
+- [OK] `check_archive_scope` 直接调用复核：重建前 `changed: 26 / violations: 15`，重建后 `changed: 2 / violations: 0`
+- [OK] `python3 scripts/acceptance.py archive .trellis/tasks/10-28-fix-write-guard --skip-branch-validation`：`archiveExitCode: 0`、stderr `Scope gate: 2 changed path(s), all allowed by meta.scope.`、stdout `.trellis/tasks/archive/2026-10/10-28-fix-write-guard`
+- [OK] 归档后 `task.json` 为 `status: completed`、`completedAt: 2026-10-29`；目录已移入 `.trellis/tasks/archive/2026-10/`，`git status --porcelain` 为空
+- [OK] 两次提交的 `npm run check` 全链 exit 0：扩展测试 14/14、`vite build` 443.89 kB / gzip 144.00 kB、`check-docs: 45 md, 6 yaml, 241 本地链接, 0 外链(仅记录), 70 $ref`
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- `.trellis/.runtime/sessions/pi_01a13bac-e148-76a1-b28a-a909ea445060.json` 是 2026-10-14 的 stale 指针，指向已不存在的 `.trellis/tasks/10-15-graft-to-trail-migration`；文件被 `.trellis/.gitignore:8` 忽略，可按需清理。
+- `.tmp/gate-10-29/` 与 `.tmp/write-guard/` 是两轮验收脚本与变异反证的载体，确认结论后可清理。

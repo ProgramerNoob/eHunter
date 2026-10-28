@@ -8,7 +8,7 @@
 
 <!-- @@@auto:current-status -->
 - **Active File**: `journal-1.md`
-- **Total Sessions**: 18
+- **Total Sessions**: 19
 - **Last Active**: 2026-10-29
 <!-- @@@/auto:current-status -->
 
@@ -19,7 +19,7 @@
 <!-- @@@auto:active-documents -->
 | File | Lines | Status |
 |------|-------|--------|
-| `journal-1.md` | ~797 | Active |
+| `journal-1.md` | ~817 | Active |
 <!-- @@@/auto:active-documents -->
 
 ---
@@ -29,6 +29,7 @@
 <!-- @@@auto:session-history -->
 | # | Date | Title | Commits | Branch |
 |---|------|-------|---------|--------|
+| 19 | 2026-10-29 | 重建 scope 基线并归档写入门禁任务 | `cf9197a`, `82b4908` | `master` |
 | 18 | 2026-10-29 | 扩展测试挂进 check 链，SDK 定位认托管安装 | `e99c778`, `7633549` | `master` |
 | 17 | 2026-10-29 | 修主会话写入门禁的五处缺陷 | `0fec79b` | `master` |
 | 16 | 2026-10-28 | 收紧检查流水线：tmp 预算前置与语法检查 | `19f8599`, `e00d0d0`, `680c4fd` | `master` |
