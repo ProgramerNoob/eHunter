@@ -108,6 +108,36 @@ describe('tmp report budgets', () => {
     assert.deepEqual(result.report.readFailures.reasons, ['EACCES x1']);
     assert.equal(result.report.readFailures.sample[0].path, '.tmp/locked');
   });
+
+  it('references to files already gone are reported without failing the run', () => {
+    const repo = makeRepo({
+      tmpFiles: [{ path: '.tmp/present.log', bytes: 3 }],
+      acceptanceRecords: [
+        {
+          dir: 'task-gone',
+          data: acceptance({ evidence: ['.tmp/present.log', '.tmp/gone.log'], log: '.tmp/gone-command.log' }),
+        },
+      ],
+    });
+    const result = run(baseOptions, repo);
+    assert.equal(result.exitCode, 0);
+    assert.equal(result.report.danglingCount, 2);
+    assert.deepEqual(
+      result.report.danglingSample.map(entry => entry.path),
+      ['.tmp/gone-command.log', '.tmp/gone.log']
+    );
+    assert.deepEqual(result.report.danglingSample[0].tasks, ['.trellis/task-gone']);
+  });
+
+  it('a repository whose references all resolve reports no dangling entries', () => {
+    const repo = makeRepo({
+      tmpFiles: [{ path: '.tmp/present.log', bytes: 3 }],
+      acceptanceRecords: [{ dir: 'task-a', data: acceptance({ evidence: ['.tmp/present.log'] }) }],
+    });
+    const result = run(baseOptions, repo);
+    assert.equal(result.report.danglingCount, 0);
+    assert.deepEqual(result.report.danglingSample, []);
+  });
 });
 
 describe('tmp report arguments', () => {

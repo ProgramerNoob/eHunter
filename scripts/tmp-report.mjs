@@ -78,7 +78,7 @@ export function run(options, repo = DEFAULT_REPO) {
   }
 
   function referencedTmpPaths() {
-    const referenced = new Set();
+    const referenced = new Map();
     for (const file of walkFiles(join(repo, '.trellis'))) {
       if (!file.endsWith('acceptance.json')) continue;
       let data;
@@ -88,15 +88,32 @@ export function run(options, repo = DEFAULT_REPO) {
         noteReadFailure(file, error);
         continue;
       }
+      const task = relative(repo, dirname(file));
+      const noteReference = path => {
+        if (typeof path !== 'string' || !path.startsWith('.tmp/')) return;
+        if (!referenced.has(path)) referenced.set(path, new Set());
+        referenced.get(path).add(task);
+      };
       for (const check of data?.checks ?? []) {
-        for (const path of check?.evidence ?? []) {
-          if (typeof path === 'string' && path.startsWith('.tmp/')) referenced.add(path);
-        }
-        const log = check?.execution?.log;
-        if (typeof log === 'string' && log.startsWith('.tmp/')) referenced.add(log);
+        for (const path of check?.evidence ?? []) noteReference(path);
+        noteReference(check?.execution?.log);
       }
     }
     return referenced;
+  }
+
+  function danglingReferences(referenced) {
+    const dangling = [];
+    for (const [path, tasks] of referenced) {
+      let present;
+      try {
+        present = statSync(join(repo, path), { throwIfNoEntry: false }) !== undefined;
+      } catch {
+        present = true;
+      }
+      if (!present) dangling.push({ path, tasks: [...tasks].sort() });
+    }
+    return dangling.sort((a, b) => a.path.localeCompare(b.path));
   }
 
   function directorySize(dir) {
@@ -128,7 +145,8 @@ export function run(options, repo = DEFAULT_REPO) {
   }
 
   const referenced = referencedTmpPaths();
-  const referencedList = [...referenced];
+  const referencedList = [...referenced.keys()];
+  const dangling = danglingReferences(referenced);
   const rounds = roundEntries(join(repo, '.tmp', 'browser-preflight'));
   const orphans = [];
   let referencedBytes = 0;
@@ -154,6 +172,8 @@ export function run(options, repo = DEFAULT_REPO) {
     orphanCount: orphans.length,
     orphanBytes,
     topOrphans: orphans.slice(0, 10),
+    danglingCount: dangling.length,
+    danglingSample: dangling.slice(0, 10),
     budgets: { maxBytes: options.maxBytes, maxOrphanBytes: options.maxOrphanBytes },
     readFailures: {
       count: readFailures.length,
@@ -197,6 +217,15 @@ function main() {
       console.log(`  orphan ${formatSize(entry.bytes).padStart(10)}  ${entry.path}`);
     }
     if (report.orphanCount > 10) console.log(`  ... and ${report.orphanCount - 10} more orphan rounds`);
+    if (report.danglingCount > 0) {
+      console.log(`dangling references: ${report.danglingCount} (listed in acceptance.json, missing on disk)`);
+      for (const entry of report.danglingSample) {
+        console.log(`  missing ${entry.path}  <- ${entry.tasks[0]}`);
+      }
+      if (report.danglingCount > 10) {
+        console.log(`  ... and ${report.danglingCount - 10} more dangling references`);
+      }
+    }
     if (report.readFailures.count > 0) {
       console.log(`read failures: ${report.readFailures.count} (${report.readFailures.reasons.join(', ')})`);
       for (const failure of report.readFailures.sample) {
