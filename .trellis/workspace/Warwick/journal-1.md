@@ -595,3 +595,50 @@ Session summary was not supplied.
 ### Next Steps
 
 - 可选：让 acceptance.py archive 的 branch 校验对直接提交到 master 的任务给出更明确的跳过提示
+
+## Session 15: 四组 quickstart 验收收口与分类跳转整改
+<!-- trellis-session: v=2 fp=cdd1c0b7d0f4a513 -->
+
+**Date**: 2026-10-28
+**Task**: 10-25-close-feature-quickstart-acceptance、10-28-tighten-settings-navigation
+**Branch**: `master`
+
+### Summary
+
+收口四组 quickstart 验收（dockable-panel / thumb-expand-modal / pageflip-toggle / more-settings-modal，共 42 项 check 全 passed），归档父任务；随后按 code-review 结论整改分类跳转实现，并以变异测试纠正「测试保护关系」的判断方式。
+
+### Main Changes
+
+- 四组验收重跑与回填：修复 stale 产物后重跑全部轮次，失败轮保留在 `.tmp/browser-preflight/` 作反证；父任务 4/4 passed 并归档。
+- 验收中发现分类跳转高亮滞后一档、末组无法对齐（`offsetTop` 偏移未扣除内容区顶部），另开任务修复（`8cef307`）。
+- 整改分类跳转（`19a06ac`）：删 `getCategoryRef` 与六个分组 `ref`，`categorySections` 改由 `.ehunter-group[data-category]` 派生；`resolveActiveSettingsCategory` 泛型化返回 `T | null`，空列表返回 `null`；两处 `any` 清除。
+- 移除滚底守卫中恒不生效的第三条件，并更正对应测试名称（`72a87c7`）。
+- 将「按变异测试判定测试保护关系」写入 quality-guidelines（`3584b26`）。
+
+### Git Commits
+
+| Hash | Message |
+|------|---------|
+| `8cef307` | fix(core): 修正更多设置弹窗分类跳转高亮与末组对齐 |
+| `6357dab` | chore(task): 回填四组 quickstart 验收收口结论并更新 pending-work |
+| `b80cafc` | chore(task): archive 10-25-close-feature-quickstart-acceptance |
+| `19a06ac` | refactor(core): 分类跳转由 DOM 派生分组并收紧类型契约 |
+| `b4d9c3b` | chore(task): archive 10-28-tighten-settings-navigation |
+| `72a87c7` | fix(core): 移除分类跳转的死条件并更正对应测试名称 |
+| `3584b26` | docs(spec): 记录按变异测试判定测试保护关系的做法 |
+
+### Testing
+
+- [OK] `npm run check`（type-check、单测、构建、check:docs）多次 exit 0
+- [OK] `python3 scripts/acceptance.py verify-browser` 逐轮校验，四组产物全 passed
+- [OK] 桌面 1200×900 / 移动 390×844 分类跳转回归，数值与修复前记录一致
+- [OK] 变异测试：守卫改 `if (false)` 后 2 条用例同时变红
+
+### Status
+
+[OK] **Completed**
+
+### Next Steps
+
+- `.tmp` 已达 14.45 GiB（超 3 GiB 预算，未引用轮次 207 个共 7.87 GiB），需要按 `npm run tmp:report` 清理未引用轮次，保留失败反证与仍被引用的证据。
+- `pending-work.md` 仍排队：`001-gallery-download-bundle`、`001-platform-injection`。
