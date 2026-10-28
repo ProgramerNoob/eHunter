@@ -690,8 +690,8 @@ Session summary was not supplied.
 - `pending-work.md` 仍排队：`001-gallery-download-bundle`、`001-platform-injection`。
 
 
-## Session 17: 修主会话写入门禁的五处缺陷
-<!-- trellis-session: v=2 fp=f8d85bcce22c61fe -->
+## Session 18: 修主会话写入门禁的五处缺陷
+<!-- trellis-session: v=2 fp=8051715ecd5a277b -->
 
 **Date**: 2026-10-29
 **Task**: 修主会话写入门禁的五处缺陷
@@ -735,8 +735,8 @@ review 指出门禁的 .tmp/ 拦截、bash 断言重言式、子进程判断死�
 - `.trellis/spec/tooling/index.md:37` 只写了「两者相同时加 `--skip-branch-validation`」，未说明 `acceptance.py archive` 不支持透传，收口时容易再撞一次。
 
 
-## Session 18: 修主会话写入门禁的五处缺陷
-<!-- trellis-session: v=2 fp=8051715ecd5a277b -->
+## Session 19: 修主会话写入门禁的五处缺陷
+<!-- trellis-session: v=2 fp=2f77cee79fd3e0b9 -->
 
 **Date**: 2026-10-29
 **Task**: 修主会话写入门禁的五处缺陷
