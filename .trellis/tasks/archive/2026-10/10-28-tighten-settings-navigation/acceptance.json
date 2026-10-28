@@ -31,7 +31,7 @@
       "evidence": [
         ".tmp/tighten-ac1.log",
         ".tmp/tighten-check-all.log",
-        ".trellis/tasks/10-28-tighten-settings-navigation/validation.md"
+        ".trellis/tasks/archive/2026-10/10-28-tighten-settings-navigation/validation.md"
       ],
       "note": "grep getCategoryRef=0、六个分组 ref 名称=0、getBoundingClientRect=0；querySelectorAll<HTMLElement>('.ehunter-group[data-category]') 命中 MoreSettingsDialog.vue:352。",
       "waiver": null
@@ -61,7 +61,7 @@
       "evidence": [
         ".tmp/tighten-ac2-type-check.log",
         ".tmp/tighten-check-all.log",
-        ".trellis/tasks/10-28-tighten-settings-navigation/validation.md"
+        ".trellis/tasks/archive/2026-10/10-28-tighten-settings-navigation/validation.md"
       ],
       "note": "vue-tsc --noEmit exit 0；模型签名 SettingsSectionOffset<T extends string> / resolveActiveSettingsCategory<T extends string>(...): T | null；scrollToCategory(category: SettingsCategory['id'])，onContentScroll 内 setActiveSettingsCategory(active) 无 as any。",
       "waiver": null
@@ -91,7 +91,7 @@
       "evidence": [
         ".tmp/tighten-ac3-unit.log",
         ".tmp/tighten-check-all.log",
-        ".trellis/tasks/10-28-tighten-settings-navigation/validation.md"
+        ".trellis/tasks/archive/2026-10/10-28-tighten-settings-navigation/validation.md"
       ],
       "note": "node --test 5/5 pass；新增用例 a reachable last section is not forced to win at the boundary（末组 offsetTop 800 < scrollMax 1600 时按位置判定）；滚动路径改用 group.offsetTop - content.offsetTop。",
       "waiver": null
@@ -122,7 +122,7 @@
         ".tmp/tighten-ac4-mobile.log",
         ".tmp/browser-preflight/catjump-tighten-desktop-7005d3f1-34ab-46ae-922a-c6c13f1bfe51/result.json",
         ".tmp/browser-preflight/catjump-tighten-mobile-38bcc72d-d8f1-44c2-af52-c5ef66fc4a61/result.json",
-        ".trellis/tasks/10-28-tighten-settings-navigation/validation.md"
+        ".trellis/tasks/archive/2026-10/10-28-tighten-settings-navigation/validation.md"
       ],
       "note": "verify-browser 两 profile 均 status passed；点击 scrollTop desktop 16/528/852/1553/2334/2836(max)、mobile 12/529/852/1554/2334/2790(max)，与 8cef307 一致（mobile 快捷键 2335->2334 为 offsetTop 取整差异）；手动滚动高亮逐组正确，滚到底为「其他」；tests/settings-navigation.test.cjs 注释数 0。",
       "waiver": null
