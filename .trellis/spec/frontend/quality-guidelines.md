@@ -43,6 +43,12 @@ except for `/// <reference types="...">` directives, SCSS section comments insid
 express. Current-state facts belong in the specs, not in comments; unclosed differences
 between spec and implementation are listed in [pending work](./features/pending-work.md).
 
+The comment ban covers `src/` and `core/` only. `scripts/`, `tests/` and the Vite
+configs keep file-header contracts and inline notes about non-obvious control flow;
+nothing checks them, so a comment there is a maintenance decision rather than a rule
+violation. Do not extend the ban to those directories without adding the check that
+enforces it, and do not cite this section as the reason to strip them.
+
 Cite code by symbol, not by line number. Link the file (`[core/store/app.ts](../../../core/store/app.ts)`)
 and name the symbol in the sentence; `check-docs` only proves the file and anchor exist, so a
 line number silently rots into the neighbouring field after the next insertion.
@@ -77,8 +83,12 @@ Run from the repository root. [package.json](../../../package.json) is authorita
 | `npm run test:reader-lifecycle` | Runs Node regressions for optional update notices and entry viewport restoration |
 | `npm run test:initializer-timeout` | Runs Node regressions for platform-initialization timeouts |
 | `npm run test:settings-reading-mode-row` | Runs the Node regression that loads the real store and setting-field runtime, mounts the real `DropOption.vue`, and asserts the reading-mode row's category, dropdown options, i18n labels and store-action routing |
+| `npm run test:tmp-report` | Runs the Node regressions over the `.tmp` budget and orphan-round reporting logic, against temporary repository roots |
+| `npm run check:docs` | Checks `check-docs.mjs` link targets, anchors and `$ref` paths under `.trellis/spec/` |
+| `npm run check:syntax` | Runs `node --check` over every `.mjs`/`.cjs` in `scripts/` and `tests/` |
+| `npm run tmp:report` | Reports `.tmp/` size and unreferenced browser-preflight rounds; exits 1 over the 3 GiB / 2 GiB budgets |
 | `npm test` | Runs the acceptance Python suites plus every `test:*` Node regression, in `package.json` order |
-| `npm run check` | Runs type-check, `npm test`, the production build and the documentation check; stops at the first failure |
+| `npm run check` | Runs the `.tmp` budget report first (0.25 s, before any other cost), then type-check, `npm test`, the production build, the documentation check and the syntax check; stops at the first failure |
 | `npm run build` | Runs normal `vite build` |
 | `npm run build-only` / `npm run build-dev` | Same normal Vite build; neither adds type-checking |
 | `npm run build-prod` | Builds the IIFE userscript with the production config |
@@ -109,7 +119,16 @@ The serial `&&` chain propagates type-check, assertion and build failures as non
 exit codes. Later stages after a failure are **unrun**, not passed. Production build
 success never replaces `vue-tsc`; JS with `checkJs: false` and the CJS tests are not
 fully covered by that semantic check. The helper checks transpilation diagnostics,
-and Node loads and executes the CJS tests.
+and Node loads and executes the CJS tests. `check:syntax` covers the files no
+`tsconfig` includes.
+
+`tmp:report` runs first in the chain, so an over-budget local `.tmp/` stops `npm run
+check` before type-check, tests and build. That is deliberate: the budget is a gate on
+local disk state, and the remedy is to clean `.tmp/`, not to bypass it. The gate only
+bites locally — CI has no `.tmp/`, where the report exits 0. Budgets depend on the
+machine, so a checkout that is otherwise healthy can fail the chain until the
+unreferenced rounds are removed; keep that distinction in mind before reading a
+failure on the first chain element as a code problem.
 
 [`storage-lifecycle.test.cjs`](../../../tests/storage-lifecycle.test.cjs) exercises
 current `app.ts`, `layoutPreference.ts`, `PlatformService.js` and real Vue through

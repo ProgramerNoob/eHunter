@@ -1,0 +1,167 @@
+{
+  "schemaVersion": 1,
+  "criteria": {
+    "AC1": "`npm run check` 的输出里出现 `.tmp` 报告行，且 `.tmp` 超预算时 `npm run check` 以非零退出；在 `.tmp` 与 `.tmp/browser-preflight` 都不存在的全新目录下 `node scripts/tmp-report.mjs` exit 0。",
+    "AC2": "语法检查脚本覆盖 `scripts/` 与 `tests/` 下全部 `.mjs`/`.cjs`，人为注入语法错误时退出码非零并打印该文件路径，恢复后退出码为 0。",
+    "AC3": "`scripts/tmp-report.mjs` 的单元测试覆盖缺目录、总量超预算、孤儿超预算三种输入，并在 `npm test` 中执行。",
+    "AC4": "`quality-guidelines.md` 明确该规则只约束 `src/` 与 `core/`；`.trellis/spec/tooling/index.md` 含 `acceptance.py` 与 `tmp-report.mjs` 的导航行与 `task.py` 归档门禁摘要；`npm run check:docs` 通过。"
+  },
+  "checks": [
+    {
+      "id": "check-chain-runs-tmp-report",
+      "ac": [
+        "AC1"
+      ],
+      "claim": "`npm run check` 在链首执行 `.tmp` 预算报告，`.tmp` 超预算时整条检查链以非零退出且不先付出后续检查成本，在没有任何 `.tmp` 目录的全新仓库里报告照常通过且不记读失败",
+      "scope": "仓库根目录的 `npm run check` 完整链路；`--max-bytes 1000` 强制超预算的失败链路；只含 `scripts/` 与空 `.trellis/` 的临时仓库",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/tighten-ac1.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T20:40:00+08:00",
+        "endedAt": "2026-10-28T20:41:40+08:00",
+        "log": ".tmp/tighten-ac1-run.log"
+      },
+      "evidence": [
+        ".tmp/tighten-ac1-run.log",
+        ".tmp/tighten-ac1.sh",
+        "package.json",
+        "scripts/tmp-report.mjs"
+      ],
+      "note": "验收脚本分四步断言：① `npm run check` exit 0、日志 538 行，其中 `notice run ehunter@3.1.0 tmp:report` 在第 3 行、`type-check` 在第 19 行，报告打印 `.tmp total: 2.61 GiB` 与 `browser-preflight rounds: 176, orphan rounds: 35`；② 把 `check` 的 `tmp:report` 改成 `--max-bytes 1024` 后同一命令 exit 1，日志只有 19 行、19 行内即出现 `FAIL .tmp is 2.61 GiB, over the 0.0 MiB budget`，且日志里没有任何 `type-check` 启动记录，证明链首失败不再付出全量成本，脚本随后还原 `package.json` 并断言无 `max-bytes 1024` 残留；③ 在只含 `scripts/tmp-report.mjs` 与空 `.trellis/` 的 `/tmp/ac1-empty` 里 `--json` 输出 `readFailures {\"count\":0,\"reasons\":[],\"sample\":[]}`、`tmpBytes 0`、`roundCount 0`，exit 0；④ 经 `/tmp`（真实路径 `/private/tmp`）符号链接前缀调用该脚本时仍真正执行并打印 `.tmp total: 0.0 MiB`——旧守卫用 `resolve(argv[1]) === fileURLToPath(import.meta.url)` 比较，在这类路径下不相等会静默空转且 exit 0，已改用两侧 `realpathSync` 后修好，并由这条断言钉住。",
+      "waiver": null
+    },
+    {
+      "id": "syntax-check-covers-scripts-and-tests",
+      "ac": [
+        "AC2"
+      ],
+      "claim": "`scripts/check-syntax.mjs` 遍历 `scripts/` 与 `tests/` 下的全部 `.mjs`/`.cjs` 并逐个跑 `node --check`，语法错误时非零退出并打印该文件路径，根目录不可读或一个文件都没收集到时同样非零退出，恢复后重新通过",
+      "scope": "当前工作区的 `scripts/` 与 `tests/` 全树；向 `tests/` 注入 `const a = 1,,;` 的失败场景与删除后的恢复场景",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/tighten-ac2.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T20:41:45+08:00",
+        "endedAt": "2026-10-28T20:42:15+08:00",
+        "log": ".tmp/tighten-ac2-run.log"
+      },
+      "evidence": [
+        ".tmp/tighten-ac2-run.log",
+        ".tmp/tighten-ac2.sh",
+        "scripts/check-syntax.mjs",
+        "package.json"
+      ],
+      "note": "验收脚本五步：① `npm run check:syntax` exit 0，`check-syntax: 23 files, 0 failed, 0 unreadable` 与 `find scripts tests -name '*.mjs' -o -name '*.cjs' | wc -l` 的 23 一致；② 注入 `tests/zz-ac2-bad.test.mjs`（`const a = 1,,;`）后 exit 1，打印 `FAIL tests/zz-ac2-bad.test.mjs` 与 `SyntaxError: Unexpected token ','`；③ 删除后恢复 exit 0 且打印 `check-syntax: OK`，并断言临时文件已删除；④ `/tmp/ac2-unreadable` 把 `tests` 置 000 后 exit 1，打印 `FAIL tests` 与 `unreadable directory: EACCES`；⑤ `/tmp/ac2-missing` 只建 `scripts` 时 exit 1，打印 `unreadable directory: ENOENT`。后两步是本轮新增：改动前 `catch { return; }` 会让整个根目录不可读时收集到 0 个文件、打印 `0 files, 0 failed` 并 exit 0，即静默漏覆盖。",
+      "waiver": null
+    },
+    {
+      "id": "tmp-report-unit-tests",
+      "ac": [
+        "AC3"
+      ],
+      "claim": "`scripts/tmp-report.mjs` 的单元测试覆盖缺目录、总量超预算、孤儿超预算三种输入，并作为 `test:tmp-report` 挂在 `npm test` 中实际执行",
+      "scope": "`tests/tmp-report.test.mjs` 的 8 条用例；完整 `npm test` 链中 `test:tmp-report` 的位置与结果；对被测分支的 9 次变异",
+      "method": "command",
+      "dimension": "behavior",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/tighten-ac3.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T20:43:00+08:00",
+        "endedAt": "2026-10-28T20:44:13+08:00",
+        "log": ".tmp/tighten-ac3-run.log"
+      },
+      "evidence": [
+        ".tmp/tighten-ac3-run.log",
+        ".tmp/tighten-ac3.sh",
+        ".tmp/ac3-unit.log",
+        ".tmp/ac3-npm-test.log",
+        "tests/tmp-report.test.mjs"
+      ],
+      "note": "`npm run test:tmp-report` exit 0、`ℹ tests 9 / pass 9 / fail 0`；`npm test` exit 0 且日志含 `notice run ehunter@3.1.0 test:tmp-report`。七条变异全部 KILLED：overBudget 恒 false、overOrphanBudget 恒 false、readFailures 不收集、exitCode 恒 0、引用判定恒 false、orphanBytes 恒 0、ENOENT 也记读失败。覆盖场景：缺 `.tmp`（不记读失败）、无轮次、总量超预算（`overBudget true` / `orphanCount 0`）、孤儿超预算（`overOrphanBudget true` / `overBudget false`）、被引用轮次不计孤儿、不可读目录计入 `readFailures`（`chmod 000` 子目录，断言 `reasons === ['EACCES x1']` 且 `sample[0].path === '.tmp/locked'`）、三条参数解析。「不可读目录」这条是本轮补的：豁免 ENOENT 之后原有用例不再产生任何读失败，`readFailures 不收集` 变异一度存活，说明读失败统计当时没有任何用例保护。",
+      "waiver": null
+    },
+    {
+      "id": "comment-rule-scope",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "`quality-guidelines.md` 明写「代码不写注释」只约束 `src/` 与 `core/`，`AGENTS.md` 的同一句同步限定范围，两处不再互相矛盾",
+      "scope": "`.trellis/spec/frontend/quality-guidelines.md` 的 Documentation boundaries 段与 Available commands 表",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/spec/frontend/quality-guidelines.md"
+      ],
+      "note": "`quality-guidelines.md` 的 Documentation boundaries 保留 `The comment ban covers src/ and core/ only.` 一段，说明 `scripts/`、`tests/` 与 Vite 配置保留文件头契约与内联说明、无人检查、不得据该节删除它们；`AGENTS.md` 的「代码是唯一证据；不写注释」改为「不写注释（限 `src/` 与 `core/`，边界见质量规范）」并链到该文档——此前 `AGENTS.md` 无限定范围，读它的 agent 会去删 `scripts/` 的 81 条注释、读 spec 的 agent 会保留。Available commands 表同时补齐 `test:tmp-report`、`check:docs`、`check:syntax`、`tmp:report` 四行并改写 `npm run check` 一行。",
+      "waiver": null
+    },
+    {
+      "id": "tooling-navigation",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "`.trellis/spec/tooling/index.md` 含 `acceptance.py`、`tmp-report.mjs` 的导航条目与 `task.py` 归档三道门禁摘要",
+      "scope": "`.trellis/spec/tooling/index.md` 的新增「脚本入口」表与「归档门禁」小节",
+      "method": "inspection",
+      "dimension": "content",
+      "observed": "passed",
+      "execution": null,
+      "evidence": [
+        ".trellis/spec/tooling/index.md"
+      ],
+      "note": "「脚本入口」表按实测的 `acceptance.py --help` 列出六个子命令 `summarize`/`validate`/`archive`/`run`/`verify-browser`/`cleanup-browser` 与各自退出码，并明写 `set-meta` 与只校验上下文清单的 `validate` 属于 `task.py`；归档行补上「记录未通过退出 1、非法退出 2、委派后原生失败一律退出 4（`archiveExitCode` 保留原生码，启动失败为 null）」。`tmp-report.mjs` 行改为两个独立阈值（总量 `--max-bytes` 3 GiB / 孤儿 `--max-orphan-bytes` 2 GiB，任一超出退出 1），`check-syntax.mjs` 行补上「根目录不可读或零文件也退出 1」。「归档门禁」小节按验收记录、改动范围、分支与上下文三道门列出，范围门禁指向 `task-scope-gate.md`。这三处错误均为用户审查实测指出：`acceptance.py set-meta` 报 `invalid choice`，`acceptance.py --help` 也不含 `cleanup-browser` 之外的归档退出码信息。",
+      "waiver": null
+    },
+    {
+      "id": "check-docs-passes",
+      "ac": [
+        "AC4"
+      ],
+      "claim": "文档改动后 `npm run check:docs` 通过，新增的全部本地链接与锚点有效",
+      "scope": "仓库根目录执行的 `npm run check:docs`",
+      "method": "command",
+      "dimension": "structure",
+      "observed": "passed",
+      "execution": {
+        "argv": [
+          "bash",
+          ".tmp/tighten-ac4.sh"
+        ],
+        "cwd": ".",
+        "exitCode": 0,
+        "startedAt": "2026-10-28T20:44:15+08:00",
+        "endedAt": "2026-10-28T20:44:24+08:00",
+        "log": ".tmp/tighten-ac4-run.log"
+      },
+      "evidence": [
+        ".tmp/tighten-ac4-run.log",
+        ".tmp/tighten-ac4.sh",
+        ".tmp/ac4-check-docs.log",
+        ".trellis/spec/tooling/index.md",
+        ".trellis/spec/frontend/quality-guidelines.md"
+      ],
+      "note": "`npm run check:docs` exit 0：`check-docs: 45 md, 6 yaml, 240 本地链接, 0 外链(仅记录), 70 $ref` 与 `check-docs: OK`，本地链接从改动前的 235 增至 240。同一脚本还断言了规范文本与工具契约：`acceptance.py --help` 列出六个子命令、`acceptance.py set-meta` 被拒绝（exit 2）、`task.py set-meta` 存在、`tooling/index.md` 不再把 `set-meta` 写成 `acceptance.py` 子命令并写明归属 `task.py`、含 `cleanup-browser`、`退出 4`、`max-orphan-bytes`；`quality-guidelines.md` 含注释规则范围句与 `test:tmp-report` 行；`AGENTS.md` 含「限 `src/` 与 `core/`」。末尾重跑 `python3 scripts/acceptance.py summarize` 得 `valid true / status passed / counts passed 6`、exit 0。",
+      "waiver": null
+    }
+  ]
+}

@@ -1,0 +1,52 @@
+{
+  "id": "tighten-check-pipeline",
+  "name": "tighten-check-pipeline",
+  "title": "收紧检查流水线：tmp 预算、语法检查与规范收窄",
+  "description": "把 tmp:report 挂进 npm run check、给 scripts/ 与 tests/ 加 node --check 语法检查、收窄「代码不写注释」的适用范围，并把 acceptance.py 与 task.py 的 CLI 契约补进 .trellis/spec/tooling/index.md",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P2",
+  "creator": "Warwick",
+  "assignee": "Warwick",
+  "createdAt": "2026-10-28",
+  "completedAt": null,
+  "branch": "master",
+  "base_branch": "master",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "scopePolicyVersion": 1,
+  "meta": {
+    "scope": {
+      "version": 1,
+      "mode": "enforce",
+      "categories": {
+        "task-evidence": [
+          ".trellis/tasks/10-28-tighten-check-pipeline/**"
+        ],
+        "tooling": [
+          "package.json",
+          "scripts/check-syntax.mjs",
+          "scripts/tmp-report.mjs",
+          "tests/tmp-report.test.mjs"
+        ],
+        "spec": [
+          ".trellis/spec/frontend/quality-guidelines.md",
+          ".trellis/spec/tooling/index.md",
+          "AGENTS.md"
+        ]
+      },
+      "snapshot": {
+        "path": "scope-start.json",
+        "sha256": "2277d63fb5c955f55aa96f5687f6d596c18863ab1c760714024a59e1cfde6097"
+      }
+    }
+  }
+}

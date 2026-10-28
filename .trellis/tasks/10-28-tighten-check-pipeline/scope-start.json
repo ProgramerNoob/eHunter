@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "task": ".trellis/tasks/10-28-tighten-check-pipeline",
+  "branch": "master",
+  "head": "92232220cb12c575054ce43b865d586af2a54710",
+  "indexTree": "26107d9e6a76cc5c09e8af7fb6b12bedc3f14015",
+  "capturedAt": "2026-10-28T20:19:13+08:00",
+  "scopeDigest": "d6f9c05aad55104b7b54443ec5f3134b557d0745d3e27e520b4381875bf4ffc7",
+  "dirty": {},
+  "untracked": {
+    ".trellis/tasks/10-28-tighten-check-pipeline/check.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "f7b25ece66db728bd2cf6e6ef4d7d8cdab50507257873b55cf206e3d02f17dcb"
+    },
+    ".trellis/tasks/10-28-tighten-check-pipeline/implement.jsonl": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "48070fcff702f3ace78c711ab8920f364b266f05bff38ee5ab03a64d810ccfe9"
+    },
+    ".trellis/tasks/10-28-tighten-check-pipeline/implement.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "d3226c3ebecbfe21afd9356d5ededf27a7a2486849dfd32c3de26fcb85d7c4a6"
+    },
+    ".trellis/tasks/10-28-tighten-check-pipeline/prd.md": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "cd8f29a0a8efd3bdee72f3eb5c63ed2832c06bf4eefe0d68e8f2340a242fc100"
+    },
+    ".trellis/tasks/10-28-tighten-check-pipeline/scope-start.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "25d636ed6fa43454d10b1d67447bf5b93ad3c036b1ac06098475a875fcf0089a"
+    },
+    ".trellis/tasks/10-28-tighten-check-pipeline/task.json": {
+      "type": "file",
+      "mode": "100644",
+      "sha256": "3a426ed1040aaa10ddf5b9533f8f3c94366878ab6ac8e3588987d44a3bbecfbe"
+    }
+  },
+  "scopeExtensions": [
+    {
+      "category": "spec",
+      "rules": [
+        "AGENTS.md"
+      ],
+      "at": "2026-10-28T20:38:28+08:00"
+    }
+  ]
+}

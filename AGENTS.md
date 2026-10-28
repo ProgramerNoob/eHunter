@@ -36,7 +36,7 @@
 ## 文档维护与提交
 
 - 所有文档与代码注释只描述当前状态，不记录任何 AI 历史修改记录、已废止的决策或阶段规划；更新当前状态描述时，不得把尚未确认的实现偏差写成新的业务规则。
-- 代码是唯一证据；不写注释，文字说明放在文档里。
+- 代码是唯一证据；不写注释（限 `src/` 与 `core/`，边界见[质量规范](.trellis/spec/frontend/quality-guidelines.md)），文字说明放在文档里。
 - 本文件由人工审阅维护，只保留项目边界、稳定约束和按需读取入口：具体功能约定归 `.trellis/spec/frontend/features/`，版本与依赖归配置文件，操作步骤归上面的专项指南，验收记录留在功能资料或任务内。
 - `reset --hard`、强制推送等破坏性 Git 操作仅在用户明确要求时执行。
 - 提交前跑 `npm run check`；仓库提供 `.githooks/pre-commit` 自动执行同一命令，新 clone 需要先 `git config core.hooksPath .githooks` 启用（说明见 [工具规范](.trellis/spec/tooling/index.md#本地提交门禁)）。
